@@ -1,0 +1,351 @@
+<odoo>
+    <!-- Report Action Definition -->
+    <record id="action_report_payment_request" model="ir.actions.report">
+        <field name="name">Payment Request Form</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_request.report_payment_request_document</field>
+        <field name="report_file">payment_request.report_payment_request_document</field>
+        <field name="print_report_name">'Payment Request Form - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="hr_expense.model_hr_expense_sheet" />
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="" />
+    </record>
+
+    <template id="report_payment_request_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <!-- Data from first expense line -->
+                    <t t-set="line" t-value="o.expense_line_ids[0] if o.expense_line_ids else False" />
+
+                    <div class="page"
+                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 14px; padding: 20px; position: relative; margin-top: 100px;">
+
+                        <div class="oe_structure" />
+                        <t t-set="doc_title" t-value="'Payment Request'" />
+                        <t t-set="issue_number" t-value="'1'" />
+
+                        <h4 class="text-center mb-4"
+                            style="font-weight: bold; font-size: 18px; text-decoration: underline; text-align: center;">
+                            Payment Request
+                        </h4>
+
+                        <div class="mb-4" style="float: right;">
+                            <!-- Line 1: Amharic + date line -->
+                            <div style="margin-bottom: 5px;">
+                                <span style="font-weight: bold; white-space: nowrap;">
+                                    ref
+                                </span>
+
+                                <span
+                                    style="
+                                        display: inline-block;
+                                        border-bottom: 1px solid black;
+                                        width: 160px;
+                                        margin-left: 8px;
+                                        text-align: center;
+                                        vertical-align: bottom;
+                                        min-height: 16px;
+                                    ">
+                                    <span t-field="o.reference" />
+                                </span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: bold; white-space: nowrap;">
+                                    ቀን
+                                </span>
+
+                                <span
+                                    style="
+                                        display: inline-block;
+                                        border-bottom: 1px solid black;
+                                        width: 160px;
+                                        margin-left: 8px;
+                                        text-align: center;
+                                        vertical-align: bottom;
+                                        min-height: 16px;
+                                    ">
+                                    <span t-field="o.accounting_date" t-options='{"widget": "date"}' />
+                                    <t t-if="not o.accounting_date">
+                                        <span t-field="o.create_date" t-options='{"widget": "date"}' />
+                                    </t>
+                                </span>
+                                <div style="font-size: 12px; margin-left: 0;">
+                                    Date
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="clear: both; margin-bottom: 15px;"></div>
+
+                        <!-- BIRR AMOUNT -->
+                        <div class="mb-4" style="width: 100%;">
+
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                ብር
+                            </span>
+
+                            <span
+                                style="
+                                        display: inline-block;
+                                        border-bottom: 1px solid black;
+                                        width: 75%;
+                                        margin-left: 10px;
+                                        vertical-align: bottom;
+                                        min-height: 16px;
+                                    ">
+                                <span t-field="o.total_amount" />
+                            </span>
+
+                            <!-- Line 2: English under Amharic -->
+                            <div style="font-size: 12px;">
+                                Birr
+                            </div>
+
+                        </div>
+
+                        <!-- PAY TO -->
+                        <div class="mb-4" style="width: 100%;">
+
+                            <!-- Same line: Amharic + line + value -->
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                ክፍያ ለ
+                            </span>
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    border-bottom: 1px solid black;
+                                    width: 75%;
+                                    margin-left: 10px;
+                                    vertical-align: bottom;
+                                    min-height: 16px;
+                                ">
+                                <t t-if="line.vendor_id">
+                                    <span t-field="line.vendor_id.name" />
+                                </t>
+                                <t t-elif="line.employee_id">
+                                    <span t-field="line.employee_id.name" />
+                                </t>
+                            </span>
+
+                            <!-- English below -->
+                            <div style="font-size: 12px;">
+                                Pay to
+                            </div>
+
+                        </div>
+
+                        <!-- AMOUNT IN WORDS -->
+                        <div class="mb-4" style="width: 100%;">
+
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                ክፍያ በፊደል ብር
+                            </span>
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    border-bottom: 1px solid black;
+                                    width: 70%;
+                                    margin-left: 10px;
+                                    vertical-align: bottom;
+                                    min-height: 16px;
+                                ">
+                                <span t-esc="o.currency_id.amount_to_text(o.total_amount)" />
+                            </span>
+
+                            <div style="font-size: 12px;">
+                                Amount in words Birr
+                            </div>
+
+                        </div>
+
+                        <div class="mb-4" style="width: 100%;">
+
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                የክፍያ ምክንያት
+                            </span>
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    border-bottom: 1px solid black;
+                                    width: 70%;
+                                    margin-left: 10px;
+                                    vertical-align: bottom;
+                                    min-height: 18px;
+                                ">
+                                <span t-esc="o.purpose" />
+                            </span>
+
+                            <div style="font-size: 12px;">
+                                Purpose of Payment
+                            </div>
+
+                        </div>
+
+                        <!-- REMARk OF PAYMENT -->
+                        <div class="mb-4" style="width: 100%;">
+
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                Remark
+                            </span>
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    border-bottom: 1px solid black;
+                                    width: 70%;
+                                    margin-left: 10px;
+                                    vertical-align: bottom;
+                                    min-height: 18px;
+                                ">
+                                <span t-esc="o.remark" />
+                            </span>
+
+                        </div>
+
+                        <div class="mb-4" style="width: 100%;">
+
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                ፕሮጀክት ክፍል
+                            </span>
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    border-bottom: 1px solid black;
+                                    width: 65%;
+                                    margin-left: 10px;
+                                    vertical-align: bottom;
+                                    min-height: 18px;
+                                ">
+                                <!-- <span t-esc="o.currency_id.amount_to_text(o.total_amount)" /> -->
+                            </span>
+
+                            <div style="font-size: 12px;">
+                                Project/Cost Center
+                            </div>
+                        </div>
+
+                        <div class="mb-4" style="width: 100%;">
+
+                            <span style="font-weight: bold; white-space: nowrap;">
+                                Department
+                            </span>
+
+                            <span
+                                style="
+                                    display: inline-block;
+                                    border-bottom: 1px solid black;
+                                    width: 70%;
+                                    margin-left: 10px;
+                                    vertical-align: bottom;
+                                    min-height: 18px;
+                                ">
+                                <span t-esc="o.department_id.name" />
+                            </span>
+
+                        </div>
+
+                        <!-- SIGNATURES SECTION -->
+                        <div class="row text-center mt-5" style="margin-top: 80px !important;">
+                            <div class="col-3">
+                                <div
+                                    style="display: flex; align-items: flex-end; font-weight: bold;">
+                                    <span style="white-space: nowrap;">ያዘጋጀው፡</span>
+                                    <div style="font-size: 12px; margin-top: 2px;">Prepared by</div>
+                                    <t t-if="line.create_uid">
+                                        <div style="font-size: 12px; margin-top: 2px;">
+                                            <span t-field="line.create_uid.name" />
+                                        </div>
+                                    </t>
+                                    <div
+                                        style="border-bottom: 1px solid black; flex-grow: 1; margin-left: 5px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                        <t t-if="line.create_uid.sign_signature">
+                                            <img
+                                                t-att-src="image_data_uri(line.create_uid.sign_signature)"
+                                                style="max-height:40px;" />
+                                        </t>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-3">
+                                <div
+                                    style="display: flex; align-items: flex-end; font-weight: bold;">
+                                    <span style="white-space: nowrap;">ለትክክለኛነቱ፡</span>
+                                    <div style="font-size: 12px; margin-top: 2px;">Verified by</div>
+                                    <t t-if="o.verified_by.sign_signature">
+                                        <div style="font-size: 12px; margin-top: 2px;">
+                                            <span t-field="o.verified_by.name" />
+                                        </div>
+                                    </t>
+                                    <div
+                                        style="border-bottom: 1px solid black; flex-grow: 1; margin-left: 5px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                        <t t-if="o.verified_by.sign_signature">
+                                            <img
+                                                t-att-src="image_data_uri(o.verified_by.sign_signature)"
+                                                style="max-height:40px;" />
+                                        </t>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-3">
+                                <div
+                                    style="display: flex; align-items: flex-end; font-weight: bold;">
+                                    <span style="white-space: nowrap;">ያጸደቀው፡</span>
+                                    <div style="font-size: 12px; margin-top: 2px;">Authorized by</div>
+                                    <t t-if="o.authorized_by.sign_signature">
+                                        <div style="font-size: 12px; margin-top: 2px;">
+                                            <span t-field="o.authorized_by.name" />
+                                        </div>
+                                    </t>
+                                    <div
+                                        style="border-bottom: 1px solid black; flex-grow: 1; margin-left: 5px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                        <t t-if="o.authorized_by.sign_signature">
+                                            <img
+                                                t-att-src="image_data_uri(o.authorized_by.sign_signature)"
+                                                style="max-height:40px;" />
+                                        </t>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-3">
+                                <div
+                                    style="display: flex; align-items: flex-end; font-weight: bold;">
+                                    <span style="white-space: nowrap;">ያፀደቀው፡</span>
+                                    <div style="font-size: 12px; margin-top: 2px;">Approved by</div>
+                                    <t t-if="o.approved_by.sign_signature">
+                                        <div style="font-size: 12px; margin-top: 2px;">
+                                            <span t-field="o.approved_by.name" />
+                                        </div>
+                                    </t>
+                                    <div
+                                        style="border-bottom: 1px solid black; flex-grow: 1; margin-left: 5px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                        <t t-if="o.approved_by.sign_signature">
+
+
+                                            <img
+                                                t-att-src="image_data_uri(o.approved_by.sign_signature)"
+                                                style="max-height:40px;" />
+                                        </t>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

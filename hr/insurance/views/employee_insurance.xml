@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+    <record id="employee_insurance_utilization_action" model="ir.actions.act_window">
+        <field name="name">Employee insurance</field>
+        <field name="res_model">employee.insurance</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new employee insurance
+            </p>
+        </field>
+    </record>
+        <record id="employee_insurance_utilization_action_self" model="ir.actions.act_window">
+        <field name="name">Employee insurance</field>
+        <field name="res_model">employee.insurance</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,form</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new employee insurance
+            </p>
+        </field>
+    </record>
+    <record id="employee_insurance_view_form_id1" model="ir.ui.view">
+        <field name="name">Employee insurance</field>
+        <field name="model">employee.insurance</field>
+        <field name="arch" type="xml">
+            <form string="Employee Insurance">
+                <header>
+
+                    <button name="update_insurance_expire" type="object" string="Expire"
+                            groups="insurance.insurance_group_expired"
+                             class="oe_highlight" 
+                            invisible="state != 'approve'"/>
+
+<!--                    <button name="action_reset" type="object" string="Reset" state="draft,approve,check" groups="ohrms_loan.loan_group_manager"/>-->
+<!--                    <button name="action_approve" type="object" string="Approve" state="waiting_approval_1" class="oe_highlight" groups="hr.group_hr_manager,hr.group_hr_user"/>-->
+                     <button name="action_submit" type="object" string="Submit" invisible="state != 'draft'"
+                              groups="insurance.insurance_group_submit"
+                             class="oe_highlight"/>
+<!--                    <button name="action_refuse" type="object" string="Refuse" state="draft,waiting_approval_1" class="oe_highlight" groups="hr.group_hr_manager,hr.group_hr_user"/>-->
+                    <button name="action_approve" type="object" string="Approve" invisible="state != 'submit'"
+                            groups="insurance.insurance_group_expired"
+                            class="oe_highlight" />
+                    <button name="action_reject" type="object" string="Reject"
+                            groups="insurance.insurance_group_reject"
+                            invisible="state not in ['submit','draft']"
+                            class="oe_highlight" />
+
+<!--                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting_approval_1,approve" />-->
+                     <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                               <field name="name"/>
+                               <field name="employee_id"/>
+
+                        <field name="start_date"/>
+                        <field name="end_date" />
+                        </group>
+
+                        <group>
+                            <field name="policy_type"/>
+                            <field name="provider_id"/>
+
+
+                            <field name="total_annual_premium"/>
+                            <field name="rejection_reason" groups="insurance.insurance_group_reject"/>
+                        </group>
+                       <notebook>
+                             <page name="utilization" string="Utilization">
+                                 <field name="utilization_line_ids" >
+                                      <list editable="bottom">
+                                          <field name="sequence" widget="handle"/>
+                                          <field name="coverage_type_id" />
+                                          <field name="coverage_value" />
+                                          <field name="total_utilized" />
+                                          <field name="utilized_value" sum="Total Utilization"/>
+                                          <field name="remaining_balance" />
+                                          <field name="attachment_ids" class="o_list_number"/>
+
+                                     </list>
+                                 </field>
+
+                                 <group>
+                                      <group>
+                                          <field name="value" string="Total Coverage" />
+
+                                      </group>
+
+                                     <group>
+                                         <field name="remaining" string="Total Remaining"/>
+                                     </group>
+
+
+
+                                 </group>
+                            </page>
+
+
+
+                            <page name="Note" string="Note and Attachment">
+                               <group>
+                                    <field name="remark" placeholder="Additional note"/>
+                               </group>
+                                <group>
+                                    <field name="attachment" />
+                                </group>
+                            </page>
+                        </notebook>
+                    </group>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+    <record id="employee_insurance_view_tree" model="ir.ui.view">
+        <field name="name">Employee insurance</field>
+        <field name="model">employee.insurance</field>
+        <field name="arch" type="xml">
+            <list>
+
+                 <field name="name" string="Insurance Policy/Reference"/>
+                 <field name="employee_id" string="Employee Name"/>
+                 <field name="total_annual_premium" string="Total Premium"/>
+<!--                 <field name="provider_id"/>-->
+<!--                        <field name="company_id"/>-->
+                <field name="value" string="Total Budget"/>
+                <field name="total_utilization_amount" string="Total Claim Paid"/>
+
+<!--                <field name="start_date"/>-->
+<!--                <field name="end_date" />-->
+                <field name="remaining" string="Remaining Balance"/>
+            </list>
+        </field>
+    </record>
+
+
+         <menuitem
+            id="menu_employee_insurances_main"
+            name="Insurances"
+            web_icon="insurance,static/src/description/insurance.png"/>
+           <menuitem
+            id="employee_insurances_menu"
+            name="Employee Insurance"
+            sequence="1"
+            parent="menu_employee_insurances_main" />
+
+
+        <menuitem
+            id="menu_employee_insurances_self"
+            name="Insurance claim"
+            sequence="13"
+            action="employee_insurance_utilization_action_self"/>
+
+        <menuitem
+            id="menu_employee_insurances"
+            name="Insurance Utilization"
+            sequence="2"
+            parent="employee_insurances_menu"
+            action="employee_insurance_utilization_action"/>
+
+</data>
+
+
+
+      <record id="employee_insurance_form_inherit" model="ir.ui.view">
+            <field name="name">employee_insurance_form_inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                 <div name="button_box" position="inside">
+<!--                    <field name="related_contacts_count" invisible="1"/>-->
+                    <button name="action_open_insurance" class="oe_stat_button"
+                            icon="fa-ambulance" type="object">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="insurance_count"/>
+                            </span>
+                            <span class="o_stat_text">Insurance</span>
+                        </div>
+                    </button>
+                </div>
+
+            </field>
+         </record>
+
+
+
+</odoo>

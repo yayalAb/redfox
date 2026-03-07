@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_dashboard.MainDashboard" owl="1">
+        <div class="container-fluid overflow-scroll bg-light pb-2">
+            <div class="row m-0 ms-md-1 ms-0">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col p-0">
+<!--                            <div class="card shadow-sm border m-1 p-3 bg-white">-->
+                                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                    <div class="col p-0">
+                                        <div class="shadow-sm m-1 p-2 bg-white">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <h1 class="fs-3 text-black">Hr Dashboard</h1>
+                                                <div class="w-100 w-md-auto">
+                                                    <div class="d-flex flex-column flex-md-row gap-2">
+                                                        <input type="date" class="form-control" t-att-value="state.start_date" t-on-change="onStartDateChange" placeholder="Start Date"/>
+                                                        <input type="date" class="form-control" t-att-value="state.end_date" t-on-change="onEndDateChange" placeholder="End Date"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+<!--                            </div>-->
+                        </div>
+                    </div>
+
+                    <!--Cards Section -->
+                    <div class="row">
+                        <DashboardCard name="'Employee'" text1="''" text2="''" value="state.hr_employee.value" current_month_count="state.hr_employee.current_month_count" iconClass="'fa-users'" bgColor="'#FFF4DE'"  onClick="onEmployee" uom="''" detail_link="'/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal'"/>
+                        <DashboardCard name="'Expiring / New Contract'" text1="''" text2="''" value="state.exparin_new_contract.value" current_month_count="state.exparin_new_contract.current_month_count" iconClass="'fa-handshake-o'" bgColor="'#DDEDEA'" onClick="onContractClick" uom="''" detail_link="'/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal'"/>
+                        <DashboardCard name="'Leave Request'" text1="''" text2="''" value="state.leave_request.value" current_month_count="state.leave_request.current_month_count" percentage="state.leave_request.percentage"  iconClass="'fa-sign-out'" bgColor="'#DAEAF6'"  onClick="onLeaveRequestClick" uom="''" detail_link="'/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal'"/>
+                        <DashboardCard name="'Appraisals'" text1="''" text2="''"  value="state.appraisals.value" current_month_count="state.appraisals.current_month_count" percentage="state.appraisals.percentage"  iconClass="'fa-star'" bgColor="'#FFE2E5'"  onClick="onAappraisal" uom="''" detail_link="'/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal'"/>
+                        <DashboardCard name="'Recruitment'" text1="''" text2="''" value="state.recruitment.value" current_month_count="state.recruitment.current_month_count" percentage="state.recruitment.percentage"  iconClass="'fa-search'" bgColor="'#F3E9FF'"  onClick="onRecruitment" uom="''" detail_link="'/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal'"/>
+                        <DashboardCard name="'Resignation'" text1="''" text2="''" value="state.hr_resignation.value" current_month_count="state.hr_resignation.current_month_count" percentage="state.hr_resignation.percentage"  iconClass="'fa-arrow-up'" bgColor="'#DCFCE7'"  onClick="onResignationClick" uom="''" detail_link="'/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal'"/>
+                  </div>
+                    
+                    <!-- Chart Section -->
+                     <!-- row 1 -->
+                    <div class="row">
+
+                        <div class="col-12 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">Employee Inventory</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <a t-attf-href="/web#action=hr.open_view_employee_list_my&amp;model=hr.employee">
+                                            <span class="fa fa-arrow-right text-white"/>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'bar'"
+                                        title="'Employee Inventory'"
+                                        y_title="'Number of Employees'"
+                                        x_title="'Month'"
+                                        data="state.employee_inventory"
+                                        datasetLabels="state.employee_inventory.datasets.map(dataset => dataset.label)"
+                                        onChartClick="onEmployeeInventoryChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">Monthly Payroll</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                         <a t-attf-href="/web#action=hr_payroll.hr_payroll_dashboard_open&amp;model=hr.payslip" >
+                                            <span class="fa fa-arrow-right text-white"/>
+                                        </a>
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'line'"
+                                        title="'Monthly Payroll'"
+                                        y_title="'Payroll Monthly'"
+                                        x_title="'Amount'"
+                                        data="state.payroll_by_month"
+                                        onChartClick="onMonthlyPayrollChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+
+                       <div class="col-sm-12 col-md-12 col-lg-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">Appraisal By Department</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <a t-attf-href="/web#action=hr_appraisal.open_view_hr_appraisal_tree&amp;model=hr_appraisal" >
+                                            <span class="fa fa-arrow-right text-white"/>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'pie'"
+                                        title="'Appraisal by Department'"
+                                        y_title="'EMployee'"
+                                        x_title="'Count'"
+                                        data="state.appraisal_by_department"
+                                        onChartClick="onShopByStateChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- row 2 -->
+                    <div class="row">
+                        <div class="col-12 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">Employee Headcount By Department</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <a t-attf-href="/web#action=hr.hr_department_kanban_action&amp;model=hr.department" >
+                                            <span class="fa fa-arrow-right text-white"/>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 400px;">
+                                    <ChartRenderer
+                                        type="'bar'"
+                                        title="'Employee Headcount By Department'"
+                                        y_title="'Number of Employee'"
+                                        x_title="'Department'"
+                                        data="state.employee_by_department"
+                                        onChartClick="onMonthlyCollectionChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

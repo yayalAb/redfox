@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_salary_rule_lunch" model="hr.salary.rule">
+            <field name="name">Lunch</field>
+            <field name="code">LUNCHDED</field>
+            <field name="sequence" eval="190" />
+            <field name="category_id" ref="hr_payroll.DED" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'LUNCHDED' in inputs</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -inputs['LUNCHDED'].amount</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_payroll_input_lunch" model="hr.payslip.input.type">
+            <field name="code">LUNCHDED</field>
+            <field name="name">Lunch</field>
+        </record>
+    </data>
+</odoo>

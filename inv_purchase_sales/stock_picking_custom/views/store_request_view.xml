@@ -1,0 +1,33 @@
+<odoo>
+    <record id="view_store_request_form_inherit" model="ir.ui.view">
+        <field name="name">store.request.form.inherit</field>
+        <field name="model">store.request</field>
+        <field name="inherit_id" ref="store_request.view_store_request_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <field name="is_storeman" invisible="1" />
+            </xpath>
+
+            <xpath expr="//sheet/div[@class='oe_button_box']" position="inside">
+                <button name="action_open_pickings"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-id-card-o"
+                    invisible="issue_count == 0"
+                    groups="store_request.group_store_request_issue"
+                    string='Issue'>
+                </button>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_store_issue" string="Issue" type="object"
+                    class="oe_highlight" invisible="state != 'approved'"
+                    groups="store_request.group_store_request_issue" />
+            </xpath>
+
+            <xpath expr="//field[@name='approved_by']" position="after">
+                <field name="issued_by" readonly="1" invisible="state != 'issue'" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

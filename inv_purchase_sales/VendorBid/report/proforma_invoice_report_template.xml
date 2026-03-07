@@ -1,0 +1,231 @@
+<odoo>
+    <record id="action_report_purchase_order_proforma" model="ir.actions.report">
+        <field name="name">Proforma Invoice (PI)</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">VendorBid.report_proforma_invoice_template</field>
+        <field name="report_file">VendorBid.report_proforma_invoice_template</field>
+        <field name="print_report_name">'Proforma - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_purchase_order" />
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="hr_payroll_bank_statement.paperformat_bank_letter_custom" />
+    </record>
+
+    <template id="report_proforma_invoice_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- Changed to basic_layout to remove standard Header and Footer -->
+                <t t-call="web.basic_layout">
+                    <div class="page"
+                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 16px; padding: 30px;">
+
+                        <t t-set="total_in_words"
+                            t-value="o.format_amount_to_text(o.amount_total, o.currency_id)" />
+
+                        <div class="text-center" style="margin-bottom: 18px;">
+                            <h4 style="font-weight: bold; margin: 0; text-transform: uppercase;">
+                                <span t-field="o.partner_id.name" />
+                            </h4>
+                            <div style="font-weight: bold; font-size: 16px;">
+                                <span>ADDRESS: </span>
+                                <span t-if="o.partner_id.street" t-field="o.partner_id.street" />
+                                <span t-if="o.partner_id.street2">, <span
+                                        t-field="o.partner_id.street2" /></span>
+                                <span t-if="o.partner_id.city">, <span t-field="o.partner_id.city" /></span>
+                                <span t-if="o.partner_id.country_id">, <span
+                                        t-field="o.partner_id.country_id.name" /></span>
+                                <br />
+                                <span t-if="o.partner_id.phone">MOB: <span
+                                        t-field="o.partner_id.phone" />
+                                </span>
+                                <span t-if="o.partner_id.email">EMAIL: <span
+                                        t-field="o.partner_id.email" /></span>
+                            </div>
+                            <br />
+                            <h5
+                                style="text-decoration: underline; font-weight: bold; margin-top: 10px;">PROFORMA
+                                INVOICE</h5>
+                        </div>
+
+                        <div class="row" style="margin-bottom: 15px;">
+                            <!-- Left: Buyer Info (Your Company) -->
+                            <div class="col-7">
+                            </div>
+
+                            <div class="col-5 text-right" style="text-align: right;">
+                                <div style="margin-bottom: 5px;">
+                                    <strong style="margin-right: 5px;">INVOICE NO.:</strong>
+                                    <span t-if="o.partner_ref" t-field="o.partner_ref" />
+                                    <span t-else="" t-field="o.name" />
+                                </div>
+                                <div>
+                                    <strong style="margin-right: 5px;">DATE:</strong>
+                                    <span
+                                        t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <strong>TO: <span t-field="o.company_id.name" /></strong>
+                            <br />
+                            <strong>ADDRESS: </strong>
+                            <span t-if="o.company_id.street" t-field="o.company_id.street" />
+                            <span t-if="o.company_id.street2">, <span
+                                    t-field="o.company_id.street2" /></span>
+                            <span t-if="o.company_id.city">, <span t-field="o.company_id.city" /></span>
+                            <br />
+                            <strong>TEL: </strong>
+                            <span t-field="o.company_id.phone" />
+                            <br />
+                            <strong>Contact Person: </strong>
+                            <span t-if="o.user_id" t-field="o.user_id" />
+                            <span t-if="o.user_id.work_phone" t-field="o.user_id.work_phone" />
+                        </div>
+
+                        <div
+                            style="margin-bottom: 10px; margin-top: 5px; font-weight: bold; text-transform: uppercase;">
+                            DESCRIPTION OF GOODS: <span t-if="o.good_description"
+                                t-field="o.good_description" />
+                            <span t-else="">-</span>
+                        </div>
+                        <table class="table table-sm table-bordered"
+                            style="border: 1px solid black; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr
+                                    style="background-color: #f0f0f0; text-align: center; vertical-align: middle; ">
+                                    <th
+                                        style="border: 1px solid black; width: 5%; font-weight: bold;">ITEMS
+                                        NO.</th>
+                                    <th
+                                        style="border: 1px solid black; width: 35%; font-weight: bold;">PRODUCT
+                                        NAME</th>
+                                    <th
+                                        style="border: 1px solid black; width: 10%; font-weight: bold;">HS
+                                        CODE</th>
+                                    <th
+                                        style="border: 1px solid black; width: 8%; font-weight: bold;">
+                                        UNIT</th>
+                                    <th
+                                        style="border: 1px solid black; width: 10%; font-weight: bold;">
+                                        QTY</th>
+                                    <th
+                                        style="border: 1px solid black; width: 15%; font-weight: bold;">UNIT
+                                        PRICE (<span
+                                            t-field="o.currency_id.name" />)</th>
+                                    <th style="border: 1px solid black; width: 17%;">TOTAL PRICE (<span
+                                            t-field="o.currency_id.name" />)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="i" t-value="0" />
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-set="i" t-value="i+1" />
+                                    <tr>
+                                        <td style="border: 1px solid black; text-align: center;">
+                                            <span t-esc="i" />
+                                        </td>
+                                        <td style="border: 1px solid black; padding-left: 5px;">
+                                            <span t-field="line.name" />
+                                        </td>
+                                        <td style="border: 1px solid black; text-align: center;">
+                                            <span t-field="line.hs_code" />
+                                        </td>
+                                        <td style="border: 1px solid black; text-align: center;">
+                                            <span t-field="line.product_uom.name" />
+                                        </td>
+                                        <td style="border: 1px solid black; text-align: center;">
+                                            <span t-field="line.product_qty"
+                                                t-options='{"widget": "float", "precision": 0}' />
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; text-align: right; padding-right: 5px;">
+                                            <span t-field="line.price_unit"
+                                                t-options='{"widget": "float", "precision": 2}' />
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; text-align: right; padding-right: 5px;">
+                                            <span t-field="line.price_subtotal"
+                                                t-options='{"widget": "float", "precision": 2}' />
+                                        </td>
+                                    </tr>
+                                </t>
+                                <!-- Total Row -->
+                                <tr style="font-weight: bold; background-color: #f0f0f0;">
+                                    <td colspan="6"
+                                        style="border: 1px solid black; text-align: right; padding-right: 10px;">
+                                        TOTAL <span t-field="o.incoterm_id.code" /> VALUE </td>
+                                    <td
+                                        style="border: 1px solid black; text-align: right; padding-right: 5px;">
+                                        <span t-field="o.amount_total"
+                                            t-options='{"widget": "float", "precision": 2}' />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <strong>Amount in Words: </strong>
+                            <span t-esc="total_in_words" />
+                        </div>
+
+                        <!-- 
+                            FOOTER / BANK DETAILS SECTION
+                        -->
+                        <div class="row mt-4">
+                            <!-- Left Column: Terms and Bank Info -->
+                            <div class="col-8">
+                                <p style="line-height: 1.6;">
+                                    <strong>PAYMENT TERM:</strong>
+                                    <span t-if="o.payment_term"
+                                        t-esc="dict(o._fields['payment_term'].selection).get(o.payment_term)" />
+                                    <br />
+
+                                    <strong>COUNTRY OF ORIGIN:</strong>
+                                    <span t-field="o.country_origin" />
+                                    <br />
+
+                                    <!-- <strong>FINAL DESTINATION:</strong>
+                                    <span t-field="o.final_destination" />
+                                    <br /> -->
+                                    <strong>Port of Loading:</strong>
+                                    <span t-field="o.port_loading" />
+                                    <br />
+                                    <strong>Port Of Discharge:</strong>
+                                    <span t-field="o.port_discharge" />
+                                    <br />
+
+                                    <strong>BENEFICIARY:</strong>
+                                    <span t-field="o.partner_id.name" />
+                                    <br />
+
+                                    <strong>BANK:</strong>
+                                    <span t-field="o.bank_name" />
+                                    <br />
+
+                                    <strong>ADD:</strong>
+                                    <span t-field="o.bank_address" />
+                                    <br />
+
+                                    <strong>A/C No.:</strong>
+                                    <span t-field="o.account_number" />
+                                    <br />
+
+                                    <strong>SWIFT CODE:</strong>
+                                    <span t-field="o.swift_code" />
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-9 d-flex justify-content-end">
+                            <t t-if="o.partner_id.company_stamp">
+                                <img
+                                    t-att-src="image_data_uri(o.partner_id.company_stamp)"
+                                    style="max-height:140px; min-height:140px;" />
+                            </t>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

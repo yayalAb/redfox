@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View for the Template Report -->
+   <record id="view_bincard_template_report_wizard_form" model="ir.ui.view">
+        <field name="name">bincard.template.report.wizard.form</field>
+        <field name="model">bincard.template.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Template Bin Card">
+                <group>
+                    <group>
+                        <field name="product_template_id" readonly="1" force_save="1"/>
+                        <field name="warehouse_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <!-- ADDED THIS FIELD -->
+                        <field name="location_id" options="{'no_create': True, 'no_create_edit': True}" placeholder="Full Warehouse"/>
+                        <!-- <field name="product_id" options="{'no_create': True, 'no_create_edit': True}" placeholder="All Variant"/> -->
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate_report" string="Generate" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the new wizard -->
+    <record id="action_open_bincard_template_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Bin Card Report</field>
+        <field name="res_model">bincard.template.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

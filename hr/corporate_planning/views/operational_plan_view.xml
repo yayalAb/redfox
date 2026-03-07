@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- TREE VIEW -->
+    <record id="view_operational_plan_list" model="ir.ui.view">
+        <field name="name">operational.plan.list</field>
+        <field name="model">corporate.planning.operational.plan</field>
+        <field name="arch" type="xml">
+            <list string="Operational Plans">
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="fiscal_year"/>
+                <field name="total_performance" widget="progressbar" string="Performance"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'active'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_operational_plan_form" model="ir.ui.view">
+        <field name="name">operational.plan.form</field>
+        <field name="model">corporate.planning.operational.plan</field>
+        <field name="arch" type="xml">
+            <form string="Operational Plan &amp; Performance">
+                <header>
+                    <button name="action_activate" string="Start Execution" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_close" string="Close" type="object" invisible="state != 'active'"/>
+                    <button name="action_reset" string="Reset" type="object" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. 2026 Marketing Ops Plan"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="annual_plan_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year"/>
+                            <field name="total_performance" widget="percentpie"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- PAGE 1: VOLUME BASED TASKS (Interleaved Columns) -->
+                        <page string="1. Quantitative (Volume)">
+                            <field name="volume_line_ids" context="{'default_task_type': 'volume'}">
+                                <list editable="bottom" decoration-muted="parent.state == 'draft'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="major_task"/>
+                                    <field name="specific_task"/>
+                                    <field name="uom_id"/>
+                                    
+                                    <!-- QUARTER 1 GROUP -->
+                                    <field name="q1_plan" string="Q1 Plan" sum="P1" readonly="parent.state != 'draft'"/>
+                                    <field name="q1_actual" string="Q1 Act" sum="A1" column_invisible="parent.state == 'draft'"/>
+                                    
+                                    <!-- QUARTER 2 GROUP -->
+                                    <field name="q2_plan" string="Q2 Plan" sum="P2" readonly="parent.state != 'draft'"/>
+                                    <field name="q2_actual" string="Q2 Act" sum="A2" column_invisible="parent.state == 'draft'"/>
+                                    
+                                    <!-- QUARTER 3 GROUP -->
+                                    <field name="q3_plan" string="Q3 Plan" sum="P3" readonly="parent.state != 'draft'"/>
+                                    <field name="q3_actual" string="Q3 Act" sum="A3" column_invisible="parent.state == 'draft'"/>
+                                    
+                                    <!-- QUARTER 4 GROUP -->
+                                    <field name="q4_plan" string="Q4 Plan" sum="P4" readonly="parent.state != 'draft'"/>
+                                    <field name="q4_actual" string="Q4 Act" sum="A4" column_invisible="parent.state == 'draft'"/>
+
+                                    <field name="total_plan" sum="Total Plan" decoration-bf="1" optional="hide"/>
+                                    <field name="total_actual" sum="Total Act" decoration-bf="1" optional="hide"/>
+
+                                    <field name="weight" sum="Weight"/>
+                                    <field name="achievement_rate" widget="progressbar" column_invisible="parent.state == 'draft'"/>
+                                    
+                                    <field name="task_type" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- PAGE 2: CHECKLIST BASED TASKS -->
+                        <page string="2. Checklist (Discrete)">
+                            <field name="discrete_line_ids" context="{'default_task_type': 'discrete'}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="major_task"/>
+                                    <field name="specific_task"/>
+                                    
+                                    <!-- NO PLAN COLUMNS HERE (Listing is the plan) -->
+
+                                    <!-- EXECUTION CHECKBOXES (Standard Odoo Checkboxes) -->
+                                    <!-- They only appear in Execution Phase -->
+                                    <!-- Removing widget="boolean_toggle" makes them standard checkboxes -->
+                                    
+                                    <field name="q1_actual" string="Q1 Done" column_invisible="parent.state == 'draft'"/>
+                                    <field name="q2_actual" string="Q2 Done" column_invisible="parent.state == 'draft'"/>
+                                    <field name="q3_actual" string="Q3 Done" column_invisible="parent.state == 'draft'"/>
+                                    <field name="q4_actual" string="Q4 Done" column_invisible="parent.state == 'draft'"/>
+
+                                    <field name="weight" sum="Weight"/>
+                                    
+                                    <!-- Score Calculation -->
+                                    <field name="weighted_score" string="Score" sum="Score" column_invisible="parent.state == 'draft'"/>
+
+                                    <field name="task_type" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_operational_plan" model="ir.actions.act_window">
+        <field name="name">Operational Plans &amp; Monitoring</field>
+        <field name="res_model">corporate.planning.operational.plan</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="address_street_extended_city_form" model="ir.ui.view">
+            <field name="name">partner.form.address.extended.city_id</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//span[@name='address_name']" position="before">
+                    <field name="supplier_rank" invisible="1"/>
+                    <field name="company_category_type" invisible="supplier_rank &lt; 1" string="Company Type"/>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Company Information" invisible="supplier_rank &lt; 1">
+                        <group>
+                            <field name="product_category_id" readonly="1"/>
+                            <field name="signatory_name"/>
+                            <field name="authorized_signatory_name"/>
+                            <field name="company_stamp" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                            <field name="date_registration" invisible="not date_registration" readonly="1"/>
+                        </group>
+                        <group string="Trade Information">
+                            <field name="trade_license_number"/>
+                            <field name="commencement_date"/>
+                            <field name="expiry_date"/>
+                        </group>
+                        <group string="Certification Details">
+                            <field name="certification_name"/>
+                            <field name="certificate_number"/>
+                            <field name="certifying_body"/>
+                            <field name="certification_award_date"/>
+                            <field name="certification_expiry_date"/>
+                        </group>
+                        <group>
+                            <group string="Legal Documents">
+                                <field name="trade_license_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                                <field name="certificate_of_incorporation_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                                <field name="certificate_of_good_standing_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                                <field name="establishment_card_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                            </group>
+
+                            <group string="Financial Documents">
+                                <field name="vat_tax_certificate_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                                <field name="memorandum_of_association_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                                <field name="past_2_years_financial_statement_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                            </group>
+                        </group>
+
+                        <group string="Identification Documents">
+                            <field name="identification_of_authorised_person_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                            <field name="bank_letter_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                            <field name="other_certification_doc" options="{'accepted_file_extensions': '.pdf,.jpeg,.jpg,.png'}"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

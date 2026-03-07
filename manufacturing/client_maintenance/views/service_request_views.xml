@@ -1,0 +1,106 @@
+<odoo>
+    <record id="view_client_maintenance_list" model="ir.ui.view">
+        <field name="name">client.maintenance.list.view</field>
+        <field name="model">service.request</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="date" />
+                <field name="requesting_department" />
+                <field name="providing_department" />
+                <field name="service_type" />
+                <field name="quantity" />
+                <field name="requesting_person" />
+                <field name="requester_position" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_client_maintenance_form" model="ir.ui.view">
+        <field name="name">client.maintenance.form.view</field>
+        <field name="model">service.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+
+                    <button name="action_approve" string="Confirm" type="object"
+                        class="oe_highlight"
+                        invisible="state != 'submitted'" />
+
+                    <button name="action_done" string="Done" type="object" class="oe_highlight"
+                        invisible="state != 'approved'" />
+
+                    <button name="%(action_service_request_reject_wizard)d" string="Reject"
+                        type="action" class="btn-danger"
+                        invisible="state in ['draft', 'completed', 'rejected']" />
+
+                    <button name="action_measurement" string="Measurement Form" type="object"
+                        class="oe_highlight" invisible="state != 'approved'" />
+
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <field name="measurement_form" invisible="1" />
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_measurement_form" string="Measurement"
+                            type="object" invisible="not measurement_form" icon="fa-tachometer" />
+                    </div>
+                    <group>
+                        <group string="Request Details">
+                            <field name="name" />
+                            <field name="date" />
+                            <field name="service_type" />
+                            <field name="product_id" />
+                            <field name="fault_category" />
+                            <field name="fault_level" />
+                            <field name="quantity" />
+                        </group>
+
+                        <group string="Requester Details">
+                            <field name="requesting_department" />
+                            <field name="providing_department" />
+                            <field name="requesting_person" />
+                            <field name="requester_position" />
+                            <field name="project_id" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" />
+                        </page>
+
+                        <page string="Rejection Details" invisible="state != 'rejected'">
+                            <group>
+                                <field name="rejected_by" />
+                                <field name="rejection_reason" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record
+        id="action_client_maintenance" model="ir.actions.act_window">
+        <field name="name">Service Requests</field>
+        <field name="res_model">service.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_client_maintenance"
+        name="Client Maintenance"
+        parent="mrp.menu_mrp_root"
+        sequence="13"
+    />
+    <menuitem
+        id="menu_maintenance_request"
+        name="Service Requests"
+        parent="menu_client_maintenance"
+        action="action_client_maintenance"
+    />
+</odoo>

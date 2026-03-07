@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="supplies.company_card" owl="1">
+        <div t-if="state.supplier" class="company-card bg-white shadow-1 border-1">
+            <div class="company-logo bg-white">
+                <img t-att-src="state.supplier.image" alt="Company" class="img-fluid"/>
+            </div>
+            <div class="info">
+                <h3 class="text-muted" t-esc="state.supplier.name"/>
+                <p class="text-muted" t-esc="state.supplier.street"/>
+            </div>
+        </div>
+    </t>
+</templates>

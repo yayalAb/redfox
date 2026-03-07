@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- These views are designed to be embedded and have no header/footer -->
+    <record id="view_fat_step1_insulation_form" model="ir.ui.view">
+        <field name="name">fat.step1.insulation.form</field>
+        <field name="model">fat.step1.insulation</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="hv_to_lv_earth" />
+                    <field name="hv_to_g_earth" />
+                    <field name="lv_to_g_earth" />
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="view_fat_step2_ratio_form" model="ir.ui.view">
+        <field name="name">fat.step2.ratio.form</field>
+        <field name="model">fat.step2.ratio</field>
+        <field name="arch" type="xml">
+            <form>
+                <group string="UV-un">
+                    <field name="uv_un_tap1" />
+                    <field name="uv_un_tap2" />
+                    <field name="uv_un_tap3" />
+                    <field name="uv_un_tap4" />
+                    <field name="uv_un_tap5" />
+                </group>
+                <group string="VW-vn">
+                    <field name="vw_vn_tap1" />
+                    <field name="vw_vn_tap2" />
+                    <field name="vw_vn_tap3" />
+                    <field name="vw_vn_tap4" />
+                    <field name="vw_vn_tap5" />
+                </group>
+                <group string="UW-wn">
+                    <field name="uw_wn_tap1" />
+                    <field name="uw_wn_tap2" />
+                    <field name="uw_wn_tap3" />
+                    <field name="uw_wn_tap4" />
+                    <field name="uw_wn_tap5" />
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="view_fat_step3_no_load_form" model="ir.ui.view">
+        <field name="name">fat.step3.no.load.form</field>
+        <field name="model">fat.step3.no.load</field>
+        <field name="arch" type="xml">
+            <form>
+                <table>
+                    <tr>
+                        <td>
+                            <b>Phase</b>
+                        </td>
+                        <td>
+                            <b>Rated Voltage (V)</b>
+                        </td>
+                        <td>
+                            <b>Rated Current (A)</b>
+                        </td>
+                        <td>
+                            <b>Losses (W)</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>U</td>
+                        <td>
+                            <field name="u_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="u_rated_current" />
+                        </td>
+                        <td>
+                            <field name="u_losses" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>V</td>
+                        <td>
+                            <field name="v_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="v_rated_current" />
+                        </td>
+                        <td>
+                            <field name="v_losses" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>W</td>
+                        <td>
+                            <field name="w_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="w_rated_current" />
+                        </td>
+                        <td>
+                            <field name="w_losses" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Average</td>
+                        <td>
+                            <field name="avg_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="avg_rated_current" />
+                        </td>
+                        <td>
+                            <field name="avg_losses" />
+                        </td>
+                    </tr>
+                </table>
+                <group>
+                    <field name="percent_no_load_current" />
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="view_fat_step4_load_loss_form" model="ir.ui.view">
+        <field name="name">fat.step4.load.loss.form</field>
+        <field name="model">fat.step4.load.loss</field>
+        <field name="arch" type="xml">
+            <form>
+                <table>
+                    <tr>
+                        <td>
+                            <b>Phase</b>
+                        </td>
+                        <td>
+                            <b>Rated Voltage (V)</b>
+                        </td>
+                        <td>
+                            <b>Rated Current (A)</b>
+                        </td>
+                        <td>
+                            <b>Losses (W)</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>U</td>
+                        <td>
+                            <field name="u_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="u_rated_current" />
+                        </td>
+                        <td>
+                            <field name="u_losses" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>V</td>
+                        <td>
+                            <field name="v_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="v_rated_current" />
+                        </td>
+                        <td>
+                            <field name="v_losses" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>W</td>
+                        <td>
+                            <field name="w_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="w_rated_current" />
+                        </td>
+                        <td>
+                            <field name="w_losses" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Average</td>
+                        <td>
+                            <field name="avg_rated_voltage" />
+                        </td>
+                        <td>
+                            <field name="avg_rated_current" />
+                        </td>
+                        <td>
+                            <field name="avg_losses" />
+                        </td>
+                    </tr>
+                </table>
+                <group>
+                    <field name="percent_impedance" />
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="view_fat_step5_winding_form" model="ir.ui.view">
+        <field name="name">fat.step5.winding.form</field>
+        <field name="model">fat.step5.winding</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="amb_temp" />
+                    <field name="tap_no" />
+                </group>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <b>UV</b>
+                        </td>
+                        <td>
+                            <b>VW</b>
+                        </td>
+                        <td>
+                            <b>UW</b>
+                        </td>
+                        <td>
+                            <b>AVG</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>HV (Ω)</b>
+                        </td>
+                        <td>
+                            <field name="hv_uv" />
+                        </td>
+                        <td>
+                            <field name="hv_vw" />
+                        </td>
+                        <td>
+                            <field name="hv_uw" />
+                        </td>
+                        <td>
+                            <field name="hv_avg" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>LV (mΩ)</b>
+                        </td>
+                        <td>
+                            <field name="lv_uv" />
+                        </td>
+                        <td>
+                            <field name="lv_vw" />
+                        </td>
+                        <td>
+                            <field name="lv_uw" />
+                        </td>
+                        <td>
+                            <field name="lv_avg" />
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </field>
+    </record>
+    <record id="view_fat_step6_separate_form" model="ir.ui.view">
+        <field name="name">fat.step6.separate.form</field>
+        <field name="model">fat.step6.separate</field>
+        <field name="arch" type="xml">
+            <form>
+                <group string="Test 1: B/n HV Winding &amp; LV">
+                    <field name="test1_applied_voltage" />
+                    <field name="test1_duration" />
+                    <field name="test1_remark" />
+                </group>
+                <group string="Test 2: B/n LV Winding &amp; HV">
+                    <field name="test2_applied_voltage" />
+                    <field name="test2_duration" />
+                    <field name="test2_remark" />
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="view_fat_step7_induced_form" model="ir.ui.view">
+        <field name="name">fat.step7.induced.form</field>
+        <field name="model">fat.step7.induced</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="applied_voltage" />
+                    <field name="applied_frequency" />
+                    <field name="duration" />
+                    <field name="remark" />
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

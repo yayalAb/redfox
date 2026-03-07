@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_sale_agreement_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="article">
+                    <!-- NEW HEADER SECTION - Rebuilt to match the new image exactly -->
+                    <div class="header">
+                        <table style="width: 100%; border: 2px solid black; border-collapse: collapse; font-size: 12px;">
+                            <tbody>
+                                <tr>
+                                    <!-- 1. Logo Cell (spans two rows) -->
+                                    <td rowspan="2" style="width: 20%; border-right: 1px solid black; text-align: center; vertical-align: middle; padding: 5px;">
+                                        <img t-if="doc.company_id.logo" t-att-src="image_data_uri(doc.company_id.logo)" style="max-height: 60px; max-width: 100%;"/>
+                                    </td>
+                                    <!-- 2. Company Name Cell -->
+                                    <td style="font-family: 'abyssinica', 'Arial', sans-serif; width: 50%; border-right: 1px solid black; border-bottom: 1px solid black; text-align: center; padding: 8px; vertical-align: middle;">
+                                        <h4>ዋግዋጎ ትሬዲንግ ኃ/የተ / የግ/ ማ</h4>
+                                        <h4 style="margin:0;"><span t-field="doc.company_id.name"/></h4>
+                                    </td>
+                                    <!-- 3. Document No. Cell -->
+                                    <td style="width: 30%; border-bottom: 1px solid black; padding: 8px; vertical-align: middle;">
+                                        <strong>Document No:</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!-- 4. Doc Title Cell -->
+                                    <td style="border-right: 1px solid black; text-align: center; padding: 8px; vertical-align: middle;">
+                                        <strong>Doc Title:</strong> SALES CONTRACT FORM
+                                    </td>
+                                    <!-- 5. Issue & Page No. Cell (contains a nested table) -->
+                                    <td style="padding: 0;">
+                                        <table style="width: 100%; height: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="width: 50%; border-right: 1px solid black; padding: 8px; vertical-align: middle;">
+                                                    <strong>Issue No.</strong> 1
+                                                </td>
+                                                <td style="width: 50%; padding: 8px; vertical-align: middle;">
+                                                    <strong>Page:</strong> <span class="page"/> / <span class="topage"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- FOOTER SECTION (No changes here) -->
+                    <div class="footer">
+                         <div class="text-center" style="border-top: 1px solid black; font-size: 10px; padding-top: 5px;">
+                            <span>+251 (114) 70 15 46</span> |
+                            <span>info@wagwagoelectric.com</span> |
+                            <span>https://wagwagoelectric.com/</span>
+                        </div>
+                    </div>
+
+                    <!-- MAIN CONTENT (BODY of the report) -->
+                    <!-- Increased padding-top to prevent overlap with the new header -->
+                    <div class="page" style="font-size: 14px; font-family: 'Arial', sans-serif; padding-top: 5px;">
+                        
+                        <!-- The rest of your report content remains exactly the same -->
+
+                        <!-- Contract Info -->
+                        <div style="padding-left: 650px;">
+                            <p>
+                                <strong>Ref No.:</strong> <span t-field="doc.code"/><br/>
+                                <strong>Date:</strong> <span t-field="doc.signature_date" t-options='{"widget": "date"}'/>
+                            </p>
+                        </div>
+                        <p style="font-size: 18px;"><strong>Contract Concluded for the sale of:</strong> <span t-field="doc.name"/></p>
+                        <div class="row mb-3">
+                            <strong>Contract Offered To: </strong>
+                            <div class="col-5" style="padding-left: 5px;">
+                                <strong>Name:</strong> <span t-field="doc.partner_id.name"/><br/>
+                                <strong>Address:</strong> <span t-field="doc.partner_id.contact_address_complete"/><br/>
+                                <strong>Tel. No:</strong> <span t-field="doc.partner_id.phone"/>
+                            </div>
+                            <!-- <div class="col-4">
+                                
+                            </div> -->
+                        </div>
+                        <div class="row mb-3">
+                            <strong>Contract Offered by: </strong>
+                            <div class="col-5" style="padding-left: 5px;">
+                                <strong>Name:</strong> <span t-field="doc.company_id.name"/><br/>
+                                <strong>Address:</strong> <span t-field="doc.company_id.partner_id.contact_address_complete"/><br/>
+                                <strong>Tel. No:</strong> <span t-field="doc.company_id.phone"/>
+                            </div>
+                        </div>
+
+                        <h5 class="text-center"><u>Article One</u></h5>
+                        <h6 class="text-center"><u>Object of the Contract</u></h6>
+                        <p style="font-size: 14px;">
+                            This contract is made and entered into between <strong><span t-field="doc.partner_id.name"/></strong> (herein after referred to as the buyer) and <strong><span t-field="doc.company_id.name"/></strong> (herein after referred to as the Supplier). The purpose of this contract is such that the buyer would purchase Transformer whose specification is stated in article two.
+                        </p>
+                        
+                        <h5 class="text-center"><u>Article Two</u></h5>
+                        <h6 class="text-center"><u>Type of Transformer</u></h6>
+                        <!-- Replace your old table with this new one -->
+                        <table class="table table-sm" style="border-collapse: collapse; border: 1px solid black;">
+                            <tbody>
+                                <!-- ROW 1: Type of -->
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td style="border: 1px solid black; padding: 4px; width: 25%;"><strong>Type of</strong></td>
+                                    <!-- This value cell spans the Specification and Qty columns -->
+                                    <td style="border: 1px solid black; padding: 4px;">
+                                        <span t-field="doc.agreement_type_id.name"/>
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 4px;">Qty</td>
+                                </tr>
+
+                                <!-- This is the corrected section for product lines -->
+                                <t t-foreach="doc.line_ids" t-as="line">
+                                    <tr style="border-bottom: 1px solid black;">
+                                        
+                                        <!-- On the FIRST product row, we add the 'Specification' label -->
+                                        <!-- It spans a number of rows equal to the total number of products -->
+                                        <t t-if="line_first">
+                                            <td t-att-rowspan="len(doc.line_ids)" style="border: 1px solid black; padding: 4px; vertical-align: top;">
+                                                <strong>Specification</strong>
+                                            </td>
+                                        </t>
+                                        
+                                        <!-- This is the product name cell, it appears on EVERY product row -->
+                                        <td style="border: 1px solid black; padding: 4px;">
+                                            <span t-field="line.product_id.name"/>
+                                        </td>
+                                        
+                                        <!-- This is the quantity cell, it also appears on EVERY product row -->
+                                        <td style="border: 1px solid black; padding: 4px; width: 15%;">
+                                            <span t-field="line.quantity"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                
+                                <!-- ROW for Country of Origin -->
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td style="border: 1px solid black; padding: 4px;"><strong>Country of Origin:</strong></td>
+                                    <!-- This value cell spans the Specification and Qty columns -->
+                                    <td colspan="2" style="border: 1px solid black; padding: 4px;">
+                                        <span t-field="doc.country_of_origin_id.name"/>
+                                    </td>
+                                </tr>
+
+                                <!-- ROW for Year of Manufacture -->
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 4px;"><strong>Year of Manufacture:</strong></td>
+                                    <!-- This value cell also spans the Specification and Qty columns -->
+                                    <td colspan="2" style="border: 1px solid black; padding: 4px;">
+                                        <span t-field="doc.year_of_manufacturing"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="page-break-before: always; font-size: 14px;" >
+                            <h5 class="text-center"><u>Article Three</u></h5>
+                            <h6 class="text-center"><u>Price, time and place of delivery</u></h6>
+                            <p>
+                                3.1. The selling price of the Transformer whose specification is mentioned under Article Two is due dated <span t-field="doc.due_date" style="border-bottom: 1px dotted black; padding: 0 20px;">&amp;nbsp;</span>.
+                                As such, the price of the Transformer and its accessories shall be ETB <strong t-field="doc.total_value" t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/> including VAT Exclusive of Transportation.
+                            </p>
+                            <p>
+                                Method of payment for the Transformer and its accessories is <strong t-field="doc.method_of_payment"/> before delivery. Kindly note that the sale is purely on "first come first served" basis.
+                            </p>
+                            <p>
+                                3.2. Where the buyer discharges the obligation of settling payment within the period of options we have and priority clearly provided on article 3.1 Failure to do so, we will have a right to sell it to any our customers.
+                            </p>
+                            <p>
+                                3.3 The delivery of the Transformer is after production within <span t-field="doc.production_period"/> up on paying <strong t-field="doc.method_of_payment"/> of the PFI.
+                            </p>
+                        </div>
+                        <h5 class="text-center"><u>Article Four</u></h5>
+                        <h6 class="text-center"><u>Effectiveness of the contract</u></h6>
+                        <p style="font-size: 14px;">
+                            4.1. This contract shall be effective as of this date <span t-esc="doc.start_date.strftime('%d/%m/%Y')" style="border-bottom: 1px dotted black; padding: 0 20px;"/>
+                        </p>
+                        <div class="row" style="margin-top: 60px; font-size: 14px;">
+                            <div class="col-6">
+                                <strong><u>Seller</u></strong><br/>
+                                <strong>Name:</strong> <span t-field="doc.company_id.partner_id.name"/><br/>
+                                <span style="padding-left:45px;">Marketing Director</span><br/>
+                                <strong>Date:</strong> <span t-esc="doc.signature_date.strftime('%d/%m/%Y')"/><br/>
+                                <strong>Signature:</strong> ______________________
+                            </div>
+                            <div class="col-6">
+                                <strong><u>Buyer</u></strong><br/>
+                                <strong>Name:</strong> <span t-field="doc.partner_id.name"/><br/><br/>
+                                <strong>Date:</strong> ______________________<br/>
+                                <strong>Signature:</strong> ______________________
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 60px; page-break-inside: avoid;">
+                             <div class="col-12">
+                                <strong><u>Witnesses</u></strong>
+                                <br/><br/>
+                                1. Name: __________________________ Signature: _______________________
+                                <br/><br/>
+                                2. Name: __________________________ Signature: _______________________
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,80 @@
+<odoo>
+    <!-- Form View -->
+    <record id="hr_back_payment_form_view" model="ir.ui.view">
+        <field name="name">hr.back.payment.form</field>
+        <field name="model">hr.back.payment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_set_to_draft" string="Reset to Draft" type="object" invisible="state == 'draft'" groups="hr_payroll.group_hr_payroll_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_payroll,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group string="Details">
+                            <field name="employee_id" readonly="state == 'done'"/>
+                            <field name="calculation_struct_id" readonly="state == 'done'"/>
+                            <field name="date_from" readonly="state == 'done'"/>
+                            <field name="date_to" readonly="state == 'done'"/>
+                        </group>
+                        <group string="Processing Info">
+                            <field name="payslip_batch_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Old Salary &amp; Allowance Data" name="old_salary">
+                             <group>
+                                <group>
+                                    <field name="old_basic_salary" readonly="state == 'done'"/>
+                                    <field name="old_house_rent_allowance" readonly="state == 'done'"/>
+                                    <field name="old_dearness_allowance" readonly="state == 'done'"/>
+                                    <field name="old_travel_allowance" readonly="state == 'done'"/>
+                                    <field name="old_meal_allowance" readonly="state == 'done'"/>
+                                    <field name="old_medical_allowance" readonly="state == 'done'"/>
+                                    <field name="old_position_allowance" readonly="state == 'done'"/>
+                                </group>
+                                <group>
+                                    <field name="old_transport_home_allowance" readonly="state == 'done'"/>
+                                    <field name="old_transport_work_allowance" readonly="state == 'done'"/>
+                                    <field name="old_fuel_allowance" readonly="state == 'done'"/>
+                                    <field name="old_cash_indemnity_allowance" readonly="state == 'done'"/>
+                                    <field name="old_professional_allowance" readonly="state == 'done'"/>
+                                    <field name="old_other_allowance" readonly="state == 'done'"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- The rest of the file (tree, action, menu) is the same -->
+    <record id="hr_back_payment_list_view" model="ir.ui.view">
+        <field name="name">hr.back.payment.list</field>
+        <field name="model">hr.back.payment</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="state"/>
+                <field name="payslip_batch_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_hr_back_payment" model="ir.actions.act_window">
+        <field name="name">Back Payments</field>
+        <field name="res_model">hr.back.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Create a new Back Payment record.</p></field>
+    </record>
+    <menuitem id="menu_hr_back_payment_root" name="Back Payments" parent="hr_payroll.menu_hr_payroll_payslips" sequence="90"/>
+    <menuitem id="menu_hr_back_payment" name="Back Payments" parent="menu_hr_back_payment_root" action="action_hr_back_payment"/>
+</odoo>

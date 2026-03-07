@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- ======================================================== -->
+        <!-- DOMAIN DEFINITION (Reusable Logic)                       -->
+        <!-- ======================================================== -->
+        <!-- 
+             Logic: Show record IF 
+             1. Department is not set (Global) 
+             OR 
+             2. Department matches User's Department (or is a child department)
+        -->
+        
+        <!-- 1. ANNUAL GENERAL PLAN -->
+        <record id="rule_annual_plan_dept" model="ir.rule">
+            <field name="name">Annual Plan: Own Department</field>
+            <field name="model_id" ref="model_corporate_planning_annual_plan"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+
+        <!-- 2. OPERATING PLAN (AOP) -->
+        <record id="rule_operating_plan_dept" model="ir.rule">
+            <field name="name">AOP: Own Department</field>
+            <field name="model_id" ref="model_corporate_operating_plan"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+
+        <!-- 3. OKR / PERFORMANCE -->
+        <record id="rule_okr_dept" model="ir.rule">
+            <field name="name">OKR: Own Department</field>
+            <field name="model_id" ref="model_corporate_performance_okr"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+
+        <!-- 4. BUDGETS (Applying to all 4 budget models) -->
+        <record id="rule_budget_hr_dept" model="ir.rule">
+            <field name="name">HR Budget: Own Department</field>
+            <field name="model_id" ref="model_corporate_planning_budget_hr"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        <record id="rule_budget_training_dept" model="ir.rule">
+            <field name="name">Training Budget: Own Department</field>
+            <field name="model_id" ref="model_corporate_planning_budget_training"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        <record id="rule_budget_project_dept" model="ir.rule">
+            <field name="name">Project Budget: Own Department</field>
+            <field name="model_id" ref="model_corporate_planning_budget_project"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        <record id="rule_budget_general_dept" model="ir.rule">
+            <field name="name">General Budget: Own Department</field>
+            <field name="model_id" ref="model_corporate_planning_budget_general"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+
+        <!-- 5. EXECUTION TRACKING (Applying to all 4 actual models) -->
+        <record id="rule_exec_activity_dept" model="ir.rule">
+            <field name="name">Execution Activity: Own Department</field>
+            <field name="model_id" ref="model_corporate_execution_activity"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        <record id="rule_exec_financial_dept" model="ir.rule">
+            <field name="name">Execution Financial: Own Department</field>
+            <field name="model_id" ref="model_corporate_execution_financial"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        <record id="rule_exec_capex_dept" model="ir.rule">
+            <field name="name">Execution Capex: Own Department</field>
+            <field name="model_id" ref="model_corporate_execution_capex"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        <record id="rule_exec_okr_dept" model="ir.rule">
+            <field name="name">Execution OKR: Own Department</field>
+            <field name="model_id" ref="model_corporate_execution_okr"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+        
+        <!-- RISK REGISTER -->
+        <record id="rule_risk_register_dept" model="ir.rule">
+            <field name="name">Risk: Own Department</field>
+            <field name="model_id" ref="model_corporate_risk_register"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+
+        <!-- 6. REPORTING / ANALYSIS (The SQL View) -->
+        <record id="rule_plan_actual_analysis_dept" model="ir.rule">
+            <field name="name">Plan vs Actual Analysis: Own Department</field>
+            <field name="model_id" ref="model_corporate_plan_actual_analysis"/>
+            <field name="domain_force">['|', ('department_id', '=', False), ('department_id', 'child_of', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_user'))]"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- CORPORATE MANAGER RULES (See ALL)                        -->
+        <!-- ======================================================== -->
+        
+        <!-- Helper function: Apply to all relevant models -->
+        <record id="rule_manager_all_aop" model="ir.rule">
+            <field name="name">Manager: See All AOP</field>
+            <field name="model_id" ref="model_corporate_operating_plan"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_manager'))]"/>
+        </record>
+        
+        <record id="rule_manager_all_annual" model="ir.rule">
+            <field name="name">Manager: See All Annual Plan</field>
+            <field name="model_id" ref="model_corporate_planning_annual_plan"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_manager'))]"/>
+        </record>
+
+        <record id="rule_manager_all_okr" model="ir.rule">
+            <field name="name">Manager: See All OKR</field>
+            <field name="model_id" ref="model_corporate_performance_okr"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_manager'))]"/>
+        </record>
+
+        <record id="rule_manager_all_budgets" model="ir.rule">
+            <field name="name">Manager: See All Budgets</field>
+            <field name="model_id" ref="model_corporate_planning_budget_hr"/> <!-- Applied to one, repeat for others if Odoo doesn't cascade naturally (it doesn't) -->
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_manager'))]"/>
+        </record>
+        
+        <record id="rule_manager_all_analysis" model="ir.rule">
+            <field name="name">Manager: See All Analysis</field>
+            <field name="model_id" ref="model_corporate_plan_actual_analysis"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_manager'))]"/>
+        </record>
+
+        <record id="rule_manager_all_risks" model="ir.rule">
+            <field name="name">Manager: See All Risks</field>
+            <field name="model_id" ref="model_corporate_risk_register"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_planning_manager'))]"/>
+        </record>
+
+    </data>
+</odoo>

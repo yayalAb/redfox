@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_warranty_letter" model="ir.actions.report">
+        <field name="name">Warranty Letter</field>
+        <field name="model">bid.warranty.letter</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">company_tender_management.report_warranty_letter_template</field>
+        <field name="report_file">company_tender_management.report_warranty_letter_template</field>
+        <field name="print_report_name">'Warranty Letter - %s' % (object.tender_reference)</field>
+        <field name="binding_model_id" ref="model_bid_warranty_letter"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_warranty_letter_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 14pt; color: #000; line-height: 1.6; margin-top: 40px; margin-right: 40px; margin-left: 40px;">
+                        
+                        <div class="mb-5">
+                            <h3 style="font-weight: bold; text-decoration: underline; font-size: 16pt;">Warranty Letter</h3>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-12 font-weight-bold">
+                                <div>Date: <span t-field="doc.date_issue" t-options='{"widget": "date", "format": "d MMMM y"}'/></div>
+                                <div>To: <span t-field="doc.partner_id.name"/></div>
+                                <div>Reference No.: <span t-field="doc.tender_reference"/></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <p>Dear Sir,</p>
+                        </div>
+
+                        <div class="mb-3 text-justify">
+                            In connection with the supply of <strong><span t-field="doc.goods_description"/></strong>, 
+                            <span t-field="doc.company_id.name"/> hereby assures the quality, responsible manufacturing, 
+                            and product safety of the goods supplied, and makes the following statement:
+                        </div>
+
+                        <div class="mb-3 text-justify">
+                            We extend our full guarantee and warranty for the above goods for a period of 
+                            <strong><span t-field="doc.warranty_period"/></strong>. During this period, we will replace or repair, 
+                            at no cost to the Purchaser, any unit or component found to be faulty due to defects in design, 
+                            material, or workmanship.
+                        </div>
+
+                        <div class="mb-5 text-justify">
+                            We hereby confirm our commitment to stand behind the quality of the products supplied and 
+                            ensure that the Purchaser receives goods that meet the highest standards.
+                        </div>
+
+                        <div class="mt-5">
+                            <strong>Authorized Signatory:</strong>
+                            
+                            <div class="mt-4">
+                                <div class="row mb-2">
+                                    <div class="col-2"><strong>Name:</strong></div>
+                                    <div class="col-10" style="border-bottom: 1px solid #000; width: 300px;">
+                                        <span t-field="doc.signatory_id.name"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-2">
+                                    <div class="col-2"><strong>Title:</strong></div>
+                                    <div class="col-10" style="border-bottom: 1px solid #000; width: 300px;">
+                                        <span t-field="doc.signatory_title"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-2"><strong>Signature:</strong></div>
+                                    <div class="col-10" style="border-bottom: 1px solid #000; width: 300px; height: 25px;"></div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-2"><strong>Date:</strong></div>
+                                    <div class="col-10" style="border-bottom: 1px solid #000; width: 300px;">
+                                        <span t-field="doc.date_issue" t-options='{"widget": "date", "format": "d MMMM y"}'/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

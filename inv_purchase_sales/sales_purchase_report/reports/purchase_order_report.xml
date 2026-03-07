@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report action for property sale -->
+    <record id="purchase_report_report_action_report_custom" model="ir.actions.report">
+        <field name="name">Purchase Report</field>
+        <field name="model">purchase.report.tree</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sales_purchase_report.purchase_report_template_custom</field>
+        <field name="report_file">sales_purchase_report.purchase_report_template_custom</field>
+    </record>
+
+    <!-- Report template for Property sale -->
+    <template id="purchase_report_template_custom">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <style>
+                    .print_doc_header {
+                        text-align: center;
+                        text-decoration: underline;
+                        margin-bottom: 15px;
+                    }
+                </style>
+                <h6 style="text-align: right;"> <span t-esc="date"/> </h6>
+                <!-- <h3 class="print_doc_header">Jerr private Limited Company</h3> -->
+                <h5 class="print_doc_header">Purchase report</h5>
+                <div class="row">
+                <t t-if="tags">
+                    <div class="col-6">
+                            <div>
+                                <strong>Selected Tags</strong>
+                                <ul>
+                                    <t t-foreach="tags" t-as="tag">
+                                        <li t-esc="tag"/>
+                                    </t>
+                                </ul>
+                            </div>
+                    </div>
+                    </t>
+                    <t t-if="categories">
+                        <div class="col-6">
+                                <div>
+                                    <strong>Selected Categories</strong>
+                                    <ul>
+                                        <t t-foreach="categories" t-as="category">
+                                            <li t-esc="category"/>
+                                        </t>
+                                    </ul>
+                                </div>
+                        </div>
+                    </t>
+                </div><br/>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SL.no</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Product Code</th>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Tax</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <t t-set="sum_qty" t-value="0"/>
+                        <t t-set="sum_avg" t-value="0"/>
+                        <t t-set="sum_tax" t-value="0"/>
+                        <t t-set="sum_total" t-value="0"/>
+                        <t t-foreach="datas" t-as="line">
+                            <t t-foreach="line['subcategories']" t-as="sub_cat">
+                                 <t t-set="i" t-value="0"/>
+                            <tr>
+                                <td>#</td>
+                                <td><span t-esc="line['category_name']"/></td>
+                                <td colspan="7"><span t-esc="sub_cat['subcategory_name']"/></td>
+                            </tr>
+
+                             <tr t-foreach="sub_cat['products']" t-as="product">
+                                 <t t-set="sum_qty" t-value="sum_qty + product['total_quantity']"/>
+                                 <t t-set="sum_avg" t-value="sum_avg + product['total_sale_price']/product['total_quantity']"/>
+                                 <t t-set="sum_tax" t-value="sum_tax + product['price_tax']"/>
+                                 <t t-set="sum_total" t-value="sum_total + product['total_price']"/>
+                                <td>
+                                    <t t-set="i" t-value="i + 1"/>
+                                    <span t-esc="i"/>
+                                </td>
+                                <td colspan="2"></td>
+                                 <td><span t-esc="product['default_code']"/></td>
+                                 <td><span t-esc="product['product_name']"/></td>
+                                 <td><span t-esc="'{:,.2f}'.format(product['total_quantity'])" /></td>
+                                 <td><span t-esc="'{:,.2f}'.format(product['total_sale_price']/product['total_quantity'])" /></td>
+                                 <td><span t-esc="'{:,.2f}'.format(product['price_tax'])" /></td>
+                                 <td><span t-esc="'{:,.2f}'.format(product['total_price'])" /></td>
+                             </tr>
+                            </t>
+                        </t>
+                        <tr>
+                           <td colspan="5">Total</td>
+                            <td><span t-esc="'{:,.2f}'.format(sum_qty)" /></td>
+                            <td><span t-esc="'{:,.2f}'.format(sum_avg)" /></td>
+                            <td><span t-esc="'{:,.2f}'.format(sum_tax)" /></td>
+                            <td><span t-esc="'{:,.2f}'.format(sum_total)" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+view_disciplinary_action_user,view.disciplinary.action.user,model_disciplinary_action,nthub_hr_disciplinary.group_disciplinary_user,1,1,1,1
+view_disciplinary_action_admin,view.disciplinary.action.admin,model_disciplinary_action,nthub_hr_disciplinary.group_disciplinary_admin,1,1,1,1
+
+view_discipline_category_user,view.discipline.category.user,model_discipline_category,nthub_hr_disciplinary.group_disciplinary_user,1,1,1,1
+view_discipline_category_admin,view.discipline.category.admin,model_discipline_category,nthub_hr_disciplinary.group_disciplinary_admin,1,1,1,1
+
+
+
+

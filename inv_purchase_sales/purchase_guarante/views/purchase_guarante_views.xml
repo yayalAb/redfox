@@ -1,0 +1,159 @@
+<odoo>
+    <record id="view_purchase_guarante_list" model="ir.ui.view">
+        <field name="name">purchase.guarante.list</field>
+        <field name="model">purchase.guarante</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Guarantees">
+                <field name="name" />
+                <field name="purchase_order_id" />
+                <field name="customs_guaranteed_amount" />
+                <field name="guaranteed_amount_before_interest" />
+                <field name="paid_amount" />
+                <field name="interest_amount" />
+                <field name="guaranteed_amount_after_interest" />
+                <field name="foreign_currency_amount" optional="hide" />
+                <field name="declaration_number" optional="hide" />
+                <field name="guaranteed_bank" />
+                <field name="guarantee_period" />
+                <field name="reference" optional="hide" />
+                <field name="start_date" />
+                <field name="expiry_date" />
+                <field name="customs_branch_id" optional="hide" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_purchase_guarante_form" model="ir.ui.view">
+        <field name="name">purchase.guarante.form</field>
+        <field name="model">purchase.guarante</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Guarantee">
+                <header>
+                    <button name="action_pay" string="Paid" type="object" class="oe_highlight"
+                        invisible="state in ['paid', 'expired', 'cancelled']" />
+                    <button name="action_extend" string="Extend" type="object" class="oe_highlight"
+                        invisible="state in ['paid', 'cancelled', 'expired']" />
+                    <button name="action_cancel" string="Cancel" type="object" class="oe_highlight"
+                        invisible="state in ['paid', 'cancelled', 'expired']" />
+                    <button name="action_create_payment_request" string="Create Payment Request"
+                        type="object" />
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="in_progress,paid,extended,expired,cancelled" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_purchase_order"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            string="Purchase Order"
+                            invisible="not purchase_order_id"
+                        />
+                        <button name="action_view_payment_requests"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            invisible="payment_count == 0">
+                            <field name="payment_count" widget="statinfo" string="Payment Requests" />
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="currency_id" invisible="1" />
+                            <field name="purchase_order_id" />
+                            <field name="customs_guaranteed_amount" string="Customs Duty and Tax Amount"/>
+                            <field name="guaranteed_amount_before_interest" />
+                            <field name="paid_amount" />
+                            <field name="interest_amount" />
+                            <field name="guaranteed_amount_after_interest" />
+                            <field name="lc_number" />
+                            <label for="foreign_currency_amount" string="Foreign Currency Amount" />
+                            <div class="o_row">
+                                <field name="foreign_currency_amount" widget='monetary'
+                                    options="{'currency_field': 'foreign_currency_id'}"
+                                    class="oe_inline mw-50 me-0" />
+                                <field name="foreign_currency_id" class="mw-25 ms-0"
+                                    options="{'no_create': True}" />
+                            </div>
+                        </group>
+                        <group>
+                            <field name="declaration_number" />
+                            <field name="guaranteed_bank" />
+                            <field name="guarantee_period" />
+                            <field name="reference" />
+                            <field name="start_date" />
+                            <field name="expiry_date" />
+                            <field name="customs_branch_id" />
+                            <field name="account_type" />
+                            <field name="account_number" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="payment_lines" string="Monthly Payments"
+                            invisible="not payment_line_ids">
+                            <field name="payment_line_ids">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="sequence" />
+                                    <field name="payment_date" />
+                                    <field name="amount_before_interest" />
+                                    <field name="interest" />
+                                    <field name="total_amount" />
+                                    <field name="state" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="view_purchase_customs_branch_list" model="ir.ui.view">
+        <field name="name">view.purchase.customs.branch.list</field>
+        <field name="model">customs.branch</field>
+        <field name="arch" type="xml">
+            <list editable="top">
+                <field name="name" />
+                <field name="location" />
+                <field name="monthly_payment" />
+                <field name="account_type" />
+                <field name="account_number" />
+            </list>
+        </field>
+    </record>
+
+
+    <record id="action_purchase_guarante" model="ir.actions.act_window">
+        <field name="name">Custom Guarantees</field>
+        <field name="res_model">purchase.guarante</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent">
+                Create the first purchase guarantee
+            </p>
+        </field>
+    </record>
+
+    <record id="action_purchase_customs_branch" model="ir.actions.act_window">
+        <field name="name">Customs Branch</field>
+        <field name="res_model">customs.branch</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem
+        id="menu_purchase_guarante"
+        name="Custom Guarantees"
+        parent="purchase.menu_procurement_management"
+        action="action_purchase_guarante" />
+
+    <menuitem
+        id="menu_purchase_customs_branch"
+        name="Customs Branch"
+        parent="purchase.menu_purchase_config"
+        action="action_purchase_customs_branch" />
+</odoo>

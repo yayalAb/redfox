@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_stock_balance_report_tree" model="ir.ui.view">
+            <field name="name">stock balance report</field>
+            <field name="model">stock.balance.report.tree</field>
+            <field name="arch" type="xml">
+                <list string="Stock Balance"  create="False"
+                  decoration-success="stock_balance &gt; 0"
+                  decoration-danger="stock_balance &lt; 0">
+                    <field name="default_code"/>
+                    <field name="product_id" widget="many2one"/>
+                    <field name="incoming_qty" sum="Total"/>
+                     <field name="outgoing_qty" sum="Total"/>
+                     <field name="stock_balance" sum="Total"/>
+                     <field name="unit_price" sum="Total" string="Unit Cost"/>
+                     <field name="total_cost" sum="Total" string="Total Cost"/>
+                </list>
+            </field>
+        </record>
+    <record id="view_stock_balance_report_search" model="ir.ui.view">
+    <field name="name">stock balance report search</field>
+    <field name="model">stock.balance.report.tree</field>
+    <field name="arch" type="xml">
+        <search>
+             <field name="product_id"/>
+             <field name="default_code"/>
+        </search>
+    </field>
+</record>
+
+    <record id="view_stock_balance_report_pivot" model="ir.ui.view">
+    <field name="name">stock balance report pivot</field>
+    <field name="model">stock.balance.report.tree</field>
+    <field name="arch" type="xml">
+        <pivot string="Stock Balance Report">
+            <field name="product_id" type="row"/>
+            <field name="stock_location_id" type="col"/>
+            <field name="incoming_qty" type="measure"/>
+            <field name="outgoing_qty" type="measure"/>
+            <field name="stock_balance" type="measure"/>
+        </pivot>
+    </field>
+</record>
+
+
+    <record id="action_stock_balance_report_tree" model="ir.actions.act_window">
+        <field name="name">stock balance report</field>
+        <field name="res_model">stock.balance.report.tree</field>
+        <field name="view_mode">list,search,graph,pivot</field>
+        <field name="view_id" ref="view_stock_balance_report_tree"/>
+        <field name="target">current</field>
+    </record>
+
+</odoo>

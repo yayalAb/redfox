@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+    <record id="employee_insurance_utilized_report_action" model="ir.actions.act_window">
+        <field name="name">Insurance coverage report</field>
+        <field name="res_model">employee.insurance.line</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <field name="domain">[]</field>
+
+    </record>
+
+               <record id="employee_insurance_utilized_report_view_tree" model="ir.ui.view">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="model">employee.insurance.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="insurance_id" string="Reference" />
+                <field name="insurance_id" string="Reference" />
+                <field name="coverage_type_id" />
+                 <field name="coverage_value" />
+                <field name="utilized_value" />
+
+                 <field name="remaining_balance" />
+            </list>
+        </field>
+    </record>
+
+
+         <record id="employee_insurance_utilized_report_view_pivot" model="ir.ui.view">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="model">employee.insurance.line</field>
+        <field name="arch" type="xml">
+            <pivot>
+           <field name="insurance_id" />
+                <field name="coverage_type_id" />
+                <field name="utilized_value" />
+                <field name="coverage_value" />
+<!--                <field name="remaining_value" sum='Remaining'/>-->
+            </pivot>
+        </field>
+    </record>
+
+
+        <menuitem
+            id="menu_employee_insurances_main"
+            name="Insurances"/>
+
+         <menuitem
+            id="menu_employee_insurances_report"
+            name="Report"
+            parent="menu_employee_insurances_main"/>
+
+    <menuitem
+            id="menu_employee_insurance_utilized"
+            name="Utilized Report"
+            parent="menu_employee_insurances_report"
+            action="employee_insurance_utilization_action"/>
+</data>
+
+</odoo>

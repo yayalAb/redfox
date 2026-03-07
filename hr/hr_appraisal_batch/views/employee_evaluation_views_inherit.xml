@@ -1,0 +1,27 @@
+<odoo>
+    <record id="view_employee_evaluation_form_inherit_batch" model="ir.ui.view">
+        <field name="name">employee.evaluation.form.inherit.batch</field>
+        <field name="model">employee.evaluation</field>
+        <field name="inherit_id" ref="hr_kpi_appraisal.view_employee_evaluation_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='period_id']" position="after">
+                <field name="batch_id" readonly="1" options="{'no_open': True}" />
+            </xpath>
+        </field>
+    </record>
+
+  <record id="view_employee_evaluation_search_inherit_batch" model="ir.ui.view">
+        <field name="name">employee.evaluation.search.inherit.batch</field>
+        <field name="model">employee.evaluation</field>
+        <field name="arch" type="xml">
+            <search string="Employee Evaluations">
+                <filter name="group_by_batch" string="Batch" context="{'group_by': 'batch_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_kpi_appraisal.action_employee_evaluation" model="ir.actions.act_window">
+        <field name="search_view_id" ref="view_employee_evaluation_search_inherit_batch"/>
+        <field name="context">{'search_default_group_by_batch': 1}</field>
+    </record>
+</odoo>

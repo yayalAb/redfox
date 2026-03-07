@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_salary_generate_offer_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr.contract.salary.generate.offer.form.inherit</field>
+        <field name="model">hr.contract.salary.offer</field>
+        <field name="inherit_id" ref="hr_contract_salary.hr_contract_salary_offer_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='url']" position='replace' />
+            <xpath expr="//group[@name='group_token']" position='replace'/>
+            <xpath expr="//button[@name='action_jump_to_offer']" position='replace' />
+        </field>
+    </record>
+</odoo>

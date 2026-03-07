@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fleet_vehicle_log_services_view_form_inherit_details" model="ir.ui.view">
+        <field name="name">fleet.vehicle.log.services.form.inherit.details</field>
+        <field name="model">fleet.vehicle.log.services</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_log_services_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='amount']" position="attributes">
+                <attribute name="readonly">1</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+
+           
+            <xpath expr="//field[@name='notes']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            
+            <xpath expr="//field[@name='notes']/preceding-sibling::separator[1]" position="replace">
+                <notebook>
+                    <page string="Service Details" name="service_details">
+                        <field name="service_detail_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="currency_id" invisible="1"/>
+                                <field name="name"/>
+                                <field name="product_uom_qty" string="Qty"/>
+                                <field name="product_uom_id"/>
+                                <field name="cost_per_unit" widget="monetary"/>
+                                <field name="total_cost" widget="monetary" sum="Subtotal"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Notes" name="notes_page">
+                        <field name="notes" nolabel="1" placeholder="Write here any other information related to the service completed."/>
+                    </page>
+                </notebook>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

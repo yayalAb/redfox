@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id='fleet_vehicle_request_view_form' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.request.form</field>
+        <field name="model">fleet.vehicle.request</field>
+        <field name="arch" type="xml">
+            <form string="Fleet Request">
+                <field name="active" invisible="1" />
+                <field name="currency_id" invisible="1" />
+                <header>
+                    <button
+                        name="button_in_review"
+                        type="object"
+                        invisible="state != 'draft'"
+                        string="Submit"
+                        class="oe_highlight"
+                        groups="fleet_vehicle_log_fuel.fleet_request_review_group"
+                    />
+                    <button
+                        name="button_verify"
+                        type="object"
+                        invisible="state !='in_review'"
+                        string="Verify"
+                        class="oe_highlight"
+                        groups="fleet_vehicle_log_fuel.fleet_request_verify_group"
+                    />
+                    <button
+                        name="button_approved"
+                        type="object"
+                        invisible="state != 'verify'"
+                        string="Approve"
+                        class="oe_highlight"
+                        groups="fleet_vehicle_log_fuel.fleet_request_approve_group"
+                    />
+                    <button
+                        name="button_authorize"
+                        type="object"
+                        invisible="state != 'approved'"
+                        string="Authorize"
+                        class="oe_highlight"
+                        groups="fleet_vehicle_log_fuel.fleet_request_authorize_group"
+                    />
+                    <button
+                        name="button_draft"
+                        invisible="state!='cancelled'"
+                        string="Set to Draft"
+                        type="object"
+                        groups="fleet_vehicle_log_fuel.fleet_request_draft_group"
+                    />
+                    <button
+                        name="button_cancel"
+                        invisible="state not in ('draft')"
+                        string="Cancel"
+                        type="object"
+                        groups="fleet_vehicle_log_fuel.fleet_request_cancel_group"
+                    />
+
+                    <button
+                        name="button_rejected"
+                        invisible="state not in ('approved', 'verify', 'in_review')"
+                        string="Reject"
+                        type="object"
+                        groups="fleet_vehicle_log_fuel.fleet_request_reject_group"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="state!='draft'" />
+                            <field name="description" readonly="state!='draft'" />
+                            <field name="vehicle_id" invisible="state in ['draft','in_review']" />
+                            <field name="driver_id" invisible="state in ['draft','in_review']" />
+                            <!-- <field name="service_type_id" readonly="state!='draft'" />
+                            <field name="date" readonly="state!='draft'" />
+                            <field
+                                name="amount"
+                                widget="monetary"
+                                readonly="state!='draft'"
+                            />
+                            <field name="vendor_id" readonly="state!='draft'" /> -->
+                        </group>
+                        <group>
+                            <field name="date_from" string="Planned Date" widget="daterange" options="{&quot;end_date_field&quot;: &quot;date&quot;, &quot;always_range&quot;: &quot;1&quot;}" required="1"/>
+                            <field name="date_to" invisible="1" required="date_from"/>
+                            <field name="source_location" required="1"/>
+                            <field name="destruction_location" required="1"/>
+                            
+                            <!-- <field name="liter" readonly="state!='draft'" />
+                            <field name="price_per_liter" readonly="state!='draft'" />
+                            <field name="vehicle_id" readonly="state!='draft'" />
+                            <field name="purchaser_id" readonly="state!='draft'" />
+                            <field name="odometer_id" invisible="1" />
+                            <label for="odometer" />
+                            <div class="o_row">
+                                <field name="odometer" readonly="odometer_id" />
+                                <field name="odometer_unit" />
+                            </div> -->
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field
+                            nolabel="1"
+                            name="notes"
+                            placeholder="Write here any other information related to the service completed."
+                        />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+    <record id="fleet_vehicle_request_view_tree" model="ir.ui.view">
+        <field name="name">fleet.vehicle.request.tree</field>
+        <field name="model">fleet.vehicle.request</field>
+        <field name="arch" type="xml">
+            <list multi_edit="1">
+                <!-- <field name="date" readonly="1" /> -->
+                <field name="user_id" readonly="state!='draft'" />
+                <!-- <field name="service_type_id" readonly="state!='draft'" /> -->
+                <!-- <field name="vehicle_id" readonly="1" widget="many2one_avatar" /> -->
+                <!-- <field name="purchaser_id" readonly="1" widget="many2one_avatar" /> -->
+                <!-- <field name="vendor_id" optional="show" readonly="state!='draft'" /> -->
+                <!-- <field name="inv_ref" column_invisible="1" />
+                <field name="liter" readonly="state!='draft'" />
+                <field name="price_per_liter" column_invisible="1" /> -->
+                <field name="notes" optional="show" />
+                <field name="date_from" />
+                <field name="date_to" />
+                <!-- <field
+                    name="amount"
+                    sum="Total"
+                    widget="monetary"
+                    readonly="state!='draft'"
+                /> -->
+                <!-- <field name="currency_id" column_invisible="1" /> -->
+                <field
+                    name="state"
+                    readonly="1"
+                    widget="badge"
+                    decoration-success="state == 'authorize'"
+                    decoration-warning="state == 'draft'"
+                    decoration-info="state == 'approved'"
+                />
+            </list>
+        </field>
+    </record>
+    <record id='fleet_vehicle_request_view_kanban' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.request.kanban</field>
+        <field name="model">fleet.vehicle.request</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="currency_id" />
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <field
+                                name="vehicle_id"
+                                class="fw-bold"
+                                widget="res_partner_many2one"
+                            />
+                            <field class="badge text-bg-secondary" name="state" />
+                        </div>
+                        <field name="date" />
+                        <field name="purchaser_id" widget="res_partner_many2one" />
+                        <field name="vendor_id" widget="res_partner_many2one" />
+                        <span><field name="liter" /> Liter</span>
+                        <footer class="pt-0">
+                            <field
+                                name="amount"
+                                widget="monetary"
+                                options="{'currency_field': 'currency_id'}"
+                            />
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="fleet_vehicle_request_view_graph" model="ir.ui.view">
+        <field name="name">fleet.vehicle.request.graph</field>
+        <field name="model">fleet.vehicle.request</field>
+        <field name="arch" type="xml">
+            <graph string="Fuel Costs Per Month" stacked="True" sample="1">
+                <field name="date" type="row" />
+                <field name="vehicle_id" type="row" />
+                <field name="amount" type="measure" />
+            </graph>
+        </field>
+    </record>
+    <record id="fleet_vehicle_request_view_search" model="ir.ui.view">
+        <field name="name">fleet.vehicle.request.search</field>
+        <field name="model">fleet.vehicle.request</field>
+        <field name="arch" type="xml">
+            <search string="Fleet Request">
+                <field name="vehicle_id" />
+                <field name="liter" />
+                <field name="service_type_id" />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id='fleet_vehicle_request_action' model='ir.actions.act_window'>
+        <field name="name">Fleet Request</field>
+        <field name="res_model">fleet.vehicle.request</field>
+        <field name="view_mode">list,kanban,form,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            Create a new fuel log entry
+          </p>
+            <p>
+            Here you can add refuelling entries for all vehicles.
+          </p>
+        </field>
+    </record>
+    <menuitem
+        action="fleet_vehicle_request_action"
+        parent="fleet.fleet_vehicles"
+        name="Fleet Request"
+        id="fleet_vehicle_request_menu"
+        sequence="4"
+    />
+
+    <!-- My Fleet Requests Action -->
+    <record id='fleet_vehicle_request_my_action' model='ir.actions.act_window'>
+        <field name="name">My Fleet Requests</field>
+        <field name="res_model">fleet.vehicle.request</field>
+        <field name="view_mode">list,kanban,form,graph</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="context">{'default_user_id': uid, 'search_default_my_requests': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            Create a new fleet request
+          </p>
+            <p>
+            Here you can view and manage your own fleet requests.
+          </p>
+        </field>
+    </record>
+
+    <!-- My Team's Fleet Requests Action -->
+    <record id='fleet_vehicle_request_team_action' model='ir.actions.act_window'>
+        <field name="name">My Team's Fleet Requests</field>
+        <field name="res_model">fleet.vehicle.request</field>
+        <field name="view_mode">list,kanban,form,graph</field>
+        <field name="domain">[('user_id.employee_id.parent_id.user_id', '=', uid)]</field>
+        <field name="context">{'search_default_team_requests': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            No team requests found
+          </p>
+            <p>
+            Here you can view and manage fleet requests from your team members.
+          </p>
+        </field>
+    </record>
+
+    <!-- My Fleet Requests Menu -->
+    <menuitem
+        action="fleet_vehicle_request_my_action"
+        parent="hr_employee_self_service.main_menu_self_service_probc"
+        name="My Fleet Requests"
+        id="fleet_vehicle_request_my_menu"
+        sequence="5"
+    />
+
+    <!-- My Team's Fleet Requests Menu -->
+    <menuitem
+        action="fleet_vehicle_request_team_action"
+        parent="manager_service.employee_requests_menu_probc"
+        name="My Team's Fleet Requests"
+        id="fleet_vehicle_request_team_menu"
+        sequence="6"
+    />
+
+    
+</odoo>

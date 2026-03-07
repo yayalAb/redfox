@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.SearchBar.Input" t-inherit-mode="extension" owl="1">
+        <xpath expr="//input[hasclass('o_searchview_input')]" position="after">
+            <t t-if="env.model and env.model.root.resModel == 'documents.document'">
+                <input type="text"
+                        class="o_searchview_input o_input"
+                        accesskey="Q"
+                        placeholder="Search From Document..."
+                        role="searchbox"
+                        id="search_custom_input"
+                    />
+            </t>
+        </xpath>
+    </t>
+    <t t-inherit="web.SearchBar" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o_cp_searchview')]" position="after">
+            <t t-if="this.getModelName() == 'documents.document'" >
+                <button type="button" class="btn btn-secondary new_click" style="background-color: #f6f7fa;width:8rem !important;margin-left:0.8rem!important" t-on-click="() => this._onClickCustom()">
+                        Search Docs
+                </button>
+            </t>
+        </xpath>
+    </t>
+
+</templates>

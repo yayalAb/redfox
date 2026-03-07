@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_contract_request" model="ir.actions.report">
+        <field name="name">Contract Request Letter</field>
+        <field name="model">contract.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_sale_agreement.report_contract_request_template</field>
+        <field name="report_file">custom_sale_agreement.report_contract_request_template</field>
+        <field name="print_report_name">'Contract Request - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_contract_request"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_contract_request_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 14pt; font-weight: normal; line-height: 1.5; margin-top: 0px; margin-left: 40px; margin-right: 40px;">
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>To: </strong>
+                                <span t-if="doc.recipient_office" t-field="doc.recipient_office"/><br t-if="doc.recipient_office"/>
+                                <span t-field="doc.partner_id.name"/><br/>
+                                <span t-if="doc.city" t-field="doc.city"/><br t-if="doc.city"/>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <strong>Subject: Contract Request for Supply of Goods / Services</strong>
+                        </div>
+
+                        <div class="mt-2">
+                            <p>Dear Sir/Madam,</p>
+                            
+                            <p>
+                                <span t-esc="doc.env.company.name"/> respectfully submits this letter to inform your esteemed organization 
+                                that we currently have 
+                                <span>
+                                    <t t-if="doc.line_ids">
+                                        <span t-esc="', '.join(doc.line_ids.mapped('product_id.name'))"/>
+                                    </t>
+                                    <t t-else="">
+                                        requested items
+                                    </t>
+                                </span>
+                                available in our stock. Should your organization have a requirement or demand for these items, 
+                                we are fully prepared to supply them in accordance with your needs.
+                            </p>
+
+                            <p>
+                                We confirm that our company is ready to enter into a contract agreement and deliver the 
+                                required items in compliance with the agreed technical specifications, delivery schedule, 
+                                and commercial terms. <span t-esc="doc.env.company.name"/> has extensive experience in supplying 
+                                electrical materials and has successfully executed similar contracts with your esteemed 
+                                organization.
+                            </p>
+
+                            <p>
+                                Accordingly, we kindly request your office to consider our availability and, if there is a 
+                                demand, to proceed with the preparation and issuance of the relevant contract so that we 
+                                may commence supply without delay.
+                            </p>
+
+                            <p>
+                                Please let us know if any additional documents, clarifications, or approvals are required from 
+                                our side.
+                            </p>
+
+                            <p>
+                                We look forward to your positive response and continued cooperation.<br/>
+                                Thank you for your kind support.
+                            </p>
+
+                            <p class="mt-4">
+                                Yours sincerely,
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

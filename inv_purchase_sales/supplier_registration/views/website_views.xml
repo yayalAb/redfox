@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="custom_navbar" inherit_id="website.navbar_nav">
+        <xpath expr="//ul" position="inside">
+            <li t-if="request.env.user.is_public" class="nav-item">
+                <a class="nav-link" href="/supplies/register">Supplier Registration</a>
+            </li>
+            <li t-if="request.env.user.is_public" class="nav-item">
+                <a class="nav-link" href="/my/requester/registration">Requester Registration</a>
+            </li>
+        </xpath>
+    </template>
+</odoo>

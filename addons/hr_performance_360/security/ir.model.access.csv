@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_performance_rate_user,hr.performance.rate access,model_hr_performance_rate,base.group_user,1,1,1,1
+access_hr_performance_confi_user,hr.performance.confi access,model_hr_performance_confi,base.group_user,1,1,1,1
+access_hr_performance_question_user,hr.performance.question access,model_hr_performance_question,base.group_user,1,1,1,1
+
+access_hr_performance_evaluation_user,hr.performance.evaluation access,model_hr_performance_evaluation,base.group_user,1,1,1,1
+access_hr_performance_evaluation_line_user,hr.performance.evaluation.line access,model_hr_performance_evaluation_line,base.group_user,1,1,1,1
+access_hr_performance_evaluation_summary_user,hr.performance.evaluation.summary access,model_hr_performance_evaluation_summary,base.group_user,1,0,0,0
+access_hr_performance_evaluation_summary_detail_user,hr.performance.evaluation.summary.detail access,model_hr_performance_evaluation_summary_detail,base.group_user,1,0,0,0
+
+
+
+

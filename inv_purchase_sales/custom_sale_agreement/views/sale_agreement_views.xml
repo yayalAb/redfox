@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_agreement_form_view_inherit" model="ir.ui.view">
+        <field name="name">sale.agreement.form.inherit</field>
+        <field name="model">sale.agreement</field>
+        <field name="inherit_id" ref="agreement.agreement_form" />
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <button name="%(custom_sale_agreement.action_report_sale_agreement)d"
+                    type="action" string="Print Contract"
+                    class="oe_highlight" invisible="state in ('draft')" />
+
+                <!-- <button name="action_create_manufacturing_order"
+                    type="object" string="Create MO"
+                    class="oe_highlight"
+                    invisible="agreement_category != 'product_sale' or state != 'confirmed'" /> -->
+
+                <!-- <button name="action_create_manufacturing_order"
+                    type="object" string="Create Test Order"
+                    class="oe_highlight"
+                    invisible="agreement_category != 'test' or state != 'confirmed'" />
+
+                <button name="action_create_service_request"
+                    type="object" string="Create Service Request"
+                    class="oe_highlight"
+                    invisible="agreement_category != 'maintenance' or state != 'confirmed'" />
+
+                <button name="action_create_purchase_request"
+                    type="object" string="Create Purchase Request"
+                    class="oe_highlight"
+                    invisible="state != 'confirmed' or agreement_category != 'product_sale'" /> -->
+
+                <button name="action_create_cip_request"
+                    string="Create CIP Request" type="object"
+                    class="oe_highlight" invisible="state != 'confirmed'" />
+            </xpath>
+
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <!-- <button name="action_view_manufacturing_orders"
+                    type="object" class="oe_stat_button" icon="fa-cogs"
+                    invisible="agreement_category != 'product_sale' or state != 'confirmed' or mrp_count == 0">
+                    <field string="Manufacturing" name="mrp_count" widget="statinfo" />
+                </button> -->
+
+                <!-- <button
+                    name="action_view_service_requests"
+                    type="object" class="oe_stat_button" icon="fa-wrench"
+                    invisible="agreement_category != 'maintenance' or state == 'draft' or service_request_count == 0">
+                    <field string="Services" name="service_request_count" widget="statinfo" />
+                </button> -->
+
+
+                <!-- <button name="action_view_rfps"
+                    type="object" class="oe_stat_button" icon="fa_shopping-cart"
+                    invisible="state != 'confirmed' or rfp_count == 0">
+                    <field string="Purchase Requests" name="rfp_count" widget="statinfo" />
+                </button> -->
+
+                <button name="action_view_cip_requests" type="object" class="oe_stat_button"
+                    icon="fa-check-square-o" invisible="cip_count == 0">
+                    <field name="cip_count" widget="statinfo" string="CIP Requests" />
+                </button>
+            </xpath>
+
+
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="name" required="1" />
+            </xpath>
+
+            <xpath expr="//field[@name='attachment']" position="before">
+                <field name="country_of_origin_id" invisible="agreement_category != 'maintenance'"/>
+                <field name="year_of_manufacturing" invisible="agreement_category != 'maintenance'"/>
+                <field name="due_date" invisible="agreement_category != 'maintenance'"/>
+            </xpath>
+
+            <!-- <xpath expr="//field[@name='line_ids']//list//field[@name='ordered_qty']"
+                position="after">
+                <field name="manufactured_qty" readonly="1"
+                    column_invisible="parent.agreement_category != 'product_sale'"
+                    string="Manufactured" />
+                <field name="manufactured_qty" readonly="1"
+                    column_invisible="parent.agreement_category != 'maintenance'" string="Repaired" />
+                <field name="manufactured_qty" readonly="1"
+                    column_invisible="parent.agreement_category != 'test'" string="Tested" />
+            </xpath> -->
+
+
+            <xpath expr="//div[@class='oe_title']" position="replace">
+                <div class="oe_title">
+                    <label for="code" class="oe_edit_only" string="Contract Number" />
+                    <h1>
+                        <field name="code" readonly="0" required="0" />
+                    </h1>
+                </div>
+            </xpath>
+
+            <xpath expr="//group[@name='left']" position="inside">
+                <field name="method_of_payment" string="Pre Payment" />
+                <field name="production_period" string="Production Period" />
+                <field name="customer_type" />
+                <field name="source_from" />
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

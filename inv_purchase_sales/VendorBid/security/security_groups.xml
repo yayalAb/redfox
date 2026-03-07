@@ -1,0 +1,128 @@
+<odoo>
+    <record id="module_category_purchase_groups" model="ir.module.category">
+        <field name="name">Purchase Groups</field>
+        <field name="description">User access levels for purchase related flows.</field>
+        <field name="sequence">19</field>
+    </record>
+
+    <record id="group_local_purchase_user" model="res.groups">
+        <field name="name">Local Purchase User</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]" />
+        <field name="comment">This user can only see Local Purchase Requests, Quotatons and Orders.</field>
+    </record>
+
+    <record id="group_foreign_purchase_user" model="res.groups">
+        <field name="name">Foreign Purchase User</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]" />
+        <field name="comment">This user can only see Foreign Purchase Requests, Quotatons and
+            Orders.</field>
+    </record>
+
+    <record id="group_purchase_order_approve" model="res.groups">
+        <field name="name">Purchase Order Approve</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+    </record>
+
+    <record id="group_foreign_purchase_committee_member" model="res.groups">
+        <field name="name">Foreign Purchase Committee Member</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+    </record>
+
+    <record id="group_local_purchase_committee_member" model="res.groups">
+        <field name="name">Local Purchase Committee Member</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+    </record>
+
+    <!-- RFP Action Groups -->
+    <record id="group_rfp_submit" model="res.groups">
+        <field name="name">RFP Submit</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can submit RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_approve" model="res.groups">
+        <field name="name">RFP Approve</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can approve submitted RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_verifyer" model="res.groups">
+        <field name="name">RFP Initials Verifyer</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can approve submitted RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_final_verifyer" model="res.groups">
+        <field name="name">RFP Final Verifyer</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can approve submitted RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_split" model="res.groups">
+        <field name="name">RFP Split Order</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can split submitted RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_close" model="res.groups">
+        <field name="name">RFP Close</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can close approved RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_accept" model="res.groups">
+        <field name="name">RFP Accept</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can accept RFP requests in evaluation state.</field>
+    </record>
+
+    <record id="group_rfp_reject" model="res.groups">
+        <field name="name">RFP Reject</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can reject RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_final_approve" model="res.groups">
+        <field name="name">RFP Final Approve</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can give final approval to committee approved RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_create_orders" model="res.groups">
+        <field name="name">RFP Create Orders</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can create purchase orders from accepted RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_create_quotation" model="res.groups">
+        <field name="name">RFP Create Quotation</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can create quotations from approved RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_create_order" model="res.groups">
+        <field name="name">RFP Create Order</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can create direct purchase orders from approved RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_direct_purchase" model="res.groups">
+        <field name="name">RFP Direct Purchase</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can create direct purchases from approved RFP requests.</field>
+    </record>
+
+    <record id="group_rfp_return" model="res.groups">
+        <field name="name">RFP Return</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can return RFP requests to previous state.</field>
+    </record>
+
+    <record id="group_rfp_rerequest_approval" model="res.groups">
+        <field name="name">RFP Re-request for Approval</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="comment">User can return RFP requests to previous state.</field>
+    </record>
+</odoo>

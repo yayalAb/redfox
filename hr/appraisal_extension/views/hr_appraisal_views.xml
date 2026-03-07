@@ -1,0 +1,48 @@
+<odoo>
+  <record id="your_module_hr_appraisal_form_inherit" model="ir.ui.view">
+    <field name="name">hr.appraisal.form.inherit</field>
+    <field name="model">hr.appraisal</field>
+    <field name="inherit_id" ref="hr_appraisal.view_hr_appraisal_form" />
+    <field name="arch" type="xml">
+
+      <field name="employee_id" position="after">
+        <field name="appraisal_template_domain" invisible="1" />
+      </field>
+      <xpath expr="//field[@name='appraisal_template_id']" position="attributes">
+        <attribute name="domain">appraisal_template_domain</attribute>
+        <attribute name="placeholder">Select KPI form</attribute>
+      </xpath>
+
+      <field name="appraisal_template_id" position="after">
+        <field name="period_type" />
+        <field name="period_id" invisible="not period_type"
+          domain="[('period_type', '=', period_type)]" options="{'no_create': True, 'no_open': True}"/>
+      </field>
+
+      <field name="department_id" position="after">
+        <field name="appraisal_start_date" readonly="1" />
+        <field name="appraisal_end_date" readonly="1" />
+      </field>
+
+    </field>
+  </record>
+  <record id="hr_appraisal_view_form_inherit_final_rating" model="ir.ui.view">
+    <field name="name">hr.appraisal.form.inherit.rating</field>
+    <field name="model">hr.appraisal</field>
+    <!-- The original form view is in the hr_appraisal module -->
+    <field name="inherit_id" ref="hr_appraisal.view_hr_appraisal_form" />
+    <field name="arch" type="xml">
+
+      <xpath expr="//field[@name='assessment_note']" position="attributes">
+        <attribute name="invisible">1</attribute>
+      </xpath>
+
+      <xpath expr="//field[@name='department_id']" position="after">
+        <field name="final_rating"
+          invisible="state == 'new'"
+          style="font-weight: bold;" />
+      </xpath>
+
+    </field>
+  </record>
+</odoo>

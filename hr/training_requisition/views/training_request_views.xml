@@ -1,0 +1,159 @@
+<odoo>
+    <record id='training_requisition_list_view' model='ir.ui.view'>
+        <field name='name'>training.requisition.list.view</field>
+        <field name='model'>training.requisition</field>
+        <field name='arch' type='xml'>
+            <list>
+                <field name="program_name" />
+                <field name="requesting_department" />
+                <field name="start_date" />
+                <field name="end_date" />
+                <field name="estimated_budget" readonly="1" />
+                <field name="resource_line_ids" widget="many2many_tags" />
+                <field name="number_of_trainers" />
+                <field name="participants" />
+                <field name="training_place" />
+                <field name="state" widget="badge"
+                    decoration-success="state in ('planned')"
+                    decoration-info="state == 'in_review'"
+                    decoration-danger="state == 'rejected'" />
+                <field name="remark" invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id='training_requisition_form_view' model='ir.ui.view'>
+        <field name='name'>training.requisition.form.view</field>
+        <field name='model'>training.requisition</field>
+        <field name='arch' type='xml'>
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                        class="oe_highlight" invisible="state != 'draft'"
+                        groups="training_requisition.training_requisition_group_submit" />
+
+                    <button name="action_verify" string="Review" type="object"
+                        class="oe_highlight" invisible="state != 'in_review'"
+                        groups="training_requisition.training_requisition_group_verify" />
+
+                    <button name="action_approve" string="Approve" type="object"
+                        class="oe_highlight" invisible="state != 'verify'"
+                        groups="training_requisition.training_requisition_group_approve" />
+
+                    <button name="action_authorize" string="Authorize" type="object"
+                        class="oe_highlight" invisible="state != 'approve'"
+                        groups="training_requisition.training_requisition_group_authorize" />
+
+                    <button name="action_plan" string="Plan" type="object"
+                        class="oe_highlight" invisible="state != 'authorize'"
+                        groups="training_requisition.training_requisition_group_plan" />
+
+                    <button name="%(action_training_requisition_reject_wizard)d" string="Reject"
+                        type="action" class="btn-danger"
+                        invisible="state in ['draft', 'planned', 'done']"
+                        groups="training_requisition.training_requisition_group_reject" />
+
+                    <button name="action_set_to_draft" string="Set to Draft" type="object"
+                        invisible="state in ['planned', 'rejected']"
+                        groups="training_requisition.training_requisition_group_reset_to_draft" />
+
+                    <button name="action_done" string="Mark as Done" type="object"
+                        class="oe_highlight" invisible="state != 'planned'" />
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,in_review,verify,approve,authorize,planned" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_channels"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-graduation-cap"
+                            invisible="channel_count == 0">
+                            <field name="channel_count" widget="statinfo" string="Trainings" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="program_name"
+                                placeholder="Name for the training" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Requisition Details">
+                            <field name="requesting_department" readonly="state != 'draft'" />
+                            <field name="start_date" />
+                            <field name="end_date" />
+                            <field name="training_hours" />
+                            <field name="number_of_trainers" />
+                            <field name="participants" />
+                        </group>
+                        <group string="Tracking Information">
+                            <field name="creator_id" widget="many2one_avatar_user" />
+                            <field name="create_date" string="Created On" />
+                            <field name="approve_date"
+                                invisible="state in ['draft', 'in_review', 'rejected']" />
+                            <field name="estimated_budget" readonly="1" />
+                            <field name="currency_id" invisible="1" />
+                            <field name="training_place" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Participants">
+                            <field name="training_participants">
+                                <list editable="bottom"
+                                    domain="[('department_id', '=', parent.requesting_department)]">
+                                    <field name="employee_id" widget="many2one" />
+                                    <field name="name" />
+                                    <field name="phone" />
+                                    <field name="department_id" />
+                                    <field name="job_id" />
+                                    <field name="company_id" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Resources">
+                            <field name="resource_line_ids">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="description" />
+                                    <field name="quantity" />
+                                    <field name="unit_price" />
+                                    <field name="cost" readonly="1" />
+                                    <field name="currency_id" invisible="1" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Training Content">
+                            <field name="training_content"
+                                placeholder="Describe the training content..." />
+                        </page>
+                        <page string="Remark">
+                            <field name="remark"
+                                placeholder="Explain why this training is needed..."
+                                readonly="state != 'draft'" />
+                        </page>
+                        <page string="Rejection Reason" invisible="state != 'rejected'">
+                            <field name="rejection_reason" readonly="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="action_training_requisition" model="ir.actions.act_window">
+        <field name="name">Training Requisitions</field>
+        <field name="res_model">training.requisition</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <menuitem
+        id="menu_training_requisitions"
+        name="Training Requisitions"
+        parent="website_slides.website_slides_menu_root"
+        action="action_training_requisition"
+        sequence="2" />
+</odoo>

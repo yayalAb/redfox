@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_request" model="ir.actions.report">
+        <field name="name">Payment Request Letter</field>
+        <field name="model">payment.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_sale_agreement.report_payment_request_doc</field>
+        <field name="report_file">custom_sale_agreement.report_payment_request_doc</field>
+        <field name="print_report_name">'Payment_Request_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_payment_request"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_payment_request_doc">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="doc_title">
+                        ወጪ ደብዳቤ<br/>OUTGOING LETTER
+                    </t>
+                    <t t-set="doc_number" t-value="o.name" />
+                    <t t-set="issue_number" t-value="'1'" />
+
+                    <!--Set global font size to 14pt -->
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 13pt;">
+                        
+                        <!--REF NO & DATE SECTION -->
+                        <div class="row">
+                            <div class="col-5 offset-7">
+                                <table class="table table-borderless" style="margin-bottom: 0px; font-size: 12pt;">
+                                    <tr>
+                                        <td class="text-end" style="padding: 0; width: 45%; vertical-align: bottom; white-space: nowrap;">
+                                            <span>የደብዳቤ ቁጥር</span><br/>
+                                            <span>Ref No:</span>
+                                        </td>
+                                        <td style="padding: 0; padding-left: 5px; width: 55%; vertical-align: bottom;">
+                                            <div style="border-bottom: 1px solid black; width: 100%; min-height: 20px;">
+                                                <span t-field="o.name"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-end" style="padding: 0; width: 45%; vertical-align: bottom; white-space: nowrap;">
+                                            <span>ቀን</span><br/>
+                                            <span>Date:</span>
+                                        </td>
+                                        <td style="padding: 0; padding-left: 5px; width: 55%; vertical-align: bottom;">
+                                            <div style="border-bottom: 1px solid black; width: 100%; min-height: 20px;">
+                                                <span t-field="o.date" t-options='{"widget": "date"}'/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- ADDRESS SECTION -->
+                        <div class="row mt-1">
+                            <div class="col-7">
+                                <strong>To: </strong> <span style="text-decoration: underline;" t-field="o.partner_id.name"/><br/>
+                                <t t-if="o.department_name">
+                                    <span style="text-decoration:underline;" t-field="o.department_name"/><br/>
+                                </t>
+                                <span style="text-decoration: underline;" t-field="o.partner_id.street"/><br/>
+                                <span style="text-decoration: underline;" t-field="o.partner_id.city"/>
+                            </div>
+                        </div>
+
+                        <!-- Contract Reference -->
+                        <div class="row mt-2" t-if="o.contract_ref_text">
+                            <div class="col-12">
+                                <span t-field="o.contract_ref_text"/>
+                            </div>
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="row mt-2">
+                            <div class="col-12 ">
+                                <span style="text-decoration: underline; font-weight: normal; ">
+                                    Subject: <span t-field="o.subject"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Intro Text -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <p>Dear Sirs,</p>
+                                <p>
+                                    <span t-field="o.header_text"/> 
+                                    listed on the table below for total sum of 
+                                    <strong><span t-field="o.amount_total"/></strong> 
+                                    (<em><span t-esc="o.currency_id.amount_to_text(o.amount_total)"/> only</em>) 
+                                     including VAT.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Items Table (Explicit Font Size) -->
+                        <div class="row mt-2">
+                            <table class="table table-bordered table-sm" style="font-size: 12pt;">
+                                <thead>
+                                    <tr style="background-color: #f2f2f2;">
+                                        <th>No</th>
+                                        <th>Description</th>
+                                        <th>UM</th>
+                                        <th>QTY</th>
+                                        <th>Unit Price</th>
+                                        <th>Total Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="idx" t-value="1"/>
+                                    <tr t-foreach="o.line_ids" t-as="line">
+                                        <td><span t-esc="idx"/></td>
+                                        <td><span t-field="line.name"/></td>
+                                        <td><span t-field="line.uom_id"/></td>
+                                        <td><span t-field="line.quantity"/></td>
+                                        <td><span t-field="line.price_unit"/></td>
+                                        <td><span t-field="line.total_price"/></td>
+                                        <t t-set="idx" t-value="idx+1"/>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5" class="text-end"><strong>Total Price with VAT</strong></td>
+                                        <td><strong><span t-field="o.amount_total"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Bank Details HTML Field -->
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <p style="margin-bottom: 5px;">
+                                    This is, therefore, to request your esteemed organization to settle the above stated payment amount.
+                                </p>
+                                <p style="margin-bottom: 5px;">
+                                    For bank transfer purpose, you can use the following bank details of Wagwago Trading Plc.
+                                </p>
+                                <div t-field="o.bank_details_html"/>
+                            </div>
+                        </div>
+
+                         <div class="row mt-3">
+                            <div class="col-12">
+                                <p>Your immediate response is highly appreciated.</p>
+                            </div>
+                        </div>
+
+                        <!-- Signature Section -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <!-- <div class="row">
+                                    <div class="col-4" /> 
+                                    <div class="col-3 text-center"><strong>Name/ስም</strong></div>
+                                    <div class="col-3 text-center"><strong>Signature/ፊርማ</strong></div>
+                                </div> -->
+                                <!-- Approved By Row -->
+                                <div class="row mt-4 align-items-end">
+                                    <div class="col-3">
+                                        <strong>ያጸደቀው<br />Approved By</strong>
+                                    </div>
+                                    <!-- 2. Name Column -->
+                                    <div class="col-3 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%;">
+                                            <t t-if="o.approver_id">
+                                                <span t-field="o.approver_id.name"/>
+                                            </t>
+                                            <t t-else="">
+                                                &#160;
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%; display: flex; align-items: bottom; justify-content: center;">
+                                            <t t-if="o.approver_id and o.approver_id.sign_signature">
+                                                <img t-att-src="image_data_uri(o.approver_id.sign_signature)" 
+                                                     style="max-height: 35px; max-width: 100%; margin-bottom: 2px;"/>
+                                            </t>
+                                            <t t-else="">
+                                                &#160;
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

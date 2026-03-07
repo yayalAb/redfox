@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_applicant_form_inherit" model="ir.ui.view">
+        <field name="name">hr.applicant.form.inherit</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <field name="salary_expected" position="attributes">
+                <attribute name="widget">salary_validation_widget</attribute>
+            </field>
+            <field name="salary_proposed" position="attributes">
+                <attribute name="widget">salary_validation_widget</attribute>
+            </field>
+            <field name="partner_phone" position="attributes">
+                <attribute name="widget">phone_field</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

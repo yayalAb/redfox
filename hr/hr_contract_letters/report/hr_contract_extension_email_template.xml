@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Contract Extension Email Body Template -->
+    <template id="email_template_contract_extension_body" name="Contract Extension Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+            <!-- Letter Number and Date -->
+            <div style="text-align: left; margin-bottom: 20px;">
+                <p class="d-flex justify-content-end"><strong>የደብዳቤ ቁጥር፡- <t t-esc="get_ref_no(contract) if get_ref_no else ('WG/' + str(contract.id).zfill(4) + '/2018' if contract.id else 'WG/0000/2018')"/></strong></p>
+                <p class="d-flex justify-content-end"><strong>ቀን ፡- <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+            </div>
+            
+            <!-- To Section -->
+            <div style="margin-bottom: 15px; text-align: left;">
+                <p><strong>ለ<t t-if="contract.employee_id.gender == 'male'">አቶ </t><t t-if="contract.employee_id.gender == 'female'">ወ/ሮ </t><span t-field="contract.employee_id.name"/><t t-if="contract.employee_id.identification_id">/<span t-field="contract.employee_id.identification_id"/></t>/</strong></p>
+                <p t-if="contract.employee_id and contract.employee_id.private_city">
+                    <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                </p>
+                <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                    <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                </p>
+                <p t-elif="contract.employee_id and contract.employee_id.work_contact_id and contract.employee_id.work_contact_id.city">
+                    <u><b><span t-field="contract.employee_id.work_contact_id.city"/></b></u>
+                </p>
+                <p t-else=""><u><b>አዲስ አበባ</b></u></p>
+            </div>
+            
+            <!-- Subject -->
+            <div style="margin-bottom: 20px; text-align: left;">
+                <p style="white-space: nowrap; display: inline-block;"><strong>ጉዳዩ: - የኮንትራት ቅጥርን ይመለከታል፤</strong></p>
+            </div>
+            
+            <!-- Letter Body -->
+            <div style="text-align: justify;">
+                <p>ድርጅታችን <strong><span t-field="contract.company_id.name"/></strong> በ<t t-if="contract.employee_id.private_city"><span t-field="contract.employee_id.private_city"/></t><t t-elif="contract.employee_id.address_id and contract.employee_id.address_id.city"><span t-field="contract.employee_id.address_id.city"/></t><t t-elif="contract.employee_id.work_contact_id and contract.employee_id.work_contact_id.city"><span t-field="contract.employee_id.work_contact_id.city"/></t><t t-else="">አዲስ አበባ</t> ከተማ ባለው ከፍት የሥራ መደብ መሰረት በ<t t-if="contract.employee_id and contract.employee_id.job_id"><strong><span t-field="contract.employee_id.job_id.name"/></strong></t><t t-else="">_______________</t> የሥራ መደብ ለመቀጠር ማመልከትዎ ይታወሳል፡፡</p>
+                
+                <p>በዚሁ መሰረት ያለዎትን የሥራ ልምድ ታይቶ ለሥራ መደቡ የተመረጡ ስለሆነ እ.አ.አ ከ<strong>
+                    <t t-if="contract.date_start">
+                        <span t-field="contract.date_start" t-options="{'widget': 'date'}"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> እስከ <strong>
+                    <t t-if="contract.date_end">
+                        <span t-field="contract.date_end" t-options="{'widget': 'date'}"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> 
+                <t t-if="contract.date_start and contract.date_end">
+                    <t t-set="months" t-value="(contract.date_end.year - contract.date_start.year) * 12 + (contract.date_end.month - contract.date_start.month)"/>
+                    <t t-if="months > 0">
+                        ለ<t t-esc="months"/> ወራት
+                    </t>
+                </t>
+                            በኮንትራት የቅጥር ሁኔታ ብር <strong><span t-esc="'{0:,.2f}'.format(contract.wage)"/></strong> /<span t-esc="contract.currency_id.amount_to_text(contract.wage)"/> ብር/ ወርሃዊ ደመወዝ 
+                <t t-if="contract.salary_grade_value_id">
+                    የሥራ ደረጃ <span t-field="contract.salary_grade_value_id.name"/>
+                </t>
+                <t t-else="">
+                    የሥራ ደረጃ _______________
+                </t>
+                እርከን ቤዝ(Base) እየተከፈልዎት በድርጅቱ 
+                <t t-if="contract.employee_id and contract.employee_id.department_id">
+                    <span t-field="contract.employee_id.department_id.name"/>
+                </t>
+                <t t-else="">
+                    _______________
+                </t>
+                የተቀጠሩ መሆኑን እንገልጻለን፡፡ የተጣለቦዎትን ኃላፊነት በትጋት፣ በቅንነትና በታማኝነት  እንዲወጡ እናሳስባለን፡፡</p>
+                
+                <p>የድርጅቱ ፋይናንስ ክፍልም ወርሃዊ ደመወዝዎ በአጠቃላይ ብር <strong><span t-esc="'{0:,.2f}'.format(contract.wage)"/></strong> /<span t-esc="contract.currency_id.amount_to_text(contract.wage)"/> ብር/ እንዲከፍልዎት በዚህ ደብዳቤ ግልባጭ እንዲያውቀው የተደረገ መሆኑንም እንገልፃለን፡፡</p>
+                
+                <p>ከሰላምታ ጋር</p>
+            </div>
+            
+            <!-- CC Section -->
+             <div class="mt-4 justify-content-between d-flex">
+                <div>
+                    <p><strong>CC.</strong></p>
+                <ul class="gap-1">
+                    <t t-if="contract.department_id">
+                        <li> <span t-field="contract.department_id.name" /></li>
+                    </t>
+                    <li>Corporate Finance Office</li>
+                    <li>Personnel File</li>
+                    
+                </ul>
+                
+                <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                </div>
+                <div class="justify-content-center d-col">
+                    <div class="ms-5"><span t-field="contract.approved_by_id.name" /></div>
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                    <div class="me-4">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                    </div>
+                    
+            
+            <!-- Signature -->
+          
+        </div>
+    </template>
+</odoo>

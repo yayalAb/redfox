@@ -1,0 +1,81 @@
+<odoo>
+    <record id="view_hr_expense_sheet_inherit_form" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.approval.form</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_verify_expense_sheets" string="Verify" type="object"
+                    class="oe_highlight" groups="payment_request.group_payment_request_verifier"
+                    invisible="state != 'submit'" />
+
+                <button name="action_authorize_expense_sheets" string="Authorize"
+                    type="object" class="oe_highlight"
+                    invisible="not can_user_approve or state != 'verify'" />
+
+                <button name="action_process_expense_sheets" string="Process"
+                    type="object" class="oe_highlight"
+                    groups="payment_request.group_payment_request_process"
+                    invisible="state != 'approve'" />
+            </xpath>
+
+            <xpath expr="//field[@name='employee_id']" position="before">
+                <field name="reference" readonly="1" />
+            </xpath>
+            <xpath expr="//header/button[@name='action_approve_expense_sheets']"
+                position="attributes">
+                <attribute name="invisible">not can_approve or state != 'authorize'</attribute>
+            </xpath>
+
+            <xpath expr="//header/button[@name='action_submit_sheet']"
+                position="attributes">
+                <attribute name="groups">payment_request.group_payment_request_submit</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_reset_expense_sheets']"
+                position="attributes">
+                <attribute name="groups">payment_request.group_payment_request_rest_to_draft</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_refuse_expense_sheets']"
+                position="attributes">
+                <attribute name="groups">payment_request.group_payment_request_refuse</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_approve_expense_sheets']"
+                position="attributes">
+                <attribute name="groups">payment_request.group_payment_request_approve</attribute>
+            </xpath>
+
+            <xpath expr="//header/button[@name='action_sheet_move_post']"
+                position="attributes">
+                <attribute name="groups">payment_request.group_payment_request_post</attribute>
+            </xpath>
+            <xpath expr="//field[@name='payment_method_line_id']"
+                position="attributes">
+                <attribute name="groups">payment_request.group_payment_request_post</attribute>
+                <attribute name="readonly">0</attribute>
+                <attribute name="required">0</attribute>
+                <attribute name="invisible">state in ['draft','submit','verify','authorize']</attribute>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Purpose">
+                    <field name="purpose" />
+                </page>
+                <page string="Remark">
+                    <field name="remark" />
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_hr_expense_sheet_inherit_list" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.inherited.list</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='employee_id']" position="before">
+                <field name="reference" readonly="1" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

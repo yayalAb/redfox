@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_invoice_bill_approver" model="ir.module.category">
+        <field name="name">Invoice/Bill Approver</field>
+        <field name="description">User access levels for invoice and bill approval actions.</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="module_category_payment_approver" model="ir.module.category">
+        <field name="name">Payment Approver</field>
+        <field name="description">User access levels for payment-related actions.</field>
+        <field name="sequence">21</field>
+    </record>
+
+    <!-- Post/Confirm Button Group -->
+    <record id="group_invoice_bill_post" model="res.groups">
+        <field name="name">Post/Confirm Invoice/Bill</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can post or confirm invoices and bills.</field>
+    </record>
+
+    <!-- Send Button Group -->
+    <record id="group_invoice_bill_send" model="res.groups">
+        <field name="name">Send Invoice/Bill</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can send invoices and bills.</field>
+    </record>
+
+    <!-- Print Button Group -->
+    <record id="group_invoice_bill_print" model="res.groups">
+        <field name="name">Print Invoice/Bill</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can print invoices and bills.</field>
+    </record>
+
+    <!-- Pay Button Group -->
+    <record id="group_invoice_bill_pay" model="res.groups">
+        <field name="name">Pay Invoice/Bill</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can register payments for invoices and bills.</field>
+    </record>
+
+    <!-- Preview Button Group -->
+    <record id="group_invoice_bill_preview" model="res.groups">
+        <field name="name">Preview Invoice</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can preview invoices.</field>
+    </record>
+
+    <!-- Reverse Entry/Credit Note Button Group -->
+    <record id="group_invoice_bill_reverse" model="res.groups">
+        <field name="name">Reverse Entry/Credit Note</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can reverse entries or create credit notes.</field>
+    </record>
+
+    <!-- Cancel Button Group -->
+    <record id="group_invoice_bill_cancel" model="res.groups">
+        <field name="name">Cancel Invoice/Bill</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can cancel invoices and bills.</field>
+    </record>
+
+    <!-- Reset to Draft Button Group -->
+    <record id="group_invoice_bill_reset_draft" model="res.groups">
+        <field name="name">Reset to Draft</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can reset invoices and bills to draft state.</field>
+    </record>
+
+    <!-- Set as Checked Button Group -->
+    <record id="group_invoice_bill_set_checked" model="res.groups">
+        <field name="name">Set as Checked</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can set invoices and bills as checked.</field>
+    </record>
+
+    <!-- Request Cancel Button Group -->
+    <record id="group_invoice_bill_request_cancel" model="res.groups">
+        <field name="name">Request Cancel</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can request cancellation of posted invoices and bills.</field>
+    </record>
+
+    <!-- Lock Button Group -->
+    <record id="group_invoice_bill_lock" model="res.groups">
+        <field name="name">Lock Invoice/Bill</field>
+        <field name="category_id" ref="module_category_invoice_bill_approver" />
+        <field name="comment">User can lock invoices and bills.</field>
+    </record>
+
+    <!-- Capture Transaction Button Group -->
+    <record id="group_invoice_bill_capture_transaction" model="res.groups">
+        <field name="name">Capture Payment Transaction</field>
+        <field name="category_id" ref="module_category_payment_approver" />
+        <field name="comment">User can capture authorized payment transactions.</field>
+    </record>
+
+    <!-- Void Transaction Button Group -->
+    <record id="group_invoice_bill_void_transaction" model="res.groups">
+        <field name="name">Void Payment Transaction</field>
+        <field name="category_id" ref="module_category_payment_approver" />
+        <field name="comment">User can void authorized payment transactions.</field>
+    </record>
+
+    <!-- View Payment Transactions Button Group -->
+    <record id="group_invoice_bill_view_transactions" model="res.groups">
+        <field name="name">View Payment Transactions</field>
+        <field name="category_id" ref="module_category_payment_approver" />
+        <field name="comment">User can view payment transactions.</field>
+    </record>
+
+    <!-- Register Payment Items Button Group -->
+    <record id="group_invoice_bill_register_payment_items" model="res.groups">
+        <field name="name">Register Payment Items</field>
+        <field name="category_id" ref="module_category_payment_approver" />
+        <field name="comment">User can register payments from payment items list.</field>
+    </record>
+
+    <!-- Force Register Payment Button Group -->
+    <record id="group_invoice_bill_force_register_payment" model="res.groups">
+        <field name="name">Force Register Payment</field>
+        <field name="category_id" ref="module_category_payment_approver" />
+        <field name="comment">User can force register payments.</field>
+    </record>
+
+    <!-- Open Payments Button Group -->
+    <record id="group_invoice_bill_open_payments" model="res.groups">
+        <field name="name">Open Payments</field>
+        <field name="category_id" ref="module_category_payment_approver" />
+        <field name="comment">User can open payments view.</field>
+    </record>
+</odoo>
+

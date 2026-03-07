@@ -1,0 +1,106 @@
+<odoo>
+    <record id="view_sale_order_form_agreement" model="ir.ui.view">
+        <field name="name">sale.order.form.agreement</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <!-- Add payment request counter and button in the header -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_payment_requests"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-money"
+                        invisible="payment_request_count == 0">
+                    <field name="payment_request_count" widget="statinfo" string="Payment Requests"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <field name="order_type" invisible="1" />
+                <button name="action_quotation_submit" string="Submit Quotation" type="object"
+                    class="oe_highlight" invisible="state != 'draft'" 
+                    groups="custom_sale_agreement.group_sales_quotation_submit" />
+
+                <button name="action_quotation_review" string="Review Quotation" type="object"
+                    class="oe_highlight" invisible="state != 'quotation_submit'"
+                    groups="custom_sale_agreement.group_sales_quotation_review" />
+
+                <button name="action_quotation_approve" string="Approve Quotation" type="object"
+                    class="oe_highlight" invisible="state != 'quotation_review'"
+                    groups="custom_sale_agreement.group_sales_quotation_approve"  />
+
+                <button name="action_quotation_reject" string="Reject Quotation" type="object"
+                    class="oe_highlight" groups="custom_sale_agreement.group_sales_quotation_refuse" 
+                    invisible="state not in ['quotation_review', 'quotation_approve', 'quotation_approve', 'quotation_submit']" />
+
+                <button name="action_quotation_reset_to_draft" string="Reset to Draft" type="object"
+                    class="oe_highlight" invisible="state != 'quotation_refuse'"
+                    groups="custom_sale_agreement.group_sales_quotation_reset_to_draft"  />
+
+                <button name="action_submit_order" string="Create Order" type="object"
+                    class="oe_highlight" groups="custom_sale_agreement.group_sales_order_submit" 
+                    invisible="state not in ['quotation_approve', 'sent']" />
+
+                <button name="action_review_order" string="Review Order" type="object"
+                    class="oe_highlight" groups="custom_sale_agreement.group_sales_order_review" 
+                    invisible="state != 'order_submit'" />
+                    
+                <field name="state" widget="statusbar" invisible="order_type != 'quotation'"
+                    statusbar_visible="draft,quotation_submit,quotation_review,quotation_approve,sent" />
+                <field name="state" widget="statusbar" invisible="order_type != 'order'"
+                    statusbar_visible="order_draft,order_submit,order_review,sent" />
+            </xpath>
+
+            <xpath expr="//header/button[@name='action_draft']" position="attributes">
+                <attribute name="groups">custom_sale_agreement.group_sales_order_reset_to_draft</attribute>
+                <attribute name="invisible">state != 'cancel'</attribute>
+            </xpath>
+
+            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                <attribute name="groups">custom_sale_agreement.group_sales_order_refuse</attribute>
+                <attribute name="invisible">state not in ['order_review', 'sale']</attribute>
+            </xpath>
+
+            <xpath expr="//header/button[@name='action_quotation_send'][1]" position="attributes">
+                <attribute name="invisible">state != 'quotation_approve'</attribute>
+            </xpath>
+            
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- # Additional fields for Agreement/Contract details -->
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <field name="agreement_id" 
+                       options="{'no_create': True}" 
+                       domain="[]"
+                       placeholder="Select Agreement to Auto-fill Contract No..."/>
+                <field name="contract_ref" placeholder="Contract No."/>
+                <field name="partner_tin" placeholder="Tax ID / TIN"/>
+            </xpath>
+
+            <xpath expr="//field[@name='note']" position="before">
+                <group>
+                    <field name="report_remark" placeholder="Write remarks here to appear on the printed Sales Order..."/>
+                </group>
+            </xpath>
+
+            <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
+                <attribute name="invisible">state != 'order_review'</attribute>
+                <attribute name="string">Approve Order</attribute>
+                <attribute name="groups">custom_sale_agreement.group_sales_order_approve</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="sale_category" readonly="state == 'cancel' or locked"/>
+            </xpath>
+
+            <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                <attribute name="readonly">state == 'cancel' or locked</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

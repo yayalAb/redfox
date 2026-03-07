@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_supplies_rfp_tree" model="ir.ui.view">
+        <field name="name">supplies.rfp.tree</field>
+        <field name="model">supplies.rfp</field>
+        <field name="arch" type="xml">
+            <list string="Request for Purchases">
+                <header>
+                    <button name="action_merge" type="object" string="Merge" class="oe_highlight" />
+                </header>
+                <field name="rfp_number" string="Reference" />
+                <field name="product_category_id" />
+                <field name="store_request_id" />
+                <field name="create_uid" string="Requested By" />
+                <field name="requested_date" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-warning="state in ('draft', 'committee_approving')"
+                    decoration-danger="state in ('rejected',)"
+                    decoration-info="state in ('approved', 'committee_approved')"
+                    decoration-primary="state in ('recommendation',)"
+                    decoration-success="state in ('accepted',)"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_supplies_rfp_form" model="ir.ui.view">
+        <field name="name">supplies.rfp.form</field>
+        <field name="model">supplies.rfp</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Requests">
+                <header>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,submitted,approved,evaluation,accepted,committee_approving,committee_approved"
+                        invisible="state == 'rejected'"
+                    />
+
+                    <button
+                        name="action_submit"
+                        string="Submit"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_submit"
+                        invisible="state != 'draft'"
+                    />
+
+
+                    <button
+                        name="action_initial_verfied"
+                        string="Verfay"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_verifyer"
+                        invisible="state not in ('submitted')"
+                    />
+
+                    <!-- <button
+                        name="action_approve"
+                        string="Approve"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_verifyer"
+                        invisible="state not in ('submitted') or purchase_type != 'petty_cash'"
+                    /> -->
+                    <!-- or state not in ('accepted', 'committee_approving') -->
+                    <!-- or state not in ('accepted', 'committee_approving') -->
+                    <!-- Committee Reject: visible when current user has pending approval -->
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_approve"
+                        invisible="state not in ('initial_verfayed')"
+                    />
+                    <!-- Close: visible in approved (after committee_approved) -->
+
+                    <!-- Accept: visible in evaluation (after approved) -->
+                    <button
+                        name="action_accept"
+                        string="Accept"
+                        type="object"
+                        groups="VendorBid.group_rfp_accept"
+                        invisible="state != 'evaluation' or purchase_type  in ('petty_cash')"
+                    />
+                    <!-- Committee Approve: visible when current user has pending approval -->
+                    <button
+                        name="action_committee_approve_current_user"
+                        string="Committee Approve"
+                        class="oe_highlight"
+                        type="object"
+                        invisible="not can_current_user_approve or state not in ('accepted', 'committee_approving')"
+                    />
+                    <!-- or state not in ('accepted', 'committee_approving') -->
+                    <!-- or state not in ('accepted', 'committee_approving') -->
+                    <!-- Committee Reject: visible when current user has pending approval -->
+                    <button
+                        name="action_committee_reject_current_user"
+                        string="Committee Reject"
+                        class="btn-warning"
+                        type="object"
+                        invisible="not can_current_user_approve or state not in ('accepted', 'committee_approving')"
+                    />
+
+                    <!-- Re-request Approval: visible when at least one committee member is rejected -->
+                    <button
+                        name="action_re_request_approval"
+                        string="Re-request Approval"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_rerequest_approval"
+                        invisible="not has_rejected_member"
+                    />
+
+                    <!-- Approve: visible in committee_approved (after accepted) -->
+
+                    <!-- Final Approve: visible in committee_approved (after committee approval) -->
+                    <button
+                        name="action_Verfay"
+                        string="Verfay"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_final_verifyer"
+                        invisible="state != 'committee_approved' or not requires_ceo_approval"
+                    />
+
+                    <button
+                        name="action_final_approve"
+                        string="Approve"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_final_verifyer"
+                        invisible="state != 'committee_approved' or  requires_ceo_approval"
+                    />
+
+
+                    <button
+                        name="action_final_approve"
+                        string="Approve"
+                        class="oe_highlight"
+                        type="object"
+                        groups="VendorBid.group_rfp_final_approve"
+                        invisible="state != 'verfayed'"
+                    />
+
+                    <!-- Create Orders: visible in accepted (after evaluation) -->
+                    <button
+                        name="action_create_bid_purchase_orders"
+                        string="Create Orders"
+                        type="object"
+                        groups="VendorBid.group_rfp_create_orders"
+                        invisible="state != 'accepted'"
+                    />
+                    <!-- Create Orders from Winners: visible in accepted (after evaluation) -->
+                    <button
+                        name="create_order_from_winners"
+                        string="Create Orders"
+                        type="object"
+                        groups="VendorBid.group_rfp_create_orders"
+                        invisible="state != 'f_approved'"
+                    />
+                    <!-- Create Quotation/Order/Direct Purchase: visible in approved -->
+                    <button
+                        name="action_open_po_creation_form"
+                        string="Create Quotation"
+                        type="object"
+                        groups="VendorBid.group_rfp_create_quotation"
+                        invisible="state != 'approved' or purchase_type not in ('bid', 'proforma')"
+                    />
+                    <button
+                        name="action_close"
+                        string="Close"
+                        type="object"
+                        class="btn-primary"
+                        groups="VendorBid.group_rfp_close"
+                        invisible="state != 'approved' or purchase_type in ('petty_cash') or rfq_count == 0"
+                    />
+                    <button
+                        name="action_open_po_creation_form"
+                        string="Create Order"
+                        type="object"
+                        groups="VendorBid.group_rfp_create_order"
+                        invisible="state != 'approved' or not (purchase_origin == 'local' and purchase_type in ['petty_cash','direct'])"
+                    />
+
+                    <!-- <button
+                        name="action_open_po_creation_form"
+                        string="Create Order"
+                        type="object"
+                        groups="VendorBid.group_rfp_create_order"
+                        invisible="state != 'f_approved' or not (purchase_origin == 'local' and purchase_type in
+                    ('bid','proforma'))"
+                    /> -->
+
+                    <button
+                        name="action_create_direct_purchase_order"
+                        string="Direct Purchase"
+                        type="object"
+                        groups="VendorBid.group_rfp_direct_purchase"
+                        invisible="state != 'f_approved' or not (purchase_origin == 'local' and purchase_type != 'direct')"
+                    />
+                    <!-- Split RFP: visible in draft and submitted states -->
+                    <button
+                        name="action_open_split_wizard"
+                        string="Split RFP"
+                        type="object"
+                        class="btn-secondary"
+                        groups="VendorBid.group_rfp_split"
+                        invisible="state not in ('initial_verfayed','approved','evaluation') or not product_line_ids"
+                    />
+                    <!-- Return: visible in all states except draft and ordered -->
+                    <!-- Reject: visible in submitted and committee_approving (early states) -->
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        class="btn-danger"
+                        type="object"
+                        groups="VendorBid.group_rfp_reject"
+                        invisible="state  in ('ordered')"
+                    />
+                    <!-- <button
+                        name="action_return"
+                        string="Return"
+                        type="object"
+                        groups="VendorBid.group_rfp_return"
+                        invisible="state in ['draft', 'ordered']"
+                    /> -->
+                </header>
+                <sheet>
+                    <!-- Invisible fields for button visibility -->
+                    <field name="can_current_user_approve" invisible="1" />
+                    <field name="current_user_member_id" invisible="1" />
+                    <field name="requires_ceo_approval" invisible="1" />
+                    <field name="net_pay" invisible="1" />
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_quotations"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            invisible="rfq_count == 0">
+                            <field name="rfq_count" widget="statinfo"
+                                string="Quotations" />
+                        </button>
+                        <button name="action_view_purchase_orders"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            invisible="state != 'ordered'" />
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="rfp_number" />
+                        </h1>
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                        invisible="not requires_ceo_approval or state in ('f_approved','ordered','cancelled','rejected')">
+                        <strong>CEO Approval Required:</strong> This purchase request exceeds the
+                        CEO approval threshold and requires CEO approval. </div>
+                    <group>
+                        <group>
+                            <field name="product_category_id" />
+                            <field name='purchase_origin' widget="radio"
+                                readonly="state not in ['draft', 'submitted', 'approved']"
+                                invisible="state in ['draft']" />
+                            <field name='purchase_type'
+                                readonly="state not in ['draft', 'submitted', 'approved']"
+                                invisible="state in ['draft']" />
+                            <field name="create_uid" string="Requested By" />
+                            <field name="merged_from_references" invisible="not merged_from_references" />
+                        </group>
+                        <group>
+                            <field name="required_date" readonly="state != 'draft'" />
+                            <field name="department_id" />
+                            <field name="company_id" />
+                            <field name="store_request_id"
+                                readonly="state not in ['draft', 'submitted']" />
+                            <field name="store_requested_by" readonly="1" />
+                            <field name="direct_purchase_id" invisible="purchase_type != 'direct'"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Product Lines">
+                            <field
+                                name="product_line_ids"
+                                context="{'default_rfp_id': id}"
+                                readonly="state not in ['draft', 'submitted']">
+                                <list editable="bottom">
+                                    <field name="product_id" string="Product" />
+                                    <field name="description" string="Description" />
+                                    <field name="product_image" widget="image"
+                                        options='{"size": [70, 70]}' />
+                                    <field name="product_qty" string="Quantity" />
+                                    <field name="remaining_qty" string="Remaining Quantity" />
+                                    <field name="ordered_qty" string="Ordered Quantity" />
+                                    <field name="product_uom" string="UoM" />
+                                </list>
+                            </field>
+                        </page>
+                        <!-- or purchase_type not in ['bid', 'proforma'] -->
+
+                        <page string="Price Comparison" name='bid_comparison'
+                            invisible="state in ['draft','submitted']">
+                            <!-- <div class="o_action_manager">
+                                <button
+                                    name="action_recommend_best_prices"
+                                    string="Recommend Best Prices"
+                                    type="object"
+                                    class="btn-primary"
+                                    invisible="state != 'evaluation'"
+                                    help="Automatically select the RFQ line with the lowest price for each product."
+                                />
+                            </div> -->
+                            <field name="comparison_table" readonly="1" />
+
+                            <p class="text-muted">
+                                * Green cells indicate recommended selections.
+                            </p>
+                        </page>
+
+                        <page string="Committee Members" name="committee_members"
+                            invisible="purchase_type == 'petty_cash' or state in ['draft']">
+                            <field name="committee_member_ids">
+                                <list editable="bottom">
+                                    <field name="member_id" />
+                                    <field name="role" />
+                                    <field name="approval_status" readonly="1" />
+                                    <field name="rejection_reason"  />
+                                    <field name='approval_date'
+                                        readonly="1"
+                                        invisible="approval_status != 'approved'" />
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Internal Notes" name="internal_notes">
+                            <group>
+                                <field name='internal_notes' />
+                                <field name="decision" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_supplies_rfp_search" model="ir.ui.view">
+        <field name="name">supplies.rfp.search</field>
+        <field name="model">supplies.rfp</field>
+        <field name="arch" type="xml">
+            <search string="Search Purchase Requests">
+                <field name="rfp_number" string="Order Number" />
+                <field name="store_request_id" string="Purchase Request" />
+                <field name="department_id" string="Department" />
+                <field name="create_uid" string="Requested By" />
+                <field name="product_category_id" string="Product Category" />
+                <separator />
+                <!-- Status Filters -->
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]" />
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]" />
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]" />
+                <filter name="evaluation" string="Evaluation"
+                    domain="[('state', '=', 'evaluation')]" />
+                <filter name="accepted" string="Accepted" domain="[('state', '=', 'accepted')]" />
+                <filter name="committee_approving" string="Committee Approving"
+                    domain="[('state', '=', 'committee_approving')]" />
+                <filter name="committee_approved" string="Committee Approved"
+                    domain="[('state', '=', 'committee_approved')]" />
+                <filter name="verfayed" string="Verfayed" domain="[('state', '=', 'verfayed')]" />
+                <filter name="f_approved" string="Final Approved"
+                    domain="[('state', '=', 'f_approved')]" />
+                <filter name="ordered" string="Ordered" domain="[('state', '=', 'ordered')]" />
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]" />
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]" />
+                <separator />
+                <!-- Department Filter -->
+                <filter name="filter_department" string="Department"
+                    context="{'group_by': 'department_id'}" />
+                <!-- Purchase Origin Filter -->
+                <filter name="filter_purchase_origin" string="Purchase Origin"
+                    context="{'group_by': 'purchase_origin'}" />
+                <!-- Purchase Type Filter -->
+                <filter name="filter_purchase_type" string="Purchase Type"
+                    context="{'group_by': 'purchase_type'}" />
+                <separator />
+                <!-- Group By Options -->
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}" />
+                    <filter name="group_by_department" string="Department"
+                        context="{'group_by': 'department_id'}" />
+                    <filter name="group_by_category" string="Product Category"
+                        context="{'group_by': 'product_category_id'}" />
+                    <filter name="group_by_origin" string="Purchase Origin"
+                        context="{'group_by': 'purchase_origin'}" />
+                    <filter name="group_by_type" string="Purchase Type"
+                        context="{'group_by': 'purchase_type'}" />
+                    <filter name="group_by_company" string="Company"
+                        context="{'group_by': 'company_id'}" />
+                    <filter name="group_by_requested_by" string="Requested By"
+                        context="{'group_by': 'create_uid'}" />
+                    <filter name="group_by_date" string="Requested Date"
+                        context="{'group_by': 'requested_date:day'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="supplies_rfp_action" model="ir.actions.act_window">
+        <field name="name">Purchase Requests</field>
+        <field name="res_model">supplies.rfp</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="context">{'search_default_group_by_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Purchase Requests found
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="supplies_rfp_menu"
+        name="Purchase Requests"
+        parent="purchase.menu_procurement_management"
+        action="supplies_rfp_action"
+    />
+</odoo>

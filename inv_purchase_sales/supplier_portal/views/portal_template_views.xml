@@ -1,0 +1,2018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="portal_supplies" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[@id='portal_vendor_category']" position="inside">
+            <t
+                t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('VendorBid.group_supplies_requester')">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'" />
+                    <t t-set="title" t-value="'Bid on RFP'" />
+                    <t t-set="description" t-value="'View RFQs'" />
+                    <t t-set="url" t-value="'/my/supplies'" />
+                    <t t-set="text">View Request for Purchases</t>
+                    <t t-set="config_card" t-value="True" />
+                </t>
+            </t>
+            <t
+                t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('VendorBid.group_supplies_requester')">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/web/static/img/rfq.svg'" />
+                    <t t-set="title">My Bids</t>
+                    <t t-set="text">Requests for Quotation</t>
+                    <t t-set="url" t-value="'/my/supplies/rfq'" />
+                    <t t-set="config_card" t-value="True" />
+                </t>
+            </t>
+            <t
+                t-if="request.env.user.has_group('base.group_portal') and request.env.user.has_group('VendorBid.group_supplies_requester')">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/web/static/img/rfq.svg'" />
+                    <t t-set="title">Request for Purchase</t>
+                    <t t-set="text">RFP request</t>
+                    <t t-set="url" t-value="'/my/supplies/request/rfp/'" />
+                    <t t-set="config_card" t-value="True" />
+                </t>
+            </t>
+            <t
+                t-if="request.env.user.has_group('base.group_portal') and request.env.user.has_group('VendorBid.group_supplies_requester')">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/web/static/img/folder.svg'" />
+                    <t t-set="title">Your RFPs</t>
+                    <t t-set="text">View RFPs you've posted</t>
+                    <t t-set="url" t-value="'/my/supplies'" />
+                    <t t-set="config_card" t-value="True" />
+                </t>
+            </t>
+        </xpath>
+        <!--        <xpath expr="//div[@id='portal_client_category']" position="after">-->
+        <!--            <t t-if="request.env.user.has_group('base.group_portal') and not
+        request.env.user.has_group('VendorBid.group_supplies_requester')">-->
+        <!--                <t t-call="portal.portal_docs_entry">-->
+        <!--                    <t t-set="icon" t-value="'/web/static/img/rfq.svg'"/>-->
+        <!--                    <t t-set="title">My Bids</t>-->
+        <!--                    <t t-set="text">Requests for Quotation</t>-->
+        <!--                    <t t-set="url" t-value="'/my/supplies/rfq'"/>-->
+        <!--                    <t t-set="config_card" t-value="True"/>-->
+        <!--                </t>-->
+        <!--            </t>-->
+        <!--        </xpath>-->
+    </template>
+
+    <template id="inherit_side_content" inherit_id="portal.side_content">
+        <xpath expr="//a[@href='/my/account']" position="replace">
+            <t t-if="user_id.partner_id.supplier_rank &gt; 0">
+                <a role="button" href="/my/profile" class="btn btn-link p-0 mt-3">
+                    <i class="fa fa-user me-1" /> View and Edit Profile </a>
+            </t>
+            <t t-else="">
+                <a role="button" href="/my/account" class="btn btn-link p-0 mt-3">
+                    <i class="fa fa-pencil" /> Edit information </a>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Portal Template for Profile View -->
+    <template id="portal_partner_profile_view" name="Partner Profile View">
+        <t t-call="portal.portal_layout">
+
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script
+                src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                $('#profileTabs a').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+                });
+                });
+            </script>
+            <div class="container">
+                <t t-set="message" t-value="request.params.get('message')" />
+                <t t-if="message">
+                    <div
+                        t-att-class="'alert alert-success alert-dismissible fade show' if message == 'success' else 'alert alert-warning alert-dismissible fade show'"
+                        role="alert">
+                        <t t-if="message == 'success'">
+                            Your edit request has been submitted successfully.
+                        </t>
+                        <t t-if="message == 'requested'">
+                            You already have a pending edit request.
+                        </t>
+                        <t t-if="message == 'no_data_change'">
+                            No changes were detected in your submission.
+                        </t>
+                    </div>
+                </t>
+                <div class="d-flex justify-content-between mb-4">
+                    <h1>
+                        <t t-out="user_id.name or 'NA'" />
+                    </h1>
+                    <img class="o_portal_contact_img rounded o_object_fit_cover"
+                        t-att-src="image_data_uri(user_id.partner_id.avatar_128)" alt="company_name"
+                        width="80" />
+
+                </div>
+
+                <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="company-tab" data-toggle="tab"
+                            href="#company" role="tab"
+                            aria-controls="company" aria-selected="true">Company Details
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="certifications-tab" data-toggle="tab"
+                            href="#certifications" role="tab"
+                            aria-controls="certifications" aria-selected="false">Certifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="bank_info-tab" data-toggle="tab" href="#bankinfo"
+                            role="tab"
+                            aria-controls="bankinfo" aria-selected="false">Bank Info.
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact"
+                            role="tab"
+                            aria-controls="contact" aria-selected="false">Contact Info.
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="documents-tab" data-toggle="tab" href="#documents"
+                            role="tab"
+                            aria-controls="documents" aria-selected="false">Documents
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="signatories-tab" data-toggle="tab"
+                            href="#signatories" role="tab"
+                            aria-controls="signatories" aria-selected="false">Signatories
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- Company Details -->
+                    <div class="tab-pane fade show active" id="company" role="tabpanel"
+                        aria-labelledby="company-tab">
+                        <h3 class="mb-4">Company Details</h3>
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-sm-6">
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Company Category:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.company_category_type or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Trade License Number:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.trade_license_number or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Commencement Date:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.commencement_date or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Expiry Date:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.expiry_date or 'Not Set'" />
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-sm-6">
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">TIN:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.vat or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Email:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.email or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Address:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.street or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Phone:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.phone or 'Not Set'" />
+                                    </p>
+                                </div>
+                                <div class="row mb-3">
+                                    <span class="col-sm-4 fw-bold">Product Category:</span>
+                                    <p class="col-sm-8 mb-0">
+                                        <t t-esc="partner.product_category_id.name or 'Not Set'" />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--bank
+                    info-->
+                    <div class="tab-pane fade" id="bankinfo" role="tabpanel"
+                        aria-labelledby="bank_info-tab">
+                        <h3>Bank Details</h3>
+                        <t t-if="partner.bank_ids">
+                            <div class="row">
+                                <!-- Left Column -->
+                                <div class="col-sm-6">
+                                    <div class="row">
+                                        <span class="col-sm-3 fw-bold">Bank Name</span>
+                                        <p class="col-sm-9">
+                                            <t t-esc="partner.bank_ids[0].bank_id.name or 'Not Set'" />
+                                        </p>
+                                        <span class="col-sm-3 fw-bold">Swift Code</span>
+                                        <p class="col-sm-9">
+                                            <t
+                                                t-esc="partner.bank_ids[0].bank_id.swift_code or 'Not Set'" />
+                                        </p>
+                                        <span class="col-sm-3 fw-bold">IBAN</span>
+                                        <p class="col-sm-9">
+                                            <t t-esc="partner.bank_ids[0].bank_id.iban or 'Not Set'" />
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- Right Column -->
+                                <div class="col-sm-6">
+                                    <div class="row">
+                                        <span class="col-sm-3 fw-bold">Branch Address</span>
+                                        <p class="col-sm-9">
+                                            <t
+                                                t-esc="partner.bank_ids[0].bank_id.street or 'Not Set'" />
+                                        </p>
+                                        <span class="col-sm-3 fw-bold">Account Holder Name</span>
+                                        <p class="col-sm-9">
+                                            <t
+                                                t-esc="partner.bank_ids[0].acc_holder_name or 'Not Set'" />
+                                        </p>
+                                        <span class="col-sm-3 fw-bold">Account Number</span>
+                                        <p class="col-sm-9">
+                                            <t t-esc="partner.bank_ids[0].acc_number or 'Not Set'" />
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <p>No bank details available.</p>
+                        </t>
+                    </div>
+
+                    <!--Contact
+                    info-->
+                    <div class="tab-pane fade" id="contact" role="tabpanel"
+                        aria-labelledby="contact-tab">
+                        <h3>Contact Details</h3>
+                        <t t-set="contacts_with_function"
+                            t-value="partner.child_ids.filtered(lambda c: c.function)" />
+                        <t t-if="contacts_with_function">
+                            <div class="row">
+                                <t t-foreach="contacts_with_function" t-as="contact">
+                                    <div class="col-sm-6 mb-4">
+                                        <div class="row">
+                                            <span class="col-sm-3 fw-bold">Contact Name</span>
+                                            <p class="col-sm-9">
+                                                <t t-esc="contact.name or 'Not Set'" />
+                                            </p>
+                                            <span class="col-sm-3 fw-bold">Email</span>
+                                            <p class="col-sm-9">
+                                                <t t-esc="contact.email or 'Not Set'" />
+                                            </p>
+                                            <span class="col-sm-3 fw-bold">Phone</span>
+                                            <p class="col-sm-9">
+                                                <t
+                                                    t-esc="contact.phone or contact.mobile or 'Not Set'" />
+                                            </p>
+                                            <span class="col-sm-3 fw-bold">Job Position</span>
+                                            <p class="col-sm-9">
+                                                <t t-esc="contact.function or 'Not Set'" />
+                                            </p>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <p>No contacts with job positions available.</p>
+                        </t>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="tab-pane fade" id="certifications" role="tabpanel"
+                        aria-labelledby="certifications-tab">
+                        <h3>Certifications</h3>
+                        <div class="row">
+                            <span class="col-sm-3">Certification Name</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.certification_name or 'Not Set'" />
+                            </p>
+                            <span class="col-sm-3">Certificate Number</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.certificate_number or 'Not Set'" />
+                            </p>
+                            <span class="col-sm-3">Certifying Body</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.certifying_body or 'Not Set'" />
+                            </p>
+                            <span class="col-sm-3">Award Date</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.certification_award_date or 'Not Set'" />
+                            </p>
+                            <span class="col-sm-3">Expiry Date</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.certification_expiry_date or 'Not Set'" />
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Documents -->
+                    <div class="tab-pane fade" id="documents" role="tabpanel"
+                        aria-labelledby="documents-tab">
+                        <h3>Documents</h3>
+                        <div class="row">
+                            <span class="col-sm-3">Trade License</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.trade_license_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Certificate of Incorporation</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.certificate_of_incorporation_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Good Standing</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.certificate_of_good_standing_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Establishment Card</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.establishment_card_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">VAT Certificate</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.vat_tax_certificate_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Memorandum of Association</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.memorandum_of_association_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Authorized Person ID</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.identification_of_authorised_person_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Bank Letter</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.bank_letter_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Financial Statement</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.past_2_years_financial_statement_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Other Certification</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.other_certification_doc">Uploaded</t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                            <span class="col-sm-3">Company Stamp</span>
+                            <p class="col-sm-9">
+                                <t t-if="partner.company_stamp">
+                                    <img
+                                        t-att-src="image_data_uri(user_id.partner_id.company_stamp)"
+                                        alt="Contact"
+                                        width="50" />
+                                </t>
+                                <t t-else="">Not Uploaded</t>
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Signatories -->
+                    <div class="tab-pane fade" id="signatories" role="tabpanel"
+                        aria-labelledby="signatories-tab">
+                        <h3>Signatories</h3>
+                        <div class="row">
+                            <span class="col-sm-3">Signatory Name</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.signatory_name or 'Not Set'" />
+                            </p>
+                            <span class="col-sm-3">Authorized Signatory</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.authorized_signatory_name or 'Not Set'" />
+                            </p>
+                            <span class="col-sm-3">Registration Date</span>
+                            <p class="col-sm-9">
+                                <t t-esc="partner.date_registration or 'Not Set'" />
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <a href="/my/account/edit?page=1" class="btn btn-primary mt-3">Edit Profile</a>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                    // Existing tab navigation
+                    $('#profileTabs a').on('click', function(e) {
+                    e.preventDefault();
+                    $(this).tab('show');
+                    });
+
+                    // Alert auto-hide and redirect
+                    const alert = document.querySelector('.alert');
+                    if (alert) {
+                    setTimeout(function() {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                    setTimeout(function() {
+                    // Redirect to /my/profile without query parameters
+                    window.location.href = '/my/profile';
+                    }, 500); // Wait for fade transition
+                    }, 5000); // Show alert for 3 seconds
+                    }
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+
+    <!-- Portal Template for Profile Edit -->
+    <template id="portal_partner_profile_edit" name="Partner Profile Edit">
+        <t t-call="portal.portal_layout">
+            <style>
+                .page-section { display: none; }
+                .page-section.active { display: block; }
+                .o_has_error .form-control { border-color: #dc3545; }
+                .invalid-feedback { display: block; color: #dc3545; }
+            </style>
+            <script
+                src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous" />
+
+            <div class="container" id="portal_profile_edit">
+                <!-- Modal -->
+                <div t-if="error_html" class="modal fade" id="exampleModal" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Error</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <t t-raw="error_html" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form t-att-action="'/my/account/edit'" method="post" enctype="multipart/form-data"
+                    id="partner-profile-form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <!-- Page 1: Company Category and Document Info -->
+                    <div class="row page-section active">
+                        <h2>Edit Information</h2>
+
+                        <!-- Row 1 -->
+                        <div class="row">
+                            <!-- Product Category -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('product_category_id') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="product_category_id">Product
+                                    Category</label>
+                                <select name="product_category_id"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('product_category_id') and 'is-invalid' or ''}">
+                                    <option value="">Select a Category</option>
+                                    <t t-foreach="categories" t-as="category">
+                                        <option t-att-value="category.id"
+                                            t-att-selected="str(category.id) == str(values.get('product_category_id') or (partner.product_category_id.id if partner.product_category_id else ''))">
+                                            <t t-esc="category.name" />
+                                        </option>
+                                    </t>
+                                </select>
+                                <div t-if="error.get('product_category_id')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('product_category_id')" />
+                                </div>
+                            </div>
+
+                            <!-- Trade License Number -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('trade_license_number') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="trade_license_number">Trade
+                                    License Number</label>
+                                <input type="text" name="trade_license_number"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('trade_license_number') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('trade_license_number') or partner.trade_license_number or ''" />
+                                <div t-if="error.get('trade_license_number')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('trade_license_number')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="row">
+                            <!-- Commencement Date -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('commencement_date') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="commencement_date">Commencement
+                                    Date</label>
+                                <input type="date" name="commencement_date"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('commencement_date') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('commencement_date') or (partner.commencement_date and partner.commencement_date.strftime('%Y-%m-%d')) or ''" />
+                                <div t-if="error.get('commencement_date')" class="invalid-feedback">
+                                    <t t-esc="error.get('commencement_date')" />
+                                </div>
+                            </div>
+
+                            <!-- Expiry Date -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('expiry_date') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="expiry_date">Expiry Date</label>
+                                <input type="date" name="expiry_date"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('expiry_date') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('expiry_date') or (partner.expiry_date and partner.expiry_date.strftime('%Y-%m-%d')) or ''" />
+                                <div t-if="error.get('expiry_date')" class="invalid-feedback">
+                                    <t t-esc="error.get('expiry_date')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div class="row">
+                            <!-- Address -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('street') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="street">Address</label>
+                                <input type="text" name="street" class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('street') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('street') or partner.street or ''" />
+                                <div t-if="error.get('street')" class="invalid-feedback">
+                                    <t t-esc="error.get('street')" />
+                                </div>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('phone') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="phone">Phone Number</label>
+                                <input type="tel" name="phone" class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('phone') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('phone') or partner.phone or ''" />
+                                <div t-if="error.get('phone')" class="invalid-feedback">
+                                    <t t-esc="error.get('phone')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page 2: Certification Info -->
+                    <div class="row page-section">
+                        <h2>Certification Information</h2>
+
+                        <!-- Row 1 -->
+                        <div class="row">
+                            <!-- Certification Name -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('certification_name') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="certification_name">Certification
+                                    Name</label>
+                                <input type="text" name="certification_name"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('certification_name') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('certification_name') or partner.certification_name or ''" />
+                                <div t-if="error.get('certification_name')" class="invalid-feedback">
+                                    <t t-esc="error.get('certification_name')" />
+                                </div>
+                            </div>
+
+                            <!-- Certificate Number -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('certificate_number') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="certificate_number">Certificate
+                                    Number</label>
+                                <input type="text" name="certificate_number"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('certificate_number') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('certificate_number') or partner.certificate_number or ''" />
+                                <div t-if="error.get('certificate_number')" class="invalid-feedback">
+                                    <t t-esc="error.get('certificate_number')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="row">
+                            <!-- Certifying Body -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('certifying_body') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="certifying_body">Certifying Body</label>
+                                <input type="text" name="certifying_body"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('certifying_body') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('certifying_body') or partner.certifying_body or ''" />
+                                <div t-if="error.get('certifying_body')" class="invalid-feedback">
+                                    <t t-esc="error.get('certifying_body')" />
+                                </div>
+                            </div>
+
+                            <!-- Award Date -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('certification_award_date') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="certification_award_date">Award
+                                    Date</label>
+                                <input type="date" name="certification_award_date"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('certification_award_date') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('certification_award_date') or (partner.certification_award_date and partner.certification_award_date.strftime('%Y-%m-%d')) or ''" />
+                                <div t-if="error.get('certification_award_date')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('certification_award_date')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div class="row">
+                            <!-- Expiry Date -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('certification_expiry_date') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label" for="certification_expiry_date">Expiry
+                                    Date</label>
+                                <input type="date" name="certification_expiry_date"
+                                    class="form-control persist-field"
+                                    t-attf-class="form-control #{error.get('certification_expiry_date') and 'is-invalid' or ''}"
+                                    t-att-value="values.get('certification_expiry_date') or (partner.certification_expiry_date and partner.certification_expiry_date.strftime('%Y-%m-%d')) or ''" />
+                                <div t-if="error.get('certification_expiry_date')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('certification_expiry_date')" />
+                                </div>
+                            </div>
+
+                            <!-- Upload Certification Document -->
+                            <div
+                                t-attf-class="mb-3 #{error.get('other_certification_doc') and 'o_has_error' or ''} col-xl-6">
+                                <label class="col-form-label">Upload Certification Document ( <span
+                                        t-att-class="'text-success' if values.get('other_certification_doc') or partner.other_certification_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('other_certification_doc') or partner.other_certification_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="other_certification_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('other_certification_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('other_certification_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('other_certification_doc')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page 3: Document Uploads -->
+                    <div class="row page-section">
+                        <h2>Upload Documents</h2>
+
+                        <div class="row">
+                            <div
+                                t-attf-class="mb-3 #{error.get('trade_license_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Trade License -->
+                                <label class="col-form-label">Upload Trade License Document ( <span
+                                        t-att-class="'text-success' if values.get('trade_license_doc') or partner.trade_license_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('trade_license_doc') or partner.trade_license_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="trade_license_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('trade_license_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('trade_license_doc')" class="invalid-feedback">
+                                    <t t-esc="error.get('trade_license_doc')" />
+                                </div>
+                            </div>
+
+                            <div
+                                t-attf-class="mb-3 #{error.get('certificate_of_incorporation_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Certificate of Incorporation -->
+                                <label class="col-form-label">Upload Certificate of Incorporation ( <span
+                                        t-att-class="'text-success' if values.get('certificate_of_incorporation_doc') or partner.certificate_of_incorporation_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('certificate_of_incorporation_doc') or partner.certificate_of_incorporation_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="certificate_of_incorporation_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('certificate_of_incorporation_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('certificate_of_incorporation_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('certificate_of_incorporation_doc')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div
+                                t-attf-class="mb-3 #{error.get('certificate_of_good_standing_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Certificate of Good Standing -->
+                                <label class="col-form-label">Upload Certificate of Good Standing ( <span
+                                        t-att-class="'text-success' if values.get('certificate_of_good_standing_doc') or partner.certificate_of_good_standing_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('certificate_of_good_standing_doc') or partner.certificate_of_good_standing_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="certificate_of_good_standing_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('certificate_of_good_standing_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('certificate_of_good_standing_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('certificate_of_good_standing_doc')" />
+                                </div>
+                            </div>
+
+                            <div
+                                t-attf-class="mb-3 #{error.get('establishment_card_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Establishment Card -->
+                                <label class="col-form-label">Upload Establishment Card ( <span
+                                        t-att-class="'text-success' if values.get('establishment_card_doc') or partner.establishment_card_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('establishment_card_doc') or partner.establishment_card_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="establishment_card_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('establishment_card_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('establishment_card_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('establishment_card_doc')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div
+                                t-attf-class="mb-3 #{error.get('vat_tax_certificate_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- VAT Tax Certificate -->
+                                <label class="col-form-label">Upload VAT Tax Certificate ( <span
+                                        t-att-class="'text-success' if values.get('vat_tax_certificate_doc') or partner.vat_tax_certificate_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('vat_tax_certificate_doc') or partner.vat_tax_certificate_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="vat_tax_certificate_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('vat_tax_certificate_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('vat_tax_certificate_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('vat_tax_certificate_doc')" />
+                                </div>
+                            </div>
+
+                            <div
+                                t-attf-class="mb-3 #{error.get('memorandum_of_association_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Memorandum of Association -->
+                                <label class="col-form-label">Upload Memorandum of Association ( <span
+                                        t-att-class="'text-success' if values.get('memorandum_of_association_doc') or partner.memorandum_of_association_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('memorandum_of_association_doc') or partner.memorandum_of_association_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="memorandum_of_association_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('memorandum_of_association_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('memorandum_of_association_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('memorandum_of_association_doc')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div
+                                t-attf-class="mb-3 #{error.get('identification_of_authorised_person_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- ID of Authorized Person -->
+                                <label class="col-form-label">Upload Identification of Authorized
+                                    Person ( <span
+                                        t-att-class="'text-success' if values.get('identification_of_authorised_person_doc') or partner.identification_of_authorised_person_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('identification_of_authorised_person_doc') or partner.identification_of_authorised_person_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="identification_of_authorised_person_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('identification_of_authorised_person_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('identification_of_authorised_person_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('identification_of_authorised_person_doc')" />
+                                </div>
+                            </div>
+
+                            <div
+                                t-attf-class="mb-3 #{error.get('bank_letter_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Bank Letter -->
+                                <label class="col-form-label">Upload Bank Letter ( <span
+                                        t-att-class="'text-success' if values.get('bank_letter_doc') or partner.bank_letter_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('bank_letter_doc') or partner.bank_letter_doc">
+                                    Uploaded</t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="bank_letter_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('bank_letter_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('bank_letter_doc')" class="invalid-feedback">
+                                    <t t-esc="error.get('bank_letter_doc')" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div
+                                t-attf-class="mb-3 #{error.get('past_2_years_financial_statement_doc') and 'o_has_error' or ''} col-xl-6">
+                                <!-- Past 2 Years Financial Statement -->
+                                <label class="col-form-label">Upload Past 2 Years Financial
+                                    Statement ( <span
+                                        t-att-class="'text-success' if values.get('past_2_years_financial_statement_doc') or partner.past_2_years_financial_statement_doc else 'text-muted'">
+                                        <t
+                                            t-if="values.get('past_2_years_financial_statement_doc') or partner.past_2_years_financial_statement_doc">
+                                    Uploaded
+                                        </t>
+                                        <t t-else="">Not Uploaded</t>
+                                    </span>
+                                    ) </label>
+                                <input type="file" name="past_2_years_financial_statement_doc"
+                                    class="form-control file-field"
+                                    t-attf-class="form-control #{error.get('past_2_years_financial_statement_doc') and 'is-invalid' or ''}" />
+                                <div t-if="error.get('past_2_years_financial_statement_doc')"
+                                    class="invalid-feedback">
+                                    <t t-esc="error.get('past_2_years_financial_statement_doc')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page 4: Signature and Submission -->
+                    <div class="row page-section">
+                        <h2>Signature and Submission</h2>
+                        <div
+                            t-attf-class="mb-3 #{error.get('signatory_name') and 'o_has_error' or ''} col-xl-6">
+                            <label class="col-form-label" for="signatory_name">Signatory Name</label>
+                            <input type="text" name="signatory_name"
+                                class="form-control persist-field"
+                                t-attf-class="form-control #{error.get('signatory_name') and 'is-invalid' or ''}"
+                                t-att-value="values.get('signatory_name') or partner.signatory_name or ''" />
+                            <div t-if="error.get('signatory_name')" class="invalid-feedback">
+                                <t t-esc="error.get('signatory_name')" />
+                            </div>
+                        </div>
+                        <div
+                            t-attf-class="mb-3 #{error.get('authorized_signatory_name') and 'o_has_error' or ''} col-xl-6">
+                            <label class="col-form-label" for="authorized_signatory_name">Authorized
+                                Signatory Name
+                            </label>
+                            <input type="text" name="authorized_signatory_name"
+                                class="form-control persist-field"
+                                t-attf-class="form-control #{error.get('authorized_signatory_name') and 'is-invalid' or ''}"
+                                t-att-value="values.get('authorized_signatory_name') or partner.authorized_signatory_name or ''" />
+                            <div t-if="error.get('authorized_signatory_name')"
+                                class="invalid-feedback">
+                                <t t-esc="error.get('authorized_signatory_name')" />
+                            </div>
+                        </div>
+                        <div
+                            t-attf-class="mb-3 #{error.get('company_stamp') and 'o_has_error' or ''} col-xl-6">
+                            <label class="col-form-label">Upload Company Stamp ( <span
+                                    t-att-class="'text-success' if values.get('company_stamp') or partner.company_stamp else 'text-muted'">
+                                    <t t-if="values.get('company_stamp') or partner.company_stamp">
+                                Uploaded</t>
+                                    <t t-else="">Not Uploaded</t>
+                                </span>
+                                ) </label>
+                            <input type="file" name="company_stamp" class="form-control file-field"
+                                t-attf-class="form-control #{error.get('company_stamp') and 'is-invalid' or ''}" />
+                            <div t-if="error.get('company_stamp')" class="invalid-feedback">
+                                <t t-esc="error.get('company_stamp')" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="mt-4 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <button type="button" class="btn btn-secondary prev-btn"
+                                onclick="navigateRelativePage(-1)">
+                                <i class="fa fa-arrow-left" /> Previous </button>
+                            <a href="/my/profile" class="ms-2 btn btn-light me-2 discard-btn"
+                                id="discard_btn"
+                                onclick="sessionStorage.removeItem('formData');">Discard
+                            </a>
+                        </div>
+                        <button type="button" class="btn btn-primary next-btn"
+                            onclick="navigateRelativePage(1)"> Next <i class="fa fa-arrow-right" />
+                        </button>
+                        <button id="submit_btn" type="submit" name="submit" value="submit"
+                            class="btn btn-success submit-btn"> Submit Edit Request <i
+                                class="fa fa-check" />
+                        </button>
+                    </div>
+                    <!-- Inline JavaScript for Client-Side Persistence and Navigation -->
+                    <script src="/VendorBid/static/src/js/profile_edit.js" defer="" />
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_rfp_tree_view">
+        <t t-call="portal.portal_layout">
+            <div class="container">
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">Request for Purchases</t>
+                </t>
+                <div class="row">
+                    <div class="col-md-12">
+                        <t t-if="not rfps">
+                            <div class="my-5 py-5 text-center text-muted">
+                                <i class="fa fa-shopping-cart fa-3x mb-3" />
+                                <h5>No Request for Purchases Available</h5>
+                            </div>
+                        </t>
+                        <t t-if="rfps" t-call="portal.portal_table">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Requested On</th>
+                                    <th>Required Date</th>
+                                    <th>Reviewed By</th>
+                                </tr>
+                            </thead>
+                            <t t-set="count" t-value="0" />
+                            <t t-foreach="group_rfps" t-as="rfp_group">
+                                <t t-set="count" t-value="count + 1" />
+                                <tbody>
+                                    <tr t-if="len(rfp_group) > 1">
+                                        <td colspan="4" class="bg-light">
+                                            <t t-if="'required_date' in rfp_group">
+                                                <div
+                                                    class="text-primary d-flex align-items-center justify-content-center font-weight-bold">
+                                                    <i class="fa fa-calendar mr-4"
+                                                        title="Required Date" />
+                                                    <span class="ms-2">
+                                                        <t t-esc="rfp_group['required_date']" />
+                                                    </span>
+                                                </div>
+                                            </t>
+                                            <t t-elif="'state' in rfp_group">
+                                                <div
+                                                    class="text-primary d-flex align-items-center justify-content-center font-weight-bold">
+                                                    <i class="fa fa-cogs mr-4" title="State" />
+                                                    <span class="ms-2">
+                                                        <t t-esc="rfp_group['state'].title()" />
+                                                    </span>
+                                                </div>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <t t-foreach="rfp_group['rfps']" t-as="rfp">
+                                        <tr>
+                                            <td>
+                                                <a t-attf-href="/my/supplies/{{rfp.rfp_number}}">
+                                                    <t t-esc="rfp.rfp_number" />
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <t t-esc="rfp.date_approve" />
+                                            </td>
+                                            <td>
+                                                <t t-esc="rfp.required_date" />
+                                            </td>
+                                            <td>
+                                                <t t-if="rfp.submitted_by">
+                                                    <t t-esc="rfp.submitted_by.name" />
+                                                </t>
+                                                <t t-else="">
+                                                    Not yet reviewed
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </t>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_rfp_form_view" name="Supplier RFP Portal Form View">
+        <t t-if="not rfp" t-call="http_routing.404" />
+        <t t-if="rfp" t-call="portal.portal_layout">
+            <script src="/VendorBid/static/src/js/portal.js" defer="" />
+            <div class="container">
+                <t t-if="submitted_rfq">
+                    <div class="d-flex justify-content-center align-items-center my-5 py-3">
+                        <div class="text-center">
+                            <img src="/VendorBid/static/img/cloud-check.svg" width="200"
+                                alt="Success" />
+                            <h4 class="mt-4 text-muted">Your Request for Quotation Posted
+                                Successfully</h4>
+                            <a t-attf-href="/my/supplies/rfq/{{submitted_rfq.name}}"
+                                class="btn btn-outline-primary rounded mt-4">
+                                <i class="fa fa-list-alt mr-2" /> View Request for Quotation (<t
+                                    t-esc="submitted_rfq.name" />) </a>
+                        </div>
+                    </div>
+                </t>
+                <t t-else="">
+                    <t t-if="success_list">
+                        <div class="alert alert-success" role="alert">
+                            <ul>
+                                <t t-foreach="success_list" t-as="success">
+                                    <li>
+                                        <t t-esc="success" />
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </t>
+                    <t t-if="error_list">
+                        <div class="alert alert-danger" role="alert">
+                            <ul>
+                                <t t-foreach="error_list" t-as="error">
+                                    <li>
+                                        <t t-esc="error" />
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </t>
+                    <form method="post" t-attf-action="/my/supplies/{{rfp.rfp_number}}">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <input type="hidden" name="rfp_id" t-att-value="rfp.id" />
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-shopping-cart mr-2" title="Request for Purchase" />
+                                    Request for Purchase: <span t-field="rfp.rfp_number" />
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row justify-content-center align-items-center mb-5">
+                                    <div class="col-md-3">
+                                        <h6> Required Date: <t t-esc="rfp.required_date" />
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Delivery Date</label>
+                                            <input
+                                                type="date"
+                                                class="form-control"
+                                                name="date_planned"
+                                                t-att-min="(datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Validity Period</label>
+                                            <input
+                                                type="date"
+                                                class="form-control"
+                                                name="validity_period"
+                                                t-att-min="(datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Invoice No.</label>
+                                            <input type="text" class="form-control"
+                                                name="supplier_pi_number"
+                                                placeholder="Enter invoice number" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center align-items-center mb-5">
+                                    <div class="col-md-3">
+                                        <h6> Final Destination: <t t-esc="rfp.final_destination" />
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Port Loading</label>
+                                            <input type="text" class="form-control"
+                                                name="port_loading"
+                                                placeholder="Enter port loading" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Port Discharge</label>
+                                            <input type="text" class="form-control"
+                                                name="port_discharge"
+                                                placeholder="Enter port discharge" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Country of origin</label>
+                                            <input type="text" class="form-control"
+                                                name="country_origin"
+                                                placeholder="Enter Country of origin" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center align-items-center mb-5">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Description of goods</label>
+                                            <input type="text" class="form-control"
+                                                name="goods_description"
+                                                placeholder="description of goods" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Incoterm</label>
+                                            <select name="incoterm_id" class="form-control">
+                                                <option value="">Select Incoterm</option>
+
+                                                <t t-foreach="incoterms" t-as="incoterm">
+                                                    <option t-att-value="incoterm.id">
+                                                        <t t-esc="incoterm.name" />
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Payment Term</label>
+                                            <select name="payment_term" class="form-control">
+                                                <option value="">Select Payment Term</option>
+                                                <option value="lc">LC</option>
+                                                <option value="cad">CAD</option>
+                                                <option value="tt">TT</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Currency</label>
+                                            <select name="currency_id" class="form-control">
+                                                <option value="">Select Currency</option>
+
+                                                <t t-foreach="currencies" t-as="currency">
+                                                    <option t-att-value="currency.id">
+                                                        <t t-esc="currency.name" />
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center align-items-center">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Bank Name</label>
+                                            <input type="text" class="form-control"
+                                                name="bank_name"
+                                                placeholder="Enter Bank Name" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Bank Address</label>
+                                            <input type="text" class="form-control"
+                                                name="bank_address"
+                                                placeholder="Enter Bank Address" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Account Number</label>
+                                            <input type="text" class="form-control"
+                                                name="account_number"
+                                                placeholder="Enter Account Number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Swift Code</label>
+                                            <input type="text" class="form-control"
+                                                name="swift_code"
+                                                placeholder="Enter Swift Code" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="form-group">
+                                    <label class="font-weight-bold">Terms and Conditions</label>
+                                    <textarea class="form-control" name="notes"
+                                        rows="4" required="required"
+                                        placeholder="Enter your terms and conditions..."
+                                    />
+                                </div> -->
+
+                                <!-- Product Lines Section -->
+                                <div class="card mt-3">
+                                    <div class="card-header bg-white text-info">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-cubes mr-2" title="products" />
+                                            Requested Products </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th class="text-center">Product Name</th>
+                                                    <th class="text-center">HS Code</th>
+                                                    <th class="text-center">Model (if any)</th>
+                                                    <th class="text-center">Quantity</th>
+                                                    <th class="text-center">Unit</th>
+                                                    <th class="text-center">Unit Price</th>
+                                                    <th class="text-center">Total Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="rfp.product_line_ids" t-as="line">
+                                                    <tr>
+
+                                                        <input type="hidden"
+                                                            t-att-name="'line-' + str(line.id) + '-product_id'"
+                                                            t-att-value="line.product_id.id" />
+
+                                                        <input type="hidden"
+                                                            t-att-name="'line-' + str(line.id) + '-tax'"
+                                                            t-att-data-line-id="line.id"
+                                                            class="input_tax"
+                                                            value="0" />
+
+                                                        <td>
+                                                            <strong>
+                                                                <t t-esc="line.product_id.name" />
+                                                            </strong>
+                                                            <br />
+                                                            <small class="text-muted">
+                                                                <t t-esc="line.description" />
+                                                            </small>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <input type="text"
+                                                                class="form-control text-center"
+                                                                t-att-name="'line-' + str(line.id) + '-hs_code'"
+                                                                t-att-value="line.hs_code or ''"
+                                                                placeholder="HS Code" />
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <input type="text"
+                                                                class="form-control text-center"
+                                                                t-att-name="'line-' + str(line.id) + '-item_model'"
+                                                                t-att-value="''"
+                                                                placeholder="Item Model" />
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <input type="number"
+                                                                class="form-control text-center line_qty"
+                                                                t-att-name="'line-' + str(line.id) + '-product_qty'"
+                                                                t-att-value="line.product_qty"
+                                                                min="0.01"
+                                                                step="0.01"
+                                                                required="required"
+                                                                t-att-data-line-id="line.id" />
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <select class="form-control"
+                                                                t-att-name="'line-' + str(line.id) + '-product_uom'">
+                                                                <t t-foreach="units" t-as="uom">
+                                                                    <option
+                                                                        t-att-value="uom.id"
+                                                                        t-att-selected="uom.id == (line.product_uom.id if line.product_uom else False)">
+                                                                        <t t-esc="uom.name" />
+                                                                    </option>
+                                                                </t>
+                                                            </select>
+                                                        </td>
+
+                                                        <td>
+                                                            <input type="number"
+                                                                class="form-control text-end input_price_unit"
+                                                                t-att-name="'line-' + str(line.id) + '-price_unit'"
+                                                                t-att-data-line-id="line.id"
+                                                                step="0.01"
+                                                                min="0"
+                                                                required="required" />
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="line_subtotal"
+                                                                t-att-data-line-id="line.id">0.00</span>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+
+                                            </tbody>
+                                        </table>
+                                        <div class="mt-4 d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fa fa-paper-plane mr-2" /> Submit Proposal </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_rfp_form_view_requester"
+        name="Supplier RFP Requester Portal Form View">
+        <t t-if="not rfp" t-call="http_routing.404" />
+        <t t-if="rfp" t-call="portal.portal_layout">
+            <div class="container">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fa fa-shopping-cart me-2" title="Request for Purchase" /> My
+                            Request for Purchase: <span t-field="rfp.rfp_number" />
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6> Required Date: <t t-esc="rfp.required_date" />
+                                </h6>
+                            </div>
+                            <div> Status: <span class="badge text-bg-secondary">
+                                    <t t-esc="rfp.state.title()" />
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Product Lines Section -->
+                        <div class="card mt-3">
+                            <div class="card-header bg-white text-info">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-cubes mr-2" title="products" /> Requested
+                                    Products </h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-hover table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th style="width: 120px">Photo</th>
+                                            <th>Product</th>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="rfp.product_line_ids" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <img t-if="line.product_id.image_1920"
+                                                        t-att-src="image_data_uri(line.product_id.image_1920)"
+                                                        class="img-thumbnail" alt="Product image"
+                                                        style="max-width: 100px;" />
+                                                    <div t-else="" class="text-muted">No image</div>
+                                                </td>
+                                                <td>
+                                                    <span t-field="line.product_id.name" />
+                                                </td>
+                                                <td>
+                                                    <small t-field="line.description" />
+                                                </td>
+                                                <td t-att-data-line-id="line.id">
+                                                    <t t-esc="line.product_qty" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_rfq_tree_view">
+        <t t-call="portal.portal_layout">
+            <div class="container">
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">My Request for Quotations</t>
+                </t>
+                <div class="row">
+                    <div class="col-md-12">
+                        <t t-if="not rfqs">
+                            <div class="alert alert-info" role="alert">
+                                No Request for Quotations found.
+                            </div>
+                        </t>
+                        <t t-if="rfqs" t-call="portal.portal_table">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>RFP Ref</th>
+                                    <th>Posted On</th>
+                                    <th>Delivery Date</th>
+                                    <th>Status</th>
+                                    <th>Status Updated On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="rfqs" t-as="rfq">
+                                    <tr>
+                                        <td>
+                                            <a t-attf-href="/my/supplies/rfq/{{rfq.name}}">
+                                                <t t-esc="rfq.name" />
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <t t-esc="rfq.rfp_id.rfp_number" />
+                                        </td>
+                                        <td>
+                                            <span t-field="rfq.create_date"
+                                                t-options='{"format": "MMM d, y"}' />
+                                        </td>
+                                        <td>
+                                            <span t-field="rfq.date_planned"
+                                                t-options='{"format": "MMM d, y"}' />
+                                        </td>
+                                        <td>
+                                            <t t-if="rfq.state == 'draft'">
+                                                <span class="badge rounded-pill bg-primary"
+                                                    t-if="rfq.state == 'draft'">
+                                                    Draft
+                                                </span>
+                                            </t>
+                                            <t t-elif="rfq.state == 'purchase'">
+                                                <span class="badge rounded-pill bg-success"
+                                                    t-if="rfq.state == 'purchase'">Purchase Order
+                                                </span>
+                                            </t>
+                                            <t t-elif="rfq.state == 'cancel'">
+                                                <span class="badge rounded-pill bg-danger"
+                                                    t-if="rfq.state == 'cancel'">
+                                                    Cancelled
+                                                </span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="badge rounded-pill bg-secondary">
+                                                    <t t-esc="rfq.state" />
+                                                </span>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-clock-o me-1" />
+                                            <span t-field="rfq.last_changed_status_date"
+                                                t-options='{"format": "MMM d, y"}' />
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_rfq_form_view">
+        <t t-if="not rfq" t-call="http_routing.404" />
+        <t t-if="rfq" t-call="portal.portal_layout">
+            <div class="container">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fa fa-list-alt mr-2" title="Request for Quotation" /> Request
+                            for Quotation: <span t-field="rfq.name" />
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <!-- Main Header Row -->
+                            <div
+                                class="col-md-12 d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="text-primary">
+                                    <u>RFP Reference</u>: <span class="fw-normal"
+                                        t-esc="rfq.rfp_id.rfp_number" />
+                                </h5>
+
+                                <!-- Status Section (now with better grouping) -->
+                                <div class="text-end">
+                                    <div class="mb-1">
+                                        <span class="badge rounded-pill bg-primary"
+                                            t-if="rfq.state == 'draft'">Draft
+                                        </span>
+                                        <span class="badge rounded-pill bg-warning"
+                                            t-if="rfq.state == 'sent'">Sent
+                                        </span>
+                                        <span class="badge rounded-pill bg-success"
+                                            t-if="rfq.state == 'done'">Done
+                                        </span>
+                                        <span class="badge rounded-pill bg-info"
+                                            t-if="rfq.state == 'purchase'">Purchase
+                                            Order
+                                        </span>
+                                    </div>
+                                    <div class="text-muted bold">
+                                        <i class="fa fa-clock-o me-1"></i>
+                                        <span>Updated:</span>
+                                        <span t-field="rfq.last_changed_status_date"
+                                            t-options="{'format': 'MMM d, y'}" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Details Row - now with proper spacing -->
+                            <div class="col-md-12">
+                                <div class="row g-3">  <!-- g-3 adds consistent gap between columns -->
+                                    <div class="col-md-3 col-6">
+                                        <div class="border-bottom pb-1">
+                                            <small class="text-muted">Required Date</small>
+                                            <div t-field="rfq.rfp_id.required_date"
+                                                t-options="{'format': 'MMM d, y'}" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3 col-6">
+                                        <div class="border-bottom pb-1">
+                                            <small class="text-muted">Delivery Date</small>
+                                            <div t-field="rfq.date_planned"
+                                                t-options='{"format": "MMM d, y"}' />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3 col-6">
+                                        <div class="border-bottom pb-1">
+                                            <small class="text-muted">Validity Period</small>
+                                            <div t-field="rfq.validity_period"
+                                                t-options='{"format": "MMM d, y"}' />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3 col-6">
+                                        <div class="border-bottom pb-1">
+                                            <small class="text-muted">Posted On</small>
+                                            <div t-field="rfq.create_date"
+                                                t-options='{"format": "MMM d, y"}' />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3 col-6">
+                                        <div class="border-bottom pb-1">
+                                            <small class="text-muted">Warranty Period</small>
+                                            <div>
+                                                <t t-esc="rfq.warrenty_period" /> Months </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-3 py-1 border rounded mt-2">
+                            <h6 class="mt-3">Terms and Conditions</h6>
+                            <p>
+                                <t t-esc="rfq.notes" />
+                            </p>
+                        </div>
+
+                        <!-- Product Lines Section -->
+                        <div class="card mt-3">
+                            <div class="card-header bg-white text-info">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-cubes mr-2" title="products" /> Products </h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-hover table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th style="width: 120px">Photo</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th class="text-right">Unit Price</th>
+                                            <th class="text-right">Tax</th>
+                                            <th class="text-right">Total (<t
+                                                    t-esc="rfq.currency_id.name" />) </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="rfq.order_line" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <img t-if="line.product_id.image_1920"
+                                                        t-att-src="image_data_uri(line.product_id.image_1920)"
+                                                        class="img-thumbnail" alt="Product image"
+                                                        style="max-width: 100px;" />
+                                                    <div t-else="" class="text-muted">No image</div>
+                                                </td>
+                                                <td>
+                                                    <span t-field="line.product_id.name" />
+                                                    <br />
+                                                    <small class="text-muted" t-field="line.name" />
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.product_qty" />
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.price_unit" />
+                                                </td>
+                                                <td>
+                                                    <t
+                                                        t-esc="', '.join(line.taxes_id.mapped('name'))" />
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.price_subtotal" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex flex-column align-items-end mt-4">
+                                    <h5 class="text-muted"> Subtotal: <t
+                                            t-out="rfq.currency_id.symbol" />
+                                        <t
+                                            t-out="rfq.amount_untaxed" />
+                                    </h5>
+                                    <h5 class="text-muted"> Tax: <t t-out="rfq.currency_id.symbol" />
+                                        <t
+                                            t-out="rfq.amount_tax" />
+                                    </h5>
+                                    <h5 class="text-primary d-flex border-top pt-2">
+                                        <strong> Total: <t t-out="rfq.currency_id.symbol" />
+                                            <t
+                                                t-out="rfq.amount_total" />
+                                        </strong>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_product_select_options">
+        <option value="">Select a product</option>
+        <t t-foreach="product_ids" t-as="prod">
+            <option t-att-value="prod.id"
+                t-att-data-image="image_data_uri(prod.image_1920) if prod.image_1920 else ''"
+                t-att-data-desc="prod.description or ''"
+            >
+                <t t-esc="prod.name" />
+            </option>
+        </t>
+    </template>
+
+    <template id="portal_request_rfp_form" name="RFQ Product Filter Page">
+        <t t-call="portal.portal_layout">
+            <script src="/VendorBid/static/src/js/requester.js" defer="" />
+            <div class="container mt-5">
+                <!-- Form -->
+                <form method="post" action="/my/supplies/request/rfq/submit">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-shopping-cart mr-2" /> Request for Purchase </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Basic Info -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="category" class="font-weight-bold">Product
+                                            Category</label>
+                                        <select id="category" class="form-control"
+                                            name="product_category_id"
+                                            required="required">
+                                            <option value="">Select a category</option>
+                                            <t t-foreach="product_category_ids" t-as="cat">
+                                                <option t-att-value="cat.id"
+                                                    t-att-selected="cat.id == selected_category_id">
+                                                    <t t-esc="cat.name" />
+                                                </option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Required Date</label>
+                                        <input type="date" class="form-control" name="required_date"
+                                            required="required"
+                                            t-att-min="(datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Product Lines Section -->
+                            <div class="card mt-3">
+                                <div class="card-header bg-white text-info">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-cubes mr-2" /> Required Products </h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-hover table-bordered"
+                                        id="product_table">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th style="width: 30%">Product</th>
+                                                <th style="width: 15%">Photo</th>
+                                                <th style="width: 30%">Description</th>
+                                                <th style="width: 15%">Quantity</th>
+                                                <th style="width: 5%"></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="product_lines">
+                                            <!-- Product Line -->
+                                            <tr class="product-line">
+                                                <td>
+                                                    <div class="form-group">
+                                                        <select class="form-control product-select"
+                                                            name="product"
+                                                            required="1">
+                                                            <option value="">Select a product</option>
+                                                            <t t-if="product_ids">
+
+                                                            </t>
+                                                            <t t-if="not product_ids">
+                                                                <option>Select a category first</option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="product-image-container">
+                                                        <div class="text-muted">No image</div>
+                                                    </div>
+                                                </td>
+                                                <!-- Modified Section Only -->
+                                                <td>
+                                                    <input type="text"
+                                                        class="form-control product-description"
+                                                        name="description[]"
+                                                        placeholder="Enter description"
+                                                        required="required" />
+                                                </td>
+                                                <td>
+                                                    <input type="number"
+                                                        class="form-control quantity"
+                                                        name="quantity[]"
+                                                        min="1"
+                                                        value="1" required="1" />
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-danger remove-line"
+                                                        disabled="1">
+                                                        <i class="fa fa-times"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-primary"
+                                            id="add_product_line">
+                                            <i class="fa fa-plus mr-2"></i> Add Product </button>
+                                    </div>
+                                    <div class="mt-4 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fa fa-paper-plane mr-2" /> Submit Request </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_requester_registration_form_view" name="Requester registration">
+        <t t-call="website.layout">
+            <div class="container mt-5">
+                <!-- Alerts -->
+                <t t-if="error_list">
+                    <div class="alert alert-danger" role="alert">
+                        <ul>
+                            <t t-foreach="error_list" t-as="error">
+                                <li>
+                                    <t t-esc="error" />
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+                </t>
+                <form method="post" enctype="multipart/form-data"
+                    action="/my/requester/registration">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-edit mr-2" /> Register as Requester </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Left Column -->
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Name</label>
+                                        <input type="text" class="form-control" name="name"
+                                            placeholder="Enter your name" required="required" />
+                                    </div>
+
+                                    <div class="form-group mt-3">
+                                        <label class="font-weight-bold">Email</label>
+                                        <input type="email" class="form-control" name="email"
+                                            placeholder="Enter your email" required="required" />
+                                    </div>
+
+                                    <div class="form-group mt-3">
+                                        <label class="font-weight-bold">Phone</label>
+                                        <input type="tel" class="form-control" name="phone"
+                                            placeholder="Enter your phone number"
+                                            required="required" />
+                                    </div>
+
+                                    <div class="form-group mt-3">
+                                        <label class="font-weight-bold">Reason</label>
+                                        <textarea class="form-control" name="reason" rows="4"
+                                            placeholder="Why are you requesting?..."
+                                            required="required" />
+                                    </div>
+                                </div>
+
+                                <!-- Right Column (Image Upload) -->
+                                <div
+                                    class="col-md-4 d-flex flex-column align-items-center justify-content-start pt-2">
+                                    <label class="font-weight-bold w-100 text-left">Image</label>
+                                    <div
+                                        class="d-flex flex-column align-items-center border rounded p-3"
+                                        style="width: 100%;">
+                                        <img id="image_preview"
+                                            src="/web/static/img/placeholder.png"
+                                            alt="Image Preview"
+                                            class="img-fluid mb-2 border"
+                                            style="width: 150px; height: 150px; object-fit: contain;" />
+
+                                        <input type="file" name="image"
+                                            class="form-control-file mt-2" accept="image/*"
+                                            onchange="previewImage(this)" required="required" />
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-paper-plane mr-2" />Submit </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <script>
+                function previewImage(input) {
+                const preview = document.getElementById('image_preview');
+                if (input.files &amp;&amp; input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                preview.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+                }
+                }
+            </script>
+        </t>
+    </template>
+
+    <template id="portal_rfp_thank_you" name="RFP Submission Thank You Page">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-5 mb-5">
+                <div class="alert alert-success text-center" role="alert">
+                    <h2>🎉 Thank You for Your Submission!</h2>
+                    <p>Your Request for Purchase has been submitted successfully.</p>
+                    <p>
+                        <a href="/my/supplies" class="btn btn-primary mt-3">View Your RFPs</a>
+                    </p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_requester_thank_you" name="Requester Registration Successful">
+        <t t-call="portal.portal_layout">
+            <div class="container py-5">
+                <div class="alert alert-success text-center" role="alert">
+                    <h2>🎉 Thank you for Registering!</h2>
+                    <p class="mt-3">Your registration request has been submitted successfully. We
+                        will get back to you
+                        soon.
+                    </p>
+                    <p>
+                        <a href="/" class="btn btn-primary mt-3">Go to Home</a>
+                    </p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_supplies_breadcrumb" inherit_id="portal.portal_breadcrumbs">
+        <xpath expr="//ol[hasclass('breadcrumb')]" position="inside">
+            <li t-if="page_name == 'rfp_list'" class="breadcrumb-item">Request for Purchases</li>
+            <li t-if="page_name in ['rfp_view']" class="breadcrumb-item">
+                <a t-att-href="'/my/supplies'">Request for Purchases</a>
+            </li>
+            <li t-if="page_name == 'rfp_view'" class="breadcrumb-item">
+                <t t-esc="rfp.rfp_number" />
+            </li>
+            <li t-if="page_name == 'rfq_list'" class="breadcrumb-item">Request for Quotation</li>
+            <li t-if="page_name in ['rfq_detail']" class="breadcrumb-item">
+                <a t-att-href="'/my/supplies/rfq'">Request for Quotation</a>
+            </li>
+            <li t-if="page_name == 'rfq_detail'" class="breadcrumb-item">
+                <t t-esc="rfq.name" />
+            </li>
+            <li t-if="page_name == 'request_rfp'" class="breadcrumb-item">
+                Request for RFP
+            </li>
+            <li t-if="page_name == 'vendor_profile'" class="breadcrumb-item">
+                View Profile
+            </li>
+            <li t-if="page_name in ['edit_details']" class="breadcrumb-item">
+                <a t-att-href="'/my/profile'">View Profile</a>
+            </li>
+            <li t-if="page_name == 'edit_details'" class="breadcrumb-item">
+                Edit Profile
+            </li>
+            <li t-if="page_name == 'success'" class="breadcrumb-item">
+                Successful
+            </li>
+        </xpath>
+    </template>
+</odoo>

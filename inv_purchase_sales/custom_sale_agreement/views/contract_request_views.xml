@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_contract_request_tree" model="ir.ui.view">
+        <field name="name">contract.request.tree</field>
+        <field name="model">contract.request</field>
+        <field name="arch" type="xml">
+            <list string="Contract Requests" 
+                decoration-info="state == 'draft'"
+                decoration-warning="state == 'submitted'"
+                decoration-success="state in ('approved', 'accepted', 'agreement_created')"
+                decoration-muted="state == 'rejected'">
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="recipient_office" />
+                <field name="city" optional="hide"/>
+                <field name="request_date" />
+                <field name="requester_id" widget="many2one_avatar_user" />
+                <field name="state" widget="badge" 
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'submitted'"
+                    decoration-success="state in ('approved', 'accepted', 'agreement_created')"
+                    decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_contract_request_form" model="ir.ui.view">
+        <field name="name">contract.request.form</field>
+        <field name="model">contract.request</field>
+        <field name="arch" type="xml">
+            <form string="Contract Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+
+                    <button name="action_approve" string="Approve" type="object"
+                        class="oe_highlight" invisible="state != 'submitted'" />
+                    
+                    <button name="action_customer_approve" string="Mark Accepted" type="object"
+                        class="oe_highlight" invisible="state != 'approved'" />
+
+                    <button name="action_create_agreement" string="Create Agreement" type="object"
+                        class="oe_highlight" invisible="state != 'accepted'" />
+
+                    <button name="action_reject" string="Reject" type="object"
+                        invisible="state != 'submitted'" groups="sales_team.group_sale_manager" />
+                    
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                        invisible="state not in ('rejected', 'submitted')" />
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,submitted,approved,accepted,agreement_created" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_agreements" type="object" 
+                            class="oe_stat_button" icon="fa-file-text-o"
+                            invisible="agreement_count == 0">
+                            <field name="agreement_count" widget="statinfo" string="Agreements"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name"
+                                placeholder="Subject (e.g., Contract Request for Supply...)" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Recipient Information">
+                            <field name="partner_id" widget="res_partner_many2one"
+                                context="{'show_address': 1}" options='{"always_reload": True}' />
+                            <field name="recipient_office"
+                                placeholder="e.g., Procurement Directorate" />
+                            <field name="city" />
+                        </group>
+                        <group string="Internal Details">
+                            <field name="request_date" />
+                            <field name="requester_id" widget="many2one_avatar_user" />
+                        </group>
+                    </group>
+
+                    <separator string="Letter Content Details" />
+                    <group>
+                        <field name="goods_description"
+                            placeholder="Brief description of goods/services to be inserted into the letter..." />
+                    </group>
+                    
+                    <notebook>
+                        <page string="Stock Availability (Internal)" name="stock_lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id" />
+                                    <field name="quantity" />
+                                    <field name="uom_id" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>

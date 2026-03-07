@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_temporary_assignment" model="ir.actions.report">
+        <field name="name">Print Temporary Assignment Letter</field>
+        <field name="model">hr.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_contract_letters.report_temporary_assignment</field>
+        <field name="report_file">hr_contract_letters.report_temporary_assignment</field>
+        <field name="print_report_name">'Temporary Assignment - %s' % (object.employee_id.name or 'Employee')</field>
+        <field name="binding_model_id" ref="hr_contract.model_hr_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_temporary_assignment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="contract">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                          <div class="oe_structure" />
+                            <t t-set="doc_title" t-value="'Temporary Assignment Letter'" />
+                            <t t-set="doc_number" t-value="'OF/WW/GM/062'" />
+                            <t t-set="issue_number" t-value="'1'" />
+                        <!-- Reference Number and Date -->
+                        <div style="text-align: right; margin-bottom: 20px;">
+                            <p><strong>Ref No.: <t t-esc="get_ref_no(contract) if get_ref_no else ('WG/OT/' + str(contract.id).zfill(4) + '/2018' if contract.id else 'WG/OT/0000/2018')"/></strong></p>
+                            <p><strong>Date: <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                        </div>
+                        
+                        <!-- To Section -->
+                        <div style="margin-bottom: 15px;">
+                            <p><strong>To: <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t><span t-field="contract.employee_id.name"/></strong></p>
+                            <p t-if="contract.employee_id and contract.employee_id.private_city">
+                                <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                            </p>
+                            <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                                <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                            </p>
+                            <p t-else=""><u><b>Addis Ababa</b></u></p>
+                        </div>
+                        
+                        <!-- Salutation -->
+                        <div style="margin-bottom: 10px;">
+                            <p>Dear <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t><span t-esc="contract.employee_id.name.split()[0] if contract.employee_id and contract.employee_id.name else 'Employee'"/>,</p>
+                        </div>
+                        
+                        <!-- Subject -->
+                        <div style="margin-bottom: 20px;">
+                            <p><strong>Subject: <u>Letter of Temporary Assignment</u></strong></p>
+                        </div>
+                        
+                        <!-- Letter Body -->
+                        <div style="text-align: justify;">
+                            <p>This letter serves as an official notification of your temporary lateral assignment to the position of <strong>
+                                <span t-if="temporary_position">
+                                    <span t-esc="temporary_position"/>
+                                </span>
+                                <t t-else="">
+                                    <span t-if="contract.employee_id and contract.employee_id.job_id" t-field="contract.employee_id.job_id.name"/>
+                                    <t t-else="">
+                                        <span t-if="contract.job_id" t-field="contract.job_id.name"/>
+                                        <t t-else="">Account Manager</t>
+                                    </t>
+                                </t>
+                            </strong>, effective <strong>
+                                <t t-if="effective_date">
+                                    <span t-esc="effective_date.strftime('%B %d, %Y') if hasattr(effective_date, 'strftime') else (str(effective_date) if effective_date else '')"/>
+                                </t>
+                                <t t-else="">
+                                    <span t-if="contract.date_start" t-field="contract.date_start" t-options='{"widget": "date"}'/>
+                                    <t t-else="">January 20, 2026</t>
+                                </t>
+                            </strong>. In this role, you will report directly to the <strong>
+                                <span t-if="reports_to_position">
+                                    <span t-esc="reports_to_position"/>
+                                </span>
+                                <t t-else="">
+                                    <span t-if="contract.employee_id and contract.employee_id.parent_id and contract.employee_id.parent_id.job_id" t-field="contract.employee_id.parent_id.job_id.name"/>
+                                    <t t-else="">Sales &amp; Marketing Director</t>
+                                </t>
+                            </strong> and your salary and benefits will remain unchanged.</p>
+                            
+                            <p>This strategic temporary move is designed to align your extensive logistics expertise with our organizational objectives, specifically to enhance our market presence and client service operations. We believe that your unique skill set will be instrumental in driving value within the <strong>
+                                <span t-if="contract.department_id" t-field="contract.department_id.name"/>
+                                <t t-else="">Sales &amp; Marketing</t>
+                            </strong> department during this period.</p>
+                            
+                            <p>Your immediate supervisor will provide you with a detailed <strong>Job Description</strong> and a <strong>Key Performance Indicator (KPI)</strong> document. Your performance will be assessed based on specific results outlined for the upcoming 90 days.</p>
+                            
+                            <p>We are confident in your commitment to excellence to ensure the success of this transition and look forward to your continued contributions to the team in this new capacity.</p>
+                            
+                            <div style="margin-top: 40px;">
+                                <p class="d-flex justify-content-end">Yours sincerely,</p>
+                            </div>
+                        </div>
+                        
+                        <!-- CC and Signatures -->
+                        <div class="mt-4 justify-content-between d-flex row">
+                            <div class="col-4">
+                                <p><strong>CC:</strong></p>
+                                <ul class="gap-1">
+                                    <li>CEO</li>
+                                    <li>COO- Logistics Sector</li>
+                                    <li>Corporate Finance Office</li>
+                                    <li>Corporate Strategic Planning office</li>
+                                    <li>Personnel File</li>
+                                    <t t-if="reports_to_position or (contract.employee_id and contract.employee_id.parent_id and contract.employee_id.parent_id.job_id)">
+                                        <li>
+                                    <span t-if="contract.employee_id and contract.employee_id.parent_id and contract.employee_id.parent_id.job_id" t-field="contract.employee_id.parent_id.job_id.name"/>
+                                    <t t-else="">
+                                        <span t-esc="reports_to_position"/>
+                                    </t>
+                                        </li>
+                                    </t>
+                                </ul>
+                                <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                            </div>
+                            <div class="col-4 d-flex justify-content-end">
+                                <t t-if="contract.company_id.company_stamp">
+                                    <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                        style="max-height:140px; min-height:140px;"/>
+                                </t>
+                            </div>
+                            <div class="col-4 d-flex justify-content-end">
+                                <t t-if="contract.approved_by_id.sign_signature">
+                                    <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                        style="max-height:140px; min-height:140px;"/>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+

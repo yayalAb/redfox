@@ -1,0 +1,15 @@
+<odoo>
+  <record id="view_hr_recruitment_stage_form_inherit_offer_flag" model="ir.ui.view">
+    <field name="name">hr.recruitment.stage.form.allow_offer_flag</field>
+    <field name="model">hr.recruitment.stage</field>
+    <field name="inherit_id" ref="hr_recruitment.hr_recruitment_stage_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@name='stage_definition']/group" position="inside">
+        <field name="allow_generate_offer" 
+               string="Allow ‘Generate Offer’ Button" 
+               help="When checked, applicants in this stage can see the Generate Offer button"
+               class="o_field_boolean o_field_boolean_label"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,50 @@
+<odoo>
+    <record id="view_payslip_batch_base_form_inherit" model="ir.ui.view">
+        <field name="name">hr.payslip.batch.base.inherit.form</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_confirm']" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_confirm</attribute>
+            </xpath>
+            <xpath expr="//header/widget[@name='add_payslips']" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_add_payslip</attribute>
+            </xpath>
+            <xpath expr="//header/button[@invisible=&quot;state != 'draft' or payslip_count != 0&quot;]" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_generate_payslip</attribute>
+            </xpath>
+            <xpath expr="//header/button[@invisible=&quot;state != 'draft' or payslip_count == 0&quot;]" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_generate_payslip</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_validate']" position="attributes">
+                <attribute name="groups">
+                    hr_accounting_groups.group_payslip_batches_create_draft_entry</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_paid']" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_mark_paid</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_draft']" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_reset_draft</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_unpaid']" position="attributes">
+                <attribute name="groups">hr_accounting_groups.group_payslip_batches_mark_unpaid</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_payment_report']" position="attributes">
+                <attribute name="groups">
+                    hr_accounting_groups.group_payslip_batches_create_payment_report</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_payslip_batch_validate_form_inherit" model="ir.ui.view">
+        <field name="name">hr.payslip.batch.validate.inherit.form</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll_account.hr_payslip_run_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_validate']" position="attributes">
+                <attribute name="groups">
+                    hr_accounting_groups.group_payslip_batches_create_draft_entry</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_appraisal_kpi,appraisal.kpi.access,model_appraisal_kpi,base.group_user,1,1,1,1
+access_employee_evaluation,employee.evaluation.access,model_employee_evaluation,base.group_user,1,1,1,1
+access_employee_evaluation_line,employee.evaluation.line.access,model_employee_evaluation_line,base.group_user,1,1,1,1
+access_employee_appraisal,employee.appraisal.access,model_employee_appraisal,base.group_user,1,1,1,1
+
+access_kpi_category,KPI Category Access,model_appraisal_kpi_category,base.group_user,1,1,1,1

@@ -1,0 +1,111 @@
+<odoo>
+    <record id="view_service_request_reject_wizard_form" model="ir.ui.view">
+        <field name="name">service.request.reject.wizard.form</field>
+        <field name="model">service.request.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Requisition">
+                <group>
+                    <field name="service_request" readonly="1" />
+                    <field name="rejection_reason"
+                        placeholder="Please provide the reason for rejecting this service request..." />
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Rejection" type="object"
+                        class="oe_highlight" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_service_request_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Reject Service Request</field>
+        <field name="res_model">service.request.reject.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_service_request': active_id}</field>
+    </record>
+
+
+    <record id="view_measurement_form_reject_wizard_form" model="ir.ui.view">
+        <field name="name">measurement.form.reject.wizard.form</field>
+        <field name="model">measurement.form.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rejection">
+                <group>
+                    <field name="measurement_form" readonly="1" />
+                    <field name="rejection_reason"
+                        placeholder="Please provide the reason for rejecting this measurement form..." />
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Rejection" type="object"
+                        class="oe_highlight" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_measurement_form_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Reject Measurement Form</field>
+        <field name="res_model">measurement.form.reject.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_measurement_form': active_id}</field>
+    </record>
+
+
+    <record id="view_lv_design_reject_wizard_form" model="ir.ui.view">
+        <field name="name">lv.design.reject.wizard.form</field>
+        <field name="model">lv.design.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rejection">
+                <group>
+                    <field name="lv_design" readonly="1" />
+                    <field name="rejection_reason"
+                        placeholder="Please provide the reason for rejecting this lv design..." />
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Rejection" type="object"
+                        class="oe_highlight" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lv_design_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Reject Lv Design</field>
+        <field name="res_model">lv.design.reject.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_lv_design': active_id}</field>
+    </record>
+
+    <record id="view_hv_design_reject_wizard_form" model="ir.ui.view">
+        <field name="name">hv.design.reject.wizard.form</field>
+        <field name="model">hv.design.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Requisition">
+                <group>
+                    <field name="hv_design" readonly="1" />
+                    <field name="rejection_reason"
+                        placeholder="Please provide the reason for rejecting this hv design..." />
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Rejection" type="object"
+                        class="oe_highlight" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hv_design_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Reject Hv Design</field>
+        <field name="res_model">hv.design.reject.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_hv_design': active_id}</field>
+    </record>
+</odoo>

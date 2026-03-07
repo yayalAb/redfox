@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_scale_level_form" model="ir.ui.view">
+    <field name="name">scale.level</field>
+    <field name="model">scale.level</field>
+    <field name="arch" type="xml">
+      <form string="Salary Lavel">
+        <group>
+          <field name="name"/>
+          <field name="company_id"/>
+        </group>
+      
+      </form>
+    </field>
+  </record>
+   <record id="view_scale_level_list" model="ir.ui.view">
+    <field name="name">scale.level</field>
+    <field name="model">scale.level</field>
+    <field name="arch" type="xml">
+      <list string="Salary Lavel" editable="top">
+          <field name="name"/>  
+          <field name="company_id"/>  
+      </list>
+    </field>
+  </record>
+    <!-- THE ACTION AND MENUITEM REMAIN THE SAME -->
+  <record id="action_scale_leve" model="ir.actions.act_window">
+    <field name="name">scale.leve</field>
+    <field name="res_model">scale.level</field>
+    <field name="view_mode">list,form</field>
+    <field name="target">current</field>
+  </record>
+
+    <menuitem
+    id="menu_hr_action_scale_leve"
+    name="Scales"
+    parent="hr_payroll.menu_hr_salary_configuration"
+    action="action_scale_leve"
+    sequence="51"
+  />
+    <record id="view_salary_grade_value_form" model="ir.ui.view">
+    <field name="name">salary.grade.value</field>
+    <field name="model">salary.grade.value</field>
+    <field name="arch" type="xml">
+      <form string="Salary Grade">
+        <group>
+          <field name="name"/>
+          <field name="company_id"/>
+        </group>
+      
+      </form>
+    </field>
+  </record>
+   <record id="view_salary_grade_value_list" model="ir.ui.view">
+    <field name="name">salary.grade.value</field>
+    <field name="model">salary.grade.value</field>
+    <field name="arch" type="xml">
+      <list string="Salary Grade" editable="top">
+          <field name="name"/>  
+          <field name="company_id"/>  
+      </list>
+    </field>
+  </record>
+    <!-- THE ACTION AND MENUITEM REMAIN THE SAME -->
+  <record id="action_salary_grade_value" model="ir.actions.act_window">
+    <field name="name">salary.grade.value</field>
+    <field name="res_model">salary.grade.value</field>
+    <field name="view_mode">list,form</field>
+    <field name="target">current</field>
+  </record>
+
+    <menuitem
+    id="menu_hr_action_salary_grade_value"
+    name="Grades"
+    parent="hr_payroll.menu_hr_salary_configuration"
+    action="action_salary_grade_value"
+    sequence="52"
+  />
+    <!-- FORM VIEW FOR THE WIZARD -->
+  <record id="view_salary_grade_matrix_wizard_form" model="ir.ui.view">
+    <field name="name">salary.grade.matrix.wizard.form</field>
+    <field name="model">salary.grade.matrix.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Salary Grade Matrix">
+        <group>
+          <field name="salary_grade_value_id"/>
+        </group>
+
+        <field name="line_ids" nolabel="1">
+          <list string="Wages per Scale Level" editable="bottom">
+            <!-- This field holds the ID but is completely invisible -->
+            <field name="scale_level_db_id" column_invisible="1" force_save="1"/>
+            <!-- 
+              This is now the ONLY field for the scale.
+              Users can edit existing names or type new ones.
+            -->
+              
+            <field name="scale_name"/>
+            
+            <field name="wage"/>
+            <field name="salary_grade_db_id" column_invisible="1" force_save="1"/>
+            <!-- ADD THIS BUTTON -->
+            <button name="action_go_to_grade_form"
+                    type="object"
+                    icon="fa-pencil"
+                    title="Edit Allowances (Discards Changes)"
+                    attrs="{'invisible': [('salary_grade_db_id', '=', 0)]}"/>
+            <field name="currency_id" column_invisible="1"/>
+          </list>
+        </field>
+        <footer>
+          <button name="action_process_and_save" string="Process and Apply Salary Grades" type="object" class="btn-primary" data-hotkey="q"/>
+          <button string="Cancel"
+                  class="btn-secondary"
+                  special="cancel"
+                  data-hotkey="x" />
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <!-- THE ACTION AND MENUITEM REMAIN THE SAME -->
+  <record id="action_salary_grade_matrix_wizard" model="ir.actions.act_window">
+    <field name="name">Salary Grade Matrix</field>
+    <field name="res_model">salary.grade.matrix.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- <menuitem
+    id="menu_hr_salary_grade_matrix_wizard"
+    name="Salary Grade Matrix"
+    parent="hr_payroll.menu_hr_salary_configuration"
+    action="action_salary_grade_matrix_wizard"
+    sequence="51"
+  /> -->
+
+</odoo>

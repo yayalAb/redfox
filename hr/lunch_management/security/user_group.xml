@@ -1,0 +1,11 @@
+<odoo>
+    <record model="ir.module.category" id="lunch_management_groups_category">
+        <field name="name">Lunch Management</field>
+        <field name="description">Helps you manage lunch</field>
+    </record>
+
+    <record id="lunch_management_group_confirm" model="res.groups">
+        <field name="name">Confirm</field>
+        <field name="category_id" ref="lunch_management_groups_category" />
+    </record>
+</odoo>

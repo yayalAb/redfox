@@ -1,0 +1,117 @@
+<odoo>
+    <record id="lunch_log_view_list" model="ir.ui.view">
+        <field name="name">lunch.log.view.list</field>
+        <field name="model">lunch.log</field>
+        <field name="arch" type="xml">
+          
+            <list>
+                  <header>
+                <button name="action_make_unbilled" type="object"
+                        groups='lunch_management.lunch_management_group_confirm'
+                        string="Unbill" class="oe_highlight" />
+            </header>
+                <field name="date" />
+                <field name="name" />
+                <field name="employee_id" />
+                <field name="meal_type" />
+                <field name="total_price" sum="Total" />
+                <field name="state" widget="badge" decoration-success="state == 'billed'"
+                    decoration-warning="state == 'unbilled'" decoration-info="state == 'ordered'" />
+            </list>
+        </field>
+    </record>
+
+
+    <record id="lunch_log_view_form" model="ir.ui.view">
+        <field name="name">lunch.log.view.form</field>
+        <field name="model">lunch.log</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm_lunch" type="object"
+                        invisible="state != 'ordered' or not is_current_user_employee"
+                        string="Confirm Lunch" class="oe_highlight" />
+                    <button name="action_confirm_order" type="object" invisible="state != 'draft'"
+                        groups='lunch_management.lunch_management_group_confirm'
+                        string="Confirm Order" class="oe_highlight" />
+                    <button name="action_make_unbilled" type="object" invisible="state != 'billed'"
+                        groups='lunch_management.lunch_management_group_confirm'
+                        string="Unbill" class="oe_highlight" />
+
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,ordered,unbilled,billed" />
+                </header>
+                <sheet>
+                    <field name="is_current_user_employee" invisible="1" />
+                    <field name="is_self_service" invisible="1" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id"
+                                readonly="is_self_service or state != 'draft'" />
+                            <field name="meal_type" readonly="id and (state != 'draft' or not is_current_user_employee)" />
+                        </group>
+                        <group>
+                            <field name="date" readonly="1" />
+                            <field name="currency_id" invisible="1" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Food Items" name="lunch_lines">
+                            <field name="line_ids" readonly="id and (state != 'draft' or not is_current_user_employee)" >
+                                <list editable="bottom">
+                                    <field name="product_id" string="Food Item"
+                                        domain="[('is_meal', '=', True)]"
+                                        options="[{'no_create': True}, {'no_create_edit': True}]" />
+                                    <field name="quantity" />
+                                    <field name="price_unit" string="Unit Price" />
+                                    <field name="price_subtotal" sum="Total" />
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_price" class="oe_subtotal_footer_separator" />
+                            </group>
+                        </page>
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="lunch_log_view_search" model="ir.ui.view">
+        <field name="name">lunch.log.view.search</field>
+        <field name="model">lunch.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id" />
+                <field name="name" />
+                <filter string="Unbilled" name="unbilled" domain="[('state', '=', 'unbilled')]" />
+                <filter string="Billed" name="billed" domain="[('state', '=', 'billed')]" />
+                <separator />
+                <filter string="Breakfast" name="breakfast"
+                    domain="[('meal_type', '=', 'breakfast')]" />
+                <filter string="Lunch" name="lunch" domain="[('meal_type', '=', 'lunch')]" />
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_by_employee"
+                        context="{'group_by': 'employee_id'}" />
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'state'}" />
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date:day'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Window: Changed 'list' to 'list' for convention. -->
+    <record id="lunch_log_action" model="ir.actions.act_window">
+        <field name="name">Lunch Logs</field>
+        <field name="res_model">lunch.log</field>
+        <field name="view_mode">list,form,search</field>
+        <field name="search_view_id" ref="lunch_log_view_search" />
+    </record>
+</odoo>

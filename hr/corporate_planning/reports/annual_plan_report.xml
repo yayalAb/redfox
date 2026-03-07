@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. REPORT ACTION -->
+    <record id="action_report_annual_plan" model="ir.actions.report">
+        <field name="name">Annual Plan PDF</field>
+        <field name="model">corporate.planning.annual.plan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">corporate_planning.report_annual_plan_document</field>
+        <field name="report_file">corporate_planning.report_annual_plan_document</field>
+        <field name="print_report_name">'Annual Plan - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_corporate_planning_annual_plan"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- 2. REPORT TEMPLATE -->
+    <template id="report_annual_plan_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    
+                    <!-- ========================================== -->
+                    <!-- PAGE 1: TITLE & EXECUTIVE SUMMARY          -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <div class="text-center mt-4 mb-4">
+                            <h2><span t-field="o.name"/></h2>
+                            <h4><span t-field="o.company_id.name"/></h4>
+                            <p>
+                                <strong>Prepared By:</strong> <span t-field="o.department_id.name"/> <br/>
+                                <strong>Budget Year:</strong> <span t-field="o.start_date"/> - <span t-field="o.end_date"/>
+                            </p>
+                        </div>
+                        <hr/>
+
+                        <div class="mt-4" style="page-break-before: always;">
+                            <h3>1. Executive Summary</h3>
+                            <div t-field="o.executive_summary" style="text-align: justify;"/>
+                        </div>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 2: ALIGNMENT                          -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <h3>2. Alignment with Organizational Goal</h3>
+                        <div t-field="o.alignment_goal" style="text-align: justify;"/>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 3: PILLARS                            -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <h3>3. Key Pillars and Objectives</h3>
+                        <div t-field="o.key_pillars" style="text-align: justify;"/>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 4: LINKED KPIS                        -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <h3>4. Strategic KPIs</h3>
+                        <p class="text-muted mb-3">The following KPIs have been selected to measure the success of this annual plan:</p>
+                        
+                        <table class="table table-sm table-bordered table-striped">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 30%;">Category</th>
+                                    <th style="width: 50%;">KPI Name</th>
+                                    <th style="width: 20%;" class="text-right">Weight</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.kpi_id" t-as="kpi">
+                                    <td><span t-field="kpi.Kpi_category"/></td>
+                                    <td><span t-field="kpi.name"/></td>
+                                    <td class="text-right"><span t-field="kpi.weight"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 5: RISK & MITIGATION                  -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <h3>5. Risk &amp; Mitigation</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 40%;">Risk</th>
+                                    <th style="width: 60%;">Mitigation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.risk_mitigation_ids" t-as="line">
+                                    <t t-if="line.display_type == 'line_section'">
+                                        <td colspan="2" style="background-color: #e9ecef; font-weight: bold; text-align: left; padding-left: 10px;">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                    </t>
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <td colspan="2" style="font-style: italic; color: grey; text-align: left; padding-left: 10px;">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="text-align: justify;"><span t-field="line.risk"/></td>
+                                        <td style="text-align: justify;"><span t-field="line.mitigation"/></td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 6: PERFORMANCE MEASUREMENT            -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <h3>6. Performance Measurement Standards (70%)</h3>
+                        <table class="table table-sm table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Metric</th>
+                                    <th class="text-right">Weight (%)</th>
+                                    <th>Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.performance_measure_ids" t-as="line">
+                                    <td><span t-field="line.category"/></td>
+                                    <td><span t-field="line.metric"/></td>
+                                    <td class="text-right"><span t-field="line.weight"/></td>
+                                    <td><span t-field="line.remark"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 7: CONCLUSION                         -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 30px; font-size: 14px;">
+                        <h3>7. Conclusion</h3>
+                        <div t-field="o.conclusion" style="text-align: justify;"/>
+
+                        <div class="row mt-5" style="page-break-inside: avoid;">
+                            <div class="col-6">
+                                <p><strong>Prepared By:</strong></p>
+                                <br/><br/>
+                                <p>_________________________</p>
+                                <p><span t-field="o.department_id.manager_id.name"/></p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p><strong>Approved By:</strong></p>
+                                <br/><br/>
+                                <p>_________________________</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

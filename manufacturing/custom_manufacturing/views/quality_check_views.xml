@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_quality_check_form_inherit_fat_steps" model="ir.ui.view">
+        <field name="name">quality.check.form.inherit.fat.steps</field>
+        <field name="model">quality.check</field>
+        <field name="inherit_id" ref="custom_quality_control.quality_check_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="replace">
+                <header>
+                    <button name="do_pass" type="object" string="Pass" class="btn-success"
+                        invisible="quality_state in ['pass', 'elpa_approved']" />
+                    <button name="do_fail" type="object" string="Fail" class="btn-danger"
+                        invisible="quality_state in ['fail', 'elpa_approved']" />
+                    <field name="quality_state" widget="statusbar"
+                        statusbar_visible="none,pass,fail" />
+                </header>
+            </xpath>
+
+            <xpath expr="//field[@name='product_id']" position="before">
+                <widget name="web_ribbon" text="Approved" bg_color="bg-success"
+                    invisible="not elpa_approved" />
+            </xpath>
+
+            <xpath expr="//field[@name='test_type_id']" position="after">
+                <field name="elpa_approved" invisible="1"/>
+                <field name="test_type" invisible="1"/>
+                <field name="fat_name" invisible="1" />
+            </xpath>
+
+
+            <xpath expr="//sheet/notebook/page[@name='notes']" position="before">
+                <page string="Test Details">
+                    <field name="fat_step1_id" invisible="fat_name != 'fat_step1_insulation'">
+                        <list>
+                            <field name="hv_to_lv_earth" />
+                            <field name="hv_to_g_earth" />
+                            <field name="lv_to_g_earth" />
+                            <field name="state" />
+                        </list>
+                    </field>
+
+                    <field name="fat_step2_id" invisible="fat_name != 'fat_step2_ratio'">
+                        <list>
+                            <field name="uv_un_tap1" />
+                            <field name="uv_un_tap2" />
+                            <field name="uv_un_tap3" />
+                            <field name="uv_un_tap4" />
+                            <field name="uv_un_tap5" />
+                            <field name="vw_vn_tap1" />
+                            <field name="vw_vn_tap2" />
+                            <field name="vw_vn_tap3" />
+                            <field name="vw_vn_tap4" />
+                            <field name="vw_vn_tap5" />
+                            <field name="uw_wn_tap1" />
+                            <field name="uw_wn_tap2" />
+                            <field name="uw_wn_tap3" />
+                            <field name="uw_wn_tap4" />
+                            <field name="uw_wn_tap5" />
+                            <field name="state" />
+                        </list>
+                    </field>
+
+                    <field name="fat_step3_id" invisible="fat_name != 'fat_step3_no_load'">
+                        <list>
+                            <field name="u_rated_voltage" />
+                            <field name="u_rated_current" />
+                            <field name="u_losses" />
+                            <field name="v_rated_voltage" />
+                            <field name="v_rated_current" />
+                            <field name="v_losses" />
+                            <field name="w_rated_voltage" />
+                            <field name="w_rated_current" />
+                            <field name="w_losses" />
+                            <field name="avg_rated_voltage" />
+                            <field name="avg_rated_current" />
+                            <field name="avg_losses" />
+                            <field name="percent_no_load_current" />
+                            <field name="state" />
+                        </list>
+                    </field>
+
+                    <field name="fat_step4_id" invisible="fat_name != 'fat_step4_load_loss'">
+                        <list>
+                            <field name="u_rated_voltage" />
+                            <field name="u_rated_current" />
+                            <field name="u_losses" />
+                            <field name="v_rated_voltage" />
+                            <field name="v_rated_current" />
+                            <field name="v_losses" />
+                            <field name="w_rated_voltage" />
+                            <field name="w_rated_current" />
+                            <field name="w_losses" />
+                            <field name="avg_rated_voltage" />
+                            <field name="avg_rated_current" />
+                            <field name="avg_losses" />
+                            <field name="percent_impedance" />
+                            <field name="state" />
+                        </list>
+                    </field>
+
+                    <field name="fat_step5_id" invisible="fat_name != 'fat_step5_winding'">
+                        <list>
+                            <field name="amb_temp" />
+                            <field name="tap_no" />
+                            <field name="hv_uv" />
+                            <field name="hv_vw" />
+                            <field name="hv_uw" />
+                            <field name="hv_avg" />
+                            <field name="lv_uv" />
+                            <field name="lv_vw" />
+                            <field name="lv_uw" />
+                            <field name="lv_avg" />
+                            <field name="state" />
+                        </list>
+                    </field>
+                    <field name="fat_step6_id" invisible="fat_name != 'fat_step6_separate'">
+                        <list>
+                            <field name="test1_applied_voltage" />
+                            <field name="test1_duration" />
+                            <field name="test1_remark" />
+                            <field name="test2_applied_voltage" />
+                            <field name="test2_duration" />
+                            <field name="test2_remark" />
+                            <field name="state" />
+                        </list>
+                    </field>
+                    <field name="fat_step7_id" invisible="fat_name != 'fat_step7_induced'">
+                        <list>
+                            <field name="applied_voltage" />
+                            <field name="applied_frequency" />
+                            <field name="duration" />
+                            <field name="remark" />
+                            <field name="state" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_quality_point_form_inherit_test_plan" model="ir.ui.view">
+        <field name="name">quality.point.form.inherit.test.plan</field>
+        <field name="model">quality.point</field>
+        <field name="model">quality.point</field>
+        <field name="inherit_id" ref="quality.quality_point_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='test_type_id']" position="after">
+                <field name="test_plan_id"
+                    invisible="test_type != 'test_plan'"
+                    required="test_type == 'test_plan'" />
+            </xpath>
+
+            <xpath expr="//field[@name='picking_type_ids']" position="after">
+                <field name="workorder_type_ids" widget="many2many_tags" />
+            </xpath>
+
+            <xpath expr="//field[@name='product_ids']" position="attributes">
+                <attributes name="invisible">1</attributes>
+            </xpath>
+
+            <xpath expr="//field[@name='product_category_ids']" position="attributes">
+                <attributes name="invisible">1</attributes>
+            </xpath>
+        </field>
+    </record>
+</odoo>

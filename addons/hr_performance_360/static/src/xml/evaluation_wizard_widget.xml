@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_performance_360.EvaluationWizardWidget" owl="1">
+        <div class="evaluation-wizard-container">
+            <!-- Header with Employee Name and Date -->
+            <!-- <div class="evaluation-header">
+                <div class="header-left">
+                    <h2 class="employee-name-header">
+                        <t t-esc="employeeName"/>
+                        <span class="evaluation-date-inline"> - <t t-esc="evaluationDate"/></span>
+                    </h2>
+                </div>
+                <div class="page-indicator">
+                   
+                </div>
+            </div> -->
+
+            <!-- Questions Container -->
+            <div class="evaluation-questions-container">
+                <table class="evaluation-table">
+                    <thead>
+                        <tr>
+                            <th class="question-column">Behavioral Criteria</th>
+                            <th class="rating-column-header">
+                                <div class="rating-header-content">
+                                    Exceptional <span class="rating-number">(5)</span>
+                                </div>
+                            </th>
+                            <th class="rating-column-header">
+                                <div class="rating-header-content">
+                                    Highly Effective <span class="rating-number">(4)</span>
+                                </div>
+                            </th>
+                            <th class="rating-column-header">
+                                <div class="rating-header-content">
+                                    Proficient <span class="rating-number">(3)</span>
+                                </div>
+                            </th>
+                            <th class="rating-column-header">
+                                <div class="rating-header-content">
+                                    Inconsistent <span class="rating-number">(2)</span>
+                                </div>
+                            </th>
+                            <th class="rating-column-header">
+                                <div class="rating-header-content">
+                                    Unsatisfactory <span class="rating-number">(1)</span>
+                                </div>
+                            </th>
+                            <th class="rating-column-header">
+                                <div class="rating-header-content">
+                                    New/Not Applicable <span class="rating-number">(N/A)</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="currentQuestions" t-as="question" t-key="question.id">
+                            <!-- Show section header if this is first question of section or section changed -->
+                    <t t-if="question.section and (question_index === 0 or currentQuestions[question_index - 1].section?.id !== question.section.id)">
+                        <tr class="section-row">
+                            <td colspan="7" class="evaluation-section-header-cell">
+                                <div class="evaluation-section-header" t-att-class="question.section.type === 'note' ? 'evaluation-note-header' : ''">
+                                    <span class="section-number"><t t-esc="question.section.number"/>.</span>
+                                    <t t-esc="question.section.name"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </t>
+                            
+                            <tr class="question-row">
+                                <td class="question-cell">
+                                    <div class="question-content">
+                                        <span class="question-number">
+                                            <t t-esc="question.displayNumber || ((state.currentPage * state.questionsPerPage) + question_index + 1)"/>.
+                                        </span>
+                                        <span class="question-text">
+                                            <t t-esc="question.text"/>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="rating-cell">
+                                    <label class="rating-checkbox-label">
+                                        <input 
+                                            type="radio" 
+                                            t-att-name="'rating_' + question.question_id"
+                                            value="5"
+                                            t-att-checked="getRatingValue(question.question_id) === '5' ? 'checked' : undefined"
+                                            t-att-data-question-id="question.question_id"
+                                            t-on-change="onRatingChange"
+                                            class="rating-checkbox"
+                                        />
+                                    </label>
+                                </td>
+                                <td class="rating-cell">
+                                    <label class="rating-checkbox-label">
+                                        <input 
+                                            type="radio" 
+                                            t-att-name="'rating_' + question.question_id"
+                                            value="4"
+                                            t-att-checked="getRatingValue(question.question_id) === '4' ? 'checked' : undefined"
+                                            t-att-data-question-id="question.question_id"
+                                            t-on-change="onRatingChange"
+                                            class="rating-checkbox"
+                                        />
+                                    </label>
+                                </td>
+                                <td class="rating-cell">
+                                    <label class="rating-checkbox-label">
+                                        <input 
+                                            type="radio" 
+                                            t-att-name="'rating_' + question.question_id"
+                                            value="3"
+                                            t-att-checked="getRatingValue(question.question_id) === '3' ? 'checked' : undefined"
+                                            t-att-data-question-id="question.question_id"
+                                            t-on-change="onRatingChange"
+                                            class="rating-checkbox"
+                                        />
+                                    </label>
+                                </td>
+                                <td class="rating-cell">
+                                    <label class="rating-checkbox-label">
+                                        <input 
+                                            type="radio" 
+                                            t-att-name="'rating_' + question.question_id"
+                                            value="2"
+                                            t-att-checked="getRatingValue(question.question_id) === '2' ? 'checked' : undefined"
+                                            t-att-data-question-id="question.question_id"
+                                            t-on-change="onRatingChange"
+                                            class="rating-checkbox"
+                                        />
+                                    </label>
+                                </td>
+                                <td class="rating-cell">
+                                    <label class="rating-checkbox-label">
+                                        <input 
+                                            type="radio" 
+                                            t-att-name="'rating_' + question.question_id"
+                                            value="1"
+                                            t-att-checked="getRatingValue(question.question_id) === '1' ? 'checked' : undefined"
+                                            t-att-data-question-id="question.question_id"
+                                            t-on-change="onRatingChange"
+                                            class="rating-checkbox"
+                                        />
+                                    </label>
+                                </td>
+                                <td class="rating-cell">
+                                    <label class="rating-checkbox-label">
+                                        <input 
+                                            type="radio" 
+                                            t-att-name="'rating_' + question.question_id"
+                                            value="0"
+                                            t-att-checked="getRatingValue(question.question_id) === '0' ? 'checked' : undefined"
+                                            t-att-data-question-id="question.question_id"
+                                            t-on-change="onRatingChange"
+                                            class="rating-checkbox"
+                                        />
+                                    </label>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Comment Section (Only on Last Page) -->
+            <div class="evaluation-comment-section" t-if="isLastPage">
+                <label class="comment-label">Additional Comments:</label>
+                <textarea 
+                    class="evaluation-comment-textarea"
+                    t-att-value="commentValue"
+                    t-on-input="handleCommentChange"
+                    placeholder="Add any additional comments or notes here..."
+                    rows="4"
+                ></textarea>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="justify-content-between d-flex">
+                <button 
+                    type="button" 
+                    class="btn btn-secondary me-3"
+                    t-if="state.currentPage > 0"
+                    t-on-click="previousPage"
+                >
+                    Previous
+                </button>
+                
+                <button 
+                    type="button" 
+                    class="btn btn-primary me-3"
+                    t-if="!isLastPage"
+                    t-on-click="nextPage"
+                >
+                    Next
+                </button>
+                
+                <button 
+                    type="button" 
+                    class="btn btn-success me-3"
+                    t-if="isLastPage"
+                    t-on-click="saveEvaluation"
+                    t-att-disabled="state.isSaving"
+                >
+                    <t t-if="state.isSaving">Saving...</t>
+                    <t t-if="!state.isSaving">Save Evaluation</t>
+                </button>
+            </div>
+        </div>
+    </t>
+</templates>

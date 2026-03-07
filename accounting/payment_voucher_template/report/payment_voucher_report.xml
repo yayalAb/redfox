@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Payment Voucher Report Action -->
+    <record id="action_report_payment_voucher" model="ir.actions.report">
+        <field name="name">Print Payment Voucher</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_voucher_template.payment_voucher_document</field>
+        <field name="report_file">payment_voucher_template.payment_voucher_document</field>
+        <field name="print_report_name">'Payment Voucher - %s' % (object.name or 'Payment')</field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Payment Voucher Report Template -->
+    <template id="payment_voucher_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="payment">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 11pt; padding: 20px;">
+                        <!-- Header Section -->
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <t t-if="payment.company_id.logo">
+                                <img t-att-src="image_data_uri(payment.company_id.logo)" style="max-height: 80px; margin-bottom: 10px;"/>
+                            </t>
+                            <h2 style="margin: 5px 0;"><strong><span t-field="payment.company_id.name"/></strong></h2>
+                            <p style="margin: 5px 0; font-size: 14pt;"><strong>የባንክ ወጪ ደረሰኝ</strong></p>
+                            <p style="margin: 5px 0;"><strong>Bank Payment Voucher</strong></p>
+                        </div>
+                        
+                        <!-- Document Info Section -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                            <div>
+                                <p style="margin: 5px 0;"><strong>Doc. No:</strong> <span t-field="payment.name"/></p>
+                                <p style="margin: 5px 0;"><strong>Issue No.:</strong> 1</p>
+                            </div>
+                            <div>
+                                <p style="margin: 5px 0;"><strong>Page:</strong> 1 of 1</p>
+                                <p style="margin: 5px 0;"><strong>Date:</strong> <span t-field="payment.date" t-options="{'widget': 'date'}"/></p>
+                            </div>
+                            <div>
+                                <p style="margin: 5px 0;"><strong>No.:</strong> <span t-field="payment.id"/></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Details Section -->
+                        <div style="margin-bottom: 20px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 30%; padding: 8px; border: 1px solid #000;"><strong>Bank Name and Account Number:</strong></td>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <t t-if="payment.journal_id">
+                                            <span t-field="payment.journal_id.name"/>
+                                            <t t-if="payment.journal_id.bank_account_id">
+                                                - <span t-field="payment.journal_id.bank_account_id.acc_number"/>
+                                            </t>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #000;"><strong>Paid to:</strong></td>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <t t-if="payment.partner_id">
+                                            <span t-field="payment.partner_id.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            _______________
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #000;"><strong>Amount in words [Birr]:</strong></td>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <t t-esc="amount_to_words(payment.amount, payment.currency_id)"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #000;"><strong>Birr:</strong></td>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <span t-esc="'{:,.2f}'.format(payment.amount)"/> <span t-field="payment.currency_id.symbol"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #000;"><strong>Purpose:</strong></td>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <t t-if="payment.payment_reference">
+                                            <span t-field="payment.payment_reference"/>
+                                        </t>
+                                        <t t-elif="payment.memo">
+                                            <span t-field="payment.memo"/>
+                                        </t>
+                                        <t t-else="">
+                                            _______________
+                                        </t>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- Payment Method Section -->
+                        <div style="margin-bottom: 20px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <strong>Payment Method:</strong>
+                                        <t t-if="payment.payment_method_line_id">
+                                            <span t-field="payment.payment_method_line_id.name"/>
+                                        </t>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #000;">
+                                        <strong>Cheque No.:</strong>
+                                        <t t-set="cheque_no" t-value="get_cheque_number(payment)"/>
+                                        <t t-if="cheque_no">
+                                            <span t-esc="cheque_no"/>
+                                        </t>
+                                        <t t-else="">
+                                            _______________
+                                        </t>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- Allocation Section -->
+                        <div style="margin-bottom: 20px;">
+                            <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
+                                <thead>
+                                    <tr style="background-color: #f0f0f0;">
+                                        <th style="padding: 8px; border: 1px solid #000; text-align: left;"><strong>Account</strong></th>
+                                        <th style="padding: 8px; border: 1px solid #000; text-align: right;"><strong>Debit</strong></th>
+                                        <th style="padding: 8px; border: 1px solid #000; text-align: right;"><strong>Credit</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="allocation_lines" t-value="get_allocation_lines(payment)"/>
+                                    <t t-foreach="allocation_lines" t-as="line">
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #000;">
+                                                <t t-esc="line['account']"/> - <t t-esc="line['account_name']"/>
+                                            </td>
+                                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">
+                                                <t t-if="line['debit'] > 0">
+                                                    <span t-esc="'{:,.2f}'.format(line['debit'])"/>
+                                                </t>
+                                            </td>
+                                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">
+                                                <t t-if="line['credit'] > 0">
+                                                    <span t-esc="'{:,.2f}'.format(line['credit'])"/>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="not allocation_lines">
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #000;">_______________</td>
+                                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">_______________</td>
+                                            <td style="padding: 8px; border: 1px solid #000; text-align: right;">_______________</td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Approval Section -->
+                        <div style="margin-bottom: 20px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 25%; padding: 8px; text-align: center; border: 1px solid #000;">
+                                        <p><strong>Prepared by:</strong></p>
+                                        <div style="min-height: 60px; margin-top: 10px;">_______________</div>
+                                    </td>
+                                    <td style="width: 25%; padding: 8px; text-align: center; border: 1px solid #000;">
+                                        <p><strong>Checked by:</strong></p>
+                                        <div style="min-height: 60px; margin-top: 10px;">_______________</div>
+                                    </td>
+                                    <td style="width: 25%; padding: 8px; text-align: center; border: 1px solid #000;">
+                                        <p><strong>Approved by:</strong></p>
+                                        <div style="min-height: 60px; margin-top: 10px;">_______________</div>
+                                    </td>
+                                    <td style="width: 25%; padding: 8px; text-align: center; border: 1px solid #000;">
+                                        <p><strong>Received by:</strong></p>
+                                        <div style="min-height: 60px; margin-top: 10px;">_______________</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- Copies Section -->
+                        <div style="margin-top: 30px; font-size: 10pt;">
+                            <p><strong>Copies:</strong></p>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <li><strong>Original:</strong> White - Distribution: Accounts</li>
+                                <li><strong>1st Copy:</strong> Pink - Distribution: Pad</li>
+                            </ul>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+

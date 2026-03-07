@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_production_form_view_inherit_fat_button" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit.fat.button</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_elpa_approve"
+                    type="object"
+                    string="ELPA Approve"
+                    class="btn-primary"
+                    invisible="fat_pass == False or elpa_approved == True or not is_main"
+                    help="Approve this order after all FAT tests have passed."
+                    confirm="Are you sure you want to approve this production?" />
+
+                <button name="print_fat_report" string="Print FAT Report" type="object"
+                    class="oe_highlight"
+                    invisible="elpa_approved == False or not is_main" />
+            </xpath>
+
+            <xpath expr="//button[@name='button_mark_done'][1]" position="attributes">
+                <attribute name="invisible">not move_raw_ids or not show_produce or state != 'progress'</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_mark_done'][2]" position="attributes">
+                <attribute name="invisible">not move_raw_ids or not show_produce_all or state != 'progress'</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_mark_done'][3]" position="attributes">
+                <attribute name="invisible">move_raw_ids or not show_produce or state != 'progress'</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_mark_done'][4]" position="attributes">
+                <attribute name="invisible">move_raw_ids or not show_produce_all or state != 'progress'</attribute>
+            </xpath>
+   
+
+            <!-- <div name="button_box" position="inside">
+                <button name="action_open_fat_checks"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-check-square-o"
+                    invisible="fat_check_count == 0">
+                    <field name="fat_check_count" widget="statinfo" string="FAT Checks" />
+                </button>
+            </div> -->
+
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="fat_pass" readonly="1" invisible="is_nested or state != 'done'"/>
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="before">
+                <widget name="web_ribbon" text="Approved" bg_color="bg-success"
+                    invisible="not elpa_approved or is_nested" />
+            </xpath>
+
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Testing Details" invisible="not is_main">
+                    <group>
+                        <group>
+                            <field name="rated_capacity" />
+                            <field name="serial_number" />
+                            <field name="pri_rated_voltage" />
+                            <field name="sec_rated_voltage" />
+                            <field name="pri_rated_current" />
+                        </group>
+
+                        <group>
+                            <field name="sec_rated_current" />
+                            <field name="test_number" />
+                            <field name="vector_group" />
+                            <field name="frequency" />
+                            <field name="iec" />
+                            <field name="cooling" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

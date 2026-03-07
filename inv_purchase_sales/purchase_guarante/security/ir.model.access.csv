@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_guarante,access.purchase.guarante,model_purchase_guarante,base.group_user,1,1,1,1
+access_purchase_guarante_payment_line,access.purchase.guarante.payment.line,model_purchase_guarante_payment_line,base.group_user,1,1,1,1
+access_custom_branch,access.custom.branch,model_customs_branch,base.group_user,1,1,1,1

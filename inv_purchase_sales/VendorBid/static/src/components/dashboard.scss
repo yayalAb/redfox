@@ -1,0 +1,75 @@
+@mixin flex(
+  $direction: row, 
+  $justify: flex-start, 
+  $align: stretch, 
+  $wrap: nowrap
+) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+html .o_web_client > .o_action_manager {
+    overflow: auto;
+}
+
+.shadow-1 {
+    box-shadow: 0 0 10px 0 rgba(95, 95, 95, 0.1);
+}
+
+.border-1 {
+    border-radius: 10px;
+}
+
+.products-container {
+    thead {
+        th {
+            text-align: center;
+            font-weight: 600 !important;
+            color: #6c757d;
+        }
+        th:first-child {
+            text-align: left;
+        }
+    }
+    tbody {
+        tr {
+            td {
+                vertical-align: middle;
+                text-align: center;
+            }
+            td:first-child {
+                text-align: left;
+            }
+
+        }
+    }
+}
+
+.company-card {
+    @include flex(row, flex-start, center);
+    padding: 12px;
+    border-radius: 10px;
+    .company-logo {
+        padding: 3px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        margin-right: 12px;
+        img {
+            width: 50px;
+            height: auto;
+            border-radius: 5px;
+        }
+    }
+    .info {
+        @include flex(column, center, flex-start);
+        h3, p {
+            margin: 0;
+        }
+        h3 {
+            font-weight: 600 !important;
+        }
+    }
+}

@@ -1,0 +1,134 @@
+<odoo>
+    <template id="report_bank_statement_template">
+        <t t-call="web.html_container">
+            <t t-foreach="reports" t-as="report">
+                <t t-set="bank" t-value="env['res.partner.bank'].browse(report['bank_id'])" />
+                <t t-set="company" t-value="env['res.company'].browse(report['company_id'])" />
+
+                <!-- Cover Page -->
+                <t t-call="web.external_layout">
+                    <div class="page" style="padding-top: 150px;">
+                        <t t-set="branch" t-value="report['branch_address']" />
+                        <t t-set="payslip_period" t-value="env['hr.payslip'].browse(report['payslip_pages'][0][0]).payslip_run_id.name if report['payslip_pages'] and report['payslip_pages'][0] else ''" />
+                        <t t-set="total_net" t-value="report['grand_total']" />
+                        <t t-set="wizard" t-value="env['hr.payroll.bank.statement.wizard']" />
+                        <t t-set="total_in_words" t-value="wizard.format_amount_to_text(total_net, company.currency_id)" />
+
+                        <div>
+                            <div style="line-height: 1.6; font-family: 'Times New Roman', Times, serif; font-size: 16px;">
+                                <p>
+                                    <strong>Date:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%B %d, %Y')" /><br />
+                                    <strong>Ref:</strong> ____________________
+                                     <!-- <span t-esc="company.name[:3].upper()" />/Fin/<span t-esc="datetime.datetime.now().strftime('%Y%m%d')" /> -->
+                                </p>
+                                <p class="mt-5 mb-3"><strong>To: <t t-esc="bank.bank_id.name" /><t t-if="branch">, <t t-esc="branch" /></t></strong></p>
+                                <p class="mt-4" style="text-decoration: underline;"><strong>Subject: Request to Deposit Staff Salary in their Respective Accounts</strong></p>
+                                <p class="mt-4"><strong>Dear Sir/Madam,</strong></p>
+                                <p>Kindly deposit the salary for the attached list of employees for the month of  <strong><t t-esc="payslip_period" /></strong> in the amount of <strong t-esc="'{0:,.2f}'.format(total_net)" /> (<span t-esc="total_in_words" />).</p>
+                                <p>We hereby authorize your bank to debit the total amount, along with any applicable service charges, from our account:  <strong><t t-esc="bank.acc_number" /></strong> </p>
+                                <p class="mt-5">Thank you for your cooperation.</p>
+                                <p class="mt-5">Sincerely,</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Payslip Pages -->
+                <t t-foreach="report['payslip_pages']" t-as="page" t-foreach-index="page_index">
+                    <t t-set="payslips" t-value="env['hr.payslip'].browse(page)" />
+                    <t t-set="page_total" t-value="report['page_totals'][page_index]" />
+                    <t t-call="web.basic_layout">
+                        <div class="page">
+                            <t t-set="payslip_period" t-value="payslips and payslips[0].payslip_run_id.name or ''" />
+                            <div style="font-family: 'Times New Roman', Times, serif; font-size: 14px;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th style="border: 1px solid black; padding: 4px; text-align: left; font-weight: bold; width: 5%;">#</th>
+                                            <th style="border: 1px solid black; padding: 4px; text-align: left; font-weight: bold;">Employee Name</th>
+                                            <th style="border: 1px solid black; padding: 4px; text-align: left; font-weight: bold;">ID</th>
+                                            <!-- <th style="border: 1px solid black; padding: 4px; text-align: left; font-weight: bold;">Bank</th> -->
+                                            <th style="border: 1px solid black; padding: 4px; text-align: left; font-weight: bold;">Account Number</th>
+                                            <th style="border: 1px solid black; padding: 4px; text-align: right; font-weight: bold; width: 20%;">Net Salary</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="counter" t-value="(page_index * 35)" />
+                                        <t t-foreach="payslips" t-as="payslip">
+                                            <t t-if="not payslip.employee_id.merged_with_other">
+                                                <t t-set="counter" t-value="counter + 1" />
+                                                <tr>
+                                                    <td style="border: 1px solid black; padding: 4px;"><span t-esc="counter" /></td>
+                                                    <td style="border: 1px solid black; padding: 4px;">
+                                                        <t t-if="payslip.employee_id.use_others_account">
+                                                            <span t-field="payslip.employee_id.other_account_name" />
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span t-field="payslip.employee_id.name" />
+                                                        </t>
+                                                    </td>
+                                                    <td style="border: 1px solid black; padding: 4px;">
+                                                        <t t-if="payslip.employee_id.use_others_account">
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span t-field="payslip.employee_id_no" />
+                                                        </t>
+                                                    </td>
+                                                    <!-- <td style="border: 1px solid black; padding: 4px;"><span t-field="payslip.employee_id.bank_account_id.bank_id.name" /></td> -->
+                                                    <td style="border: 1px solid black; padding: 4px;">
+                                                        <t t-set="employee_bank_account" t-value="payslip.employee_id.bank_account_ids.filtered(lambda acc: acc.bank_id.id == bank.bank_id.id)" />
+                                                        <t t-if="employee_bank_account">
+                                                            <span t-field="employee_bank_account[0].acc_number" />
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span t-esc="''" />
+                                                        </t>
+                                                    </td>
+                                                    <td style="border: 1px solid black; padding: 4px; text-align: right;"><span t-esc="'{0:,.2f}'.format(payslip.net_wage + payslip.marged_net)" /></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" style="border: 1px solid black; padding: 4px; text-align: center; font-weight: bold;">
+                                                <t t-if="page_index + 1 == len(report['payslip_pages'])">
+                                                   Subtotal
+                                                </t>
+                                                <t t-else="">
+                                                    Subtotal
+                                                </t>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 4px; text-align: right; font-weight: bold;">
+                                                <span t-esc="'{0:,.2f}'.format(page_total)" />
+                                            </td>
+                                        </tr>
+                                           <t t-if="page_index + 1 == len(report['payslip_pages'])">
+                                            <t t-set="total_net" t-value="report['grand_total']" />
+                                             <tr>
+                                                <td colspan="4" style="border: 1px solid black; padding: 4px; text-align: center; font-weight: bold;">
+                                                    Grand Total
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 4px; text-align: right; font-weight: bold;">
+                                                    <span t-esc="'{0:,.2f}'.format(total_net)" />
+                                                </td>
+                                            </tr>
+                                            </t>
+                                         
+                                    </tfoot>
+                                      
+                                </table>
+                                 <t t-if="page_index + 1 == len(report['payslip_pages'])">
+                                    <t t-call="custom_payslip_reports.report_signature_block" />
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+                
+                
+            </t>
+             
+        </t>
+    </template>
+</odoo>

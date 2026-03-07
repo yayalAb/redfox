@@ -1,0 +1,76 @@
+<odoo>
+    <record id='hr_applicant_inherited_list_view' model='ir.ui.view'>
+        <field name='name'>hr.applicant.inherited.tree.view</field>
+        <field name='model'>hr.applicant</field>
+        <field name='inherit_id' ref='hr_recruitment.crm_case_tree_view_job' />
+        <field name='arch' type='xml'>
+            <xpath expr="//field[@name='job_id']" position='after'>
+                <field name='gender' optional='show'/>
+                <field name='current_address' optional='show'/>
+                <field name='date_of_birth' optional='show'/>
+                <field name='university' optional='show'/>
+                <field name='graduation_department' optional='show'/>
+                <field name='graduation_year' optional='show'/>
+                <field name='cgpa' optional='show'/>
+                <field name='exit_exam_result' optional='show'/>
+                <field name='experience_level' optional='show'/>
+                <field name='current_organization' optional='show'/>
+                <field name='current_position' optional='show'/>
+                <field name='previous_job_start' optional='show'/>
+                <field name='previous_job_end' optional='show'/>
+                <field name='current_salary' optional='show'/>
+            </xpath>
+            <xpath expr="//field[@name='candidate_id']" position='attributes'>
+                <attribute name='optional'>hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='priority']" position='attributes'>
+                <attribute name='optional'>hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='categ_ids']" position='attributes'>
+                <attribute name='optional'>hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position='attributes'>
+                <attribute name='optional'>hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_phone']" position='attributes'>
+                <attribute name='optional'>show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='salary_expected']" position='attributes'>
+                <attribute name='optional'>show</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id='hr_applicant_inherited_form_view' model='ir.ui.view'>
+        <field name='name'>hr.applicant.inherited.form.view</field>
+        <field name='model'>hr.applicant</field>
+        <field name='inherit_id' ref='hr_recruitment.hr_applicant_view_form' />
+        <field name='arch' type='xml'>
+            <xpath expr="//field[@name='type_id']" position='after'>
+                <field name='graduation_department' />
+                <field name='university' />
+                <field name='graduation_year' />
+                <field name='cgpa' />
+                <field name='exit_exam_result' />
+            </xpath>
+
+            <xpath expr="//page[@name='application_details']" position='after'>
+                <page string='Work Exprience'>
+                    <group>
+                        <field name='current_organization' />
+                        <field name='current_position' />
+                        <field name='previous_job_start' />
+                        <field name='previous_job_end' />
+                        <field name='current_salary' />
+                    </group>
+                </page>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_phone']" position='after'>
+                <field name='gender' />
+                <field name='date_of_birth' />
+                <field name='current_address' />
+            </xpath>
+        </field>
+    </record>
+</odoo>

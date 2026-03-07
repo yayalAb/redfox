@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_tender_bid_bond_list" model="ir.ui.view">
+            <field name="name">tender.bid.bond.list</field>
+            <field name="model">tender.bid.bond</field>
+            <field name="arch" type="xml">
+                <list string="Bid Bonds" decoration-info="state == 'draft'"
+                    decoration-success="state == 'sent'" decoration-muted="state == 'cancel'">
+                    <field name="tender_ref_no" />
+                    <field name="beneficiary_id" />
+                    <field name="bank_id" />
+                    <field name="goods_description" optional="hide" />
+                    <field name="validity_start_date" />
+                    <field name="amount" decoration-bf="1" />
+                    <field name="currency_id" column_invisible="True" />
+                    <field name="state" widget="badge" decoration-info="state == 'draft'"
+                        decoration-warning="state == 'approved'"
+                        decoration-success="state == 'sent'" />
+                </list>
+            </field>
+        </record>
+
+        <record id="view_tender_bid_bond_form" model="ir.ui.view">
+            <field name="name">tender.bid.bond.form</field>
+            <field name="model">tender.bid.bond</field>
+            <field name="arch" type="xml">
+                <form string="Bid Bond Request">
+                    <header>
+                        <button name="action_approve"
+                            string="Approve"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'draft'" />
+
+                        <button name="action_send"
+                            string="Mark as Sent"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'approved'" />
+
+                        <field name="state" widget="statusbar"
+                            statusbar_visible="draft,approved,sent" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="tender_ref_no" class="oe_edit_only" />
+                            <h1>
+                                <field name="tender_ref_no"
+                                    placeholder="e.g. EEU/DIST./NCB-005/2018 Lot-1" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Bank Details">
+                                <field name="bank_id" />
+                                <field name="bank_city" />
+                                <field name="debit_account_no" />
+                            </group>
+                            <group string="Tender Information">
+                                <field name="beneficiary_id" />
+                                <field name="goods_description" />
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Financials">
+                                <label for="amount" />
+                                <div class="o_row">
+                                    <field name="amount" />
+                                    <field name="currency_id" />
+                                </div>
+                                <field name="amount_in_words" />
+                            </group>
+                            <group string="Validity">
+                                <field name="validity_days" />
+                                <field name="validity_start_date" />
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter />
+                </form>
+            </field>
+        </record>
+
+        <record id="action_tender_bid_bond" model="ir.actions.act_window">
+            <field name="name">Bid Bonds</field>
+            <field name="res_model">tender.bid.bond</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first Bid Bond 
+                </p>
+            </field>
+        </record>
+
+
+        <menuitem id="menu_tender_bid_bond_action"
+            name="Bid Bond"
+            parent="company_tender_management.menu_tender_root"
+            action="action_tender_bid_bond"
+            sequence="1" />
+    </data>
+</odoo>

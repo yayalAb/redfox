@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_agreement_creator,Agreement Creator Access,model_sale_agreement,base.group_user,1,1,1,1
+access_agreement_confirmer,Agreement Confirmer Access,model_sale_agreement,base.group_user,1,0,0,0
+access_agreement_type_creator,Agreement Type Creator Access,model_agreement_type,base.group_user,1,1,1,1
+access_agreement_type_confirmer,Agreement Type Confirmer Access,model_agreement_type,base.group_user,1,0,0,0
+access_agreement_line_creator,Agreement Line Creator Access,model_agreement_line,base.group_user,1,1,1,1
+access_agreement_line_confirmer,Agreement Line Confirmer Access,model_agreement_line,base.group_user,1,0,0,0

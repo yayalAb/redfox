@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- LIST VIEW -->
+    <record id="view_bid_warranty_letter_list" model="ir.ui.view">
+        <field name="name">bid.warranty.letter.list</field>
+        <field name="model">bid.warranty.letter</field>
+        <field name="arch" type="xml">
+            <list string="Warranty Letters">
+                <field name="name"/>
+                <field name="tender_reference"/>
+                <field name="partner_id"/>
+                <field name="date_issue"/>
+                <field name="warranty_period"/>
+                <field name="signatory_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_bid_warranty_letter_form" model="ir.ui.view">
+        <field name="name">bid.warranty.letter.form</field>
+        <field name="model">bid.warranty.letter</field>
+        <field name="arch" type="xml">
+            <form string="Warranty Letter">
+                <header>
+                    <!-- Button to print report directly from header -->
+                    <button name="%(action_report_warranty_letter)d" string="Print Warranty Letter" type="action" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="tender_reference"/>
+                            <field name="date_issue"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="signatory_id"/>
+                            <field name="signatory_title"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="warranty_period"/>
+                        <field name="goods_description" placeholder="Enter description of goods here..."/>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="action_bid_warranty_letter" model="ir.actions.act_window">
+        <field name="name">Warranty Letters</field>
+        <field name="res_model">bid.warranty.letter</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new Warranty Letter
+          </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bid_warranty_letter" 
+              name="Warranty Letters" 
+              parent="company_tender_management.menu_tender_root" 
+              action="action_bid_warranty_letter" 
+              sequence="20"/>
+</odoo>

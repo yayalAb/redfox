@@ -1,0 +1,12 @@
+<odoo>
+    <record id="action_tender_payment" model="ir.actions.act_window">
+        <field name="name">Payment Request</field>
+        <field name="res_model">hr.expense</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('sale_expense', '=', True)]</field>
+        <field name="context">{'default_sale_expense': True}</field>
+    </record>
+
+    <menuitem id="menu_tender_payment" name="Payment Request" parent="custom_sale_agreement.menu_sale_requests"
+        action="action_tender_payment" sequence="1" />
+</odoo>

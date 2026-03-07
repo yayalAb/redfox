@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_form2_inherit_planning" model="ir.ui.view">
+        <field name="name">project.task.form.planning</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="task_type" widget="badge" decoration-info="task_type == 'activity'" decoration-success="task_type == 'financial'"/>
+                <field name="okr_line_id" invisible="1"/>
+                <field name="aop_activity_id" invisible="1"/>
+                <field name="aop_financial_id" invisible="1"/>
+                <field name="aop_capex_id" invisible="1"/>
+                <field name="supervisor_id" widget="many2one_avatar_user"/>
+
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                
+                <!-- TAB 1: ACTIVITY LOG (Visible only if type is Activity) -->
+                <page string="Activity Execution Log" name="log_activity" 
+                        invisible="task_type != 'activity'">
+                    <field name="activity_log_ids">
+                        <list editable="bottom" >
+                            <field name="date"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="quantity" sum="Total"/>
+                            <field name="description"/>
+                            <field name="doc_reference" widget="reference"/>
+                            
+                            <field name="can_verify" column_invisible="True"/>
+
+                            <field name="state" widget="badge" 
+                                decoration-warning="state == 'draft'" 
+                                decoration-success="state == 'verified'"/>
+
+                            <button name="action_verify" type="object" icon="fa-check" 
+                                    string="Verify" class="btn-success"
+                                    invisible="not can_verify" />
+                        </list>
+                    </field>
+                </page>
+
+                <!-- TAB 2: FINANCIAL LOG -->
+                <page string="Financial Execution Log" name="log_finance" 
+                        invisible="task_type != 'financial'">
+                    <field name="financial_log_ids">
+                        <list editable="bottom">
+                            <field name="date"/>
+                            <field name="user_id"/>
+                            <field name="amount" sum="Total" widget="monetary"/>
+                            <field name="description"/>
+                            <field name="doc_reference" widget="reference"/>
+                            <field name="can_verify" column_invisible="True"/>
+
+                            <field name="state" widget="badge" 
+                                decoration-warning="state == 'draft'" 
+                                decoration-success="state == 'verified'"/>
+
+                            <button name="action_verify" type="object" icon="fa-check" 
+                                    string="Verify" class="btn-success"
+                                    invisible="not can_verify"/>
+                        </list>
+                    </field>
+                </page>
+
+                <!-- TAB 3: CAPEX LOG -->
+                <page string="Capex Execution Log" name="log_capex" 
+                    invisible="task_type != 'capex'">
+                    <field name="capex_log_ids">
+                        <list editable="bottom">
+                            <field name="date"/>
+                            <field name="qty" sum="Total Qty"/>
+                            <field name="cost" sum="Total Cost" widget="monetary"/>
+                            <field name="description"/>
+                            <field name="doc_reference" widget="reference"/>
+                            <field name="can_verify" column_invisible="True"/>
+
+                            <field name="state" widget="badge" 
+                                decoration-warning="state == 'draft'" 
+                                decoration-success="state == 'verified'"/>
+
+                            <button name="action_verify" type="object" icon="fa-check" 
+                                    string="Verify" class="btn-success"
+                                    invisible="not can_verify"/>
+                        </list>
+                    </field>
+                </page>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

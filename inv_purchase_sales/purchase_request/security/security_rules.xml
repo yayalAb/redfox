@@ -1,0 +1,45 @@
+<odoo>
+    <record id="purchase_order_local_rule" model="ir.rule">
+        <field name="name">Local Purchase Orders</field>
+        <field name="model_id" ref="purchase.model_purchase_order" />
+        <field name="groups" eval="[(4, ref('group_local_purchase_user'))]" />
+        <field name="domain_force">[('purchase_origin', '=', 'local')]</field>
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="1" />
+        <field name="perm_create" eval="1" />
+        <field name="perm_unlink" eval="1" />
+    </record>
+
+    <record id="purchase_order_foreign_rule" model="ir.rule">
+        <field name="name">Foreign Purchase Orders</field>
+        <field name="model_id" ref="purchase.model_purchase_order" />
+        <field name="groups" eval="[(4, ref('group_foreign_purchase_user'))]" />
+        <field name="domain_force">[('purchase_origin', '=', 'foreign')]</field>
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="1" />
+        <field name="perm_create" eval="1" />
+        <field name="perm_unlink" eval="1" />
+    </record>
+
+    <record id="purchase_order_local_rule" model="ir.rule">
+        <field name="name">Local Purchase Requests</field>
+        <field name="model_id" ref="purchase_request.model_supplies_rfp" />
+        <field name="groups" eval="[(4, ref('group_local_purchase_user'))]" />
+        <field name="domain_force">[('purchase_origin', '=', 'local')]</field>
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="1" />
+        <field name="perm_create" eval="1" />
+        <field name="perm_unlink" eval="1" />
+    </record>
+
+    <record id="purchase_order_foreign_rule" model="ir.rule">
+        <field name="name">Foreign Purchase Requests</field>
+        <field name="model_id" ref="purchase_request.model_supplies_rfp" />
+        <field name="groups" eval="[(4, ref('group_foreign_purchase_user'))]" />
+        <field name="domain_force">[('purchase_origin', '=', 'foreign')]</field>
+        <field name="perm_read" eval="1" />
+        <field name="perm_write" eval="1" />
+        <field name="perm_create" eval="1" />
+        <field name="perm_unlink" eval="1" />
+    </record>
+</odoo>

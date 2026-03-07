@@ -1,0 +1,535 @@
+<odoo>
+    <template id="report_fat_template">
+        <!-- 
+          CHANGE APPLIED: Using 'web.basic_layout' removes the default
+          Odoo header/footer, giving you full control over the page.
+        -->
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page"
+                    style="font-family: 'Times New Roman', Arial, sans-serif; font-size: 12pt;">
+                    <!-- Internal CSS for precise styling -->
+                    <style type="text/css">
+                        @page {
+                        margin: 0 !important;
+                        }
+                        html, body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        }
+                        .page {
+                        padding: 0 20px 20px 20px;
+                        }
+                        .page {
+                        padding: 20px;
+                        }
+                        .fat-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 4px;
+                        margin-bottom: 12px;
+                        }
+                        .fat-table th, .fat-table td {
+                        border: 1px solid black;
+                        padding: 1px 5px;
+                        text-align: left;
+                        vertical-align: middle;
+                        }
+                        .fat-table th {
+                        font-weight: normal;
+                        text-align: center;
+                        }
+                        .fat-table td.label {
+                        font-weight: normal;
+                        }
+                        .fat-table .text-center { text-align: center !important; }
+                        .spec-table td {
+                        border: none !important;
+                        padding: 1px 5px;
+                        }
+                        h5, h6 {
+                        font-weight: normal;
+                        margin-top: 12px;
+                        margin-bottom: 2px;
+                        font-size: 10pt;
+                        text-align: center;
+                        }
+                    </style>
+
+                    <t t-set="fat_data" t-value="doc.get_fat_data()" />
+
+                    <!-- Header Section -->
+                    <!-- This main row centers the entire header block on the page -->
+                    <div class="row justify-content-center align-items-center"
+                        style="margin-bottom: 5px;">
+
+                        <!-- Column 1: The Logo. 'col-auto' makes it only as wide as the logo
+                        itself. -->
+                        <div class="col-auto">
+                            <img t-if="doc.company_id.logo"
+                                t-att-src="image_data_uri(doc.company_id.logo)"
+                                style="max-height: 100px;"
+                                alt="Logo" />
+                        </div>
+
+                        <!-- Column 2: The Header Text. 'col-auto' makes it only as wide as the
+                        text. -->
+                        <div class="col-auto text-left" style="padding-left: 20px;">
+                            <h4
+                                style="margin-top: 5px; margin-bottom: 2px; font-weight:normal; font-size: 11pt;">
+                                Wagwago Trading PLC
+                            </h4>
+                            <h5 style="margin-top: 0px; font-weight:normal; font-size: 11pt;">
+                                Factory Acceptance Test (FAT) Test Format
+                            </h5>
+                        </div>
+
+                    </div>
+
+                    <p
+                        style="margin-bottom:5px;">Customer: ___________________________________</p>
+                    <table
+                        class="fat-table spec-table">
+                        <tr>
+                            <td style="width:28%;">Rated Capacity (KVA): <t t-esc="doc.rated_capacity"/></td>
+                            <td style="width:22%;">Sr.No: <t t-esc="doc.serial_number"/></td>
+                            <td style="width:22%;">Test No: <t t-esc="doc.test_number"/></td>
+                            <td style="width:22%"></td>
+                        </tr>
+                        <tr>
+                            <td>Pri Rated Voltage (KV): <t t-esc="doc.pri_rated_voltage"/></td>
+                            <td>Pri Rated Current (A): <t t-esc="doc.pri_rated_current"/></td>
+                            <td>Date: <t t-esc="doc.date_elpa_approved"/></td>
+                            <td style="width:22%"></td>
+                        </tr>
+                        <tr>
+                            <td>Sec Rated Voltage(KV):- <t t-esc="doc.sec_rated_voltage"/></td>
+                            <td>Sec Rated Current(A): <t t-esc="doc.sec_rated_current"/></td>
+                            <td>Cooling:- <t t-esc="doc.cooling"/></td>
+                            <td style="width:22%"></td>
+                        </tr>
+                        <tr>
+                            <td>Vector Group:- <t t-esc="doc.vector_group"/></td>
+                            <td>Frequency (HZ):- <t t-esc="doc.frequency"/></td>
+                            <td>IEC:- <t t-esc="doc.iec"/></td>
+                            <td style="width:22%"></td>
+                        </tr>
+                    </table>
+                    <h6>1.
+                        Insulation Resistance (GΩ)</h6>
+                    <table class="fat-table">
+                        <tr>
+                            <td class="text-center" style="width:25%"></td>
+                            <td class="text-center" style="width:25%">HV to LV+Earth</td>
+                            <td class="text-center" style="width:25%">H.V to G + Earth</td>
+                            <td class="text-center" style="width:25%">L.V to G + Earth</td>
+                        </tr>
+                        <tr>
+                            <td>Result</td>
+                            <td class="text-center">
+                                <span t-esc="fat_data.get('step1').hv_to_lv_earth or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="fat_data.get('step1').hv_to_g_earth or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="fat_data.get('step1').lv_to_g_earth or ''" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 2. Ratio Test -->
+                    <h6>2.
+                        Ratio Test</h6>
+                    <table class="fat-table">
+                        <t t-set="s2" t-value="fat_data.get('step2')" />
+                        <tr>
+                            <th style="border:none; width:15%;"></th>
+                            <th>Tap 1</th>
+                            <th>Tap 2</th>
+                            <th>Tap 3</th>
+                            <th>Tap 4</th>
+                            <th>Tap 5</th>
+                        </tr>
+                        <tr>
+                            <td class="label">UV-un</td>
+                            <td class="text-center">
+                                <span t-esc="s2.uv_un_tap1 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uv_un_tap2 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uv_un_tap3 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uv_un_tap4 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uv_un_tap5 or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">VW-vn</td>
+                            <td class="text-center">
+                                <span t-esc="s2.vw_vn_tap1 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.vw_vn_tap2 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.vw_vn_tap3 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.vw_vn_tap4 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.vw_vn_tap5 or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">UW-wn</td>
+                            <td class="text-center">
+                                <span t-esc="s2.uw_wn_tap1 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uw_wn_tap2 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uw_wn_tap3 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uw_wn_tap4 or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s2.uw_wn_tap5 or ''" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 3. NO Load Loss -->
+                    <h6>3.
+                        NO Load Loss &amp; Percentage of No Load Current</h6>
+                    <table class="fat-table">
+                        <t t-set="s3" t-value="fat_data.get('step3')" />
+                        <tr>
+                            <th>Phase</th>
+                            <th>Rated Voltage (V)</th>
+                            <th>Rated Current (A)</th>
+                            <th>Losses (W)</th>
+                            <th>% No Load Current</th>
+                        </tr>
+                        <tr>
+                            <td class="text-center">U</td>
+                            <td class="text-center">
+                                <span t-esc="s3.u_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.u_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.u_losses or ''" />
+                            </td>
+                            <td rowspan="4" class="text-center" style="vertical-align: middle;">
+                                <span t-esc="s3.percent_no_load_current or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">V</td>
+                            <td class="text-center">
+                                <span t-esc="s3.v_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.v_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.v_losses or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">W</td>
+                            <td class="text-center">
+                                <span t-esc="s3.w_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.w_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.w_losses or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">Average</td>
+                            <td class="text-center">
+                                <span t-esc="s3.avg_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.avg_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s3.avg_losses or ''" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 4. Load Loss -->
+                    <h6>4.
+                        Load Loss at Ambient Temprature</h6>
+                    <table class="fat-table">
+                        <t t-set="s4" t-value="fat_data.get('step4')" />
+                        <tr>
+                            <th>Phase</th>
+                            <th>Rated Voltage (V)</th>
+                            <th>Rated Current (A)</th>
+                            <th>Losses (W)</th>
+                            <th>% Impedance</th>
+                        </tr>
+                        <tr>
+                            <td class="text-center">U</td>
+                            <td class="text-center">
+                                <span t-esc="s4.u_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.u_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.u_losses or ''" />
+                            </td>
+                            <td rowspan="4" class="text-center" style="vertical-align: middle;">
+                                <span t-esc="s4.percent_impedance or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">V</td>
+                            <td class="text-center">
+                                <span t-esc="s4.v_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.v_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.v_losses or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">W</td>
+                            <td class="text-center">
+                                <span t-esc="s4.w_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.w_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.w_losses or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">Average</td>
+                            <td class="text-center">
+                                <span t-esc="s4.avg_rated_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.avg_rated_current or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s4.avg_losses or ''" />
+                            </td>
+                        </tr>
+                    </table>
+                    <p
+                        style="text-align:center; font-size:9pt; margin-top:-8px;">Load loss and
+                        Impedance at 75 °C</p>
+
+                    <!-- 5. Winding Resistance -->
+                    <h6>5. Winding Resistance Measurement at Ambient
+                        Temperature</h6>
+                    <t
+                        t-set="s5" t-value="fat_data.get('step5')" />
+                    <table class="fat-table">
+                        <tr>
+                            <th>Amb.Temp</th>
+                            <th>Tap No</th>
+                            <th>UV</th>
+                            <th>VW</th>
+                            <th>UW</th>
+                            <th>AVG</th>
+                        </tr>
+                        <tr>
+                            <td class="text-center">HV (Ω)</td>
+                            <td class="text-center">3</td>
+                            <td class="text-center">
+                                <span t-esc="s5.hv_uv or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s5.hv_vw or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s5.hv_uw or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s5.hv_avg or ''" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td> </td>
+                            <th>UV</th>
+                            <th>VW</th>
+                            <th>UW</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">LV (mΩ)</td>
+                            <td class="text-center">3</td>
+                            <td class="text-center">
+                                <span t-esc="s5.lv_uv or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s5.lv_vw or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s5.lv_uw or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s5.lv_avg or ''" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 6. Separate Source Test -->
+                    <h6>6.
+                        Separate Source Power Frequency With Stand Test</h6>
+                    <table class="fat-table">
+                        <t t-set="s6" t-value="fat_data.get('step6')" />
+                        <tr>
+                            <th style="width:10%;">Test no</th>
+                            <th>Test</th>
+                            <th style="width:20%;">Applied Voltage (KV)</th>
+                            <th style="width:15%;">Duration (Sec)</th>
+                            <th style="width:20%;">Remark</th>
+                        </tr>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>B/n HV Winding &amp; LV</td>
+                            <td class="text-center">
+                                <span t-esc="s6.test1_applied_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s6.test1_duration or ''" />
+                            </td>
+                            <td>
+                                <span t-esc="s6.test1_remark or ''" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">2</td>
+                            <td>B/n LV Winding &amp; HV</td>
+                            <td class="text-center">
+                                <span t-esc="s6.test2_applied_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s6.test2_duration or ''" />
+                            </td>
+                            <td>
+                                <span t-esc="s6.test2_remark or ''" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 7. Induced Over voltage -->
+                    <h6>7.
+                        Induced Over voltage with stand test</h6>
+                    <table class="fat-table">
+                        <t t-set="s7" t-value="fat_data.get('step7')" />
+                        <tr>
+                            <th style="width:10%;">Test no</th>
+                            <th>Test</th>
+                            <th style="width:15%;">Applied Voltage (V)</th>
+                            <th style="width:15%;">Applied Frequency (Hz)</th>
+                            <th style="width:15%;">Duration (Sec)</th>
+                            <th style="width:15%;">Remark</th>
+                        </tr>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>Applied 2X Rated LV &amp; Open HV Open Circuit</td>
+                            <td class="text-center">
+                                <span t-esc="s7.applied_voltage or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s7.applied_frequency or ''" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="s7.duration or ''" />
+                            </td>
+                            <td>
+                                <span t-esc="s7.remark or ''" />
+                            </td>
+                        </tr>
+                    </table>
+
+
+                    <div class="footer-block"
+                        style="margin-top: 3px;">
+                        <div class="row" style="margin-top: 3px;">
+                            <div class="col-6 d-flex align-items-end">
+                                <span style="white-space: nowrap;">Tested By</span>
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                    <span style="padding-left: 15px;" />
+                                </div>
+                            </div>
+                            <div class="col-6 d-flex align-items-end">
+                                <span style="white-space: nowrap;">EEU Witnessed By:</span>
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                    <span style="padding-left: 15px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 3px;">
+                            <div class="col-6 d-flex align-items-end">
+                                <span style="white-space: nowrap;">Singnature</span>
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                    <span style="padding-left: 15px;" />
+                                </div>
+                            </div>
+                            <div class="col-6 d-flex align-items-end">
+                                <span style="white-space: nowrap;">Singnature</span>
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                    <span style="padding-left: 15px;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 3px;">
+                            <div class="col-6 d-flex align-items-end">
+                            </div>
+                            <div class="col-6 d-flex align-items-end">
+                                <span style="white-space: nowrap;">EEU Witnessed By:</span>
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                    <span style="padding-left: 15px;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 3px;">
+                            <div class="col-6 d-flex align-items-end">
+                            </div>
+                            <div class="col-6 d-flex align-items-end">
+                                <span style="white-space: nowrap;">Signature</span>
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                    <span style="padding-left: 15px;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

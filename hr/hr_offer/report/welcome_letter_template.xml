@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_welcome_letter_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <t t-set="contract" t-value="doc.contract_id" />
+
+                    <!-- Header variables -->
+                    <t t-set="doc_title" t-value="'Temporary Employment and Appointment Letter'" />
+                    <t t-set="doc_number" t-value="'OF/WW/HRGS/029'" />
+                    <t t-set="issue_number" t-value="'1'" />
+
+                    <div class="page"
+                        style="font-family: 'Times New Roman'; font-size: 15px; line-height: 1.5; padding-left: 50px; padding-right: 50px;">
+
+                        <div class="oe_structure" />
+
+                        
+                        <!-- Ref No and Date -->
+                        <div style="margin-top: 10px; text-align: right; margin-bottom: 20px;">
+                            <div><strong>Refe.No: <u>WG/0706/18</u></strong></div>
+                            <div><strong>Date:-</strong>
+                                <t t-if="contract and contract.date_start">
+                                    <span t-esc="contract.date_start.strftime('%B %d, %Y')" />
+                                </t>
+                                <t t-else="">
+                                    <span t-esc="time.strftime('%B %d, %Y')" />
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- To Section -->
+                        <div style="margin-top: 20px;">
+                                <strong>To: <t t-if="doc.gender == 'male'">Mr. </t>
+                                <t t-if="doc.gender == 'female'">Ms. </t>
+                                <span t-field="doc.name" />
+                                <t t-if="doc.identification_id"> /<span t-esc="doc.identification_id" />/</t>
+                            </strong>
+                            <br />
+                            <t t-if="doc.address_id and doc.address_id.city">
+                                <span t-esc="doc.address_id.city" />
+                            </t>
+                        </div>
+
+                        <!-- Welcome Letter Title -->
+                        <div style="margin-top: 30px; text-align: center;">
+                            <strong style="font-size: 18px;">
+                                <u>Welcome Letter</u>
+                            </strong>
+                        </div>
+
+                        <!-- Letter Body -->
+                        <div style="margin-top: 20px; margin-bottom: 20px; text-align: justify;">
+                            <p>Dear <t t-if="doc.gender == 'male'">Mr. </t>
+                                <t t-if="doc.gender == 'female'">Ms. </t>
+                                <span t-esc="doc.name.split(' ')[0] if doc.name else ''" />,</p>
+
+                            <!-- Check if a contract exists -->
+                            <t t-if="not contract">
+                                <p class="alert alert-warning">
+                                    <strong>Note:</strong> Contract details (salary, allowances) are
+                                    not available as no contract is linked to this employee.
+                                </p>
+                            </t>
+
+                            <p>
+                                It is our pleasure to inform you that effective from 
+                                <strong>
+                                    <t t-if="contract and contract.date_start">
+                                        <span t-esc="contract.date_start.strftime('%B %d, %Y')" />
+                                    </t>
+                                    <t t-else="">
+                                        <span>the start date</span>
+                                    </t>
+                                </strong>
+                                you are employed as <strong>
+                                    <span t-esc="doc.job_id.name if doc.job_id else (doc.job_title or 'your new position')" />
+                                </strong>
+                                <t t-if="doc.parent_id">
+                                    <t t-if="doc.parent_id.job_id">
+                                        under the supervision of <strong><span t-esc="doc.parent_id.job_id.name" /></strong>
+                                    </t>
+                                    <t t-else="">
+                                        under the supervision of <strong><span t-esc="doc.parent_id.job_title or doc.parent_id.name" /></strong>
+                                    </t>
+                                </t>
+                                . 
+                                <t t-if="doc.address_id and doc.address_id.city">
+                                    Your duty station is <strong><span t-esc="doc.address_id.city" />-Ethiopia</strong>.
+                                </t>
+                                <t t-elif="doc.address_id and doc.address_id.name">
+                                    Your duty station is <strong><span t-esc="doc.address_id.name" />-Ethiopia</strong>.
+                                </t>
+                                <t t-else="">
+                                    Your duty station is <strong>Addis Ababa-Ethiopia</strong>.
+                                </t>
+                            </p>
+
+                            <t t-if="contract">
+                                <p> Your salary is set at the company's <strong><span t-esc="doc.contract_id.salary_grade_value_id.name" /></strong> Job Grade
+                                and  Scale Level
+                                    <strong>
+                                        <span t-field="doc.contract_id.scale_level_id.name"/>
+                                    </strong>
+                                     with monthly basic salary of Birr <strong><span t-esc="'{0:,.2f}'.format(doc.contract_id.wage)"/>
+                                      (<span t-esc="doc.company_id.currency_id.amount_to_text(doc.contract_id.wage)" />).</strong>
+
+                                </p>
+                                <p>
+                                    On top of that, you are entitled to get the following benefits:
+                                </p>
+                                <t t-set="allowances_list"
+                                    t-value="[
+                                        ('house_rent_allowance', 'House Rent Allowance'),
+                                        ('dearness_allowance', 'Dearness Allowance'),
+                                        ('travel_allowance', 'Travel Allowance'),
+                                        ('meal_allowance', 'Meal Allowance'),
+                                        ('medical_allowance', 'Medical Allowance'),
+                                        ('position_allowance', 'Position Allowance'),
+                                        ('transport_home_allowance', 'Transport (Home) Allowance'),
+                                        ('transport_work_allowance', 'Transport (Work) Allowance'),
+                                        ('fuel_allowance', 'Fuel Allowance'),
+                                        ('cash_indemnity_allowance', 'Cash Indemnity Allowance'),
+                                        ('professional_allowance', 'Professional Allowance'),
+                                        ('other_allowance', 'Other Allowance')
+                                    ]" />
+                                <t t-set="active_allowances"
+                                    t-value="[al for al in allowances_list if contract[al[0]] and contract[al[0]] > 0]" />
+                                <t t-if="active_allowances">
+                                    <ol class="ms-3" style="margin-top: 6px;">
+                                        <t t-foreach="active_allowances" t-as="allowance">
+                                            <t t-set="allowance_amount" t-value="contract[allowance[0]]" />
+                                            <li>
+                                                <strong>
+                                                    <span t-esc="allowance[1]" /> of birr
+                                                    <span t-esc="'{0:,.2f}'.format(allowance_amount)" />
+                                                    (<span
+                                                        t-esc="doc.company_id.currency_id.amount_to_text(allowance_amount)" />
+                                                        Birr)
+                                                </strong>
+                                            </li>
+                                        </t>
+                                    </ol>
+                                </t>
+                                <t t-if="contract.apply_cash_indemnity and contract.cash_indemnity_allowance and contract.cash_indemnity_start_date">
+                                    <p class="ms-3">
+                                        Cash Indemnity applies from <strong>
+                                            <span t-esc="contract.cash_indemnity_start_date.strftime('%B %d, %Y')" />
+                                        </strong>
+                                        at <strong>
+                                            <span t-esc="'{0:,.2f}'.format(contract.cash_indemnity_allowance)" />
+                                            (<span
+                                                t-esc="doc.company_id.currency_id.amount_to_text(contract.cash_indemnity_allowance)" />
+                                                Birr)
+                                        </strong>.
+                                    </p>
+                                </t>
+                            </t>
+
+                            <p>
+                                The appointment is a permanent, full time position subject to the satisfactory completion of a two-month probationary period.
+                            </p>
+
+                            <p>
+                                We have attached here with employment contract and job description for your reference. You are there by challenged to perform your duties and responsibilities with care and love for work and quality in performance.
+                            </p>
+
+                            <p>
+                                The management of the company welcomes you with open arms and hopes that you will guide the organization to higher levels of prosperity.
+                            </p>
+
+                            <div style="margin-top: 40px;">
+                                <p>
+                                    Yours sincerely,
+                                </p>
+                            </div>
+
+                            <!-- CC Section -->
+                            <div class="mt-4 justify-content-between d-flex">
+                                <div>
+                                    <p><strong>CC.</strong></p>
+                                <ul class="gap-1">
+                                    <t t-if="doc.department_id">
+                                        <li> <span t-field="doc.department_id.name" /></li>
+                                    </t>
+                                    <li>Corporate Finance Office</li>
+                                    <li>Personnel File</li>
+                                    
+                                </ul>
+                                <div>Wagwago</div>
+                                </div>
+                                 <div class="mt-2" style="margin-top:20px;">
+                                    <t t-if="contract.approved_by_id.sign_signature">
+                                        <span t-field="contract.approved_by_id.sign_signature" />
+                                    </t>
+                                </div>
+                                <div class="mt-2" style="margin-top:20px;">
+                                    <t t-if="doc.company_id.company_stamp">
+                                        <img t-att-src="image_data_uri(doc.company_id.company_stamp)"
+                                            style="max-height:120px; opacity:0.9;"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 2nd Requirement (part 1): Create the Form View -->
+    <record id="hr_appraisal_note_view_form" model="ir.ui.view">
+        <field name="name">hr.appraisal.note.form</field>
+        <field name="model">hr.appraisal.note</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Scale Bounds">
+                            <field name="lower_bound"/>
+                            <field name="upper_bound"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--
+        3rd Requirement (part 2): Inherit and modify the existing Tree/List View.
+        We reference the original view's ID using 'module.view_id'.
+    -->
+    <record id="hr_appraisal_note_view_tree_inherit_bounds" model="ir.ui.view">
+        <field name="name">hr.appraisal.note.tree.inherit.bounds</field>
+        <field name="model">hr.appraisal.note</field>
+        <!-- Use the full XML ID from the parent module -->
+        <field name="inherit_id" ref="hr_appraisal.hr_appraisal_note_view_tree"/>
+        <field name="arch" type="xml">
+            <!-- Find the 'name' field and add our new 'scale_display' field after it -->
+            <xpath expr="//list" position="replace">
+                <list>
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <!-- FIX 2: Add the new 'scale_display' field here. -->
+                    <field name="scale_display" string="Scale"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

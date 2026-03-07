@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_store_transfer_request,account.store.transfer.request,model_store_transfer_request,base.group_user,1,1,1,1
+access_store_transer_request_line,account.store.transer.request.line,model_store_transfer_request_line,base.group_user,1,1,1,1
+access_avilable_warehouse_list,account.avilable.warehouse.list,model_avilable_warehouse_list,base.group_user,1,1,1,1

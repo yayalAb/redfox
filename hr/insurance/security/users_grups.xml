@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<odoo>
+    <data>
+
+        <record model="ir.module.category" id="insurance_res_groups_category">
+            <field name="name">Employee Insurance</field>
+            <field name="description">Helps you manage your Employee Expense.</field>
+        </record>
+
+        <record id="insurance_group_submit" model="res.groups">
+            <field name="name">Submit</field>
+            <field name="category_id" ref="insurance_res_groups_category"/>
+        </record>
+        <record id="insurance_group_approve" model="res.groups">
+            <field name="name">Approve</field>
+            <field name="category_id" ref="insurance_res_groups_category"/>
+        </record>
+        <record id="insurance_group_expired" model="res.groups">
+            <field name="name">Expired</field>
+            <field name="category_id" ref="insurance_res_groups_category"/>
+        </record>
+
+        <record id="insurance_group_reject" model="res.groups">
+            <field name="name">Reject</field>
+            <field name="category_id" ref="insurance_res_groups_category"/>
+        </record>
+
+        <record id="insurance_group_copy" model="res.groups">
+            <field name="name">Multiple Copy</field>
+            <field name="category_id" ref="insurance_res_groups_category"/>
+        </record>
+    </data>
+</odoo>

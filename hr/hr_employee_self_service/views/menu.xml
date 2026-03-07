@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem name="Self Service"
+            id="main_menu_self_service_probc"
+            sequence="8"
+            web_icon="hr_employee_self_service,static/description/icon.png"
+        />
+        <record id="employee_self_service_employee_action" model="ir.actions.act_window">
+            <field name="name">Employee</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Employee Detail.
+                </p>
+            </field>
+        </record>
+        <menuitem name="Employee Details"
+            id="top_menu_employee_self_service_probc"
+            parent="hr_employee_self_service.main_menu_self_service_probc"
+            action="employee_self_service_employee_action"
+            sequence="1" />
+
+        <record id="employee_self_service_hr_contract_action" model="ir.actions.act_window">
+            <field name="name">Contract</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.contract</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="context">
+                {
+                'readonly_by_action': True,
+                'create': False,
+                'edit': False,
+                'delete': False
+                }
+            </field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Contract Detail.
+                </p>
+            </field>
+        </record>
+        <menuitem id="sub_menu_employee_contracts_probc"
+            action="employee_self_service_hr_contract_action"
+            name="Contracts"
+            sequence="2"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+
+        <record id="employee_self_service_hr_attendance_action" model="ir.actions.act_window">
+            <field name="name">Attendance</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.attendance</field>
+            <field name="view_mode">gantt,list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    COntrcat Detail.
+                </p>
+            </field>
+        </record>
+        <menuitem id="sub_menu_employee_attendence"
+            action="employee_self_service_hr_attendance_action"
+            name="Attendences"
+            sequence="3"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+        <record id="employee_self_service_hr_payslip_action" model="ir.actions.act_window">
+            <field name="name">Payslip</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.payslip</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid), ('state', 'in', ['done', 'paid'])]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Payslip Detail.
+                </p>
+            </field>
+        </record>
+        <menuitem id="sub_menu_employee_pay_sleep"
+            action="employee_self_service_hr_payslip_action"
+            name="Payslips"
+            sequence="4"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+        <menuitem id="sub_menu_employee_leave"
+            name="Leave"
+            sequence="5"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+        <record id="employee_self_service_hr_leave_action" model="ir.actions.act_window">
+            <field name="name">Leave</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.leave</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Leave Detail.
+                </p>
+            </field>
+        </record>
+        <menuitem id="sub_menu_employee_leave_request"
+            name="Leave Requests"
+            action="employee_self_service_hr_leave_action"
+            sequence="1"
+            parent="sub_menu_employee_leave" />
+
+        <record id="employee_self_service_hr_leave_balance_action" model="ir.actions.act_window">
+            <field name="name">Leave Balance</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.leave.employee.type.report</field>
+            <field name="view_mode">pivot</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Leave balance.
+                </p>
+            </field>
+        </record>
+        <menuitem id="sub_menu_employee_balance"
+            name="Leave Balance"
+            action="employee_self_service_hr_leave_balance_action"
+            sequence="2"
+            parent="sub_menu_employee_leave" />
+        <record id="employee_self_service_hr_leave_allocation_action" model="ir.actions.act_window">
+            <field name="name">Leave Allocation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.leave.allocation</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Leave allocation.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="sub_menu_employee_allocation"
+            name="Leave Allocation"
+            action="employee_self_service_hr_leave_allocation_action"
+            sequence="3"
+            parent="sub_menu_employee_leave" />
+
+        <menuitem name="Timesheet"
+            id="top_menu_employee_timesheet_probc"
+            parent="hr_employee_self_service.main_menu_self_service_probc"
+            action="hr_timesheet.act_hr_timesheet_line"
+            sequence="6" />
+
+        <record id="employee_self_projects_timesheet_action" model="ir.actions.act_window">
+            <field name="name">Projects</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Project Detail.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Projects"
+            id="top_menu_employee_project_probc"
+            action="employee_self_projects_timesheet_action"
+            parent="hr_employee_self_service.main_menu_self_service_probc"
+            sequence="7" />
+
+        <menuitem id="sub_menu_employee_task_probc"
+            action="project.action_view_my_task"
+            name="Tasks"
+            sequence="8"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+
+        <record id="employee_self_service_goal_action" model="ir.actions.act_window">
+            <field name="name">Goal</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.appraisal.goal</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        You do not have any goals assigned yet.
+                    </p>
+                    <p>
+                        Your manager can assign goals to you from the Appraisals application.
+                    </p>
+                </field>
+            </field>
+        </record>
+
+        <menuitem id="sub_menu_goal_probc"
+            action="employee_self_service_goal_action"
+            name="Goals"
+            sequence="9"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+        <record id="employee_self_service_self_review_action" model="ir.actions.act_window">
+            <field name="name">Self Review</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.appraisal</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        You do not have any appraisals comming up.
+                    </p>
+                </field>
+            </field>
+        </record>
+
+
+        <menuitem id="sub_menu_self_service_probc"
+            action="employee_self_service_self_review_action"
+            name="Self Review"
+            sequence="10"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+
+        <record id="employee_self_service_self_store_request_action" model="ir.actions.act_window">
+            <field name="name">Equipment Request</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">store.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('requested_by.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        You do not have any store request.
+                    </p>
+                </field>
+            </field>
+        </record>
+        <menuitem id="sub_menu_self_service_store_request"
+            action="employee_self_service_self_store_request_action"
+            name="Equipment Request"
+            sequence="10"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+        <record id="employee_self_service_lunch_action" model="ir.actions.act_window">
+            <field name="name">Lunch</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">lunch.log</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" eval="False" />
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="context">{'is_self_service': True}</field>
+            <field name="help" type="html">
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        You do not have any lunch logs yet.
+                    </p>
+                    <p>
+                        You can log your lunch breaks from this application.
+                    </p>
+                </field>
+            </field>
+        </record>
+
+        <menuitem id="sub_menu_lunch_probc"
+            action="employee_self_service_lunch_action"
+            name="Lunch"
+            sequence="11"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+        <menuitem
+            id="insurance.menu_employee_insurances_self"
+            name="Insurance Utilization Request"
+            sequence="6"
+            parent="hr_employee_self_service.main_menu_self_service_probc" />
+
+
+        <record id="self_hr_loan_action" model="ir.actions.act_window">
+            <field name="name">Request for Loan</field>
+            <field name="res_model">hr.loan</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="context">{'search_default_myrequest': 1}</field>
+            <field name="search_view_id" ref="ent_ohrms_loan.hr_loan_view_search" />
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a new Loan request.
+                </p>
+                <p>
+                    Use this menu to create loan requests.
+                </p>
+            </field>
+        </record>
+        <menuitem id="self_hr_loan_action_menu"
+            action="self_hr_loan_action"
+            name="My loan"
+            sequence="13"
+            parent="hr_employee_self_service.main_menu_self_service_probc"
+        />
+
+        <record id="self_payment_request_action" model="ir.actions.act_window">
+            <field name="name">Payment Request</field>
+            <field name="res_model">hr.expense.sheet</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a new payment request.
+                </p>
+                <p>
+                    Use this menu to create payment requests.
+                </p>
+            </field>
+        </record>
+        <menuitem id="self_payment_request_action_menu"
+            action="self_payment_request_action"
+            name="Payment Requests"
+            sequence="13"
+            parent="hr_employee_self_service.main_menu_self_service_probc"
+        />
+    </data>
+</odoo>

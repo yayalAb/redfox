@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_store_request" model="ir.actions.report">
+    <field name="name">Store Requisition Note</field>
+    <field name="model">store.request</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">store_request.report_store_request_document</field>
+    <field name="report_file">store_request.report_store_request_document</field>
+    <field name="print_report_name">'Store Requisition Note - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="model_store_request" />
+    <field name="binding_type">report</field>
+  </record>
+
+  <template id="report_store_request_document">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="web.external_layout">
+          <div class="page"
+            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
+
+            <div class="oe_structure" />
+
+            <t t-set="doc_title" t-value="'Store REQUISITION FORM'" />
+            <t t-set="doc_number" t-value="o.name" />
+            <t t-set="issue_number" t-value="'1'" />
+
+            <div
+              style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
+              <div style="margin: 20px;">
+                <div style="text-align: right; margin-bottom: 20px;">
+                  <div style="margin-bottom: 10px;">
+                    <strong>IMRN Date</strong>
+                    <span
+                      style="border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
+                      <span t-field="o.requested_date" t-options='{"format": "MM/dd/yyyy"}' />
+                    </span>
+                  </div>
+                  <div>
+                    <strong>IMRN No</strong>
+                    <span
+                      style="border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
+                      <span t-field="o.name" />
+                    </span>
+                  </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                  <strong>Department/section/Division</strong>
+                  <span
+                    style="border-bottom: 1px solid black; width: 400px; display: inline-block; margin-left: 10px;">
+                    <span t-field="o.department_id.name" style="padding-left: 5px;" />
+                  </span>
+                </div>
+                <div style="margin-bottom: 20px;">
+                  <strong>Purpose</strong>
+                  <span
+                    style="border-bottom: 1px solid black; width: 400px; display: inline-block; margin-left: 10px;">
+                    <span t-field="o.purpose" style="padding-left: 5px;" />
+                  </span>
+                </div>
+                <div style="margin-bottom: 20px;">
+                  <strong>Contract/Project Reference</strong>
+                  <span
+                    style="border-bottom: 1px solid black; width: 400px; display: inline-block; margin-left: 10px;">
+                    <span t-field="o.project_id" style="padding-left: 5px;" />
+                  </span>
+                </div>
+              </div>
+
+              <table class="table table-bordered"
+                style="border: 1px solid black; page-break-inside: auto;">
+                <!-- STYLE CHANGE: Added background color to thead and font-weight to header row -->
+                <thead style="background-color: #f2f2f2; display: table-header-group;">
+                  <tr style="font-weight: bold;">
+                    <!-- STYLE CHANGE: Changed padding from 4px to 2px and removed inline font-size -->
+                    <th class="text-center"
+                      style="width: 5%; border: 1px solid black; padding: 2px;">
+                      S.No
+                    </th>
+                    <th class="text-center"
+                      style="width: 15%; border: 1px solid black; padding: 2px;">
+                      Item No
+                    </th>
+                    <th class="text-center"
+                      style="width: 15%; border: 1px solid black; padding: 2px;">
+                      Name
+                    </th>
+                    <th class="text-center"
+                      style="width: 40%; border: 1px solid black; padding: 2px;">
+                      Description
+                    </th>
+                    <th class="text-center"
+                      style="width: 10%; border: 1px solid black; padding: 2px;">
+                      UOM
+                    </th>
+                    <th class="text-center"
+                      style="width: 15%; border: 1px solid black; padding: 2px;">
+                      Qty. Requested
+                    </th>
+                    <th class="text-center"
+                      style="width: 15%; border: 1px solid black; padding: 2px;">
+                      Remarks
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <t t-set="row_count" t-value="0" />
+                  <t t-foreach="o.request_line_ids" t-as="line">
+                    <t t-set="row_count" t-value="row_count + 1" />
+                    <tr style="page-break-inside: avoid;">
+                      <!-- STYLE CHANGE: Changed padding from 4px to 2px and removed inline
+                      font-size -->
+                      <td class="text-center"
+                        style="border: 1px solid black; padding: 2px; height: 35px;">
+                        <span t-esc="row_count" />
+                      </td>
+                      <td style="border: 1px solid black; padding: 2px;">
+                        <span t-field="line.product_id.default_code" />
+                      </td>
+                      <td style="border: 1px solid black; padding: 2px;">
+                        <span t-field="line.product_id.name" />
+                      </td>
+                      <td style="border: 1px solid black; padding: 2px;">
+                        <span t-field="line.description" />
+                      </td>
+                      <td class="text-center"
+                        style="border: 1px solid black; padding: 2px;">
+                        <span t-field="line.product_uom.name" />
+                      </td>
+                      <td class="text-end"
+                        style="border: 1px solid black; padding: 2px;">
+                        <span t-field="line.product_uom_qty" />
+                      </td>
+                      <td style="border: 1px solid black; padding: 2px;">
+                        <span t-field="line.description" />
+                      </td>
+                    </tr>
+                  </t>
+                </tbody>
+              </table>
+
+              <div class="footer-block"
+                style="margin-top: 40px; padding-top: 10px; font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px;">
+
+                <div style="width: 100%; overflow: hidden; margin-bottom: 30px;">
+
+                  <div style="float: left; width: 60%;">
+                    <!-- Label -->
+                    <span style="font-weight: bold; display: inline-block; width: 120px;">Requested
+                      by Name</span>
+                    <div
+                      style="border-bottom: 1px solid black; display: inline-block; padding-left: 10px;">
+                      <span t-field="o.requested_by.name" />
+                    </div>
+                  </div>
+
+
+                  <div style="float: right; width: 40%;">
+                    <!-- Label -->
+                    <span style="font-weight: bold; display: inline-block; width: 30px;">Sig.</span>
+                    <!-- The Underline Line -->
+                    <div
+                      style="border-bottom: 1px solid black; display: inline-block; width: 200px; height: 25px; vertical-align: bottom;">
+                      <!-- Signature Image -->
+                      <t t-if="o.requested_by.user_id.sign_signature">
+                        <img
+                          t-att-src="'data:image/png;base64,%s' % (o.requested_by.user_id.sign_signature.decode())"
+                          style="max-height: 40px; max-width: 150px; position: relative; top: -10px;" />
+                      </t>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="clear: both;"></div>
+                <div style="width: 100%; overflow: hidden; margin-bottom: 30px;">
+
+                  <div style="float: left; width: 60%;">
+                    <span style="font-weight: bold; display: inline-block; width: 120px;">Approved
+                      by Name</span>
+                    <div
+                      style="border-bottom: 1px solid black; display: inline-block;  padding-left: 10px;">
+                      <span t-field="o.approved_by.name" />
+                    </div>
+                  </div>
+                  <div style="float: right; width: 40%;">
+                    <span style="font-weight: bold; display: inline-block; width: 30px;">Sig.</span>
+                    <div
+                      style="border-bottom: 1px solid black; display: inline-block; width: 200px; height: 25px; vertical-align: bottom;">
+                      <!-- APPROVED SIGNATURE -->
+                      <t t-if="o.approved_by.sign_signature">
+                        <img
+                          t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                          style="max-height: 40px; max-width: 150px; position: relative; top: -10px;" />
+                      </t>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="clear: both;"></div>
+
+                <!-- DISTRIBUTION FOOTER -->
+                <div style="text-align: center; margin-top: 30px; font-size: 11px;">
+                  <strong>Distribution:-</strong>
+                  <span style="margin-left: 20px;">Original - Store</span>
+                  <span style="margin-left: 20px;">1st Copy - Finance</span>
+                  <span style="margin-left: 20px;">2nd Copy - Production</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

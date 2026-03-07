@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_warranty_tree" model="ir.ui.view">
+        <field name="name">product.warranty.tree</field>
+        <field name="model">product.warranty</field>
+        <field name="arch" type="xml">
+            <list string="Warranties" 
+                  decoration-info="state == 'draft'"
+                  decoration-success="state == 'running'" 
+                  decoration-danger="state == 'expired'">
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="serial_number"/>
+                <field name="partner_id"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge" decoration-success="state == 'running'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_warranty_form" model="ir.ui.view">
+        <field name="name">product.warranty.form</field>
+        <field name="model">product.warranty</field>
+        <field name="arch" type="xml">
+            <form string="Product Warranty">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight" 
+                            groups="custom_sale_agreement.group_product_warranty_submit" invisible="state != 'draft'"/>
+                    
+                    <button name="action_review" string="Review" type="object" class="oe_highlight" 
+                            groups="custom_sale_agreement.group_product_warranty_review" invisible="state != 'submitted'"/>
+                    
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" 
+                            groups="custom_sale_agreement.group_product_warranty_approve" invisible="state != 'review'"/>
+
+                    <button name="action_print_warranty" string="Print Certificate" type="object" icon="fa-print" invisible="state == 'draft'"/>
+                    
+                    <!-- NEW: Send Email Button -->
+                    <button name="action_send_email" string="Send Email" type="object" icon="fa-envelope" invisible="state == 'draft'"/>
+
+                    <button name="action_void" string="Void" type="object" 
+                            groups="custom_sale_agreement.group_product_warranty_void" 
+                            invisible="state not in ['running', 'expired']" confirm="Void this warranty?"/>
+                    
+                    <button name="action_draft" string="Reset" type="object" 
+                            groups="custom_sale_agreement.group_product_warranty_reset" invisible="state == 'draft'"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,review,running,expired"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Active" bg_color="bg-success" invisible="state != 'running'"/>
+                    <widget name="web_ribbon" title="Expired" bg_color="bg-danger" invisible="state != 'expired'"/>
+
+                    <div class="oe_title">
+                        <h1><field name="name"  readonly="state != 'draft'" placeholder="Warranty Reference"/></h1>
+                    </div>
+                    <group>
+                        <group string="Certificate Details">
+                            <!-- Customer Dropdown -->
+                            <field name="partner_id" widget="res_partner_many2one"/>
+                            <!-- Editable Product Name -->
+                            <field name="product_id"/>
+                            <!-- New Rating Field -->
+                            <field name="product_rating" placeholder="e.g. S-M-100/15KVA"/>
+                            <field name="serial_number"/>
+                        </group>
+                        <group string="Validity &amp; Approval">
+                            <field name="start_date"/>
+                            <field name="warranty_months"/>
+                            <field name="end_date"/>
+                            <!-- Auto-filled on approval -->
+                            <field name="approval_date"/>
+                            <field name="approver_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Certificate Content">
+                            <!-- Fully editable body text -->
+                            <field name="certificate_body" placeholder="Legal text goes here..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_product_warranty" model="ir.actions.act_window">
+        <field name="name">Product Warranties</field>
+        <field name="res_model">product.warranty</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_product_warranty" 
+              name="Product Warranties" 
+              parent="sale.sale_order_menu" 
+              action="action_product_warranty" 
+              sequence="20"/>
+</odoo>

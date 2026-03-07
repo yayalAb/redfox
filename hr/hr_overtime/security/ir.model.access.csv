@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_overtime_calculator,account.overtime.calculator,model_overtime_calculator,base.group_user,1,1,1,1
+access_overtime_rate,account.overtime.rate,model_overtime_rate,base.group_user,1,1,1,1
+access_overtime_request,account.overtime.request,model_overtime_request,base.group_user,1,1,1,1
+access_overtime_line,account.overtime.line,model_overtime_line,base.group_user,1,1,1,1
+

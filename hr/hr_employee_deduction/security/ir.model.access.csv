@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_employee_deduction_type_all,employee.deduction.type.read.all,model_employee_deduction_type,hr_payroll.group_hr_payroll_user,1,1,1,1
+access_employee_deduction_type_manager,employee.deduction.type.manager,model_employee_deduction_type,hr_employee_deduction.group_employee_deduction_manager,1,1,1,1
+access_employee_deduction_all_payroll,employee.deduction.read.all,model_employee_deduction,hr_payroll.group_hr_payroll_user,1,1,1,1
+access_employee_deduction_user,employee.deduction.user,model_employee_deduction,hr_employee_deduction.group_employee_deduction_user,1,1,1,1
+access_employee_deduction_manager,employee.deduction.manager,model_employee_deduction,hr_employee_deduction.group_employee_deduction_manager,1,1,1,1
+access_employee_deduction_all_user,employee.deduction.read.all,model_employee_deduction,base.group_user,1,1,1,1

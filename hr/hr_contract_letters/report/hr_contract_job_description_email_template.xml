@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Job Description Email Body Template -->
+    <template id="email_template_job_description_body" name="Job Description Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+            <div style="margin-bottom: 20px;">
+                <h2 style="text-align: center; margin-bottom: 20px;"><strong>JOB CLASSIFICATION</strong></h2>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <td style="width: 30%; padding: 5px;"><strong>Job Title:</strong></td>
+                        <td style="padding: 5px;">
+                            <t t-if="contract.employee_id and contract.employee_id.job_id">
+                                <span t-field="contract.employee_id.job_id.name"/>
+                            </t>
+                            <t t-else="">
+                                _______________
+                            </t>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px;"><strong>Department:</strong></td>
+                        <td style="padding: 5px;">
+                            <t t-if="contract.employee_id and contract.employee_id.department_id">
+                                <span t-field="contract.employee_id.department_id.name"/>
+                            </t>
+                            <t t-else="">
+                                _______________
+                            </t>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px;"><strong>Reports to:</strong></td>
+                        <td style="padding: 5px;">
+                            <t t-if="contract.employee_id and contract.employee_id.parent_id and contract.employee_id.parent_id.job_id">
+                                <span t-field="contract.employee_id.parent_id.job_id.name"/>
+                            </t>
+                            <t t-else="">
+                                _______________
+                            </t>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px;"><strong>Duty Station:</strong></td>
+                        <td style="padding: 5px;">
+                            <t t-if="contract.employee_id.private_city">
+                                <span t-field="contract.employee_id.private_city"/>
+                            </t>
+                            <t t-elif="contract.employee_id.address_id and contract.employee_id.address_id.city">
+                                <span t-field="contract.employee_id.address_id.city"/>
+                            </t>
+                            <t t-elif="contract.employee_id.work_contact_id and contract.employee_id.work_contact_id.city">
+                                <span t-field="contract.employee_id.work_contact_id.city"/>
+                            </t>
+                            <t t-else="">
+                                Addis Ababa
+                            </t>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h2 style="margin-bottom: 15px;"><strong>JOB DESCRIPTION</strong></h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 10px;"><strong>JOB SUMMARY:</strong></h3>
+                    <div style="text-align: justify;">
+                        <t t-if="contract.employee_id and contract.employee_id.job_id and contract.employee_id.job_id.description">
+                            <div t-field="contract.employee_id.job_id.description" t-options="{'widget': 'html'}"/>
+                        </t>
+                        <t t-else="">
+                            <p>_______________</p>
+                        </t>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 10px;"><strong>KEY RESPONSIBILITIES:</strong></h3>
+                    <div style="text-align: justify;">
+                        <t t-if="contract.employee_id and contract.employee_id.job_id and contract.employee_id.job_id.description">
+                            <div t-field="contract.employee_id.job_id.description" t-options="{'widget': 'html'}"/>
+                        </t>
+                        <t t-else="">
+                            <ul>
+                                <li>_______________</li>
+                                <li>_______________</li>
+                                <li>_______________</li>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px; margin-bottom: 20px;">
+                <p><strong>Employees Signature</strong></p>
+                <p>I have reviewed the above position description. I can perform all of the principal duties and have the necessary knowledge, skills, and abilities for this position.</p>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr>
+                        <td style="width: 50%; padding: 10px;">
+                            <p><strong>Employee Name</strong> _____________________</p>
+                            <p><strong>Signature</strong> ___________________</p>
+                            <p><strong>Date</strong> ________</p>
+                        </td>
+                        <td style="width: 50%; padding: 10px;">
+                            <p><strong>Supervisor Name</strong> 
+                                <t t-if="contract.employee_id and contract.employee_id.parent_id">
+                                    <span t-field="contract.employee_id.parent_id.name"/>
+                                </t>
+                                <t t-else="">
+                                    _____________________
+                                </t>
+                            </p>
+                            <p><strong>Signature</strong> ___________________</p>
+                            <p><strong>Date</strong> _______</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </template>
+</odoo>

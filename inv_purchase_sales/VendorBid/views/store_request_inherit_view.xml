@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_store_request_form_inherit" model="ir.ui.view">
+        <field name="name">store.request.form.inherit</field>
+        <field name="model">store.request</field>
+        <field name="inherit_id" ref="store_request.view_store_request_form" />
+        <field name="arch" type="xml">
+
+            <xpath expr="//sheet/div[@class='oe_button_box']" position="inside">
+                <button name="action_view_purchase_requests"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-shopping-cart"
+                    invisible="purchase_request_count == 0"
+                    groups="store_request.group_purchase_request_create">
+                    <field name="purchase_request_count" widget="statinfo"
+                        string="Purchase Requests" />
+                </button>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_create_purchase_request"
+                    string="Create Purchase Request"
+                    type="object"
+                    class="btn-primary"
+                    invisible="state != 'approved'"
+                    groups="store_request.group_purchase_request_create" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="base.menu_administration" name="Settings"
+                  web_icon="update_icons,static/src/img/icons/setting.png"/>
+        <menuitem id="base.menu_management" name="Applications"
+                  web_icon="update_icons,static/src/img/icons/apps.png"/>
+    </data>
+</odoo>

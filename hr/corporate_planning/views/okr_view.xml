@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. BSC CONFIGURATION -->
+    <record id="view_bsc_perspective_list" model="ir.ui.view">
+        <field name="name">bsc.perspective.list</field>
+        <field name="model">corporate.bsc.perspective</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_bsc_perspective" model="ir.actions.act_window">
+        <field name="name">BSC Perspectives</field>
+        <field name="res_model">corporate.bsc.perspective</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="view_bsc_dept_weight_list" model="ir.ui.view">
+        <field name="name">bsc.dept.weight.list</field>
+        <field name="model">corporate.bsc.department.weight</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="department_id"/>
+                <field name="bsc_perspective_id"/>
+                <field name="weight" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_bsc_dept_weight" model="ir.actions.act_window">
+        <field name="name">Department BSC Weights</field>
+        <field name="res_model">corporate.bsc.department.weight</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Define the maximum weight each department assigns to a BSC Perspective.</p>
+        </field>
+    </record>
+
+    <!-- 2. OKR VIEWS -->
+    <record id="view_okr_form" model="ir.ui.view">
+        <field name="name">okr.form</field>
+        <field name="model">corporate.performance.okr</field>
+        <field name="arch" type="xml">
+            <form string="OKR Sheet">
+                <header>
+                    <button name="action_submit" string="Submit for Review" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Accept &amp; Approve" type="object" class="oe_highlight" invisible="state != 'review'" groups="corporate_planning.group_planning_bu_manager"/>
+                    <button name="action_start_execution" string="Start Execution" type="object" invisible="state != 'approved'" groups="corporate_planning.group_planning_manager"/>
+                    <button name="action_revise" string="Revise" type="object" invisible="state != 'under_execution'" groups="corporate_planning.group_planning_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,review,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="OKR Name (Auto-filled from strategic goal)"/>
+                        <h1><field name="name" readonly="0" force_save="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="department_id"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="supervisor_id"/>
+                        </group>
+                        <group>
+                            <!-- <field name="bsc_perspective_id" options="{'no_create': True}"/> -->
+                            <field name="strategic_goal_id" options="{'no_create': False}"/>
+
+                            <!-- <field name="kpi_id" options="{'no_create': True}"/> -->
+                            <field name="parent_okr_id"/>
+                            <field name="weight"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Detail (Key Results)">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="objective"/>
+                                    <field name="key_result"/>
+                                    <field name="expected_outcome" optional="hide"/>
+                                    <field name="standard" optional="hide"/>
+                                    
+                                    <field name="weight" sum="Total Weight"/>
+                                    
+                                    <!-- Integration Column -->
+                                    <field name="task_id" widget="many2one_button" optional="show"/>
+                                    
+                                    <field name="actual_result" widget="progressbar"/>
+                                    <field name="performance_score" sum="Total Score"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_performance" widget="progressbar"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="view_okr_list" model="ir.ui.view">
+        <field name="name">okr.list</field>
+        <field name="model">corporate.performance.okr</field>
+        <field name="arch" type="xml">
+            <list string="OKRs">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <!-- <field name="bsc_perspective_id"/> -->
+                <field name="total_performance" widget="progressbar"/>
+                <field name="state" widget="badge" decoration-info="state == 'review'" decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_okr_performance" model="ir.actions.act_window">
+        <field name="name">Employee OKRs</field>
+        <field name="res_model">corporate.performance.okr</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

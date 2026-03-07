@@ -1,0 +1,24 @@
+<!-- custom_payslip_reports/views/payslip_report_wizard_view.xml -->
+<odoo>
+    <data>
+        <record id="view_payslip_report_wizard_form" model="ir.ui.view">
+            <field name="name">payslip.report.wizard.form</field>
+            <field name="model">payslip.report.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <h2>Select a report to print</h2>
+                    </group>
+                    <footer>
+                        <button name="action_print_payroll_sheet" string="Employee Payroll Sheet" type="object" class="btn-primary"/>
+                        <button name="action_print_tax_withheld_report" string="Income Tax Report" type="object" class="btn-primary"/>
+                        <button name="action_print_pension_contribution" string="Pension Contribution" type="object" class="btn-primary"/>
+                        <button name="action_print_saving_deduction" string="Saving Deduction" type="object" class="btn-primary"/>
+                        <button name="action_open_social_contribution_wizard" string="Social Contribution Report" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

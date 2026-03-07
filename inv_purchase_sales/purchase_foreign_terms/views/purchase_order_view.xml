@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_purchase_order_form_inherit_foreign_terms" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.foreign.terms</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='picking_type_id']" position="after">
+                    <field name="purchase_origin" invisible="1"/>
+                </xpath>
+               
+                <xpath expr="//notebook" position="inside">
+                    <page string="Foreign Purchase Details" name="foreign_purchase_details"
+                          invisible="purchase_origin != 'foreign'">
+                        <group>
+                            <group string="Payment &amp; Delivery Terms">
+                                <field name="x_payment_term_foreign" required="purchase_origin == 'foreign'"/>
+                                <field name="x_terms_of_delivery"/>
+                            </group>
+                            <group string="Shipping &amp; Banking">
+                                <field name="x_port_of_loading"/>
+                                <field name="x_bank_name"/>
+                                <field name="x_bank_account_number"/>
+                                <field name="x_swift_code"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
+                    <field name="x_hs_code"
+                           optional="show"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

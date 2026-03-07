@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_po_direct_purchase" model="ir.actions.report">
+            <field name="name">Direct Purchase (ቃለ ጉባኤ)</field>
+            <field name="model">supplies.rfp</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">VendorBid.report_po_direct_purchase_document</field>
+            <field name="report_file">VendorBid.report_po_direct_purchase_document</field>
+            <field name="print_report_name">'Direct Purchase - %s' % (object.rfp_number)</field>
+            <field name="binding_model_id" ref="VendorBid.model_supplies_rfp" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_po_direct_purchase_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page"
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; margin-left: 40px; margin-right: 40px;">
+                            <div class="oe_structure" />
+
+                            <t t-set="doc_title" t-value="'ቃለ ጉባኤ'" />
+                            <t t-set="doc_number" t-value="o.rfp_number" />
+                            <t t-set="issue_number" t-value="'1'" />
+
+                            <div style="margin-bottom: 10px; margin-top: 5px;">
+                                <div
+                                    style="font-weight: bold; font-size: 13pt; margin-bottom: 2px; text-decoration: underline;">
+                                    የግዢ ኮሚቴ አባላት ስም (Committee Members)
+                                </div>
+
+                                <div class="row"
+                                    style="font-weight: bold; padding-bottom: 2px; border-bottom: 2px solid #000;">
+                                    <div class="col-1">No.</div>
+                                    <div class="col-4">ስም (Name)</div>
+                                    <div class="col-3">የስራ ድርሻ (Role)</div>
+                                    <div class="col-2">ፊርማ (Sign)</div>
+                                    <div class="col-2">ቀን (Date)</div>
+                                </div>
+
+                                <t t-if="o.committee_member_ids">
+                                    <t t-foreach="o.committee_member_ids" t-as="member">
+                                        <div class="row d-flex align-items-center"
+                                            style="padding-top: 1px; padding-bottom: 1px; min-height: 30px;">
+
+                                            <!-- Index -->
+                                            <div class="col-1">
+                                                <span t-esc="member_index + 1" />
+                                            </div>
+
+                                            <!-- Name -->
+                                            <div class="col-4">
+                                                <span t-field="member.name" />
+                                            </div>
+
+                                            <!-- Role -->
+                                            <div class="col-3">
+                                                <span t-if="member.role" t-field="member.role" />
+                                                <span t-else="">Member</span>
+                                            </div>
+
+                                            <div class="col-2"
+                                                style="border-bottom: 1px solid #000; height: 100%; min-height: 22px; display: flex; align-items: flex-end;">
+                                                <t
+                                                    t-if="member.approval_status == 'approved' and member.member_id.user_id.sign_signature">
+                                                    <img
+                                                        t-att-src="image_data_uri(member.member_id.user_id.sign_signature)"
+                                                        style="max-height: 25px; max-width: 100%; display: block;" />
+                                                </t>
+                                            </div>
+
+                                            <!-- Date Column -->
+                                            <div class="col-2"
+                                                style="border-bottom: 1px solid #000; height: 100%; min-height: 22px; display: flex; align-items: flex-end; margin-left: 4px;">
+                                                <t t-if="member.approval_status == 'approved'">
+                                                    <span t-field="member.approval_date"
+                                                        t-options='{"widget": "date"}' />
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-muted"
+                                        style="margin-top: 10px; font-style: italic; padding: 10px;">
+                                        No committee members assigned.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Section 2: Amharic Body Text -->
+                            <div style="margin-top: 20px; min-height: 80px;">
+                                <strong style="text-decoration: underline;">ጉዳዩ:- </strong>
+                                <br />
+                                <div t-field="o.internal_notes" style="margin-top: 5px;" />
+                            </div>
+
+                            <!-- Section 3: Product & Financial Table -->
+                            <table
+                                style="width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 11pt; margin-top: 15px;">
+                                <thead style="background-color: #f0f0f0;">
+                                    <tr style="font-weight: bold; text-align: center;">
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 5%;">
+                                            No.</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 30%;">
+                                            Description</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 8%;">
+                                            Unit</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 8%;">
+                                            Qty</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 12%;">Unit
+                                            Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 15%;">Total
+                                            Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 22%;">
+                                            Supplier</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Use Direct Purchase PO explicitly -->
+                                    <t t-set="direct_po" t-value="o.direct_purchase_id" />
+                                    
+                                    <t t-if="direct_po">
+                                        <t t-set="lines_count" t-value="len(direct_po.order_line)" />
+
+                                        <!-- Loop through the Direct PO's Lines -->
+                                        <t t-foreach="direct_po.order_line" t-as="line">
+                                            <tr>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                                    <span t-esc="line_index + 1" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px;">
+                                                    <span t-field="line.name" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                                    <span t-field="line.product_uom.name" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: center;">
+                                                    <span t-esc="int(line.product_qty)" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                    <span t-field="line.price_unit" t-options='{"widget": "float", "precision": 2}' />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                    <span t-field="line.price_subtotal" t-options='{"widget": "float", "precision": 2}' />
+                                                </td>
+
+                                                <!-- Supplier Column: Spans all rows (rowspan) -->
+                                                <t t-if="line_index == 0">
+                                                    <td t-att-rowspan="lines_count" style="border: 1px solid black; padding: 5px; vertical-align: middle; text-align: center; font-weight: bold;">
+                                                        <span t-field="direct_po.partner_id.name" />
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+
+                                        <!-- Financial Summary Calculation separated into Tax / Withholding -->
+                                        <t t-set="amount_untaxed" t-value="direct_po.amount_untaxed or 0.0" />
+                                        <t t-set="total_tax" t-value="0.0" />
+                                        <t t-set="total_withholding" t-value="0.0" />
+
+                                        <t t-if="direct_po.tax_totals">
+                                            <t t-foreach="direct_po.tax_totals.get('subtotals', [])" t-as="subtotal_item">
+                                                <t t-foreach="subtotal_item.get('tax_groups', [])" t-as="tax_group">
+                                                    <t t-set="group_name" t-value="(tax_group.get('group_name', '') or '').lower()" />
+                                                    <t t-set="group_label" t-value="(tax_group.get('group_label', '') or '').lower()" />
+                                                    <t t-set="tax_amount" t-value="tax_group.get('tax_amount_currency', 0)" />
+                                                    
+                                                    <!-- Check if it's withholding -->
+                                                    <t t-if="('withhold' in group_name or 'withholding' in group_name or 'withhold' in group_label or 'withholding' in group_label) or tax_amount &lt; 0">
+                                                        <t t-set="total_withholding" t-value="total_withholding + abs(tax_amount)" />
+                                                    </t>
+                                                    <t t-else="">
+                                                        <t t-if="tax_amount > 0">
+                                                            <t t-set="total_tax" t-value="total_tax + tax_amount" />
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Fallback: use price_tax from PO lines if no tax_totals exists -->
+                                            <t t-set="positive_taxes" t-value="direct_po.order_line.filtered(lambda l: l.price_tax > 0)" />
+                                            <t t-set="total_tax" t-value="sum(positive_taxes.mapped('price_tax')) if positive_taxes else 0.0" />
+                                            <t t-set="negative_taxes" t-value="direct_po.order_line.filtered(lambda l: l.price_tax &lt; 0)" />
+                                            <t t-set="total_withholding" t-value="abs(sum(negative_taxes.mapped('price_tax'))) if negative_taxes else 0.0" />
+                                        </t>
+
+                                        <t t-set="net_pay" t-value="amount_untaxed + total_tax - total_withholding" />
+
+                                        <!-- Untaxed Row -->
+                                        <tr>
+                                            <td colspan="4" style="border: none;"></td>
+                                            <td style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                                Untaxed Amount
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                                <span t-esc="'{0:,.2f}'.format(amount_untaxed)" />
+                                            </td>
+                                            <td style="border: none;"></td>
+                                        </tr>
+                                        
+                                        <!-- Positive Tax Row (If exists) -->
+                                        <t t-if="total_tax > 0">
+                                            <tr>
+                                                <td colspan="4" style="border: none;"></td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                    Sales / Purchase Taxes
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                    <span t-esc="'{0:,.2f}'.format(total_tax)" />
+                                                </td>
+                                                <td style="border: none;"></td>
+                                            </tr>
+                                        </t>
+
+                                        <!-- Withholding Tax Row (If exists) -->
+                                        <t t-if="total_withholding > 0">
+                                            <tr>
+                                                <td colspan="4" style="border: none;"></td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                    Withholding Taxes
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                    <span t-esc="'-{0:,.2f}'.format(total_withholding)" />
+                                                </td>
+                                                <td style="border: none;"></td>
+                                            </tr>
+                                        </t>
+
+                                        <!-- Net Pay Row -->
+                                        <tr>
+                                            <td colspan="4" style="border: none;"></td>
+                                            <td style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                                Total (Net Pay)
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                                <span t-esc="'{0:,.2f}'.format(net_pay)" />
+                                            </td>
+                                            <td style="border: none;"></td>
+                                        </tr>
+                                    </t>
+                                    <t t-else="">
+                                        <!-- Message if no PO is attached yet -->
+                                        <tr>
+                                            <td colspan="7" style="border: 1px solid black; padding: 15px; text-align: center; font-style: italic;">
+                                                No direct purchase order is attached to this request yet.
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- Section 4: Decision Footer -->
+                            <div style="margin-top: 20px; min-height: 80px;">
+                                <strong style="text-decoration: underline;">የውሳነ ሃሳብ:- </strong>
+                                <br />
+                                <div t-field="o.decision" style="margin-top: 5px;" />
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

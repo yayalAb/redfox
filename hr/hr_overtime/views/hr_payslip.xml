@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+
+        <record id="hr_payslip_inherited_view_overtime" model="ir.ui.view">
+            <field name="name">Overtime.Inherited.View</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="om_hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="overtime_ids" invisible="0"/>
+                </field>
+
+<!--                 <xpath expr="//field[@name='input_line_ids']//tree//field[@name='sequence']" position="after">-->
+<!--                   <field name="overtime_id" invisible="0"/>-->
+<!--                  </xpath>-->
+            </field>
+        </record>
+
+    </data>
+</odoo>

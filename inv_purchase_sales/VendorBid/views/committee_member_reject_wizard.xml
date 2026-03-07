@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_committee_member_reject_wizard_form" model="ir.ui.view">
+        <field name="name">committee.member.reject.wizard.form</field>
+        <field name="model">committee.member.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rejection">
+                <group>
+                    <field name="committee_member_id" readonly="1"/>
+                    <field name="rejection_reason" placeholder="Please provide the reason for rejection..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Rejection" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_committee_member_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Reject</field>
+        <field name="res_model">committee.member.reject.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_committee_member_id': active_id}</field>
+    </record>
+</odoo>

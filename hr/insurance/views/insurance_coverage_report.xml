@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+    <record id="employee_insurance_coverage_report_action" model="ir.actions.act_window">
+        <field name="name">Insurance coverage report</field>
+        <field name="res_model">insurance.coverage.line</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <field name="domain">[]</field>
+
+    </record>
+
+               <record id="employee_insurance_coverage_report_view_tree" model="ir.ui.view">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="model">insurance.coverage.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="insurance_coverage_id" />
+                <field name="coverage_type" />
+                <field name="value"/>
+            </list>
+        </field>
+    </record>
+
+
+         <record id="employee_insurance_coverage_report_view_pivot" model="ir.ui.view">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="model">insurance.coverage.line</field>
+        <field name="arch" type="xml">
+            <pivot>
+            <field name="insurance_coverage_id" type="row"/>
+                  <field name="coverage_type" />
+                      <field name="value" />
+            </pivot>
+        </field>
+    </record>
+
+
+        <menuitem
+            id="menu_employee_insurances_main"
+            name="Insurances"/>
+
+         <menuitem
+            id="menu_employee_insurances_report"
+            name="Report"
+            sequence="3"
+            parent="menu_employee_insurances_main"/>
+
+    <menuitem
+            id="menu_employee_insurance_coverage"
+            name="Coverage Report"
+            parent="menu_employee_insurances_report"
+            action="employee_insurance_coverage_report_action"/>
+</data>
+
+</odoo>

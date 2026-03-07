@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Fleet Request Groups -->
+    <record id="fleet_request_review_group" model="res.groups">
+        <field name="name">Fleet Request / Submit</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can submit fleet requests.</field>
+    </record>
+
+    <record id="fleet_request_verify_group" model="res.groups">
+        <field name="name">Fleet Request / Verify</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can verify fleet requests.</field>
+    </record>
+
+    <record id="fleet_request_approve_group" model="res.groups">
+        <field name="name">Fleet Request / Approve</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can approve fleet requests.</field>
+    </record>
+
+    <record id="fleet_request_authorize_group" model="res.groups">
+        <field name="name">Fleet Request / Authorize</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can authorize fleet requests.</field>
+    </record>
+
+    <record id="fleet_request_draft_group" model="res.groups">
+        <field name="name">Fleet Request / Set to Draft</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can set fleet requests back to draft.</field>
+    </record>
+
+    <record id="fleet_request_cancel_group" model="res.groups">
+        <field name="name">Fleet Request / Cancel</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can cancel fleet requests.</field>
+    </record>
+
+    <record id="fleet_request_reject_group" model="res.groups">
+        <field name="name">Fleet Request / Reject</field>
+        <field name="category_id" ref="base.module_category_fleet"/>
+        <field name="comment">Users with this group can reject fleet requests.</field>
+    </record>
+</odoo>

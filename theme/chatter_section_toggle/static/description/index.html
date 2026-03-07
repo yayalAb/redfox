@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Show/hide Chatter Section - ODOO 18</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body{font-family:'Roboto',sans-serif;}
+    h1,h2,h3,h4,h5,h6{font-family:'Montserrat',sans-serif;}
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="alert alert-warning text-center mb-4" style="font-size:1.1rem;background:#fff3cd;border:1px solid #ffeeba;border-radius:10px;color:#856404;">
+    <strong>Important:</strong>This add‑on is built for <u>Odoo 18</u>
+  </div>
+
+  <section class="text-center mb-5" style="background-color:#4f46e5;border-radius:20px;padding:80px 20px;">
+    <h1 class="text-white" style="font-weight:700;font-size:3rem;">Show/hide Chatter Section</h1>
+          <img src="assets/screenshots/gif.gif" class="img-fluid mb-3" alt="Show Chatter Button">
+
+  </section>
+
+  <!-- Navigation Cards -->
+ <section class="row text-center mb-5">
+  <div class="col-md-3 mb-4">
+    <a href="#overview" class="text-decoration-none">
+      <div class="card h-100 shadow-sm border-0" style="border-radius:15px;">
+        <div class="card-body">
+          <h5 class="card-title" style="color:#4f46e5;">Overview</h5>
+          <p class="card-text text-muted">Why you need it</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3 mb-4">
+    <a href="#benefits" class="text-decoration-none">
+      <div class="card h-100 shadow-sm border-0" style="border-radius:15px;">
+        <div class="card-body">
+          <h5 class="card-title" style="color:#16a34a;">Benefits</h5>
+          <p class="card-text text-muted">What you gain</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3 mb-4">
+    <a href="#how" class="text-decoration-none">
+      <div class="card h-100 shadow-sm border-0" style="border-radius:15px;">
+        <div class="card-body">
+          <h5 class="card-title" style="color:#f59e0b;">How It Works</h5>
+          <p class="card-text text-muted">Simple steps</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-3 mb-4">
+    <a href="#how-to-use" class="text-decoration-none">
+      <div class="card h-100 shadow-sm border-0" style="border-radius:15px;">
+        <div class="card-body">
+          <h5 class="card-title" style="color:#e11d48;">How to Use</h5>
+          <p class="card-text text-muted">Chatter Toggle</p>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- Add new How to Use section -->
+<section id="how-to-use" class="mb-5">
+  <h2 class="text-center mb-4" style="color:#222;">How to Use the Chatter Toggle</h2>
+  <p class="text-center text-muted" style="max-width:800px;margin:0 auto;">
+    With our module installed, every  form now includes two handy buttons placed below the main form area:
+  </p>
+  <div class="row text-muted mt-4">
+    <div class="col-md-6 mb-3">
+      <h5 style="color:#4f46e5;">Show Chatter (<<<)</h5>
+      <p>Click this button to instantly display the Chatter panel, expanding the form to accommodate the conversation thread. The form width adjusts to 1534px for better visibility.</p>
+      <img src="chatter_section_toggle/static/description/assets/screenshots/a1.png" class="img-fluid mb-3" alt="Show Chatter Button">
+    </div>
+    <div class="col-md-6 mb-3">
+      <h5 style="color:#e11d48;">Hide Chatter (>>>)</h5>
+      <p>Click this button to hide the Chatter panel, restoring the form’s original width. Great for a distraction-free view when you don't need the communication panel open.</p>
+      <img src="chatter_section_toggle/static/description/assets/screenshots/a2.png" class="img-fluid mb-3" alt="Hide Chatter Button">
+    </div>
+  </div>
+  <p class="text-center small text-muted">
+    The toggle buttons automatically appear only if the form contains a Chatter panel. Enjoy seamless control of your workspace—no manual configuration needed.
+  </p>
+</section>
+  <!-- Services -->
+  <section class="text-center my-5">
+    <h2 style="color:#222;">Our Odoo Services</h2>
+    <div class="row mt-4">
+      <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 p-4" style="border-radius:15px;">
+          <img src="assets/icons/cogs.png" width="48" height="48" class="mx-auto mb-3" alt="Customization">
+          <h6>Customization</h6>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 p-4" style="border-radius:15px;">
+          <img src="assets/icons/wrench.png" width="48" height="48" class="mx-auto mb-3" alt="Implementation">
+          <h6>Implementation</h6>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 p-4" style="border-radius:15px;">
+          <img src="assets/icons/lifebuoy.png" width="48" height="48" class="mx-auto mb-3" alt="Support">
+          <h6>Support</h6>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 p-4" style="border-radius:15px;">
+          <img src="assets/icons/puzzle.png" width="48" height="48" class="mx-auto mb-3" alt="Integration">
+          <h6>Integration</h6>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  <section class="text-center my-5">
+    <h2 style="color:#222;">Related Products</h2>
+    <div class="row mt-4">
+      <div class="col-md-3 mb-4">
+        <a href="https://apps.odoo.com/apps/modules/15.0/widget_one2many_search_select" class="text-decoration-none text-dark">
+          <div class="card border-0 shadow-sm" style="border-radius:10px;">
+            <img src="./assets/screenshots/br.png" class="card-img-top" alt="One2Many Search Select">
+            <div class="card-body">
+              <p class="card-title font-weight-bold mb-0">One2Many Search Select</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-3 mb-4">
+        <a href="https://apps.odoo.com/apps/modules/16.0/hotel_reservation_dashboard" class="text-decoration-none text-dark">
+          <div class="card border-0 shadow-sm" style="border-radius:10px;">
+            <img src="./assets/screenshots/hb.gif" class="card-img-top" alt="Hotel Dashboard">
+            <div class="card-body">
+              <p class="card-title font-weight-bold mb-0">Hotel Reservation Dashboard</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-3 mb-4">
+        <a href="https://apps.odoo.com/apps/modules/15.0/print_wizard" class="text-decoration-none text-dark">
+          <div class="card border-0 shadow-sm" style="border-radius:10px;">
+            <img src="./assets/screenshots/bdr.png" class="card-img-top" alt="Big Data Reports">
+            <div class="card-body">
+              <p class="card-title font-weight-bold mb-0">Big Data Reports</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-3 mb-4">
+        <a href="https://apps.odoo.com/apps/modules/17.0/message_gateway" class="text-decoration-none text-dark">
+          <div class="card border-0 shadow-sm" style="border-radius:10px;">
+            <img src="./assets/screenshots/mssge_gty.gif" class="card-img-top" alt="Message Gateway">
+            <div class="card-body">
+              <p class="card-title font-weight-bold mb-0">Message Gateway (Twilio, Nexmo…)</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="text-center my-5">
+    <h2 style="color:#222;">Need Help?</h2>
+    <div class="d-flex flex-column align-items-center mt-4">
+      <a href="mailto:odoodevs8068@gmail.com" class="btn btn-dark mb-2" style="width:250px;">
+        <i class="fa fa-envelope mr-2"></i>Email Us
+      </a>
+      <a href="https://wa.me/966542273082" class="btn btn-success mb-2" style="width:250px;">
+        <i class="fa fa-whatsapp mr-2"></i>WhatsApp (KSA) 966 54227 3082
+      </a>
+      <a href="https://wa.me/919360353170" class="btn btn-success" style="width:250px;">
+        <i class="fa fa-whatsapp mr-2"></i>WhatsApp (India) 91 9360353170
+      </a>
+    </div>
+  </section>
+</div>
+
+<!-- Optional JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

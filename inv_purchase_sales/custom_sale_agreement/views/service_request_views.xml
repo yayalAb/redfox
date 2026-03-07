@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="service_request_form_view_inherit_agreement" model="ir.ui.view">
+        <field name="name">service.request.form.inherit.agreement</field>
+        <field name="model">service.request</field>
+        <field name="inherit_id" ref="client_maintenance.view_client_maintenance_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_client_maintenance" string="Service Maintenance"
+                    type="object" class="oe_highlight" invisible="measurement_state != 'approved'" />
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="agreement_id" string="From Contract Agreement: " />
+            </xpath>
+        </field>
+    </record>
+</odoo>

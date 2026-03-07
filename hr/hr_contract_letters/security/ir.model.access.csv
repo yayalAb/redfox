@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_contract_send_wizard_user,hr.contract.send.wizard.user,model_hr_contract_send_wizard,base.group_user,1,1,1,1
+access_hr_contract_send_wizard_manager,hr.contract.send.wizard.manager,model_hr_contract_send_wizard,hr.group_hr_manager,1,1,1,1
+access_hr_contract_send_wizard_contract_manager,hr.contract.send.wizard.contract.manager,model_hr_contract_send_wizard,hr_contract.group_hr_contract_manager,1,1,1,1
+access_hr_loan_send_wizard_user,hr.loan.send.wizard.user,model_hr_loan_send_wizard,base.group_user,1,1,1,1
+access_hr_loan_send_wizard_manager,hr.loan.send.wizard.manager,model_hr_loan_send_wizard,hr.group_hr_manager,1,1,1,1
+access_hr_training_invitation_send_wizard_user,hr.training.invitation.send.wizard.user,model_hr_training_invitation_send_wizard,base.group_user,1,1,1,1
+access_hr_training_invitation_send_wizard_manager,hr.training.invitation.send.wizard.manager,model_hr_training_invitation_send_wizard,hr.group_hr_manager,1,1,1,1
+

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="disciplinary_category" model="ir.module.category">
+            <field name="name">Disciplinary</field>
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="group_disciplinary_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="disciplinary_category"/>
+        </record>
+        <record id="group_disciplinary_admin" model="res.groups">
+            <field name="name">Admin</field>
+            <field name="category_id" ref="disciplinary_category"/>
+            <field name="implied_ids" eval="[(4, ref('group_disciplinary_user'))]"/>
+
+        </record>
+    </data>
+
+
+
+</odoo>

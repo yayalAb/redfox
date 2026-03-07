@@ -1,0 +1,11 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_lv_winding_design,access lv winding design,model_lv_winding_design,base.group_user,1,1,1,1
+access_lv_design_reject_wizard,access lv design reject wizard,model_lv_design_reject_wizard,base.group_user,1,1,1,1
+access_hv_winding_design,access hv winding design,model_hv_winding_design,base.group_user,1,1,1,1
+access_hv_design_reject_wizard,access hv design reject wizard,model_hv_design_reject_wizard,base.group_user,1,1,1,1
+access_tap_info,access tap info,model_tap_info,base.group_user,1,1,1,1
+access_hv_turn_arrangement,access hv turn arrangement,model_hv_turn_arrangement,base.group_user,1,1,1,1
+access_hv_winding_edge_paper,access hv winding edge paper,model_hv_winding_edge_paper,base.group_user,1,1,1,1
+access_lv_winding_edge_paper,access lv winding edge paper,model_lv_winding_edge_paper,base.group_user,1,1,1,1
+access_hv_winding_interlayer_insulation,access hv winding interlayer insulation,model_hv_winding_interlayer_insulation,base.group_user,1,1,1,1
+access_lv_winding_interlayer_insulation,access lv winding interlayer insulation,model_lv_winding_interlayer_insulation,base.group_user,1,1,1,1

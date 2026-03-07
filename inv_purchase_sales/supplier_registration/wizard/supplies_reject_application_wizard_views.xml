@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="reject_application_wizard" model="ir.ui.view">
+        <field name="name">supplies.reject.application.wizard</field>
+        <field name="model">supplies.reject.application.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button name="action_reject_application" string="Reject" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="view_partner_edit_reject_wizard_form" model="ir.ui.view">
+        <field name="name">partner.edit.reject.wizard.form</field>
+        <field name="model">partner.edit.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Edit Request">
+                <group>
+                    <field name="request_id" invisible="1"/>
+                    <field name="rejection_reason" placeholder="Please provide the reason for rejection..."/>
+                </group>
+                <footer>
+                    <button name="action_reject" string="Reject" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_partner_edit_reject_wizard" model="ir.actions.act_window">
+        <field name="name">Reject Edit Request</field>
+        <field name="res_model">partner.edit.reject.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

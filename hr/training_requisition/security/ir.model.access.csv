@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_training_requisition_user,training.requisition.user,model_training_requisition,group_training_requisition_user,1,1,1,0
+access_training_requisition_manager,training.requisition.manager,model_training_requisition,group_training_requisition_manager,1,1,1,1
+access_training_requisition_base,training.requisition.base,model_training_requisition,base.group_user,1,1,1,1
+access_training_requisition_wizard,training.requisition.wizard,model_training_requisition_reject_wizard,base.group_user,1,1,1,1
+access_participant_lines,participant.lines,model_participant_lines,base.group_user,1,1,1,1
+access_resource_lines,resource.lines,model_resource_lines,base.group_user,1,1,1,1

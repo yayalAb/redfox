@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="main_dashboard.DashboardCard" owl="1">
+        <div class="col-lg-2 col-md-4 col-sm-12 m-0 p-0">
+            <div class="shadow-sm border m-1 p-1 d-flex flex-column"
+                 t-att-style="'background-color: ' + props.bgColor + '; cursor: pointer; height: 200px; border-radius: 5px; position: relative;'"
+                 t-on-click="props.onClick">
+                
+                <!-- Top Content -->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="fw-bold text-dark" t-esc="props.name"/>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div class="fw-bold text-dark">29,056.76M</div>
+                    </div>
+                </div>
+                <div class="mt-auto mb-2 text-center">
+                    <div class="text-muted">Unpaid Bill: <span t-esc="props.value"/></div>
+                    <div class="text-muted">Unpaid Invoice: <span t-esc="props.value"/></div>
+                </div>
+                
+                
+                
+                <!-- Donut Chart - Positioned before the link -->
+                <div class="mt-auto mb-2 text-center">  <!-- mb-2 adds space above the link -->
+                    <div class="donut-chart" t-att-data-percent="props.percentage">
+                        <svg width="60" height="60" viewBox="0 0 40 40">
+                            <circle class="donut-hole" cx="20" cy="20" r="15.915" fill="transparent"></circle>
+                            <circle class="donut-ring" cx="20" cy="20" r="15.915" fill="transparent"
+                                    stroke="#eee" stroke-width="3"></circle>
+                            <circle class="donut-segment" cx="20" cy="20" r="15.915" fill="transparent"
+                                    stroke="#4CAF50" stroke-width="3" 
+                                    t-att-stroke-dasharray="props.percentage + ' ' + (100 - props.percentage)"
+                                    stroke-dashoffset="25"></circle>
+                            <text class="donut-text" x="50%" y="50%" text-anchor="middle" dy=".3em">
+                                <t t-esc="props.percentage"/>%
+                            </text>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- View Detail Link -->
+                <div class="text-end">
+                    <a t-attf-href="/web#action=account.open_account_journal_dashboard_kanban&amp;model=account.journal" 
+                       class="text-primary fw-bold">
+                        View Detail →
+                    </a>
+                </div>
+                
+                <style>
+                    .donut-chart {
+                        display: inline-block;
+                        margin: 0 auto;
+                    }
+                    .donut-text {
+                        font-size: 0.35em;
+                        font-weight: bold;
+                        fill: #333;
+                    }
+                    .donut-segment {
+                        transition: stroke-dasharray 0.3s ease;
+                    }
+                </style>
+            </div>
+        </div>
+    </t>
+</templates>

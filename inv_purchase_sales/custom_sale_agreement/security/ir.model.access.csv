@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_agreement_document_wizard,sale.agreement.document.wizard,model_sale_agreement_document_wizard,base.group_user,1,1,1,1
+access_sale_agreement_document_wizard_line,sale.agreement.document.wizard.line,model_sale_agreement_document_wizard_line,base.group_user,1,1,1,1
+access_cip_request,access.cip.request,model_cip_request,base.group_user,1,1,1,1
+access_cip_request_line,access.cip.request.line,model_cip_request_line,base.group_user,1,1,1,1
+access_contract_request,access.contract.request,model_contract_request,base.group_user,1,1,1,1
+access_contract_request_line,access.contract.request.line,model_contract_request_line,base.group_user,1,1,1,1
+access_product_warranty_read,access.product.warranty.read,model_product_warranty,base.group_user,1,0,0,0
+access_product_warranty_manager,access.product.warranty.manager,model_product_warranty,sales_team.group_sale_manager,1,1,1,1
+access_payment_request_user,payment.request.user,model_payment_request,base.group_user,1,1,1,0
+access_payment_request_line_user,payment.request.line.user,model_payment_request_line,base.group_user,1,1,1,0
+access_payment_request_manager,payment.request.manager,model_payment_request,base.group_user,1,1,1,1
+access_payment_request_line_manager,payment.request.line.manager,model_payment_request_line,base.group_user,1,1,1,1
+access_purchase_request_user,outgoing.letter.user,model_purchase_request,base.group_user,1,1,1,1
+access_purchase_request_line_user,outgoing.letter.line.user,model_purchase_request_line,base.group_user,1,1,1,1

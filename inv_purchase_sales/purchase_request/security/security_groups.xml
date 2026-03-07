@@ -1,0 +1,32 @@
+<odoo>
+    <record id="module_category_purchase_groups" model="ir.module.category">
+        <field name="name">Purchase Groups</field>
+        <field name="description">User access levels for purchase related flows.</field>
+        <field name="sequence">19</field>
+    </record>
+
+    <record id="group_local_purchase_user" model="res.groups">
+        <field name="name">Local Purchase User</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]" />
+        <field name="comment">This user can only see Local Purchase Requests, Quotatons and Orders.</field>
+    </record>
+
+    <record id="group_foreign_purchase_user" model="res.groups">
+        <field name="name">Foreign Purchase User</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+        <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]" />
+        <field name="comment">This user can only see Foreign Purchase Requests, Quotatons and
+            Orders.</field>
+    </record>
+
+    <record id="group_foreign_purchase_committee_member" model="res.groups">
+        <field name="name">Foreign Purchase Committee Member</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+    </record>
+
+    <record id="group_local_purchase_committee_member" model="res.groups">
+        <field name="name">Local Purchase Committee Member</field>
+        <field name="category_id" ref="module_category_purchase_groups" />
+    </record>
+</odoo>

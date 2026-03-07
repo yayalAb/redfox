@@ -1,0 +1,40 @@
+<odoo>
+    <record id="view_hr_expense_sheet_inherit_form" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.approval.form</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_print_payment_request" string="Print Request" type="object"
+                    class="oe_highlight" />
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="foreign_purchase" />
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Foreign Purchase Details" invisible="not foreign_purchase">
+                    <group>
+                        <field name="purchase_order_id" readonly="1" />
+                        <field name="declaration_number" />
+                        <field name="account_type" />
+                        <field name="account_number" readonly="1" />
+                    </group>
+                    <group>
+                        <field name="payment_type" />
+                        <field name="lc_number" />
+                        <label for="foreign_currency_amount" string="Foreign Currency Amount" />
+                        <div class="o_row">
+                            <field name="foreign_currency_amount" widget='monetary'
+                                options="{'currency_field': 'foreign_currency_id'}"
+                                class="oe_inline mw-15 me-0" />
+                            <field name="foreign_currency_id" class="mw-15 ms-0"
+                                options="{'no_create': True}" />
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

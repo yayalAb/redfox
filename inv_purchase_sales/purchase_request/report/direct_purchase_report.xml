@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_po_direct_purchase_minutes" model="ir.actions.report">
+            <field name="name">Direct Purchase Minutes (ቃለ ጉባኤ)</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">committee_evaluation.report_po_direct_purchase_document</field>
+            <field name="report_file">committee_evaluation.report_po_direct_purchase_document</field>
+            <field name="print_report_name">'Minutes - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="purchase.model_purchase_order" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_po_direct_purchase_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page"
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; margin-left: 40px; margin-right: 40px;">
+
+                            <!-- Section 1: Committee Members -->
+                            <div style="margin-bottom: 20px;">
+                                <t t-if="o.rfp_id and o.rfp_id.committee_member_ids">
+                                    <t t-foreach="o.rfp_id.committee_member_ids" t-as="member">
+                                        <div class="row"
+                                            style="margin-bottom: 8px; align-items: center;">
+                                            <div class="col-1">
+                                                <span t-esc="member_index + 1" />
+                                            </div>
+                                            <div class="col-4">
+                                                <span t-field="member.name" />
+                                            </div>
+                                            <div class="col-3">
+                                                <t t-if="member_index == 0">ሰብሳቢ (Chair)</t>
+                                                <t t-elif="member_index == 1">ፀሓፊ (Sec.)</t>
+                                                <t t-else="">አባል (Member)</t>
+                                            </div>
+                                            <div class="col-4">
+                                                _____________________
+                                            </div>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-muted" style="margin-bottom: 10px;">No
+                                        committee members linked via RFP.</div>
+                                </t>
+
+                                <!-- Requesting Department Line -->
+                                <div class="row" style="margin-bottom: 8px; align-items: center;">
+                                    <div class="col-1">
+                                        <span t-if="o.rfp_id.committee_member_ids"
+                                            t-esc="len(o.rfp_id.committee_member_ids) + 1" />
+                                        <span t-else="">1</span>
+                                    </div>
+                                    <div class="col-4"> ተጠቃሚ ክፍል (<span
+                                            t-if="o.rfp_id and o.rfp_id.department_id"
+                                            t-field="o.rfp_id.department_id.name" />
+                                        <span t-else="">Unknown
+                                        Dept</span>) </div>
+                                    <div class="col-3">አባል</div>
+                                    <div class="col-4">_____________________</div>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Amharic Body Text -->
+                            <div style="text-align: justify; line-height: 1.6; margin-bottom: 20px;">
+                                <strong>ጉዳዩ፡</strong> የ "<span t-if="o.rfp_id"
+                                    t-field="o.rfp_id.purpose" /><span t-else="">Purchase</span>"
+                                ቀጥታ ግዢ ይመለከታል፡፡<br /> በ '<span
+                                    t-if="o.rfp_id and o.rfp_id.department_id"
+                                    t-field="o.rfp_id.department_id.name" />' በቀን <span
+                                    t-if="o.rfp_id" t-field="o.rfp_id.requested_date"
+                                    t-options='{"format": "dd/MM/yyyy"}' />
+                                <!-- FIXED LINE BELOW: Changed t-field to t-esc --> በመጠየቂያ ቁጥር <span
+                                    t-if="o.rfp_id"
+                                    t-esc="o.rfp_id.store_request_id.name or o.rfp_id.rfp_number" />
+                                የተጠየቀውን ግዢ (<span t-if="o.rfp_id" t-field="o.rfp_id.purpose" />)
+                                በቀጥታ ግዥ እንዲገዛላቸው በጠየቁት መሰረት እንዲከናወን የግዢው ኮሚቴ በመስማማት ይህንን የውሳኔ ሃሳብ
+                                ለሰፕላይ ቼይን ዋና ስራ አስፈፃሚ አቅርበነዋል፡፡ </div>
+
+                            <!-- Section 3: Product & Financial Table -->
+                            <table
+                                style="width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 11pt;">
+                                <thead style="background-color: #f0f0f0;">
+                                    <tr style="font-weight: bold; text-align: center;">
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 5%;">
+                                            No.</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 30%;">
+                                            Description</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 8%;">
+                                            Unit</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 8%;">
+                                            Qty</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 12%;">Unit
+                                            Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 15%;">Total
+                                            Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; width: 22%;">
+                                            Supplier</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="lines_count" t-value="len(o.order_line)" />
+
+                                    <t t-foreach="o.order_line" t-as="line">
+                                        <tr>
+                                            <td
+                                                style="border: 1px solid black; padding: 5px; text-align: center;">
+                                                <span t-esc="line_index + 1" />
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <span t-field="line.name" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 5px; text-align: center;">
+                                                <span t-field="line.product_uom.name" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 5px; text-align: center;">
+                                                <span t-esc="int(line.product_qty)" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                <span t-field="line.price_unit"
+                                                    t-options='{"widget": "float", "precision": 2}' />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                <span t-field="line.price_subtotal"
+                                                    t-options='{"widget": "float", "precision": 2}' />
+                                            </td>
+
+                                            <!-- Supplier Column: Spans all rows (rowspan) -->
+                                            <t t-if="line_index == 0">
+                                                <td t-att-rowspan="lines_count"
+                                                    style="border: 1px solid black; padding: 5px; vertical-align: middle; text-align: center; font-weight: bold;">
+                                                    <span t-field="o.partner_id.name" />
+                                                </td>
+                                            </t>
+                                        </tr>
+                                    </t>
+
+                                    <!-- Financial Summary Calculation -->
+                                    <t t-set="amount_subtotal" t-value="o.amount_untaxed" />
+                                    <t t-set="amount_tax" t-value="o.amount_tax" />
+                                    <t t-set="withholding" t-value="amount_subtotal * 0.03" />
+                                    <t t-set="net_pay"
+                                        t-value="(amount_subtotal + amount_tax) - withholding" />
+
+                                    <tr>
+                                        <td colspan="4" style="border: none;"></td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">T.
+                                            Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                            <span t-esc="amount_subtotal"
+                                                t-options='{"widget": "float", "precision": 2}' />
+                                        </td>
+                                        <td style="border: none;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="border: none;"></td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right;">VAT
+                                            15%</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right;">
+                                            <span t-esc="amount_tax"
+                                                t-options='{"widget": "float", "precision": 2}' />
+                                        </td>
+                                        <td style="border: none;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="border: none;"></td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right;">With
+                                            Holding 3%</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right;">
+                                            <span t-esc="withholding"
+                                                t-options='{"widget": "float", "precision": 2}' />
+                                        </td>
+                                        <td style="border: none;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="border: none;"></td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">N.
+                                            Pay</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                            <span t-esc="net_pay"
+                                                t-options='{"widget": "float", "precision": 2}' />
+                                        </td>
+                                        <td style="border: none;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Section 4: Decision Footer -->
+                            <div style="margin-top: 30px;">
+                                <div style="font-weight: bold; margin-bottom: 25px;">
+                                    የውሳኔ ሃሳብ (Decision): _____________________________________
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

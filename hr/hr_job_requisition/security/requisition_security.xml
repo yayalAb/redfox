@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="module_category_job_requisition" model="ir.module.category">
+            <field name="name">Requisition Management</field>
+            <field name="description">User access levels for the Job Requisition module</field>
+            <field name="sequence">18</field>
+        </record>
+
+        <record id="group_job_requisition_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_job_requisition"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">The user will be able to create and view their own requisitions.</field>
+        </record>
+
+        <record id="group_job_requisition_manager" model="res.groups">
+            <field name="name">HR Manager</field>
+            <field name="category_id" ref="module_category_job_requisition"/>
+            <field name="implied_ids" eval="[(4, ref('group_job_requisition_user'))]"/>
+            <field name="comment">The manager can approve, reject, and manage all job requisitions.</field>
+        </record>
+
+    </data>
+</odoo>

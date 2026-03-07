@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- NEW REPORT ACTION for the Template Wizard -->
+    <record id="action_report_bincard_template_view" model="ir.actions.report">
+        <field name="name">Bin Card (Template)</field>
+        <field name="model">bincard.template.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bincard_report.report_bincard_template_document</field>
+        <field name="report_file">bincard_report.report_bincard_template_document</field>
+        <field name="print_report_name">'Bin Card - %s' % (object.product_template_id.name)</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+</odoo>

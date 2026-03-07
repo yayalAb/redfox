@@ -1,0 +1,31 @@
+<odoo>
+  <record id="view_hr_employee_filter_inherit" model="ir.ui.view">
+    <field name="name">hr.employee.filter</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_filter"/>
+    <field name="arch" type="xml">
+        <xpath expr="//searchpanel" position="replace"/>
+    </field>
+</record>
+  <record id="view_hr_employee_kanban_inherit" model="ir.ui.view">
+    <field name="name">hr.employee.kanban</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+    <field name="arch" type="xml">
+        <xpath expr="//templates//t//footer" position="replace"/>
+    </field>
+</record>
+   <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
+        <field name="name">Employee</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">form</field>  <!-- Only show form view (remove kanban/list) -->
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new employee.
+            </p>
+            <p>
+                Use this menu to create employee.
+            </p>
+        </field>
+    </record>
+</odoo>

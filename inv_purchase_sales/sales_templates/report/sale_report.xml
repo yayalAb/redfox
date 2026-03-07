@@ -1,0 +1,637 @@
+<odoo>
+    <template id="report_saleorder_document_inherited" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page"
+                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 14px; padding: 0 30px; position: relative; min-height: 850px;">
+
+                        <div class="oe_structure" />
+
+
+                        <t t-if="doc.state in ['draft', 'sent', 'cancelled']">
+                            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
+
+                            <t t-set="doc_title" t-value="'Sales Order'" />
+                            <t t-set="doc_number" t-value="doc.name" />
+                            <t t-set="issue_number" t-value="'1'" />
+
+                            <div class="row mb-2">
+                                <div class='col-9'></div>
+                                <div class="col-1">
+                                    <strong>Date</strong>: </div>
+                                <div class='col-2'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="doc.date_order"
+                                            style="padding-left: 15px; margin-top: -2px;" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class='col-9'></div>
+                                <div class="col-1">
+                                    <strong>Ref No</strong>: </div>
+                                <div class='col-2'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="doc.display_name"
+                                            style="padding-left: 15px; margin-top: -2px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2 mt-4">
+
+                                <div class="col-2">
+                                    <strong>Customer Name:</strong>
+                                </div>
+
+                                <div class="col-7">
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.partner_id.name"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+
+                                <div class="col-1">
+                                    <strong>Tin:</strong>
+                                </div>
+
+                                <div class="col-2">
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.partner_id.vat"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-1">
+
+                                <div class="col-2">
+                                    <strong>Address:</strong>
+                                </div>
+
+                                <div class="col-7">
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span
+                                            t-field="doc.partner_id.contact_address_complete"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+
+                                <div class="col-1">
+                                    <strong>Phone Number:</strong>
+                                </div>
+
+                                <div class="col-2">
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.partner_id.phone"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-sm table-bordered mt-3"
+                                style="border: 1px solid black; border-collapse: collapse; width: 100%;">
+                                <thead
+                                    style="background-color: #f2f2f2; display: table-header-group;">
+                                    <tr style="font-weight: bold;">
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            NO</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center; width: 30%;">
+                                            Description</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            Unit</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            Quantity</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            Unit Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            Total Price</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="i" t-value="0" />
+                                    <t t-set="subtotal" t-value="0" />
+                                    <t t-foreach="doc.order_line" t-as="order">
+                                        <t t-set="i" t-value="i + 1" />
+                                        <t t-set="subtotal"
+                                            t-value="subtotal + order.price_subtotal" />
+                                        <tr>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:center;">
+                                                <span t-esc="i" />
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="order.product_id.name" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:center;">
+                                                <span t-field="order.product_uom.name" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                <span
+                                                    t-esc="'{0:,.2f}'.format(order.product_uom_qty)" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                <span t-esc="'{0:,.2f}'.format(order.price_unit)" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                <span
+                                                    t-esc="'{0:,.2f}'.format(order.price_subtotal)" />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- ... same table lines as before ... -->
+                                    <tr>
+                                        <td colspan="4"
+                                            style="border-top: 1px solid black; border-bottom: none; border-left: none; border-right: 1px solid black;">
+                                            <!-- This cell is intentionally left empty -->
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <strong>Total Amount Before VAT</strong>
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <span t-esc="'{0:,.2f}'.format(subtotal)" />
+                                        </td>
+                                    </tr>
+                                    <t t-foreach="doc.tax_totals.get('subtotals', [])"
+                                        t-as="subtotal_item">
+                                        <t t-if="subtotal_item.get('name') == 'Untaxed Amount'">
+                                            <t t-foreach="subtotal_item.get('tax_groups', [])"
+                                                t-as="tax_group">
+                                                <tr>
+                                                    <td colspan="4"
+                                                        style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid black;"></td>
+                                                    <td
+                                                        style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                        <span t-esc="tax_group['group_name']" />
+                                                    </td>
+                                                    <td
+                                                        style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                        <span
+                                                            t-esc="'{0:,.2f}'.format(tax_group['tax_amount_currency'])" />
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </t>
+                                    <tr>
+                                        <td colspan="4"
+                                            style="border-top: none; border-bottom: 1px solid black; border-left: none; border-right: 1px solid black;"></td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <strong>Total Amount With VAT</strong>
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <span t-esc="'{0:,.2f}'.format(doc.amount_total)" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div style="position: absolute; bottom: 20px; left: 30px; right: 30px;">
+                                <div style="margin-top: 15px;">
+                                    <strong style="text-decoration: underline;">NOTES</strong>
+                                    <ul
+                                        style="list-style-type: square; padding-left: 20px; margin-top: 5px;">
+                                        <li style="margin-bottom: 10px;">
+                                            <strong>Price Quotation Validity :- </strong>
+                                            <span
+                                                style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                                <span t-field="doc.validity_date"
+                                                    style="padding-left: 15px;" />
+                                            </span>
+                                        </li>
+                                        <li style="margin-bottom: 10px;">
+                                            <strong>Mode of Payment :- </strong>
+                                            <span
+                                                style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                                <span t-field="doc.payment_term_id.name"
+                                                    style="padding-left: 15px;" />
+                                            </span>
+                                        </li>
+                                        <li style="margin-bottom: 10px;">
+                                            <strong>Transportation, installation, Testing and
+                                                commissioning:- </strong>
+                                            <span
+                                                style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                                <span style="padding-left: 15px;" />
+                                            </span>
+                                        </li>
+                                        <li style="margin-bottom: 10px;">
+                                            <strong>Delivery Period:- </strong>
+                                            <span
+                                                style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                                <span style="padding-left: 15px;" />
+                                            </span>
+                                        </li>
+                                        <li style="margin-bottom: 10px;">
+                                            <strong>The supplier is exempted of WITHHOLDING, please
+                                                do not deduct any withholding amount from payment. </strong>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="row align-items-end mb-3">
+                                    <div class="col-2">
+                                        <strong>አስተያየት<br />Remark</strong>
+                                    </div>
+                                    <div class="col-10"
+                                        style="border-bottom: 1px solid black; min-height: 1em;"></div>
+                                </div>
+
+
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-8 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Prepared by Name</strong>
+                                        <div
+                                            style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                            <span t-field="doc.create_uid.name"
+                                                style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Sig.</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <span
+                                                style="border-bottom: 1px solid black; width: 150px; display: inline-block;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-8 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Approved by Name</strong>
+                                        <div
+                                            style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                            <span t-field="doc.create_uid.name"
+                                                style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Sig.</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <span
+                                                style="border-bottom: 1px solid black; width: 150px; display: inline-block;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-8 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Stamp</strong>
+                                        <div
+                                            style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                            <span style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-5 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">For further information
+                                            please contact:- </strong>
+                                    </div>
+                                    <div class="col-3 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Name</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <span t-field="doc.user_id.name"
+                                                style="border-bottom: 1px solid black; width: 150px; display: inline-block;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Tel</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <span t-field="doc.user_id.phone"
+                                                style="border-bottom: 1px solid black; width: 150px; display: inline-block;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <ul
+                                        style="list-style-type: square; padding-left: 20px; margin-top: 5px;">
+                                        <t t-foreach="doc.company_id.partner_id.bank_ids"
+                                            t-as="bank">
+                                            <li style="margin-bottom: 10px;">
+                                                <t t-esc="bank.bank_id.name" /> Account no:- <span
+                                                    t-esc="bank.acc_number" />
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </div>
+                            </div>
+                        </t>
+                       <t t-if="doc.state == 'sale'">
+                            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
+                            <t t-set="doc_title" t-value="'SALES ORDER FORM'" />
+                            <t t-set="doc_number" t-value="'OF/WW/MD/007'" />
+                            <t t-set="issue_number" t-value="'1'" />
+
+                            <!-- 1. DATE & REF (Tightened spacing, Right Aligned) -->
+                            <div class="row" style="margin-top: 2px; margin-bottom: 0px;">
+                                <div class='col-9'></div>
+                                <div class="col-1" style="padding-right: 0;">
+                                    <strong>ቀን<br />Date</strong>: 
+                                </div>
+                                <div class='col-2'>
+                                    <div style="border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="doc.date_order" t-options='{"widget": "date"}' style="padding-left: 5px;" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 2px;">
+                                <div class='col-9'></div>
+                                <div class="col-1" style="padding-right: 0;">
+                                    <strong>Ref No</strong>: 
+                                </div>
+                                <div class='col-2'>
+                                    <div style="border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="doc.name" style="padding-left: 5px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CUSTOMER INFO ROW 1 -->
+                            <div class="row mb-2 mt-2">
+                                <div class="col-2">
+                                    <strong>የደንበኛ ስም:-<br />Customer Name:</strong>
+                                </div>
+                                <div class="col-7">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.partner_id.name" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                    <strong>አድራሻ:- <br />Address</strong>
+                                </div>
+                                <div class="col-2">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.partner_id.contact_address_complete" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CUSTOMER INFO ROW 2 (PO & TIN) -->
+                            <div class="row mb-1">
+                                <div class="col-2">
+                                    <strong>የግዥ ማዘዣ ቁጥር<br />Purchase Order Number</strong>
+                                </div>
+                                <div class="col-7">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <!-- Uses Client Order Ref or blank if empty -->
+                                        <span t-field="doc.client_order_ref" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                    <strong>TIN:</strong>
+                                </div>
+                                <div class="col-2">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <!-- Requirement 2: Editable TIN -->
+                                        <span t-field="doc.partner_tin" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CUSTOMER INFO ROW 3 (Contract & Order No) -->
+                            <div class="row mb-1">
+                                <div class="col-2">
+                                <strong>የሽያጭ ሰነድ ቁጥር<br />Sales Invoice Number</strong>
+                            </div>
+                                <div class="col-7">
+                                <div
+                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                    <t t-if="doc.invoice_ids">
+                                        <span
+                                            t-esc="doc.invoice_ids[0].name"
+                                            style="padding-left: 15px;" />
+                                    </t>
+                                </div>
+                                </div>
+                                <div class="col-1">
+                                    <strong>Cont. No</strong>
+                                </div>
+                                <div class="col-2">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.contract_ref" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TABLE START -->
+                            <table class="table table-sm table-bordered mt-3"
+                                style="border: 1px solid black; border-collapse: collapse; width: 100%;">
+                                <thead style="background-color: #f2f2f2; display: table-header-group;">
+                                    <tr style="font-weight: bold;">
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">ተ.ቁ<br />S.No</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">የዕቃው ቁ.<br />Item No</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center; width: 30%;">የዕቃው ስም<br />Description</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">መለኪያ<br />UOM</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">ብዛት<br />Qty.</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">የአንዱ ዋጋ<br />Unit Price</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">ጠቅላላ ዋጋ<br />Total Price</td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:center;">Remark</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="i" t-value="0" />
+                                    <t t-set="subtotal" t-value="0" />
+                                    <t t-foreach="doc.order_line" t-as="order">
+                                        <t t-if="not order.display_type">
+                                            <t t-set="i" t-value="i + 1" />
+                                            <t t-set="subtotal" t-value="subtotal + order.price_subtotal" />
+                                            <tr>
+                                                <td style="border: 1px solid black; padding: 2px; text-align:center;">
+                                                    <span t-esc="i" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px;">
+                                                    <span t-field="order.product_id.default_code" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px;">
+                                                    <span t-field="order.product_id.name" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px; text-align:center;">
+                                                    <span t-field="order.product_uom.name" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                    <span t-esc="'{0:,.2f}'.format(order.product_uom_qty)" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                    <span t-esc="'{0:,.2f}'.format(order.price_unit)" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                    <span t-esc="'{0:,.2f}'.format(order.price_subtotal)" />
+                                                </td>
+                                                <td style="border: 1px solid black; padding: 2px;"></td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <!-- TOTALS -->
+                                    <tr>
+                                        <td colspan="5" style="border-top: 1px solid black;"></td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <strong>Total Amount Before VAT</strong>
+                                        </td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <span t-esc="'{0:,.2f}'.format(subtotal)" />
+                                        </td>
+                                        <td style="border: 1px solid black;"></td>
+                                    </tr>
+                                    <t t-foreach="doc.tax_totals.get('subtotals', [])" t-as="subtotal_item">
+                                        <t t-if="subtotal_item.get('name') == 'Untaxed Amount'">
+                                            <t t-foreach="subtotal_item.get('tax_groups', [])" t-as="tax_group">
+                                                <tr>
+                                                    <td colspan="5"></td>
+                                                    <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                        <span t-esc="tax_group['group_name']" />
+                                                    </td>
+                                                    <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                        <span t-esc="'{0:,.2f}'.format(tax_group['tax_amount_currency'])" />
+                                                    </td>
+                                                    <td style="border: 1px solid black;"></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </t>
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <strong>Total Amount With VAT</strong>
+                                        </td>
+                                        <td style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <span t-esc="'{0:,.2f}'.format(doc.amount_total)" />
+                                        </td>
+                                        <td style="border: 1px solid black;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div style="position: absolute; bottom: 20px; left: 30px; right: 30px; font-size: 11px; line-height: 1.4;">
+                                <div class="row align-items-end mb-3">
+                                    <div class="col-2">
+                                        <strong>አስተያየት<br />Remark</strong>
+                                    </div>
+                                    <div class="col-10" style="border-bottom: 1px solid black; min-height: 1em;">
+                                        <span t-field="doc.report_remark"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-4" />
+                                    <div class="col-3">
+                                        <strong>Name/ስም</strong>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>Signature/ፊርማ</strong>
+                                    </div>
+                                    <div class="col-2">
+                                        <strong>Date/ቀን</strong>
+                                    </div>
+                                </div>
+                                
+                                
+                                <!-- Prepared By Row -->
+                                <div class="row mt-2 align-items-center">
+                                    <div class="col-3">
+                                        <strong>ያዘጋጀው<br />Prepared By</strong>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                            <!-- Auto-Filled User Name -->
+                                            <span t-field="doc.prepared_by_id.name" style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-3 text-center">
+                                        <t t-if="doc.prepared_by_id.sign_signature">
+                                            <img t-att-src="image_data_uri(doc.prepared_by_id.sign_signature)" style="max-height: 40px; max-width: 100%;"/>
+                                        </t>
+                                        <t t-else="">
+                                            ___________________
+                                        </t>
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        <div style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                            <!-- Auto-Filled Date -->
+                                            <span t-field="doc.prepared_date" t-options='{"widget": "date"}'/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Approved By Row -->
+                                <div class="row mt-2 align-items-center">
+                                    <div class="col-3">
+                                        <strong>ያጸደቀው<br />Approved By</strong>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                            <!-- Auto-Filled User Name -->
+                                            <span t-field="doc.approved_by_id.name" style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-3 text-center">
+                                        <t t-if="doc.approved_by_id.sign_signature">
+                                            <img t-att-src="image_data_uri(doc.approved_by_id.sign_signature)" 
+                                                 style="max-height: 40px; max-width: 100%;"/>
+                                        </t>
+                                        <t t-else="">
+                                            ___________________
+                                        </t>
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        <div style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                            <!-- Auto-Filled Date -->
+                                            <span t-field="doc.approved_date" t-options='{"widget": "date"}'/>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row mt-4" style="font-size: 12px; padding-top: 5px;">
+                                    <div class="col-3">
+                                        <strong>ክፍፍል</strong><br/>
+                                        <strong>Distribution: -</strong>
+                                    </div>
+                                    <div class="col-3">
+                                        ዋናው ሰነድ - ፋይናንስ<br/>
+                                        Original –Finance
+                                    </div>
+                                    <div class="col-3">
+                                        1ኛ ኮፒ- ግምጃቤት<br/>
+                                        1<sup>st</sup> Copy- Store
+                                    </div>
+                                    <div class="col-3">
+                                        2ኛ ኮፒ-ጥራዝ<br/>
+                                        2<sup>nd</sup> copy- pad
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>

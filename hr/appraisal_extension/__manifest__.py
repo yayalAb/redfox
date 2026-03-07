@@ -1,0 +1,20 @@
+{
+    'name': 'Appraisal Template Extension',
+    'version': '1.0',
+    'depends': ['base', 'hr', 'hr_appraisal', 'hr_recruitment'],
+    'external_dependencies': {'python': ['lxml']},
+    'author': 'Henok Gm',
+    'sequence': 100,
+    'category': 'Human Resources',
+    'description': 'Add Department and Position to Appraisal Template with filtering and grouping.',
+    'data': [
+        'security/ir.model.access.csv',
+        'views/hr_appraisal_template_views.xml',
+        'views/hr_appraisal_views.xml',
+        'views/hr_appraisal_note_views_extension.xml',
+        'views/appraisal_period_views.xml',
+        'views/res_config_setting_views.xml',
+    ],
+    'installable': True,
+    'application': True,
+}

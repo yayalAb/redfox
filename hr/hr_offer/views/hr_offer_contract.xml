@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_inherited_view_form_offer" model="ir.ui.view">
+        <field name="name">hr.contract.inherited.view.form</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form" />
+        <field name="arch" type="xml">
+        <xpath expr="header" position="inside">
+               <button name="action_set_to_reviewed" type="object" string="Review"
+                    groups="hr_offer.hr_offer_group_reviewer"
+                    class="btn-primary" invisible="approval_status != 'draft' or state != 'open'"/>
+                <button name="action_set_to_approved" type="object" string="Approve"
+                    groups="hr_offer.hr_offer_group_approve"
+                    class="btn-success" invisible="approval_status != 'reviewed' or state != 'open'"/>
+             
+        </xpath>
+
+
+            
+            <xpath expr="//div[@id='resource_calendar_warning']" position="after" >
+                <field name="approval_status"  readonly="1"/>
+                <field name="reviewed_by_id"  readonly="1"/>
+                <field name="approved_by_id"  readonly="1"/>
+                
+            </xpath>
+    </field>
+    </record>
+    </odoo>

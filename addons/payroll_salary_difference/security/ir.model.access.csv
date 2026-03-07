@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_payslip_run_payroll_difference,hr.payslip.run payroll difference,hr_payroll.model_hr_payslip_run,hr_payroll.group_hr_payroll_user,1,0,0,0
+access_hr_payslip_payroll_difference,hr.payslip payroll difference,hr_payroll.model_hr_payslip,hr_payroll.group_hr_payroll_user,1,0,0,0
+access_hr_payslip_line_payroll_difference,hr.payslip.line payroll difference,hr_payroll.model_hr_payslip_line,hr_payroll.group_hr_payroll_user,1,0,0,0
+access_hr_salary_rule_payroll_difference,hr.salary.rule payroll difference,hr_payroll.model_hr_salary_rule,hr_payroll.group_hr_payroll_user,1,0,0,0
+access_hr_employee_payroll_difference,hr.employee payroll difference,hr.model_hr_employee,hr_payroll.group_hr_payroll_user,1,0,0,0
+

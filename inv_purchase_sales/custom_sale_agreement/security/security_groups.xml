@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_sales_quotation" model="ir.module.category">
+            <field name="name">Sales Quotation</field>
+            <field name="description">Access rights related to sale quotations</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- QUOTATION GROUPS -->
+        <record id="group_sales_quotation_submit" model="res.groups">
+            <field name="name">Quotation Submit</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+        
+        <record id="group_sales_quotation_review" model="res.groups">
+            <field name="name">Quotation Review</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_quotation_approve" model="res.groups">
+            <field name="name">Quotation Approve</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_quotation_refuse" model="res.groups">
+            <field name="name">Quotation Refuse</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_quotation_reset_to_draft" model="res.groups">
+            <field name="name">Quotation Reset to Draft</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_order_submit" model="res.groups">
+            <field name="name">Sale Submit</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+        
+        <record id="group_sales_order_review" model="res.groups">
+            <field name="name">Sale Review</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_order_approve" model="res.groups">
+            <field name="name">Sale Approve</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_order_refuse" model="res.groups">
+            <field name="name">Sale Refuse</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_order_reset_to_draft" model="res.groups">
+            <field name="name">Sale Reset to Draft</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <record id="group_sales_order_done" model="res.groups">
+            <field name="name">Sale Lock</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <!--PAYMENT REQUEST GROUPS -->
+        <record id="group_payment_request_submit" model="res.groups">
+            <field name="name">Payment Request Submit</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+        <record id="group_payment_request_review" model="res.groups">
+            <field name="name">Payment Request Review</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+        <record id="group_payment_request_approve" model="res.groups">
+            <field name="name">Payment Request Approve</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+        <record id="group_payment_request_cancel" model="res.groups">
+            <field name="name">Payment Request Cancel</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+        <record id="group_payment_request_reset_to_draft" model="res.groups">
+            <field name="name">Payment Request Reset to Draft</field>
+            <field name="category_id" ref="custom_sale_agreement.module_category_sales_quotation"/>
+        </record>
+
+        <!-- ================================================== -->
+        <!-- PRODUCT WARRANTY CATEGORY                       -->
+        <!-- ================================================== -->
+        <record id="module_category_product_warranty" model="ir.module.category">
+            <field name="name">Product Warranty</field>
+            <field name="description">Access rights related to Product Warranties</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Warranty Groups -->
+        <record id="group_product_warranty_submit" model="res.groups">
+            <field name="name">Warranty Submit</field>
+            <field name="category_id" ref="module_category_product_warranty"/>
+        </record>
+
+        <record id="group_product_warranty_review" model="res.groups">
+            <field name="name">Warranty Review</field>
+            <field name="category_id" ref="module_category_product_warranty"/>
+        </record>
+
+        <record id="group_product_warranty_approve" model="res.groups">
+            <field name="name">Warranty Approve</field>
+            <field name="category_id" ref="module_category_product_warranty"/>
+        </record>
+
+        <record id="group_product_warranty_void" model="res.groups">
+            <field name="name">Warranty Void</field>
+            <field name="category_id" ref="module_category_product_warranty"/>
+        </record>
+
+        <record id="group_product_warranty_reset" model="res.groups">
+            <field name="name">Warranty Reset to Draft</field>
+            <field name="category_id" ref="module_category_product_warranty"/>
+        </record>
+
+
+        <!-- CIP REQUEST CATEGORY  -->
+        <record id="module_category_cip_request" model="ir.module.category">
+            <field name="name">CIP Request</field>
+            <field name="description">Access rights related to CIP Requests</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- CIP Groups -->
+        <record id="group_cip_request_submit" model="res.groups">
+            <field name="name">CIP Submit</field>
+            <field name="category_id" ref="module_category_cip_request"/>
+        </record>
+
+        <record id="group_cip_request_review" model="res.groups">
+            <field name="name">CIP Review</field>
+            <field name="category_id" ref="module_category_cip_request"/>
+        </record>
+
+        <record id="group_cip_request_approve" model="res.groups">
+            <field name="name">CIP Approve</field>
+            <field name="category_id" ref="module_category_cip_request"/>
+        </record>
+
+        <record id="group_cip_request_reject" model="res.groups">
+            <field name="name">CIP Reject</field>
+            <field name="category_id" ref="module_category_cip_request"/>
+        </record>
+
+        <record id="group_cip_request_reset" model="res.groups">
+            <field name="name">CIP Reset to Draft</field>
+            <field name="category_id" ref="module_category_cip_request"/>
+        </record>
+
+    </data>
+</odoo>

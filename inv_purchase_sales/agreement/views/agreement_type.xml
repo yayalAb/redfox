@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Agreement Type List View-->
+    <record id="agreement_type_list_view" model="ir.ui.view">
+        <field name="name">Agreement Type List</field>
+        <field name="model">agreement.type</field>
+        <field name="arch" type="xml">
+            <list default_order="name">
+                <field name="name" string="Type Name" />
+            </list>
+        </field>
+    </record>
+    <!-- Agreement Type Form View -->
+    <record id="agreement_type_form_view" model="ir.ui.view">
+        <field name="name">Agreement Type Form</field>
+        <field name="model">agreement.type</field>
+        <field name="arch" type="xml">
+            <form string="Agreement Type">
+                <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <field name="description" widget="text" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="agreement_type_search" model="ir.ui.view">
+        <field name="name">agreement.type.search</field>
+        <field name="model">agreement.type</field>
+        <field name="arch" type="xml">
+            <search string="Agreement Type">
+                <field name="name" />
+                <separator />
+               
+                <separator />
+                <filter
+                    name="archived"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+              
+            </search>
+        </field>
+    </record>
+    <!-- Actions opening views on models -->
+    <record id="agreement_type_action" model="ir.actions.act_window">
+        <field name="name">Agreement Types</field>
+        <field name="res_model">agreement.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

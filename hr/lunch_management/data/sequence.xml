@@ -1,0 +1,10 @@
+<odoo>
+    <record id='sequence_lunch_log' model='ir.sequence'>
+        <field name='name'>Lunch Log Reference</field>
+        <field name='code'>lunch.log</field>
+        <field name='prefix'>LUN</field>
+        <field name='padding'>4</field>
+        <field name='number_increment'>1</field>
+        <field name='number_next'>1</field>
+    </record>
+</odoo>

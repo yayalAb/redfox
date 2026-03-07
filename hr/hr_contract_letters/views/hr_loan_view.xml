@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Send/Print Loan Agreement button to hr.loan form view -->
+    <record id="hr_loan_view_form_letters" model="ir.ui.view">
+        <field name="name">hr.loan.letters.view.form</field>
+        <field name="model">hr.loan</field>
+        <field name="inherit_id" ref="ent_ohrms_loan.hr_loan_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Send/Print Loan Agreement button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="hr_contract_letters.action_hr_loan_send_wizard" 
+                        string="Send/Print Loan Agreement" 
+                        type="action" 
+                        class="oe_highlight" 
+                        icon="fa-envelope"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. RISK CATEGORY CONFIGURATION -->
+    <record id="view_risk_category_list" model="ir.ui.view">
+        <field name="name">risk.category.list</field>
+        <field name="model">corporate.risk.category</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_risk_category" model="ir.actions.act_window">
+        <field name="name">Risk Categories</field>
+        <field name="res_model">corporate.risk.category</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- 2. RISK REGISTER VIEWS -->
+    
+    <!-- Kanban View -->
+    <record id="view_risk_register_kanban" model="ir.ui.view">
+        <field name="name">risk.register.kanban</field>
+        <field name="model">corporate.risk.register</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="risk_level" class="o_kanban_small_column">
+                <field name="risk_level"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <strong><field name="name"/></strong>
+                                <div><small>Category: <field name="category_id"/></small></div>
+                                <div><small>Owner: <field name="responsible_owner_id"/></small></div>
+                                <div class="mt-2">
+                                    <span class="badge badge-pill badge-secondary">Score: <field name="risk_score"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_risk_register_form" model="ir.ui.view">
+        <field name="name">risk.register.form</field>
+        <field name="model">corporate.risk.register</field>
+        <field name="arch" type="xml">
+            <form string="Risk Register">
+                <header>
+                    <field name="state" widget="statusbar" clickable="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Market entry failure in new sector..."/></h1>
+                    </div>
+                    <group>
+                        <group string="Context">
+                            <field name="department_id"/>
+                            <field name="category_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Assessment">
+                            <field name="likelihood"/>
+                            <field name="impact"/>
+                            <field name="risk_score" readonly="1"/>
+                            <field name="risk_level" widget="badge" 
+                                   decoration-danger="risk_level == 'critical'"
+                                   decoration-warning="risk_level == 'significant'"
+                                   decoration-info="risk_level == 'moderate'"
+                                   decoration-success="risk_level == 'low'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Mitigation &amp; Control">
+                            <group>
+                                <field name="mitigation_plan" placeholder="List the actions to take to reduce or accept this risk..."/>
+                            </group>
+                            <group>
+                                <field name="responsible_owner_id"/>
+                                <field name="monitoring_mechanism"/>
+                                <field name="mitigation_priority"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_risk_register" model="ir.actions.act_window">
+        <field name="name">Risk Register</field>
+        <field name="res_model">corporate.risk.register</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p>Log a new operational or strategic risk.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,25 @@
+{
+    'name': 'Sale Report',
+    'version': '18.0.0.1',
+    'summary': 'This module help you to generate inventory report',
+    'description': """This module help you to generate inventory report""",
+    'category': 'Inventory',
+    'website': '',
+    'depends': [
+        'base',
+        'sale',
+        'purchase'],
+    'license': 'LGPL-3',
+    'data': [
+        'security/ir.model.access.csv',
+        'views/sale_report_view.xml',
+        'reports/sale_report.xml',
+        'wizard/sale_order_report.xml',
+        'views/purchase_order_report.xml',
+        'reports/purchase_order_report.xml',
+        'wizard/purchase_order_report.xml',
+    ],
+    'assets': {},
+    'installable': True,
+    'application': True,
+}

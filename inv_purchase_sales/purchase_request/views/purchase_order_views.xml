@@ -1,0 +1,67 @@
+<odoo>
+    <record id="view_foreign_purchase_order_payment_form" model="ir.ui.view">
+        <field name="name">foreign.purchase.order.payment.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='fiscal_position_id']" position='before'>
+                <field name="bank_name" invisible="purchase_origin != 'foreign'" />
+                <field name="bank_address" invisible="purchase_origin != 'foreign'" />
+                <field name="swift_code" invisible="purchase_origin != 'foreign'" />
+                <field name="account_number" invisible="purchase_origin != 'foreign'" />
+                <field name="warranty_period" invisible="purchase_origin != 'local'" />
+                <field name="validity_period" invisible="purchase_origin != 'local'" />
+            </xpath>
+
+            <xpath expr="//field[@name='payment_term_id']" position='replace'>
+                <field name="payment_term" invisible="purchase_origin != 'foreign'" />
+            </xpath>
+
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="purchase_origin" />
+                <field name="good_description" invisible="purchase_origin != 'foreign'" />
+            </xpath>
+
+            <xpath expr="//notebook" postion="inside">
+                <page string="Committee Members" name="committee_members"
+                    invisible="state == 'draft'">
+                    <field name="committee_member_ids">
+                        <list editable="bottom">
+                            <field name="member_id" />
+                            <field name="role" />
+                            <field name="approval_status" />
+
+                            <button name="action_committee_approve"
+                                type="object"
+                                icon="fa-check"
+                                title="Approve"
+                                class="btn-success"
+                                invisible="approval_status != 'pending' or parent.state != 'submitted'" />
+
+                            <button name="action_committee_reject"
+                                type="object"
+                                icon="fa-times"
+                                title="Reject"
+                                class="btn-danger"
+                                invisible="approval_status != 'pending' or parent.state != 'submitted'" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_foreign_purchase_order_port_form" model="ir.ui.view">
+        <field name="name">foreign.purchase.order.port.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='incoterm_location']" position="replace">
+                <field name="country_origin" invisible="purchase_origin != 'foreign'" />
+                <field name="port_loading" invisible="purchase_origin != 'foreign'" />
+                <field name="port_discharge" invisible="purchase_origin != 'foreign'" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

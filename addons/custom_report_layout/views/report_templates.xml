@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="custom_external_layout" inherit_id="web.external_layout_standard">
+            <xpath expr="//div[1]" position="replace">
+                <t t-if="o and 'company_id' in o and o.company_id">
+                    <t t-set="company" t-value="o.company_id" />
+                </t>
+                <t t-elif="docs and 'company_id' in docs[0] and docs[0].company_id">
+                    <t t-set="company" t-value="docs[0].company_id" />
+                </t>
+                <t t-else="">
+                    <t t-set="company" t-value="env.company" />
+                </t>
+                <div t-attf-class="header o_company_#{company.id}_layout"
+                    style="margin-bottom: 5px; font-family: 'Noto Sans Ethiopic', 'Times New Roman'; font-size: 12px;">
+                    <table
+                        style="width: 100%; border-collapse: collapse; font-size: 16px; border: 2px solid #a7c6e6; table-layout: fixed;">
+                        <tr style="height: 100px;">
+                            <td
+                                style="width: 20%; text-align: center; vertical-align: middle; border-right: 2px solid #a7c6e6; padding: 4px; height: 100px;">
+                                <div
+                                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    <img t-if="company.logo"
+                                        t-att-src="image_data_uri(company.logo)"
+                                        style="max-height: 95px; max-width: 100%; width: auto; height: auto;"
+                                        alt="Logo" />
+                                </div>
+                            </td>
+                            <td
+                                style="width: 50%; padding: 2px; border-right: 2px solid #a7c6e6; height: 100px; vertical-align: top;">
+                                <table
+                                    style="width: 100%; height: 100%; border-collapse: collapse; border: 2px solid #a7c6e6; table-layout: fixed;">
+                                    <tr style="height: 50%;">
+                                        <td
+                                            style="text-align: center; padding: 2px; border-bottom: 2px solid #a7c6e6; vertical-align: middle;">
+                                            <div style="font-size: 16px;">
+                                                <span t-esc="company.company_name_am or 'ዋግዋጎ ትሬዲንግ ኃ/የተ/የግ/ማ'"></span><br/>
+                                                <span t-esc="company.name or 'WAGWAGO TRADING PLC'"></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr style="height: 50%;">
+                                        <td
+                                            style="text-align: center; padding: 2px; vertical-align: middle;">
+                                            <span style="color: gray;">Doc Title</span>
+                                            <span t-esc="doc_title or 'Document'" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td
+                                style="width: 30%; padding: 2px; height: 100px; vertical-align: top;">
+                                <table
+                                    style="width: 100%; height: 100%; border-collapse: collapse; border: 2px solid #a7c6e6; table-layout: fixed;">
+                                    <tr style="height: 50%;">
+                                        <td colspan="2"
+                                            style="text-align: left; padding: 8px 4px; border-bottom: 2px solid #a7c6e6; vertical-align: middle;">
+                                            <span>Document No:</span>
+                                            <span t-esc="doc_number or ''" />
+                                        </td>
+                                    </tr>
+                                    <tr style="height: 50%;">
+                                        <td
+                                            style="text-align: left; padding: 8px 4px; vertical-align: middle; border-right: 2px solid #a7c6e6;">
+                                            <span>Issue No.</span>
+                                            <span t-esc="issue_number or '1'" />
+                                        </td>
+                                        <td
+                                            style="text-align: left; padding: 8px 4px; vertical-align: middle;">
+                                            <span>Page:</span> <span class="page" /> / <span
+                                                class="topage" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

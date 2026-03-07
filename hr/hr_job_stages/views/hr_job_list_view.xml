@@ -1,0 +1,15 @@
+<odoo>
+    <record id='hr_job_inherited_list_view' model='ir.ui.view'>
+        <field name='name'>hr.job.inherited.list.view</field>
+        <field name='model'>hr.applicant</field>
+        <field name='inherit_id' ref='hr_recruitment.crm_case_tree_view_job' />
+        <field name='arch' type='xml'>
+            <xpath expr="//list" position="inside">
+                <header>
+                    <button name="%(hr_job_stages.action_change_stage_wizard)d" type='action'
+                        string='Change Stage' class="btn-primary" />
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

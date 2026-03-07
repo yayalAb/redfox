@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_template_custom_applicant_offer" model="mail.template">
+        <field name="name">Custom Recruitment: Job Offer</field>
+        <field name="model_id" ref="hr_contract_salary.model_hr_contract_salary_offer"/>
+        <field name="subject">Job Offer from {{ object.company_id.name }}</field>
+        <field name="email_to">{{ object.applicant_id.email_from }}</field>
+        <field name="body_html" type="html">
+            <div style="font-family: 'Times New Roman', serif; font-size: 15px; color: #1c1c1c; background-color: #ffffff; padding: 20px;">
+                <div style="max-width: 720px; margin: 0 auto; padding: 24px;">
+                    <t t-set="contract" t-value="object.contract_template_id" />
+                    <t t-set="employee" t-value="contract.employee_id" />
+                    <t t-set="grade_info" t-value="employee.get_salary_grade_info() if employee else {'salary_grade': None, 'scale_level': None}" />
+                    <t t-set="allowances_list"
+                        t-value="[
+                            ('house_rent_allowance', 'House Rent Allowance'),
+                            ('dearness_allowance', 'Dearness Allowance'),
+                            ('travel_allowance', 'Travel Allowance'),
+                            ('meal_allowance', 'Meal Allowance'),
+                            ('medical_allowance', 'Medical Allowance'),
+                            ('position_allowance', 'Position Allowance'),
+                            ('transport_home_allowance', 'Transport (Home) Allowance'),
+                            ('transport_work_allowance', 'Transport (Work) Allowance'),
+                            ('fuel_allowance', 'Fuel Allowance'),
+                            ('cash_indemnity_allowance', 'Cash Indemnity Allowance'),
+                            ('professional_allowance', 'Professional Allowance'),
+                            ('other_allowance', 'Other Allowance')
+                        ]" />
+                    <t t-set="active_allowances"
+                        t-value="[al for al in allowances_list if contract[al[0]] and contract[al[0]] > 0]" />
+                    <p>
+                        <strong>To:</strong> <span t-esc="employee.name if employee else object.applicant_id.partner_name" />,
+                        <br />
+                        <em><span t-esc="contract.employee_id.address_id.city if contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city else ''" /></em>
+                    </p>
+                    <p style="text-align: center; font-size: 16px; font-weight: bold;"><u>Welcome Letter</u></p>
+                    <p>Dear <span t-esc="employee.name.split(' ')[0] if employee and employee.name else object.applicant_id.partner_name.split(' ')[0] if object.applicant_id.partner_name else ''" /> ,</p>
+                    <p>
+                        It is our pleasure to inform you that, effective from <strong><span t-esc="contract.date_start.strftime('%B %d, %Y') if contract and contract.date_start else object.contract_start_date.strftime('%B %d, %Y')" /></strong>,
+                        you are employed as <strong><span t-esc="contract.job_id.name if contract.job_id else object.job_title" /></strong>
+                        under the supervision of <strong><span t-esc="contract.employee_id.parent_id.name if contract.employee_id and contract.employee_id.parent_id else ''" /></strong>.
+                    </p>
+                    <p>
+                        <t t-if="grade_info['salary_grade'] or grade_info['scale_level']">
+                            Your position is classified as
+                            <t t-if="grade_info['salary_grade']">
+                                <strong> Job Grade <span t-esc="grade_info['salary_grade']" /></strong>
+                            </t>
+                            <t t-if="grade_info['salary_grade'] and grade_info['scale_level']">
+                                and
+                            </t>
+                            <t t-if="grade_info['scale_level']">
+                                <strong> Scale Level <span t-esc="grade_info['scale_level']" /></strong>
+                            </t>
+                            with a
+                        </t>
+                        monthly basic salary of Birr <strong><span t-esc="'{0:,.2f}'.format(contract.wage)" /></strong>
+                        (<span t-esc="object.company_id.currency_id.amount_to_text(contract.wage)" />).
+                    </p>
+                    <t t-if="active_allowances">
+                        <p>On top of that, you are entitled to receive:</p>
+                        <ul style="padding-left: 20px;">
+                            <t t-foreach="active_allowances" t-as="allowance">
+                                <t t-set="allowance_amount" t-value="contract[allowance[0]]" />
+                                <li>
+                                    <strong><span t-esc="allowance[1]" /></strong> of Birr <span t-esc="'{0:,.2f}'.format(allowance_amount)" />
+                                    (<span t-esc="object.company_id.currency_id.amount_to_text(allowance_amount)" />)
+                                </li>
+                            </t>
+                        </ul>
+                    </t>
+                    <t t-if="contract.apply_cash_indemnity and contract.cash_indemnity_allowance and contract.cash_indemnity_start_date">
+                        <p>
+                            Cash Indemnity applies from <strong><span t-esc="contract.cash_indemnity_start_date.strftime('%B %d, %Y')" /></strong>
+                            at Birr <strong><span t-esc="'{0:,.2f}'.format(contract.cash_indemnity_allowance)" /></strong>.
+                        </p>
+                    </t>
+                    <p>
+                        The appointment is a permanent, full-time position subject to the satisfactory completion of a two-month probationary period.
+                        We have attached the employment contract and job description for your reference.
+                    </p>
+                    <p>Best regards,</p>
+                    <p><strong>The HR Team<br /><span t-esc="object.company_id.name" /></strong></p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+</odoo>

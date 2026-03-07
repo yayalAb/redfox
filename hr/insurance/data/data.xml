@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+      <data noupdate="1">
+            <record id="insurance_expire_records" model="ir.cron">
+            <field name="name">Insurance Expire Records</field>
+            <field name="model_id" ref="model_employee_insurance"/>
+            <field name="state">code</field>
+             <field name="type">ir.actions.server</field>
+            <field name="code">model.auto_expire_records()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+<!--                  <field name="day_of_week">1</field>-->
+            <!-- <field name="numbercall">-1</field> -->
+            <field name="active" eval="True"/>
+        </record>
+
+             <record id="employee_insurance_alert_notification4" model="ir.cron">
+                <field name="name">Send Insurance Expiration Notification4</field>
+                <field name="model_id" ref="model_employee_insurance"/>
+                <field name="state">code</field>
+                <field name="type">ir.actions.server</field>
+                <field name="code">model.send_alertt()</field>
+                <field name="interval_number">1</field>
+                <field name="interval_type">days</field>
+                <!-- <field name="numbercall">-1</field> -->
+                <field name="active" eval="True"/>
+            </record>
+
+            <record id="employee_insurance_coverage_alert_notification_id" model="ir.cron">
+                <field name="name">Send Insurance Coverage Expiration Notification</field>
+                <field name="model_id" ref="model_employee_insurance_coverage"/>
+                <field name="state">code</field>
+                <field name="type">ir.actions.server</field>
+                <field name="code">model.send_coverage_exp_alert()</field>
+                <field name="interval_number">1</field>
+                <field name="interval_type">days</field>
+                <!-- <field name="numbercall">-1</field> -->
+                <field name="active" eval="True"/>
+            </record>
+
+
+      </data>
+
+</odoo>

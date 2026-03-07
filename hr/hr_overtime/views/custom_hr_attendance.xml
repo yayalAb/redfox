@@ -1,0 +1,59 @@
+<odoo>
+    <record id="custom_hr_attendance_tree_inherit" model="ir.ui.view">
+        <field name="name">custom hr attendance</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='overtime_hours']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='check_out']" position="before">
+                <field name="status" invisible="overtime == 0"/>
+            </xpath>
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="expected_working_hour" string="Expected Work Hours" widget="float_time"/>
+            </xpath>
+            <xpath expr="//field[@name='worked_hours']" position="after">
+                <field name="overtime" string="Overtime" widget="float_time"/>
+                <field name="is_less_then_one"  column_invisible="1"/>
+                <field name="overtime_type_id" invisible = "is_less_then_one == True" readonly = "status != 'draft' or is_less_then_one == False"/>
+                <button name="approve_attendance_ot" string="Approve" type="object" class="oe_highlight" invisible = "status != 'draft' or is_less_then_one == False"/>
+                <button name="rejected_attendance_ot" string="Reject" type="object" class="oe_highlight"  invisible = "status != 'draft' or is_less_then_one == False"/>
+            </xpath>
+        </field>
+    </record>
+
+      <record id="view_hr_contract_form_inherit" model="ir.ui.view">
+        <field name="name">hr.contract.form.inherit</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+        <field name="arch" type="xml">
+        <xpath expr="//field[@name='structure_type_id']" position="after">
+            <field name="is_attendance_based"/>
+        </xpath>
+        </field>
+      </record>
+
+    <record id="hr_attendance_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr attendance</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+            <header>
+                 <field name="status" invisible="1"/>
+                 <field name="is_less_then_one" invisible="1"/>
+                <button name="approve_attendance_ot" type="object" string="Approve" class="oe_highlight" invisible = "status != 'draft' or is_less_then_one == False"/>
+                <button name="rejected_attendance_ot" type="object" string="Reject" class="oe_highlight" invisible = "status != 'draft' or is_less_then_one == False"/>
+            </header>
+        </xpath>
+        <xpath expr="//field[@name='overtime_hours']" position="after">
+            <field name="overtime_type_id" readonly = "status != 'draft'" invisible = "status != 'draft' or is_less_then_one == False" />
+            <field name="overtime" string="Overtime" widget="float_time"/>
+        </xpath>
+        </field>
+      </record>
+
+
+
+</odoo>

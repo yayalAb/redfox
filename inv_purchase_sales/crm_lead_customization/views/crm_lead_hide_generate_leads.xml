@@ -1,0 +1,38 @@
+<odoo>
+    <!-- 1. Hide in Leads List (This is your existing code) -->
+    <record id="crm_lead_hide_generate_leads_list" model="ir.ui.view">
+        <field name="name">crm.lead.hide.generate.leads.list</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_generate_leads']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- 2. Hide  in Pipeline (Kanban View) -->
+    <record id="crm_lead_hide_generate_leads_kanban" model="ir.ui.view">
+        <field name="name">crm.lead.hide.generate.leads.kanban</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_generate_leads']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 3. Hide in My Activities / Opportunities (Opportunity List View) -->
+    <record id="crm_lead_hide_generate_leads_oppor_list" model="ir.ui.view">
+        <field name="name">crm.lead.hide.generate.leads.oppor.list</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_generate_leads']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

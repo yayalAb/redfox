@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="view_partner_form_vetting" model="ir.ui.view">
+            <field name="name">res.partner.form.vetting</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Add header for status and buttons -->
+                <sheet position="before">
+                    <header>
+                        <button name="action_submit_for_vetting" string="Submit for Vetting" type="object" class="oe_highlight" invisible="vetting_state not in ['draft', 'rejected']"/>
+                        <button name="action_approve_vetting" string="Approve" type="object" class="oe_highlight" invisible="vetting_state != 'submitted'" groups="customer_vetting.group_customer_vetting_manager"/>
+                        <button name="action_reject_vetting" string="Reject" type="object" invisible="vetting_state != 'submitted'" groups="customer_vetting.group_customer_vetting_manager"/>
+                        <button name="action_reset_to_draft" string="Reset to Draft" type="object" invisible="vetting_state not in ['approved', 'rejected']" groups="customer_vetting.group_customer_vetting_manager"/>
+                        <field name="vetting_state" widget="statusbar" statusbar_visible="draft,submitted,approved"/>
+                    </header>
+                </sheet>
+                <xpath expr="//sheet/group" position="attributes">
+                    <attribute name="readonly">vetting_state in ['submitted', 'approved']</attribute>
+                </xpath>
+                <xpath expr="//sheet/notebook" position="attributes">
+                    <attribute name="readonly">vetting_state in ['submitted', 'approved']</attribute>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

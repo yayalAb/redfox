@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- CATEGORY -->
+        <record model="ir.module.category" id="module_category_corporate_planning">
+            <field name="name">Corporate Planning</field>
+            <field name="description">Manage strategy, operating plans, and execution tracking.</field>
+            <field name="sequence">10</field> 
+        </record>
+
+        <!-- 1. DEPARTMENT MANAGER (Operational Planning) -->
+        <record id="group_planning_user" model="res.groups">
+            <field name="name">Department Manager</field>
+            <field name="category_id" ref="module_category_corporate_planning"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Access to AOP, Budgets, OKRs, and Execution for their own department.</field>
+        </record>
+        <!-- business unit general manager that has an inherent access of Department manager-->
+        <record id="group_planning_bu_manager" model="res.groups">
+            <field name="name">Business Unit Manager</field>
+            <field name="category_id" ref="module_category_corporate_planning"/>
+            <field name="implied_ids" eval="[(4, ref('group_planning_user'))]"/>
+            <field name="comment">Access to AOP, Budgets, OKRs, and Execution for all departments in their business unit.</field>
+        </record>
+
+        <!-- 2. STRATEGIST (Strategic Level Only) -->
+        <record id="group_planning_strategist" model="res.groups">
+            <field name="name">Strategist</field>
+            <field name="category_id" ref="module_category_corporate_planning"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Access to Strategy Document and Risk Management only.</field>
+        </record>
+
+        <!-- 3. CORPORATE MANAGER (Full Access) -->
+        <record id="group_planning_manager" model="res.groups">
+            <field name="name">Corporate Manager (Admin)</field>
+            <field name="category_id" ref="module_category_corporate_planning"/>
+            <!-- Inherits BOTH Strategist and Dept Manager -->
+            <field name="implied_ids" eval="[(4, ref('group_planning_user')), (4, ref('group_planning_strategist'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Full access to everything.</field>
+        </record>
+
+    </data>
+</odoo>

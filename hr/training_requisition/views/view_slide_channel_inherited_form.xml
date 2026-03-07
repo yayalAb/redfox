@@ -1,0 +1,23 @@
+<odoo>
+    <record id='view_slide_channel_inherited_form' model='ir.ui.view'>
+        <field name='name'>view.slide.channel.inherited.form</field>
+        <field name='model'>slide.channel</field>
+        <field name='inherit_id' ref='website_slides.view_slide_channel_form' />
+        <field name="arch" type="xml">
+            <xpath expr='//notebook' position='inside'>
+                <page string="Resources">
+                    <field name="resource_line_ids">
+                        <list editable="bottom">
+                            <field name="name" />
+                            <field name="description" />
+                            <field name="quantity" />
+                            <field name="unit_price" />
+                            <field name="cost" readonly="1" />
+                            <field name="currency_id" invisible="1" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

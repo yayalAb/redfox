@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="employee_insurance_copy_view_form" model="ir.ui.view">
+        <field name="name">Copy</field>
+        <field name="model">insurance.copy.employee</field>
+        <field name="arch" type="xml">
+            <form string="Update Applicant Company">
+                <group>
+                    <field name="insurance_id"/>
+                    <field name="employee_ids" widget="many2many_tags"/>
+                </group>
+                <footer>
+                     <button name="on_save_employee_insurance_copy" type="object" string="Apply" class="btn-primary"/>
+                     <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+      <record id="employee_insurance_copy_action" model="ir.actions.act_window">
+        <field name="name">Employee insurance Copy</field>
+        <field name="res_model">insurance.copy.employee</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">form</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new employee insurance
+            </p>
+        </field>
+    </record>
+</odoo>

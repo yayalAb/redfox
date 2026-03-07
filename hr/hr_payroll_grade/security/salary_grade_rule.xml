@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Filters data for salary grades that are only for this company -->
+        <record id="salary_grade_multi_company_rule" model="ir.rule">
+            <!-- <field name="name">Salary Grade Multi-Company</field>
+            <field name="model_id" ref="model_salary_grade"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field> -->
+        </record>
+
+        <!-- Rule for Salary Grade Values -->
+        <record id="salary_grade_value_multi_company_rule" model="ir.rule">
+            <!-- <field name="name">Salary Grade Value Multi-Company</field>
+            <field name="model_id" ref="model_salary_grade_value"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field> -->
+        </record>
+
+        <!-- Rule for Scale Levels -->
+        <!-- This one is tricky because scale.level has no direct company_id. -->
+        <!-- We filter based on the company of the parent grade value. -->
+        <record id="scale_level_multi_company_rule" model="ir.rule">
+            <!-- <field name="name">Scale Level Multi-Company</field>
+            <field name="model_id" ref="model_scale_level"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('salary_grade_value_id.company_id', '=', False), ('salary_grade_value_id.company_id', 'in', company_ids)]
+            </field> -->
+        </record>
+
+    </data>
+</odoo>

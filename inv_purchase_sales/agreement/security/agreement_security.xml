@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_agreement" model="ir.module.category">
+            <field name="name">Agreements</field>
+            <field name="description">Access rights related to agreement management</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="group_agreement_submit" model="res.groups">
+            <field name="name">Agreement Submit</field>
+            <field name="category_id" ref="agreement.module_category_agreement"/>
+        </record>
+        
+        <record id="group_agreement_review" model="res.groups">
+            <field name="name">Agreement Review</field>
+            <field name="category_id" ref="agreement.module_category_agreement"/>
+        </record>
+
+        <record id="group_agreement_approve" model="res.groups">
+            <field name="name">Agreement Approve</field>
+            <field name="category_id" ref="agreement.module_category_agreement"/>
+        </record>
+
+        <record id="group_agreement_refuse" model="res.groups">
+            <field name="name">Agreement Refuse</field>
+            <field name="category_id" ref="agreement.module_category_agreement"/>
+        </record>
+
+        <record id="group_agreement_reset_to_draft" model="res.groups">
+            <field name="name">Agreement Reset to Draft</field>
+            <field name="category_id" ref="agreement.module_category_agreement"/>
+        </record>
+
+        <record id="group_agreement_done" model="res.groups">
+            <field name="name">Agreement Done</field>
+            <field name="category_id" ref="agreement.module_category_agreement"/>
+        </record>
+    </data>
+</odoo>

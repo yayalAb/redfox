@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_performance_evaluation_list_view" model="ir.ui.view">
+        <field name="name">hr.performance.evaluation.list</field>
+        <field name="model">hr.performance.evaluation</field>
+        <field name="arch" type="xml">
+            <list string="Evaluation Results">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="config_id"/>
+                <field name="evaluation_date"/>
+                <field name="total_score"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_performance_evaluation_form_view" model="ir.ui.view">
+        <field name="name">hr.performance.evaluation.form</field>
+        <field name="model">hr.performance.evaluation</field>
+        <field name="arch" type="xml">
+            <form string="Employee Evaluation">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="employee_id"/>
+                        <field name="config_id"/>
+                            <field name="evaluator_id"/>
+                            <field name="evaluator_category"/>
+                        <field name="evaluation_date"/>
+                        <field name="total_score" readonly="1"/>
+                        <field name="state"/>
+                    </group>
+                    <notebook>
+                        <page string="Question Responses">
+                            <field name="line_ids" context="{'default_evaluation_id': id}">
+                                <list editable="bottom" default_order="section_sequence,question_sequence"
+                                      decoration-info="display_section_header"
+                                      decoration-bf="display_section_header"
+                                      decoration-muted="display_section_header">
+                                    <field name="section_name" column_invisible="1"/>
+                                    <field name="section_sequence" column_invisible="1"/>
+                                    <field name="question_sequence" column_invisible="1"/>
+                                    <field name="display_section_header" column_invisible="1"/>
+                                    <field name="question_id" column_invisible="1"
+                                           domain="[('config_id','=', parent.config_id), ('display_type', '=', 'question')]"/>
+                                    <field name="criteria_display" 
+                                           string="Criteria"
+                                           widget="section_and_note_text"
+                                           readonly="display_section_header"/>
+                                    <field name="section_average_rating" column_invisible="1"/>
+                                    <field name="rating" column_invisible="1"/>
+                                    <field name="rating_display" 
+                                           string="Rating"
+                                           readonly="display_section_header"/>
+                                    <field name="comment" 
+                                           readonly="display_section_header"
+                                           invisible="display_section_header"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_performance_evaluation" model="ir.actions.act_window">
+        <field name="name">Employee Evaluation Results</field>
+        <field name="res_model">hr.performance.evaluation</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="hr_performance_evaluation_list_view"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('hr_performance_evaluation_list_view')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('hr_performance_evaluation_form_view')})]"/>
+        <field name="context">{'form_view_initial_mode': 'readonly'}</field>
+    </record>
+
+    <menuitem
+        id="hr_performance_evaluation_menu"
+        name="Evaluations"
+        parent="hr_performance_360_menu"
+        action="action_hr_performance_evaluation"
+        sequence="20"
+    />
+</odoo>

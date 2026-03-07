@@ -1,0 +1,65 @@
+<!-- employee_kpi_appraisal/views/appraisal_kpi_views.xml -->
+<odoo>
+    <!-- list View for Appraisal KPI -->
+    <record id="view_appraisal_kpi_list" model="ir.ui.view">
+        <field name="name">appraisal.kpi.list</field>
+        <field name="model">appraisal.kpi</field>
+        <field name="arch" type="xml">
+            <list string="KPIs">
+                <field name="name"/>
+                <field name="kpi_type"/>
+                <field name="department_id"/>
+                <field name="employee_id"/>
+                <field name="weight" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Appraisal KPI -->
+    <record id="view_appraisal_kpi_form" model="ir.ui.view">
+        <field name="name">appraisal.kpi.form</field>
+        <field name="model">appraisal.kpi</field>
+        <field name="arch" type="xml">
+            <form string="KPI">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="e.g., Customer Satisfaction Score"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_department_id" invisible="1" />
+                            <field name="department_id" options="{'no_create': True}" domain="[('id', 'child_of', user_department_id)]"/>
+                            <field name="employee_id" options="{'no_create': True}" domain="[('department_id', '=', department_id)]"/>
+                            <field name="kpi_type" readonly="1"/>
+                            <field name="Kpi_category"/>
+                            <field name="weight" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Objective">
+                            <field name="objective" placeholder="Describe the goal or objective of this KPI..."/>
+                        </page>
+                        <page string="Expected Output">
+                            <field name="output" placeholder="Describe the measurable output expected for this KPI..."/>
+                        </page>
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action Window for Appraisal KPI -->
+    <record id="action_appraisal_kpi" model="ir.actions.act_window">
+        <field name="name">KPIs</field>
+        <field name="res_model">appraisal.kpi</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Key Performance Indicator.
+            </p>
+        </field>
+    </record>
+
+</odoo>

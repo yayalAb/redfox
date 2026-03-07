@@ -1,0 +1,143 @@
+html .o_web_client > .o_action_manager {
+    overflow: auto !important;
+}
+
+/* Manager Dashboard Styles - Matching HR Dashboard */
+.manager-dashboard-container {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding: 15px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.dashboard-header {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.dashboard-header h1 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    font-size: 24px;
+}
+
+.dashboard-header p {
+    color: #6c757d;
+    font-size: 13px;
+    margin: 5px 0 0 0;
+}
+
+.dashboard-cards-row {
+    margin-bottom: 20px;
+}
+
+.status-section {
+    margin-top: 20px;
+}
+
+.status-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 18px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s;
+    border: 1px solid #e9ecef;
+}
+
+.status-card:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.status-card h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.status-table {
+    width: 100%;
+    margin: 0;
+    font-size: 13px;
+}
+
+.status-table tr {
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.status-table tr:last-child {
+    border-bottom: none;
+}
+
+.status-table td {
+    padding: 8px 6px;
+}
+
+.status-table td:first-child {
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.status-table td:last-child {
+    color: #2c3e50;
+    font-weight: 600;
+    text-align: right;
+}
+
+.date-filter-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.date-filter-section input {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 13px;
+    transition: border-color 0.2s;
+    background: white;
+}
+
+.date-filter-section input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+.refresh-btn {
+    background: #4a90e2;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 6px 16px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+    background: #357abd;
+}
+
+.refresh-btn:active {
+    background: #2a5f8f;
+}
+
+/* Card color themes matching HR Dashboard style */
+.store-request-card { border-left-color: #FFF4DE; }
+.purchase-request-card { border-left-color: #DDEDEA; }
+.payment-request-card { border-left-color: #DAEAF6; }
+.leave-request-card { border-left-color: #FFE2E5; }
+.fleet-request-card { border-left-color: #F3E9FF; }
+.job-requisition-card { border-left-color: #DCFCE7; }
+

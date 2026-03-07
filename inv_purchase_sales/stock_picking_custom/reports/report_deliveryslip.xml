@@ -1,0 +1,9 @@
+<odoo>
+    <template id='internal_transfer_picking_template' inherit_id='stock.report_deliveryslip'>
+        <xpath expr="//t[@t-foreach='docs']" position="replace">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_custom.report_picking_body_inherit" t-lang="o._get_report_lang()" />
+            </t>
+        </xpath>
+    </template>
+</odoo>

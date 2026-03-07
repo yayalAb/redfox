@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_product_warranty" model="ir.actions.report">
+        <field name="name">Warranty Certificate Form</field>
+        <field name="model">product.warranty</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_sale_agreement.report_warranty_document</field>
+        <field name="report_file">custom_sale_agreement.report_warranty_document</field>
+        <field name="print_report_name">'Warranty_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_product_warranty"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_warranty_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <!-- These pass data to your custom company header layout -->
+                    <t t-set="doc_title" t-value="'WARRANTY CERTIFICATE FORM'" />
+                    <t t-set="doc_number" t-value="o.name" />
+                    <t t-set="issue_number" t-value="'1'" />
+
+                    <div class="page" style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12pt;">
+                        
+                        <!-- BODY CONTENT -->
+ 
+                        <div style="margin-top: 30px; padding-left: 10px;">
+                            
+                            <!-- Specific Fields -->
+                            <p style="font-weight: bold; color: #2F5496; margin-bottom: 10px;">
+                                TO: <span t-field="o.partner_id.name" style="color: black;"/>
+                            </p>
+                            <p style="font-weight: bold; color: #2F5496; margin-bottom: 10px;">
+                                NAME: <span t-field="o.product_id.name" style="color: black;"/>
+                            </p>
+                            <p style="font-weight: bold; color: #2F5496; margin-bottom: 10px;">
+                                RATING: <span t-field="o.product_rating" style="color: black;"/>
+                            </p>
+                            <p style="font-weight: bold; color: #2F5496; margin-bottom: 10px;">
+                                SERIAL NO: <span t-field="o.serial_number" style="color: black;"/>
+                            </p>
+
+                            <br/>
+
+                            <!-- Legal Body Text -->
+                            <div style="text-align: justify; line-height: 1.6;">
+                                <span t-field="o.certificate_body"/>
+                            </div>
+
+                            <br/>
+
+                            <!-- Date -->
+                            <p style="margin-top: 20px;">
+                                DATED THIS <span t-field="o.approval_date"/>
+                            </p>
+
+                        </div>
+
+                        <!-- FOOTER SIGNATURE -->
+                        <div style="margin-top: 60px; padding-left: 10px;">
+                            <p>
+                                <!-- Approver Name -->
+                                <span t-field="o.approver_id.name"/><br/>
+                                
+                                <!-- Job Title -->
+                                <span t-if="o.approver_id.function" t-field="o.approver_id.function"/><br/>
+                                
+                                <!-- Company Name -->
+                                <span t-field="o.company_id.name"/>
+                            </p>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

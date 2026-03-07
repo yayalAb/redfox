@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_store_request_tree" model="ir.ui.view">
+        <field name="name">store.request.tree</field>
+        <field name="model">store.request</field>
+        <field name="arch" type="xml">
+            <list string="Store Requests">
+                <!-- <header>
+                    <button name="Print MRN" string="Print MRN" type="object" class="oe_highlight"/>
+                </header> -->
+                <field name="name" string="Reference" />
+                <field name="requested_by" />
+                <field name="department_id" />
+                <field name="factory_id" />
+                <field name="requested_date" />
+                <field name="warehouse_id" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_store_request_form" model="ir.ui.view">
+        <field name="name">store.request.form</field>
+        <field name="model">store.request</field>
+        <field name="arch" type="xml">
+            <form string="Store Request">
+                <header>
+                    <field name="is_department_head" invisible="1" />
+                    <field name="is_storeman" invisible="1" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,submitted,approved,issue" />
+
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+
+                    <button name="action_verify" string="Verify" type="object"
+                        invisible="state != 'submitted' or is_department_head != True"
+                        groups="store_request.group_store_request_verify" />
+                    <button name="action_approve" string="Approve" type="object"
+                        class="oe_highlight" groups="store_request.group_store_request_approve"
+                        invisible="state != 'verify' or  is_department_head != True" />
+                    <button name="action_reset_to_draft" string="Return to Draft" type="object"
+                        invisible="state not in ['submitted', 'verify', 'approved']" />
+                    <button name="action_reject" string="Reject" type="object"
+                        invisible="state not in ['submitted', 'verify', 'approved']" />
+
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" class="oe_inline" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="requested_by" readonly="1" />
+                            <field name="department_id" readonly="1" />
+                            <field name="company_id" readonly="1" />
+                            <field name="project_id" />
+                        </group>
+                        <group>
+                            <field name="requested_date" />
+                            <field name="warehouse_id" invisible="state in ['draft', 'submitted']" />
+                            <!-- <field name="storeman_id" invisible="not warehouse_id"/> -->
+                            <field name="approved_by" readonly="1"
+                                invisible="state in ['draft', 'submitted']" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Request Lines">
+                            <field name="request_line_ids" context="{'default_request_id': id}"
+                                readonly="state not in ['draft', 'submitted']">
+                                <list editable="bottom">
+                                    <field name="product_id" />
+                                    <field name="description" />
+                                    <field name="serial_number" optional="hide" />
+                                    <field name="stock_number" optional="hide" />
+                                    <field name="product_uom_qty" />
+                                    <field name="qty_issued" />
+                                    <field name="product_uom" />
+                                    <field name="stock_available_qty" readonly="1" optional="show" />
+                                    <!-- <field name="line_state"/> -->
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="product_id" />
+                                            <field name="description" />
+                                            <field name="serial_number" />
+                                            <field name="stock_number" />
+                                        </group>
+                                        <group>
+                                            <field name="product_uom_qty" />
+                                            <field name="product_uom" />
+                                            <field name="stock_available_qty" readonly="1" />
+                                            <field name="line_state" />
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Request Purpose">
+                            <field name="purpose" />
+                        </page>
+                        <page string="Rejection Reason"
+                            invisible="state != 'rejected'">
+                            <field name="rejection_reason" />
+                        </page>
+                        <page string="Return Reason"
+                            invisible="state != 'draft' or no_of_returns == 0">
+                            <field name="return_reason" />
+                        </page>
+                        <page string="Notes">
+                            <field name="note" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Action and Menu Items -->
+    <record id="action_store_request" model="ir.actions.act_window">
+        <field name="name">Store Requests</field>
+        <field name="res_model">store.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_store_request" name="Store Requests" parent="stock.menu_stock_root"
+        action="action_store_request" sequence="10" />
+</odoo>

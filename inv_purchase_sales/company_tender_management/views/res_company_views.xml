@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_inherit_documents" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.documents</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Legal &amp; Profile Documents" name="legal_profile_docs">
+                    <group>
+                        <group string="Legal Documents" name="group_legal_docs">
+                            <field name="business_license" widget="binary" filename="business_license_filename"/>
+                            <field name="commercial_registration" widget="binary" filename="commercial_registration_filename"/>
+                            <field name="tin_document" widget="binary" filename="tin_document_filename"/>
+                            <field name="vat_document" widget="binary" filename="vat_document_filename"/>
+                            <field name="tax_clearance" widget="binary" filename="tax_clearance_filename"/>
+                            <field name="egp_registration" widget="binary" filename="egp_registration_filename"/>
+                            <field name="vendor_assessment" widget="binary" filename="vendor_assessment_filename"/>
+                        </group>
+                        
+                        <group string="Company Profile" name="group_profile_docs">
+                            <field name="experience_letters" widget="binary" help="Upload experience letters and testimonials here" filename="experience_letters_filename"/>
+                            <field name="audit_report" widget="binary" filename="audit_report_filename"/>
+                            <field name="financial_standing" widget="binary" filename="financial_standing_filename"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View for the Tender Lost Wizard -->
+        <record id="view_tender_lost_wizard_form" model="ir.ui.view">
+            <field name="name">tender.lost.wizard.form</field>
+            <field name="model">tender.lost.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reason for Loss">
+                    <group>
+                        <!-- This field is invisible but holds the tender ID -->
+                        <field name="tender_id" invisible="1"/>
+                        <!-- These are the fields the user sees -->
+                        <field name="lost_reason_id"/>
+                        <field name="lost_reason_notes" placeholder="Explain in more detail why the tender was lost..."/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm_lost" string="Confirm" type="object" class="btn-primary" data-hotkey="q"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

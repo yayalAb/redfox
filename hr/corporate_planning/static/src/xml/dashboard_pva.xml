@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="odoo_corporate_planning.PlanVsActualCharts" owl="1">
+        <div class="mt-5">
+            <h4 class="mb-3 text-gray-800 border-bottom pb-2">Plan vs Actual Analysis (Filtered)</h4>
+            
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-2 font-weight-bold">Activity Execution</div>
+                        <div class="card-body"><div style="height: 300px;"><canvas t-ref="chart_pva_activity"/></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-2 font-weight-bold">Financial</div>
+                        <div class="card-body"><div style="height: 300px;"><canvas t-ref="chart_pva_financial"/></div></div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-2 font-weight-bold">Capex</div>
+                        <div class="card-body"><div style="height: 300px;"><canvas t-ref="chart_pva_capex"/></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

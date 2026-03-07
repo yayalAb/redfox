@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Training Invitation Letter Email Body Template -->
+    <template id="email_template_training_invitation_body" name="Training Invitation Letter Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref No :- <t t-esc="get_ref_no(training) if get_ref_no else (ref_no if ref_no else ('WG/' + str(training.id).zfill(4) + '/2018' if training.id else 'WG/0000/2018'))"/></strong></p>
+                    <p><strong>Date :- <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- To Section -->
+                <div style="margin-bottom: 15px;">
+                    <p><strong>To: <t t-if="participant and get_participant_field(participant, 'gender', '') == 'male'">Mr. </t><t t-if="participant and get_participant_field(participant, 'gender', '') == 'female'">Mrs. </t><span t-if="participant" t-esc="participant.name if participant.name else 'Participant'"/><t t-else="">Participant</t></strong></p>
+                    <p t-if="participant and get_participant_field(participant, 'private_city')">
+                        <u><b><span t-esc="participant.private_city"/></b></u>
+                    </p>
+                    <p t-elif="participant and get_participant_field(participant, 'address_id') and participant.address_id and participant.address_id.city">
+                        <u><b><span t-esc="participant.address_id.city"/></b></u>
+                    </p>
+                    <p t-else=""><u><b>Addis Ababa</b></u></p>
+                </div>
+                
+                <!-- Subject -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <p style="white-space: nowrap; display: inline-block;"><strong>Subject: <u>Invitation for Attending a Training Program</u></strong></p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>Dear <span t-esc="get_first_word(participant.name, 'Participant') if participant and participant.name else 'Participant'"/>,</p>
+                    
+                    <p>Based on the training need submitted by your department, a training program entitled <strong>
+                        <span t-if="get_training_field(training, 'program_name', 'name', 'training_program_name', 'title')">
+                            <span t-esc="get_training_field(training, 'program_name', 'name', 'training_program_name', 'title') or ''"/>
+                        </span>
+                        <t t-else="">________________</t>
+                    </strong> has been scheduled to be conducted from <strong>
+                        <t t-if="training.start_date">
+                            <span t-esc="training.start_date.strftime('%B %d, %Y')"/>
+                        </t>
+                        <t t-else="">________________</t>
+                    </strong> to <strong>
+                        <t t-if="training.end_date">
+                            <span t-esc="training.end_date.strftime('%B %d, %Y')"/>
+                        </t>
+                        <t t-else="">________________</t>
+                    </strong> at <strong>
+                        <span t-if="training.training_place">
+                            <span t-esc="training.training_place or '________________'"/>
+                        </span>
+                        <t t-else="">________________</t>
+                    </strong>.</p>
+                    
+                    <div t-if="training.remark">
+                        <p><t t-raw="training.remark"/></p>
+                    </div>
+                    <!-- <p t-else="">The objective of this program is to enhance participants' knowledge and skills relevant to the subject matter. Accordingly, participants are expected to demonstrate measurable improvement in their work performance following the completion of the training. Your participation is therefore considered essential, and you are requested to attend the session punctually and engage fully throughout the program.</p> -->
+                    
+                    <p>Should you require any further information or clarification, please do not hesitate to contact us.</p>
+                    
+                    <p>We look forward to your valued participation.</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <p class="d-flex justify-content-end">Sincerely,</p>
+                    </div>
+                </div>
+                  <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC:</strong></p>
+                    <ul class="gap-1">
+                        <li><t t-if="participant and get_participant_field(participant, 'parent_id')">
+                            <span t-esc="participant.parent_id.job_id.name if participant.parent_id.job_id.name else 'Manager'"/> 
+                        </t>
+                        <t t-else="">(Immediate manager)</t></li>
+                        <!-- <li>Wagwago</li> -->
+                    </ul>
+                    
+                    <div><u><b><span t-esc="get_first_word((get_training_field(training, 'company_id') and training.company_id.name) or (participant and get_participant_field(participant, 'company_id') and participant.company_id.name) or 'Wagwago', 'Wagwago')"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="get_training_field(training, 'company_id') and training.company_id and get_participant_field(training.company_id, 'company_stamp')">
+                            <img t-att-src="image_data_uri(training.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                        <t t-elif="participant and get_participant_field(participant, 'company_id') and participant.company_id and get_participant_field(participant.company_id, 'company_stamp')">
+                            <img t-att-src="image_data_uri(participant.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="get_training_field(training, 'approved_by') and training.approved_by and get_participant_field(training.approved_by_id, 'sign_signature')">
+                            <img t-att-src="image_data_uri(training.approved_by.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+    </template>
+</odoo>

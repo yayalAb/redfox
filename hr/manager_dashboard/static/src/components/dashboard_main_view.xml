@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="manager_dashboard.MainDashboard" owl="1">
+        <div class="container-fluid overflow-scroll bg-light pb-2">
+            <div class="row m-0 ms-md-1 ms-0">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col p-0">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                <div class="col p-0">
+                                    <div class="shadow-sm m-1 p-2 bg-white">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                            <h1 class="fs-3 text-black" style="font-weight: 600; color: #2c3e50;">Manager Dashboard</h1>
+                                            <div class="w-100 w-md-auto">
+                                                <div class="d-flex flex-column flex-md-row gap-2">
+                                                    <input type="date" class="form-control" t-att-value="state.start_date" t-on-change="onStartDateChange" placeholder="Start Date" style="font-size: 13px;"/>
+                                                    <input type="date" class="form-control" t-att-value="state.end_date" t-on-change="onEndDateChange" placeholder="End Date" style="font-size: 13px;"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--Cards Section -->
+                    <div class="row">
+                        <DashboardCard name="'Store Requests'" text1="''" text2="''" value="state.store_request.value" current_month_count="state.store_request.current_month_count" iconClass="'fa-shopping-cart'" bgColor="'#FFF4DE'" onClick="onStoreRequestClick" uom="''"/>
+                        <DashboardCard name="'Purchase Requests'" text1="''" text2="''" value="state.purchase_request.value" current_month_count="state.purchase_request.current_month_count" iconClass="'fa-file-text'" bgColor="'#DDEDEA'" onClick="onPurchaseRequestClick" uom="''"/>
+                        <DashboardCard name="'Payment Requests'" text1="''" text2="''" value="state.payment_request.value" current_month_count="state.payment_request.current_month_count" iconClass="'fa-sign-out'" bgColor="'#DAEAF6'" onClick="onPaymentRequestClick" uom="''"/>
+                        <DashboardCard name="'Leave Requests'" text1="''" text2="''" value="state.leave_request.value" current_month_count="state.leave_request.current_month_count" iconClass="'fa-sign-out'" bgColor="'#FFE2E5'" onClick="onLeaveRequestClick" uom="''"/>
+                        <DashboardCard name="'Fleet Requests'" text1="''" text2="''" value="state.fleet_request.value" current_month_count="state.fleet_request.current_month_count" iconClass="'fa-car'" bgColor="'#F3E9FF'" onClick="onFleetRequestClick" uom="''"/>
+                        <DashboardCard name="'Job Requisitions'" text1="''" text2="''" value="state.job_requisition.value" current_month_count="state.job_requisition.current_month_count" iconClass="'fa-briefcase'" bgColor="'#DCFCE7'" onClick="onJobRequisitionClick" uom="''"/>
+                    </div>
+                    
+                    <!-- Status Breakdown Section -->
+                    <div class="row">
+                        <!-- Store Requests Status -->
+                        <div class="col-md-6 col-lg-4 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <h3 class="text-primary fw-bold" style="font-size: 16px; color: #2c3e50; font-weight: 600;">Store Requests Status</h3>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <table class="table table-sm mb-0" style="font-size: 12px;">
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Draft:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.store_request_status.draft"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Submitted:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.store_request_status.submitted"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Approved:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.store_request_status.approved"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Issued:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.store_request_status.issue"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Rejected:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.store_request_status.rejected"/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="min-height: 180px; max-height: 180px;">
+                                            <ChartRenderer
+                                                type="'pie'"
+                                                title="''"
+                                                y_title="''"
+                                                x_title="''"
+                                                chartId="'store-request-chart'"
+                                                data="state.store_request_chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Requests Status -->
+                        <div class="col-md-6 col-lg-4 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <h3 class="text-primary fw-bold" style="font-size: 16px; color: #2c3e50; font-weight: 600;">Purchase Requests Status</h3>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <table class="table table-sm mb-0" style="font-size: 12px;">
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Draft:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.purchase_request_status.draft"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Submitted:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.purchase_request_status.submitted"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Approved:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.purchase_request_status.approved"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Evaluation:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.purchase_request_status.evaluation"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Ordered:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.purchase_request_status.ordered"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Rejected:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.purchase_request_status.rejected"/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="min-height: 180px; max-height: 180px;">
+                                            <ChartRenderer
+                                                type="'pie'"
+                                                title="''"
+                                                y_title="''"
+                                                x_title="''"
+                                                chartId="'purchase-request-chart'"
+                                                data="state.purchase_request_chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Requests Status -->
+                        <div class="col-md-6 col-lg-4 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <h3 class="text-primary fw-bold" style="font-size: 16px; color: #2c3e50; font-weight: 600;">Payment Requests Status</h3>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <table class="table table-sm mb-0" style="font-size: 12px;">
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Draft:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.draft"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Submitted:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.submit"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">To Verify:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.verify"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Authorized:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.authorize"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Approved:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.approve"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Posted:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.post"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Cancelled:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.payment_request_status.cancel"/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="min-height: 180px; max-height: 180px;">
+                                            <ChartRenderer
+                                                type="'pie'"
+                                                title="''"
+                                                y_title="''"
+                                                x_title="''"
+                                                chartId="'payment-request-chart'"
+                                                data="state.payment_request_chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leave Requests Status -->
+                        <div class="col-md-6 col-lg-4 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <h3 class="text-primary fw-bold" style="font-size: 16px; color: #2c3e50; font-weight: 600;">Leave Requests Status</h3>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <table class="table table-sm mb-0" style="font-size: 12px;">
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Draft:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.leave_request_status.draft"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Confirmed:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.leave_request_status.confirm"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Validated:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.leave_request_status.validate"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Refused:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.leave_request_status.refuse"/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="min-height: 180px; max-height: 180px;">
+                                            <ChartRenderer
+                                                type="'pie'"
+                                                title="''"
+                                                y_title="''"
+                                                x_title="''"
+                                                chartId="'leave-request-chart'"
+                                                data="state.leave_request_chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fleet Requests Status -->
+                        <div class="col-md-6 col-lg-4 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <h3 class="text-primary fw-bold" style="font-size: 16px; color: #2c3e50; font-weight: 600;">Fleet Requests Status</h3>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <table class="table table-sm mb-0" style="font-size: 12px;">
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Draft:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.fleet_request_status.draft"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Submitted:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.fleet_request_status.in_review"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Approved:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.fleet_request_status.approved"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Authorized:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.fleet_request_status.authorize"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Cancelled:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.fleet_request_status.cancel"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Rejected:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.fleet_request_status.rejected"/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="min-height: 180px; max-height: 180px;">
+                                            <ChartRenderer
+                                                type="'pie'"
+                                                title="''"
+                                                y_title="''"
+                                                x_title="''"
+                                                chartId="'fleet-request-chart'"
+                                                data="state.fleet_request_chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Job Requisitions Status -->
+                        <div class="col-md-6 col-lg-4 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white job-requisition-card">
+                                <h3 class="text-primary fw-bold" style="font-size: 16px; color: #2c3e50; font-weight: 600;">Job Requisitions Status</h3>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <table class="table table-sm mb-0" style="font-size: 12px;">
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Draft:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.draft"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Submitted:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.submitted"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Reviewed:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.reviewed"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Approved:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.approved"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Authorized:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.authorized"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Published:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.published"/></td></tr>
+                                            <tr><td style="color: #6c757d; padding: 6px 4px;">Rejected:</td><td class="text-end" style="padding: 6px 4px;"><strong style="color: #2c3e50;" t-esc="state.job_requisition_status.rejected"/></td></tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="min-height: 180px; max-height: 180px;">
+                                            <ChartRenderer
+                                                type="'pie'"
+                                                title="''"
+                                                y_title="''"
+                                                x_title="''"
+                                                chartId="'job-requisition-chart'"
+                                                data="state.job_requisition_chart"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
+

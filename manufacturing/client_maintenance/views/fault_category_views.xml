@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_fault_category_list" model="ir.ui.view">
+        <field name="name">fault.category.list.view</field>
+        <field name="model">fault.category</field>
+        <field name="arch" type="xml">
+            <list editable="top">
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fault_category" model="ir.actions.act_window">
+        <field name="name">Fault Categories</field>
+        <field name="res_model">fault.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_fault_category"
+        name="Fault Categories"
+        parent="mrp.menu_mrp_configuration"
+        action="action_fault_category"
+        sequence="16" />
+</odoo>

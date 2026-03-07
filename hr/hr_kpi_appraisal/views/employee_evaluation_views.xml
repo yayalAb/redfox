@@ -1,0 +1,89 @@
+<odoo>
+
+    <record id="view_employee_evaluation_list" model="ir.ui.view">
+        <field name="name">employee.evaluation.list</field>
+        <field name="model">employee.evaluation</field>
+        <field name="arch" type="xml">
+            <list string="Evaluations">
+                <field name="name" />
+                <field name="employee_id" />
+                <field name="manager_id" />
+                <field name="date_appraisal" />
+                <field name="final_score" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Employee Evaluation -->
+    <record id="view_employee_evaluation_form" model="ir.ui.view">
+        <field name="name">employee.evaluation.form</field>
+        <field name="model">employee.evaluation</field>
+        <field name="arch" type="xml">
+            <form string="Employee Evaluation">
+                <header>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,in_progress,done" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <!-- Selecting an employee will trigger the onchange -->
+                            <field name="employee_id" />
+                            <field name="department_id" />
+                            <field name="job_id" />
+                            <field name="appraisal_start_date" readonly="1" />
+                            <field name="appraisal_end_date" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="manager_id" />
+                            <field name="date_appraisal" />
+                            <field name="period_type" />
+                            <field name="period_id" invisible="not period_type"
+                                domain="[('period_type', '=', period_type)]"
+                                options="{'no_create': True, 'no_open': True}" />
+                        </group>
+                    </group>
+
+                    <separator string="KPI Results" />
+                    <group>
+                        <field name="total_kpi_weight" />
+                        <field name="final_score" widget="progressbar" />
+                    </group>
+
+                    <separator string="Key Performance Indicators" />
+                    <field name="line_ids" nolabel="1">
+                        <list editable="bottom">
+                            <field name="kpi_id" options="{'no_create': True, 'no_open': True}" />
+                            <field name="kpi_type" readonly="1" widget="badge"
+                                decoration-success="kpi_type == 'employee'"
+                                decoration-info="kpi_type == 'department'"
+                                decoration-muted="kpi_type == 'general'" />
+                            <field name="weight" />
+                            <!-- <field name="normalized_weight" /> -->
+                            <field name="evaluation_result" />
+                            <field name="weighted_score" readonly="1" sum="Final Score" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action Window for Employee Evaluation -->
+    <record id="action_employee_evaluation" model="ir.actions.act_window">
+        <field name="name">Evaluations</field>
+        <field name="res_model">employee.evaluation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new employee evaluation.
+            </p>
+        </field>
+    </record>
+
+</odoo>

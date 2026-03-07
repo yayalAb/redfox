@@ -1,0 +1,33 @@
+<odoo>
+    <!-- Top Level Menu -->
+    <!-- <menuitem
+        id="menu_lunch_root"
+        name="Lunch"
+        sequence="30"/> -->
+
+    <!-- Main Action Menu -->
+     <menuitem id="menu_lunch_log_action"
+                    name="Lunch"
+                    sequence="11"
+                    action="lunch_log_action"/>
+    <!-- <menuitem
+        id="menu_lunch_log_action"
+        name="Meal Logs"
+        parent="menu_lunch_root"
+        action="lunch_log_action"
+        sequence="10"/> -->
+
+    <!-- Configuration Menu -->
+    <!-- <menuitem
+        id="menu_lunch_configuration"
+        name="Configuration"
+        parent="menu_lunch_root"
+        sequence="100"/>
+
+    <menuitem
+        id="menu_lunch_settings"
+        name="Settings"
+        parent="menu_lunch_configuration"
+        action="base.res_config_setting_act_window"
+        sequence="0"/> -->
+</odoo>

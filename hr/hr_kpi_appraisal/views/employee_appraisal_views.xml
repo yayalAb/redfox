@@ -1,0 +1,68 @@
+<odoo>
+    <record id="employee_appraisal_list_view" model="ir.ui.view">
+        <field name="name">employee.appraisal.list.view</field>
+        <field name="model">employee.appraisal</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="employee_id" />
+                <field name="department_id" />
+                <field name="manager_id" />
+                <field name="evaluation_result" />
+                <field name="appraisal_result" />
+                <field name="final_rating" />
+            </list>
+        </field>
+    </record>
+
+    <record id="employee_appraisal_form_view" model="ir.ui.view">
+        <field name="name">employee.appraisal.form</field>
+        <field name="model">employee.appraisal</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <!-- This group is fine -->
+                        <group>
+                            <field name="employee_id" />
+                            <field name="department_id" readonly="1" force_save="1" />
+                            <field name="job_id" readonly="1" force_save="1" />
+                            <field name="manager_id" readonly="1" force_save="1" />
+                        </group>
+                        <!-- This group uses the new syntax -->
+                        <group>
+                            <field name="period_type" />
+                            <field name="period_id" invisible="not period_type"
+                                domain="[('period_type', '=', period_type)]"
+                                options="{'no_create': True, 'no_open': True}" />
+                        </group>
+                    </group>
+
+                    <separator string="Appraisal Results" />
+                    <group>
+                        <!-- The readonly="1" and force_save="1" attributes are correct here -->
+                        <field name="employee_evaluation_id"
+                            options="{'no_create': True, 'no_open': True}" readonly="1"
+                            force_save="1" />
+                        <field name="appraisal_id" options="{'no_create': True, 'no_open': True}"
+                            readonly="1" force_save="1" />
+                        <field name="evaluation_result" readonly="1" force_save="1" />
+                        <field name="appraisal_result" readonly="1" force_save="1" />
+                        <field name="final_rating" readonly="1" force_save="1" />
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_employee_appraisal" model="ir.actions.act_window">
+        <field name="name">Appraisal Result</field>
+        <field name="res_model">employee.appraisal</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Employee Appraisal.
+            </p>
+        </field>
+    </record>
+</odoo>

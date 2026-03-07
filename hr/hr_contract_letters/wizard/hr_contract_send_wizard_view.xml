@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_contract_send_wizard_form" model="ir.ui.view">
+        <field name="name">hr.contract.send.wizard.form</field>
+        <field name="model">hr.contract.send.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send Contract by Email">
+                <group>
+                    <field name="contract_id" readonly="1"/>
+                    <field name="letter_type" widget="radio" options="{'horizontal': true}"/>
+                </group>
+                <group string="Job Offer Letter Details" invisible="letter_type != 'offer'">
+                    <field name="expected_response_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Date by which the candidate should respond"/>
+                </group>
+                <group string="Guarantee Letter Details" invisible="letter_type != 'guarantee'">
+                    <field name="guarantee_employee_name" 
+                           placeholder="Enter employee name..."/>
+                    <field name="guarantee_company_name" 
+                           placeholder="Enter company name..."/>
+                </group>
+                <group string="Confirmation Letter Details" invisible="letter_type != 'confirmation'">
+                    <field name="old_reference_number" 
+                           placeholder="Enter old reference number (e.g., WG/0341/18)..."/>
+                </group>
+                <group string="Delegation Letter Details" invisible="letter_type != 'delegation'">
+                    <field name="delegated_position" 
+                           placeholder="Enter delegated position (e.g., Chief Executive Corporate Planning Officer)..."/>
+                    <field name="delegation_start_date" 
+                           options="{'datepicker': {'min_date': False}}"/>
+                    <field name="delegation_end_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Leave empty for 'until my return'"/>
+                    <field name="delegated_by_name" 
+                           placeholder="Enter name of person delegating..."/>
+                    <field name="delegated_by_position" 
+                           placeholder="Enter position/title of person delegating..."/>
+                </group>
+                <group string="Experience Letter Details" invisible="letter_type != 'experience'">
+                    <field name="basic_salary" 
+                           placeholder="Enter monthly basic salary (e.g., 50586.00)..."/>
+                    <field name="professional_allowance" 
+                           placeholder="Enter professional allowance (e.g., 1500.00)..."/>
+                    <field name="transportation_allowance" 
+                           placeholder="Enter transportation allowance (e.g., 2000.00)..."/>
+                    <field name="experience_end_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="End date of employment (if different from contract end date)"/>
+                </group>
+                <group string="Resignation Acceptance Details" invisible="letter_type != 'resignation_acceptance'">
+                    <field name="resignation_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Date of the resignation letter"/>
+                    <field name="last_working_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Last day of work"/>
+                    <field name="payment_effective_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Date when payment will be finalized (usually day after last working date)"/>
+                </group>
+                <group string="Salary Increment Details" invisible="letter_type != 'salary_increment'">
+                    <field name="salary_increment_effective_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Date when the salary increment becomes effective (salary will be taken from contract)"/>
+                </group>
+                <group string="Temporary Assignment Details" invisible="letter_type != 'temporary_assignment'">
+                    <field name="temporary_position" 
+                           options="{'no_create': True, 'no_open': True}"
+                           placeholder="Select temporary position..."/>
+                    <field name="reports_to_position" 
+                           options="{'no_create': True, 'no_open': True}"
+                           placeholder="Select supervisor position..."/>
+                    <field name="temporary_assignment_effective_date" 
+                           options="{'datepicker': {'min_date': False}}"
+                           placeholder="Date when the temporary assignment becomes effective"/>
+                </group>
+                <group>
+                    <field name="partner_ids" 
+                           widget="many2many_tags_email"
+                           placeholder="Recipients (To)..."
+                           options="{'no_quick_create': True}"
+                           context="{'show_email': True}"
+                           required="1"
+                           help="Employee is automatically included as recipient"/>
+                    <field name="cc_partner_ids" 
+                           widget="many2many_tags_email"
+                           placeholder="CC recipients..."
+                           options="{'no_quick_create': True}"
+                           context="{'show_email': True}"
+                           help="CC: Department Manager, Finance CEO, HR/General Service Manager"/>
+                    <field name="subject" placeholder="Email subject..."/>
+                </group>
+                <field name="body" widget="html" placeholder="Email message..."/>
+                <footer>
+                    <button string="Send Email" name="action_send_email" type="object" 
+                            class="btn-primary"/>
+                    <button string="Print Only" name="action_print_only" type="object" 
+                            class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_contract_send_wizard" model="ir.actions.act_window">
+        <field name="name">Send Contract by Email</field>
+        <field name="res_model">hr.contract.send.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_contract_id': active_id}</field>
+    </record>
+</odoo>
+

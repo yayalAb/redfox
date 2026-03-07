@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_inherit_price_history" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.price.history</field>
+        <field name="model">product.template</field>
+        <!-- The ID of the view you want to modify -->
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <!--
+                Find the 'list_price' field and add our new field right after it.
+                This is the most stable and direct way to place it.
+            -->
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page string="Price History" name="price_history_page">
+                    <field name="price_history_ids" nolabel="1">
+                        <list>
+                            <field name="change_date" string="Changed On"/>
+                            <field name="price" string="Previous Price"/>
+                            <field name="user_id" string="Changed By"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

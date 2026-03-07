@@ -1,0 +1,27 @@
+<odoo>
+    <record id="res_config_settings_view_form_inherit_fuel_deposit" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.fuel.deposit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="fleet.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='end_contract_setting']" position="inside">
+                <setting string="Fuel Deposit" help="Set the default fuel deposit for vehicles.">
+                    <div class="content-group">
+                        <div class="row mt8">
+                            <label for="initial_fuel_deposit" string="Initial Fuel Deposit" class="col-lg-4 o_light_label"/>
+                            <field name="initial_fuel_deposit"/>
+                        </div>
+                    </div>
+                </setting>
+                <setting string="Used Fuel Deposit" help="Set the used fuel deposit for vehicles.">
+                    <div class="content-group">
+                        <div class="row mt8">
+                            <label for="used_fuel_deposit" string="Used Fuel Deposit" class="col-lg-4 o_light_label"/>
+                            <field name="used_fuel_deposit"/>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

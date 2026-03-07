@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Experience Letter Email Body Template -->
+    <template id="email_template_experience_letter_body" name="Experience Letter Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref No: <t t-esc="get_ref_no(contract) if get_ref_no else (ref_no if ref_no else ('WG/' + str(contract.id).zfill(4) + '/2025' if contract.id else 'WG/0000/2025'))"/></strong></p>
+                    <p><strong>Date: <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- Salutation -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <p style="text-decoration: underline;"><strong>TO WHOM IT MAY CONCERN</strong></p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>This is to certify that <u><strong>
+                        <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t>
+                        <span t-field="contract.employee_id.name"/>
+                    </strong></u> has worked for <u><strong>
+                        <span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else 'Wagwago'"/>
+                    </strong></u><t t-if="contract.company_id and contract.company_id.name and len(contract.company_id.name.split()) > 1">
+                        <span t-esc="', ' + ' '.join(contract.company_id.name.split()[1:])"/>
+                    </t> from <strong>
+                        <span t-if="contract.date_start" t-field="contract.date_start" t-options='{"widget": "date"}'/>
+                        <t t-else="">January 14, 2025</t>
+                    </strong> up to <strong>
+                        <t t-if="experience_end_date">
+                            <span t-esc="experience_end_date.strftime('%B %d, %Y') if hasattr(experience_end_date, 'strftime') else (str(experience_end_date) if experience_end_date else '')"/>
+                        </t>
+                        <t t-else="">
+                            <span t-if="contract.date_end" t-field="contract.date_end" t-options='{"widget": "date"}'/>
+                            <t t-else="">July 06, 2025</t>
+                        </t>
+                    </strong> at the position of <strong>
+                        <span t-if="contract.employee_id and contract.employee_id.job_id" t-field="contract.employee_id.job_id.name"/>
+                        <t t-else="">
+                            <span t-if="contract.job_id" t-field="contract.job_id.name"/>
+                            <t t-else="">Project Planning Section Head</t>
+                        </t>
+                    </strong>, at the <strong>Head office, Addis Ababa, Ethiopia.</strong></p>
+                    
+                    <p>His monthly basic salary when he left the organization is <strong>ETB <t t-esc="'{:,.2f}'.format(basic_salary) if basic_salary else '50,586.00'"/> (<t t-esc="basic_salary_words if basic_salary_words else 'Fifty Thousand Five Hundred Eighty-Six'"/>),</strong> <strong>Professional allowance ETB <t t-esc="'{:,.2f}'.format(professional_allowance) if professional_allowance else '1,500.00'"/> (<t t-esc="professional_allowance_words if professional_allowance_words else 'One Thousand Five Hundred'"/>)</strong> and <strong>Transportation Allowance ETB <t t-esc="'{:,.2f}'.format(transportation_allowance) if transportation_allowance else '2,000.00'"/> (<t t-esc="transportation_allowance_words if transportation_allowance_words else 'Two Thousand'"/>)</strong> which adds up to a <strong>gross salary of ETB <t t-esc="'{:,.2f}'.format(gross_salary) if gross_salary else '54,086.00'"/> (<t t-esc="gross_salary_words if gross_salary_words else 'Fifty-Four Thousand Eighty-Six'"/>)</strong> only. All relevant tax and pension contribution have been deducted from his basic salary and paid to the respective government body.</p>
+                    
+                    <p>This certificate is given up on his request and is serving as a resignation letter.</p>
+                    
+                    <p>Finally, we wish him all the best in his future career.</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <p><strong>Best regards,</strong></p>
+                    </div>
+                </div>
+                  <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC:</strong></p>
+                    <ul class="gap-1">
+                        <li>Finance Department</li>
+                        <li>File</li>
+                    </ul>
+                    
+                    <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+    </template>
+</odoo>
+

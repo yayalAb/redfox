@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+    <record id="employee_insurance_provider_action" model="ir.actions.act_window">
+        <field name="name">insurance providers</field>
+        <field name="res_model">insurance.provider</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,form</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new type of insurance provider
+            </p>
+
+        </field>
+    </record>
+    <record id="employee_insurance_provider_view_form" model="ir.ui.view">
+        <field name="name">insurance provider</field>
+        <field name="model">insurance.provider</field>
+        <field name="arch" type="xml">
+            <form string="Employee Insurance">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="contact_name"/>
+                        </group>
+                        <group>
+                            <field name="email"/>
+                            <field name="optional_email"/>
+                            <field name="phone"/>
+                        </group>
+
+
+                    </group>
+                </sheet>
+                 <chatter/>
+
+            </form>
+        </field>
+    </record>
+    <record id="employee_insurance_provider_view_tree" model="ir.ui.view">
+        <field name="name">insurance provider</field>
+        <field name="model">insurance.provider</field>
+        <field name="arch" type="xml">
+            <list>
+
+                 <field name="name"/>
+                <field name="contact_name"/>
+                <field name="email"/>
+                <field name="phone"/>
+
+            </list>
+        </field>
+    </record>
+
+          <menuitem
+            id="menu_employee_insurances_main"
+            name="Insurances"/>
+
+         <menuitem
+            id="menu_employee_insurances_root"
+            name="Configuration"
+            parent="menu_employee_insurances_main"/>
+
+
+
+    <menuitem
+            id="menu_employee_insurance_provider"
+            name="Insurance Provider"
+             parent="menu_employee_insurances_root"
+            action="employee_insurance_provider_action"/>
+</data>
+
+</odoo>

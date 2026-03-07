@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+        <record id="employee_insurance_expire_send_notification" model="mail.template">
+            <field name="name">Employee Insurance Expiration Send Notification</field>
+            <field name="model_id" ref="model_employee_insurance"/>
+            <field name="subject">Your insurance is expiring soon!</field>
+            <field name="email_from">${object.env.user.email}</field>
+            <field name="email_to">${object.employee_id.work_email}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html">
+                <![CDATA[
+                    <p>Hello ${object.employee_id.name},</p>
+                    <p>Your insurance is expiring on ${object.expire_date}. Please renew it as soon as possible.</p>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Delegation of Duties Email Body Template -->
+    <template id="email_template_delegation_duties_body" name="Delegation of Duties Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref. No:- <t t-esc="get_ref_no(contract) if get_ref_no else (ref_no if ref_no else ('WG/' + str(contract.id).zfill(4) + '/2018' if contract.id else 'WG/0000/2018'))"/></strong></p>
+                    <p><strong><t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- To Section -->
+                <div style="margin-bottom: 15px;">
+                    <p><strong>To: <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t><span t-field="contract.employee_id.name"/></strong></p>
+                    <p t-if="contract.employee_id and contract.employee_id.private_city">
+                        <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                    </p>
+                    <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                        <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                    </p>
+                    <p t-else=""><u><b>Addis Ababa</b></u></p>
+                </div>
+                
+                <!-- Subject -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <p style="white-space: nowrap; display: inline-block;"><strong>Subject: <u>Delegation of Duties</u></strong></p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>Dear <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t><span t-esc="contract.employee_id.name.split()[0] if contract.employee_id and contract.employee_id.name else 'Employee'"/>,</p>
+                    
+                    <p>This letter serves to formally delegate to you the responsibilities and authority of the <strong>
+                        <span t-if="delegated_position">
+                            <span t-esc="delegated_position"/>
+                        </span>
+                        <t t-else="">
+                            <span t-if="contract.employee_id and contract.employee_id.job_id" t-field="contract.employee_id.job_id.name"/>
+                            <t t-else="">Chief Executive Corporate Planning Officer</t>
+                        </t>
+                    </strong>, starting from <strong>
+                        <t t-if="delegation_start_date">
+                            <span t-esc="delegation_start_date.strftime('%d/%m/%Y') if hasattr(delegation_start_date, 'strftime') else (str(delegation_start_date) if delegation_start_date else '')"/>
+                        </t>
+                        <t t-else="">
+                            <t t-if="contract.date_start">
+                                <span t-field="contract.date_start" t-options='{"widget": "date"}'/>
+                            </t>
+                            <t t-else="">02/12/2025</t>
+                        </t>
+                    </strong> until <t t-if="delegation_end_date">
+                        <strong><span t-esc="delegation_end_date.strftime('%d/%m/%Y') if hasattr(delegation_end_date, 'strftime') else (str(delegation_end_date) if delegation_end_date else '')"/></strong>
+                    </t><t t-else="">
+                        <strong>my return</strong>
+                    </t>.</p>
+                    
+                    <p>During this period, you are entrusted with leading and overseeing the full scope of Corporate Planning functions, including:</p>
+                    
+                    <p><strong>1. Strategic Planning</strong> – Guiding the formulation, alignment, and execution of organizational strategies and long-term plans.</p>
+                    
+                    <p><strong>2. Operational Planning</strong> – Coordinating annual and quarterly planning processes across all units and ensuring proper alignment with corporate objectives.</p>
+                    
+                    <p><strong>3. Performance Management</strong> – Managing enterprise performance systems, KPI monitoring, reporting, and accountability processes.</p>
+                    
+                    <p><strong>4. Project Monitoring and Evaluation</strong> – Ensuring effective oversight, timely reporting, and evaluation of projects and organizational initiatives.</p>
+                    
+                    <p><strong>5. Resource Mobilization &amp; Advisory Support</strong> – Supporting budgeting processes, identifying funding sources, and providing advisory input to executive leadership regarding strategic priorities and resource utilization.</p>
+                    
+                    <p>This delegation authorizes you to make all necessary planning-related decisions, engage with internal and external stakeholders, coordinate across departments, and fully represent the Corporate Planning Office in executive meetings and organizational activities.</p>
+                    
+                    <p>You are expected to exercise these responsibilities with professionalism, integrity, and full adherence to organizational policies during the delegation period.</p>
+                    
+                    <p>Thank you for taking on this responsibility. I am confident in your leadership and commitment to ensuring the smooth operation of the Corporate Planning Office in my absence.</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <p class="d-flex justify-content-end">Sincerely,</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <p t-if="delegated_by_name">
+                            <span t-esc="delegated_by_name"/>
+                        </p>
+                        <p t-elif="contract.approved_by_id">
+                            <span t-field="contract.approved_by_id.name"/>
+                        </p>
+                        <p t-else="">Ataklti Nega</p>
+                        <p><strong>
+                            <span t-if="delegated_by_position">
+                                <span t-esc="delegated_by_position"/>
+                            </span>
+                            <t t-else="">Chief corporate planning officer (Act)</t>
+                        </strong></p>
+                    </div>
+                </div>
+                  <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC</strong></p>
+                    <ul class="gap-1">
+                        <li>Every Corporate Department</li>
+                        <li>Personal File</li>
+                    </ul>
+                    
+                    <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+    </template>
+</odoo>
+

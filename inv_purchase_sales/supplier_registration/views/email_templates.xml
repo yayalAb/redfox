@@ -1,0 +1,81 @@
+<odoo>
+    <record id="email_template_model_bjit_supplies_registration_otp" model="mail.template">
+        <field name="name">Supplier Registration OTP</field>
+        <field name="model_id" ref="model_supplies_registration_otp" />
+        <field name="subject">Your OTP</field>
+        <field name="email_to">{{object.email}}</field>
+        <field name="body_html" type="html">
+            <h3>Dear User</h3>
+            <p> Your OTP is: <strong t-field="object.otp" />. </p>
+            <p>
+                Please Note: This OTP is valid for 5 minutes.
+            </p>
+            <p> Regards <br />
+                <strong t-field="object.company.name" />
+            </p>
+        </field>
+    </record>
+
+    <record id="email_template_model_supplies_vendor_registration_reviewer" model="mail.template">
+        <field name="name">Supplier Registration Reviewer Notification</field>
+        <field name="model_id" ref="base.model_res_users" />
+        <field name="email_to">{{object.email}}</field>
+        <field name="subject">New Supplier Registration</field>
+        <field name="body_html" type="html">
+            <h3>Dear User</h3>
+            <p> A new supplier registration is submitted for review. Please review the registration
+                and take necessary actions. View the registration:<a t-att-href="ctx.get('reg_url')"
+                    t-esc="ctx.get('reg_url')" />. </p>
+            <p>Regards</p>
+            <p>
+                <t t-esc="ctx.get('company_name') or not_available" />
+            </p>
+        </field>
+    </record>
+
+    <record id="email_template_model_supplies_vendor_registration_confirmation"
+        model="mail.template">
+        <field name="name">Supplier Registration Confirmation</field>
+        <field name="model_id" ref="model_supplies_registration" />
+        <field name="subject">Supplier Account Confirmation</field>
+        <field name="email_to">{{object.email}}</field>
+        <field name="body_html" type="html">
+            <h3>Dear User</h3>
+            <p>
+                Congratulations! Your registration is reviewed and confirmed. You can now login to
+                your account. Here is
+                your login credentials.
+            </p>
+            <p> Email: <t t-out="ctx.get('email') or not_available" />
+            </p>
+            <p> Password: <t t-out="ctx.get('password') or not_available" />
+            </p>
+            <p>
+                Please change your password after first login. Please keep your credentials safe and
+                let us know if you
+                have any queries or issues.
+            </p>
+            <p>Regards</p>
+            <p>My Company</p>
+        </field>
+    </record>
+
+    <record id="email_template_model_supplies_vendor_registration_rejection" model="mail.template">
+        <field name="name">Supplier Registration Rejection</field>
+        <field name="model_id" ref="model_supplies_registration" />
+        <field name="body_html" type="html">
+            <h3>Dear User</h3>
+            <p>
+                We are sorry to inform you that your registration for supplier account is rejected.
+                The reason for
+                rejection is stated below.
+            </p>
+            <p> Reason: <t t-out="ctx.get('reason') or not_available" />
+            </p>
+            <p>Regards</p>
+            <p>
+                <t t-esc="ctx.get('company_name') or not_available" />
+            </p>
+        </field>
+    </record>
+</odoo>

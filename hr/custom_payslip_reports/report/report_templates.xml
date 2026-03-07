@@ -1,0 +1,518 @@
+<!-- custom_payslip_reports/report/report_templates.xml -->
+<odoo>
+    <data>
+
+        <template id="report_signature_block">
+            <div class="row" style="margin-top: 5px; font-size: 12px; page-break-inside: avoid;">
+                
+                <!-- Prepared By Section -->
+                <div class="col-4">
+                    <p style="margin-bottom: 5px;"><strong>Prepared By</strong></p>
+                    <table style="width: 95%; text-align: left; border-collapse: separate; border-spacing: 0 25px;">
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Name</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Signature</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Date</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Checked By Section -->
+                <div class="col-4">
+                    <p style="margin-bottom: 5px;"><strong>Checked By</strong></p>
+                    <table style="width: 95%; text-align: left; border-collapse: separate; border-spacing: 0 25px;">
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Name</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Signature</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Date</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Approved By Section -->
+                <div class="col-4">
+                    <p style="margin-bottom: 5px;"><strong>Approved By</strong></p>
+                    <table style="width: 95%; text-align: left; border-collapse: separate; border-spacing: 0 25px;">
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Name</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Signature</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 25%; padding-right: 2px;">Date</td>
+                            <td style="border-bottom: 1px solid #555;"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </template>
+        <!-- Employee Payroll Sheet Template -->
+        <template id="report_payroll_sheet_template">
+            <t t-call="web.basic_layout">
+                <div class="page" style="font-size: 8px;">
+                    <!-- ADD A STYLE BLOCK FOR BORDERS -->
+                    <style>
+                        .report-bordered th, .report-bordered td {
+                            border: 1px solid black !important;
+                            vertical-align: middle;
+                        }
+                    </style>
+
+                    <t t-if="docs">
+                        <h4 class="text-center" t-esc="docs[0].company_id.name"/>
+                    </t>
+                    <h5 class="text-center">Employee Payroll Sheet</h5>
+                    <t t-if="docs">
+                        <h5 class="text-center">For the Month of <span t-esc="docs[0].date_from" t-options='{"widget": "date", "format": "MMMM yyyy"}'/></h5>
+                    </t>
+                    
+                    <!-- ADD THE report-bordered CLASS TO THE TABLE -->
+                    <table class="table table-sm table-condensed report-bordered mt-2">
+                        <thead>
+                            <!-- INCREASED HEADER FONT SIZE AND MADE BOLD -->
+                            <tr style="font-size: 9px; font-weight: bold; background-color: #f2f2f2;">
+                                <th class="text-center">S.No.</th>
+                                <th class="text-center">Employee Name</th>
+                                <th class="text-center">ID</th>
+                                <!-- <th class="text-center">Postion</th> -->
+                                <th class="text-center">Start Date</th>
+                                <th class="text-center">Basic Salary</th>
+                                <th class="text-center">Prof. Allowance</th>
+                                <th class="text-center">Pos. Allowance</th>
+                                <th class="text-center">Housing Allowance</th>
+                                <th class="text-center">Taxable Transport</th>
+                                <th class="text-center">Total Nontaxable</th>
+                                <th class="text-center">Over Time</th>
+                                <th class="text-center">Gross Earning</th>
+                                <th class="text-center">Total Taxable</th>
+                                <th class="text-center">Income Tax</th>
+                                <th class="text-center">Pension 7%</th>
+                                <th class="text-center">Pension 11%</th>
+                                <th class="text-center">Saving</th>
+                                <th class="text-center">Loan</th>
+                                <th class="text-center">Cafteria</th>
+                                <th class="text-center">Other Ded.</th>
+                                <th class="text-center">Social Comm.</th>
+                                <th class="text-center">Total Ded.</th>
+                                <th class="text-center">Net Pay</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- GENERATE SEQUENCE NUMBER DYNAMICALLY USING 'slip_index' -->
+                             <t t-set="branches" t-value="docs.mapped('branch_id').sorted(lambda b: b.name)"/>
+                            <t t-foreach="branches" t-as="branch">
+                            <t t-set="slip_index" t-value="0"/>
+                            <t t-set="filtered_docs"   t-value="docs.filtered(lambda slip: slip.branch_id.id == branch.id)"/>
+            
+                            <t t-foreach="filtered_docs" t-as="slip">
+                            <!-- <t t-foreach="docs" t-as="slip"> -->
+                                <t t-set="slip_index" t-value="slip_index + 1"/>
+                                <tr>
+                                    <td class="text-center"><span t-esc="slip_index"/></td>
+                                    <td><span t-field="slip.employee_id.name"/></td>
+                                    <td><span t-field="slip.employee_id_no"/></td>
+                                    <!-- <td><span t-field="slip.job_position"/></td> -->
+                                    <td><span t-field="slip.hr_contract_start_formatted"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.basic_wage == 0 else '{:,.2f}'.format(slip.basic_wage)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.professional_allowance == 0 else '{:,.2f}'.format(slip.professional_allowance)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.position_allowance == 0 else '{:,.2f}'.format(slip.position_allowance)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.house_rent_allowance == 0 else '{:,.2f}'.format(slip.house_rent_allowance)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.transport_home_allowance == 0 else '{:,.2f}'.format(slip.transport_home_allowance)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.total_none_taxiable == 0 else '{:,.2f}'.format(slip.total_none_taxiable)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.over_time == 0 else '{:,.2f}'.format(slip.over_time)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.gross_wage == 0 else '{:,.2f}'.format(slip.gross_wage)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.taxable_salary == 0 else '{:,.2f}'.format(slip.taxable_salary)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.income_tax == 0 else '{:,.2f}'.format(slip.income_tax)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.pension == 0 else '{:,.2f}'.format(slip.pension)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.pension_company == 0 else '{:,.2f}'.format(slip.pension_company)"/></td>
+                                    <td class="text-end">
+                                        <span t-esc="'--' if slip.agreed_deduction == 0 else '{:,.2f}'.format(slip.agreed_deduction)"/>
+                                    </td>
+                                    <td class="text-end"><span t-esc="'--' if slip.loan == 0 else '{:,.2f}'.format(slip.loan)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.lunch == 0 else '{:,.2f}'.format(slip.lunch)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.other_deduction == 0 else '{:,.2f}'.format(slip.other_deduction)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.social_commite == 0 else '{:,.2f}'.format(slip.social_commite)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.deduction == 0 else '{:,.2f}'.format(slip.deduction)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.net_wage == 0 else '{:,.2f}'.format(slip.net_wage)"/></td>
+                                </tr>
+                            </t>
+                            <!-- Totals Row with corrected formatting -->
+                              <tr style="font-weight: bold;">
+                                <td colspan="4" class="text-right"><h8><span t-field="branch.name"/> Total</h8></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('basic_wage')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('basic_wage')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('professional_allowance')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('professional_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('position_allowance')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('position_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('house_rent_allowance')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('house_rent_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('transport_home_allowance')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('transport_home_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('total_none_taxiable')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('total_none_taxiable')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('over_time')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('over_time')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('gross_wage')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('gross_wage')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('taxable_salary')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('taxable_salary')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('income_tax')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('income_tax')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('pension')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('pension')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('pension_company')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('pension_company')))"/></td>
+                                <td class="text-end">
+                                    <span t-esc="'--' if sum(docs.mapped('agreed_deduction')) == 0 else '{:,.2f}'.format(sum(docs.mapped('agreed_deduction')))"/>
+                                </td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('loan')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('loan')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('lunch')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('lunch')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('other_deduction')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('other_deduction')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('social_commite')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('social_commite')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('deduction')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('deduction')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(filtered_docs.mapped('net_wage')) == 0 else '{:,.2f}'.format(sum(filtered_docs.mapped('net_wage')))"/></td>
+                            </tr>
+                            </t>
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" class="text-right">Grand Total</td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('basic_wage')) == 0 else '{:,.2f}'.format(sum(docs.mapped('basic_wage')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('professional_allowance')) == 0 else '{:,.2f}'.format(sum(docs.mapped('professional_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('position_allowance')) == 0 else '{:,.2f}'.format(sum(docs.mapped('position_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('house_rent_allowance')) == 0 else '{:,.2f}'.format(sum(docs.mapped('house_rent_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('transport_home_allowance')) == 0 else '{:,.2f}'.format(sum(docs.mapped('transport_home_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('total_none_taxiable')) == 0 else '{:,.2f}'.format(sum(docs.mapped('total_none_taxiable')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('over_time')) == 0 else '{:,.2f}'.format(sum(docs.mapped('over_time')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('gross_wage')) == 0 else '{:,.2f}'.format(sum(docs.mapped('gross_wage')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('taxable_salary')) == 0 else '{:,.2f}'.format(sum(docs.mapped('taxable_salary')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('income_tax')) == 0 else '{:,.2f}'.format(sum(docs.mapped('income_tax')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('pension')) == 0 else '{:,.2f}'.format(sum(docs.mapped('pension')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('pension_company')) == 0 else '{:,.2f}'.format(sum(docs.mapped('pension_company')))"/></td>
+                                <td class="text-end">
+                                    <span t-esc="'--' if sum(docs.mapped('agreed_deduction')) == 0 else '{:,.2f}'.format(sum(docs.mapped('agreed_deduction')))"/>
+                                </td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('loan')) == 0 else '{:,.2f}'.format(sum(docs.mapped('loan')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('lunch')) == 0 else '{:,.2f}'.format(sum(docs.mapped('lunch')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('other_deduction')) == 0 else '{:,.2f}'.format(sum(docs.mapped('other_deduction')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('social_commite')) == 0 else '{:,.2f}'.format(sum(docs.mapped('social_commite')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('deduction')) == 0 else '{:,.2f}'.format(sum(docs.mapped('deduction')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('net_wage')) == 0 else '{:,.2f}'.format(sum(docs.mapped('net_wage')))"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-call="custom_payslip_reports.report_signature_block"/>
+                </div>
+            </t>
+        </template>
+
+        <!-- ADD THE NEW TEMPLATE FOR THE TAX WITHHELD REPORT -->
+        <template id="report_tax_withheld_template">
+            <t t-call="web.basic_layout">
+                <div class="page" style="font-size: 10px;">
+                    <style>
+                        .report-bordered th, .report-bordered td {
+                            border: 1px solid black !important;
+                            vertical-align: middle;
+                        }
+                    </style>
+
+                    <h3 class="text-center">Income Tax Summary</h3>
+                    <t t-if="docs">
+                        <h4 class="text-center">For the Month of <span t-esc="docs[0].date_from" t-options='{"widget": "date", "format": "MMMM yyyy"}'/></h4>
+                    </t>
+                    
+                    <table class="table table-sm table-condensed report-bordered mt-2">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #f2f2f2;">
+                                <th class="text-center">S/N</th>
+                                <th class="text-center">Employee TIN</th>
+                                <th class="text-center">Employee Full Name</th>
+                                <th class="text-center">Start Date</th>
+                                <th class="text-center">End Date</th>
+                                <th class="text-center">Basic Salary</th>
+                                <th class="text-center">Transport Allowance (Non-taxable)</th>
+                                <th class="text-center">Taxable Transport Allowance</th>
+                                <th class="text-center">Over Time</th>
+                                <th class="text-center">Other Taxable Benefit</th>
+                                <th class="text-center">Total Taxable</th>
+                                <th class="text-center">Tax withheld</th>
+                                <th class="text-center">Cost Sharing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="branches" t-value="docs.mapped('branch_id').sorted(lambda b: b.name)"/>
+                            <t t-foreach="branches" t-as="branch">
+                            <t t-set="slip_index" t-value="0"/>
+                            <t t-set="filtered_docs"   t-value="docs.filtered(lambda slip: slip.branch_id.id == branch.id)"/>
+                             <!-- <tr>
+                                <td colspan="8"><h8><span t-field="branch.name"/></h8> </td>
+                            </tr> -->
+                            <t t-foreach="filtered_docs" t-as="slip">
+                            <!-- <t t-foreach="docs" t-as="slip"> -->
+                                <t t-set="slip_index" t-value="slip_index + 1"/>
+                                <tr>
+                                    <td class="text-center"><span t-esc="slip_index"/></td>
+                                    <td><span t-field="slip.employee_tin"/></td>
+                                    <td><span t-field="slip.employee_id.name"/></td>
+                                    <td><span t-field="slip.hr_contract_start"/></td>
+                                    <td><span t-field="slip.hr_contract_end"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.basic_wage == 0 else '{:,.2f}'.format(slip.basic_wage)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.none_taxiable_transport_allowance == 0 else '{:,.2f}'.format(slip.none_taxiable_transport_allowance)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.transport_home_allowance == 0 else '{:,.2f}'.format(slip.transport_home_allowance)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.over_time == 0 else '{:,.2f}'.format(slip.over_time)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.other_taxable_benefits == 0 else '{:,.2f}'.format(slip.other_taxable_benefits)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.taxable_salary == 0 else '{:,.2f}'.format(slip.taxable_salary)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.income_tax == 0 else '{:,.2f}'.format(slip.income_tax)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.cost_sharing == 0 else '{:,.2f}'.format(slip.cost_sharing)"/></td>
+                            </tr>
+                            </t>
+                            </t>
+                            <!-- Totals Row with corrected formatting -->
+                            <tr style="font-weight: bold;">
+                                <td colspan="5" class="text-right">Grand Total</td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('basic_wage')) == 0 else '{:,.2f}'.format(sum(docs.mapped('basic_wage')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('none_taxiable_transport_allowance')) == 0 else '{:,.2f}'.format(sum(docs.mapped('none_taxiable_transport_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('transport_home_allowance')) == 0 else '{:,.2f}'.format(sum(docs.mapped('transport_home_allowance')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('over_time')) == 0 else '{:,.2f}'.format(sum(docs.mapped('over_time')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('other_taxable_benefits')) == 0 else '{:,.2f}'.format(sum(docs.mapped('other_taxable_benefits')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('taxable_salary')) == 0 else '{:,.2f}'.format(sum(docs.mapped('taxable_salary')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('income_tax')) == 0 else '{:,.2f}'.format(sum(docs.mapped('income_tax')))"/></td>
+                                <td class="text-end"><span t-esc="'--' if sum(docs.mapped('cost_sharing')) == 0 else '{:,.2f}'.format(sum(docs.mapped('cost_sharing')))"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-call="custom_payslip_reports.report_signature_block"/>
+                </div>
+            </t>
+        </template>
+
+        <!-- Pension Contribution Template -->
+        <template id="report_pension_contribution_template">
+            <t t-call="web.basic_layout">
+                <div class="page" style="font-size: 11px;">
+                    <style>
+                        .report-bordered th, .report-bordered td {
+                            border: 1px solid black !important;
+                            vertical-align: middle;
+                        }
+                    </style>
+
+                    <div class="report-header">
+                        <t t-if="docs">
+                            <h3 class="text-center" style="font-weight: bold;" t-esc="docs[0].company_id.name"/>
+                        </t>
+                        <t t-if="docs">
+                            <h4 class="text-center" style="font-weight: bold;">Pension Contribution For <span t-esc="docs[0].date_from" t-options='{"widget": "date", "format": "MMMM yyyy"}'/></h4>
+                        </t>
+                    </div>
+                    
+                    <table class="table table-sm table-condensed report-bordered mt-2">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #f2f2f2;">
+                                <th class="text-center">S/N</th>
+                                <th class="text-center">Employee Full Name</th>
+                                <th class="text-center">Start Date</th>
+                                <th class="text-center">End Date</th>
+                                <th class="text-center">Basic Salary</th>
+                                <th class="text-center">Employee Contribution</th>
+                                <th class="text-center">Company Contribution</th>
+                                <th class="text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="branches" t-value="docs.mapped('branch_id').sorted(lambda b: b.name)"/>
+                            <t t-foreach="branches" t-as="branch">
+                            <t t-set="slip_index" t-value="0"/>
+                            <t t-set="filtered_docs"   t-value="docs.filtered(lambda slip: slip.branch_id.id == branch.id)"/>
+                             <!-- <tr>
+                                <td colspan="8"><h8><span t-field="branch.name"/></h8> </td>
+                            </tr> -->
+                            <t t-foreach="filtered_docs" t-as="slip">
+                                <t t-set="slip_index" t-value="slip_index + 1"/>
+                                <tr>
+                                    <td class="text-center"><span t-esc="slip_index"/></td>
+                                    <td><span t-field="slip.employee_id.name"/></td>
+                                    <td class="text-center"><span t-field="slip.hr_contract_start" t-options='{"widget": "date", "format": "dd-MM-yyyy"}'/></td>
+                                    <td class="text-center"><span t-field="slip.hr_contract_end" t-options='{"widget": "date", "format": "dd-MM-yyyy"}'/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.basic_wage == 0 else '{:,.2f}'.format(slip.basic_wage)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.pension == 0 else '{:,.2f}'.format(slip.pension)"/></td>
+                                    <td class="text-end"><span t-esc="'--' if slip.pension_company == 0 else '{:,.2f}'.format(slip.pension_company)"/></td>
+                                    <!-- Calculate the row total on the fly with conditional -->
+                                    <td class="text-end">
+                                        <span t-esc="'--' if (slip.pension + slip.pension_company) == 0 else '{:,.2f}'.format((slip.pension + slip.pension_company))"/>
+                                    </td>
+                                </tr>
+                                </t>
+                                </t>
+                            
+                                <!-- Totals Row with corrected formatting -->
+                                <tr style="font-weight: bold;">
+                                    <td colspan="4" class="text-right">Grand Total</td>
+                                    <td class="text-end"><span t-esc="'--' if sum(docs.mapped('basic_wage')) == 0 else '{:,.2f}'.format(sum(docs.mapped('basic_wage')))"/></td>
+                                    <td class="text-end"><span t-esc="'--' if sum(docs.mapped('pension')) == 0 else '{:,.2f}'.format(sum(docs.mapped('pension')))"/></td>
+                                    <td class="text-end"><span t-esc="'--' if sum(docs.mapped('pension_company')) == 0 else '{:,.2f}'.format(sum(docs.mapped('pension_company')))"/></td>
+                                    <td class="text-end">
+                                        <span t-esc="'--' if (sum(docs.mapped('pension')) + sum(docs.mapped('pension_company'))) == 0 else '{:,.2f}'.format((sum(docs.mapped('pension')) + sum(docs.mapped('pension_company'))))"/>
+                                    </td>
+                                </tr>
+                        </tbody>
+                    </table>
+                    <t t-call="custom_payslip_reports.report_signature_block"/>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Saving Deduction Template -->
+        <template id="report_saving_deduction_template">
+            <t t-call="web.basic_layout">
+                <div class="page" style="font-size: 11px;">
+                    <style>
+                        .report-bordered th, .report-bordered td {
+                            border: 1px solid black !important;
+                            vertical-align: middle;
+                        }
+                    </style>
+
+                    <div class="report-header">
+                        <t t-if="docs">
+                            <h3 class="text-center" style="font-weight: bold;" t-esc="docs[0].company_id.name"/>
+                        </t>
+                        <!-- <div class="report-header-line">
+                            <h5 class="text-center" style="font-weight: bold; margin: 0;">Employee </h5>
+                        </div> -->
+                        <t t-if="docs">
+                            <h5 class="text-center">Saving Deduction For <span t-esc="docs[0].date_from" t-options='{"widget": "date", "format": "MMMM yyyy"}'/></h5>
+                        </t>
+                    </div>
+                    
+                    <table class="table table-sm table-condensed report-bordered mt-2">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #f2f2f2;">
+                                <th>S/N</th>
+                                <th>Name of Employment</th>
+                                <th>ID</th>
+                                <th>Position</th>
+                                <th>Emp. Date</th>
+                                <th>Saving Deduction</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="branches" t-value="docs.mapped('branch_id').sorted(lambda b: b.name)"/>
+                            <t t-foreach="branches" t-as="branch">
+                            <t t-set="slip_index" t-value="0"/>
+                            <!-- We only want to show employees who have a saving deduction -->
+                            <t t-set="all_filtered_docs"   t-value="docs.filtered(lambda slip: slip.agreed_deduction > 0)"/>
+                            <t t-set="filtered_docs"   t-value="docs.filtered(lambda slip: slip.branch_id.id == branch.id and slip.agreed_deduction > 0)"/>
+                            <!-- <tr>
+                                <td colspan="6"><h8><span t-field="branch.name"/></h8> </td>
+                            </tr> -->
+                            <t t-foreach="filtered_docs" t-as="slip">
+                                <t t-set="slip_index" t-value="slip_index + 1"/>
+                                <tr>
+                                    <td class="text-center"><span t-esc="slip_index"/></td>
+                                    <td><span t-field="slip.employee_id.name"/></td>
+                                    <td ><span t-field="slip.employee_id_no"/></td>
+                                    <td><span t-field="slip.job_position"/></td>
+                                    <td ><span t-field="slip.hr_contract_start" t-options='{"widget": "date", "format": "dd-MM-yyyy"}'/></td>
+                                    <td class="text-end">
+                                        <span t-esc="'--' if slip.agreed_deduction == 0 else  '{:,.2f}'.format(slip.agreed_deduction)"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- Totals Row with corrected formatting -->
+                            <tr style="font-weight: bold;">
+                                <td colspan="5" class="text-right"> <h8><span t-field="branch.name"/> Total</h8></td>
+                                <td class="text-end"><h8><span t-esc="'{:,.2f}'.format(sum(filtered_docs.mapped('agreed_deduction')))"/></h8></td>
+                            </tr>
+                            </t>
+                            <tr style="font-weight: bold;">
+                                <td colspan="5" class="text-right"><h8> Grand Total</h8></td>
+                                <td class="text-end"><h8><span t-esc="'{:,.2f}'.format(sum(all_filtered_docs.mapped('agreed_deduction')))"/></h8></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-call="custom_payslip_reports.report_signature_block"/>
+                </div>
+            </t>
+        </template>
+
+        <!-- Social Contribution Template -->
+        <template id="report_social_contribution_template">
+            <t t-call="web.basic_layout">
+                <div class="page" style="font-size: 11px;">
+                    <style>
+                        .report-bordered th, .report-bordered td {
+                            border: 1px solid black !important;
+                            vertical-align: middle;
+                        }
+                        .report-header-line {
+                            border-top: 1px solid black;
+                            border-bottom: 1px solid black;
+                            padding: 5px 0;
+                            margin: 10px 0;
+                        }
+                    </style>
+
+                    <div class="report-header">
+                        <t t-if="docs">
+                            <h3 class="text-center" style="font-weight: bold;" t-esc="docs[0].company_id.name"/>
+                        </t>
+                        <div class="report-header-line">
+                            <!-- The title is now dynamic, based on the button clicked -->
+                            <h4 class="text-center" style="font-weight: bold; margin: 0;">
+                                <span t-esc="context.get('report_title', 'Social Contribution')"/>
+                            </h4>
+                        </div>
+                        <t t-if="docs">
+                            <h5 class="text-center">For the Month of <span t-esc="docs[0].date_from" t-options='{"widget": "date", "format": "MMMM yyyy"}'/></h5>
+                        </t>
+                    </div>
+                    
+                    <table class="table table-sm table-condensed report-bordered mt-3">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #f2f2f2;">
+                                <th class="text-center">S/N</th>
+                                <th class="text-center">Name of employment</th>
+                                <th class="text-center">ID</th>
+                                <th class="text-center">Position</th>
+                                <th class="text-center">Emp. Date</th>
+                                <th class="text-center">Soc. Com (0.5%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="slip_index" t-value="0"/>
+                            <!-- Filter to show only employees with a social contribution -->
+                            <t t-set="filtered_docs" t-value="docs.filtered(lambda slip: slip.social_commite > 0)"/>
+                            <t t-foreach="filtered_docs" t-as="slip">
+                                <t t-set="slip_index" t-value="slip_index + 1"/>
+                                <tr>
+                                    <td class="text-center"><span t-esc="slip_index"/></td>
+                                    <td><span t-field="slip.employee_id.name"/></td>
+                                    <td ><span t-field="slip.employee_id_no"/></td>
+                                    <td ><span t-field="slip.job_position"/></td>
+                                    <td ><span t-field="slip.hr_contract_start" t-options='{"widget": "date", "format": "dd-MM-yyyy"}'/></td>
+                                    <td class="text-end">
+                                            <span t-esc="'--' if slip.social_commite == 0 else '{:,.2f}'.format(slip.social_commite)"/>
+                                        </td>
+                                   </tr>
+                            </t>
+
+                            <!-- Totals Row with corrected formatting -->
+                            <tr style="font-weight: bold;">
+                                <td colspan="5" class="text-right">Total</td>
+                                <td class="text-end"><span t-esc="'{:,.2f}'.format(sum(filtered_docs.mapped('social_commite')))"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-call="custom_payslip_reports.report_signature_block"/>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

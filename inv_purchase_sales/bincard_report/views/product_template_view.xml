@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_inherit_bincard" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.bincard</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <!-- Points to the new action -->
+                <button name="%(bincard_report.action_open_bincard_template_wizard)d"
+                        string="Generate Bin Card Report"
+                        type="action"
+                        class="oe_highlight"
+                        icon="fa-print"/>
+            </xpath>
+
+            <xpath expr="//div[hasclass('oe_title')]/h1" position="after">
+                <h4 class="mb-2">
+                    <span>Item Code: </span>                    
+                    <field name="default_code" nolabel="1" class="oe_inline"/>
+                </h4>
+            </xpath>
+
+            <xpath expr="//field[@name='categ_id']" position="after">
+                 <field name="bincard_no"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

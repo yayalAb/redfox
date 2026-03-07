@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_purchase_request" model="ir.actions.report">
+        <field name="name">Purchase Request Letter</field>
+        <field name="model">purchase.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_sale_agreement.report_purchase_request_doc</field>
+        <field name="report_file">custom_sale_agreement.report_purchase_request_doc</field>
+        <field name="print_report_name">'Purchase_Request_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_purchase_request"/>
+        <field name="binding_type">report</field>
+        <!-- Set paper format to ensure enough width -->
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <template id="report_purchase_request_doc">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="doc_title">
+                        ወጪ ደብዳቤ<br/>OUTGOING LETTER
+                    </t>
+                    <t t-set="doc_number" t-value="'OF/WW/GM/030'" />
+                    <t t-set="issue_number" t-value="'1'" />
+
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 13pt; padding: 0 15px;">
+
+                        <!-- ADDRESS & REF SECTION -->
+                        <div class="row mt-1">
+                            <div class="col-5 offset-7">
+                                <table class="table table-borderless" style="margin-bottom: 0px; width: 100%;">
+                                    <tr>
+                                        <td class="text-end" style="padding: 0; width: 45%; vertical-align: bottom; white-space: nowrap;">
+                                            <span>የደብዳቤ ቁጥር</span><br/>
+                                            <span>Ref No:</span>
+                                        </td>
+                                        <td style="padding: 0; padding-left: 5px; width: 55%; vertical-align: bottom;">
+                                            <div style="border-bottom: 1px solid black; width: 100%; min-height: 20px;">
+                                                <span t-field="o.name"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-end" style="padding: 0; width: 45%; vertical-align: bottom; white-space: nowrap;">
+                                            <span>ቀን</span><br/>
+                                            <span>Date:</span>
+                                        </td>
+                                        <td style="padding: 0; padding-left: 5px; width: 55%; vertical-align: bottom;">
+                                            <div style="border-bottom: 1px solid black; width: 100%; min-height: 20px;">
+                                                <span t-field="o.date" t-options='{"widget": "date"}'/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ADDRESS SECTION  -->
+                        <div class="row mt-1">
+                            <div class="col-7" style="font-weight: bold; word-wrap: break-word;">
+                                To: <span t-field="o.partner_id.name"/><br/>
+                                <span t-field="o.department_name"/><br/>
+                                <span style="text-decoration: underline;" t-field="o.address_amharic"/>
+                            </div>
+                        </div>
+
+                        <!--  SUBJECT -->
+                        <div class="row mt-4 mb-2">
+                            <div class="col-12" style="word-wrap: break-word; text-decoration: underline; font-weight: normal; padding: 8px;">
+                                <span t-field="o.subject"/>
+                            </div>
+                        </div>
+
+                        <!--  BODY CONTENT -->
+                        <div class="row mt-1">
+                            <div class="col-12" style="text-align: justify; line-height: 1.5; word-wrap: break-word;">
+                                <span t-field="o.report_header_text"/>
+                            </div>
+                        </div>
+
+                        <!-- TABLE -->
+                        <div class="row mt-1">
+                            <div class="col-12">
+                                <table class="table table-bordered table-sm" style="border: 1px solid black; width: 100%; table-layout: fixed;">
+                                    <thead>
+                                        <tr style="background-color: #f2f2f2;">
+                                            <th style="width: 5%;">S.No</th>
+                                            <th style="width: 30%;">Description</th>
+                                            <th style="width: 15%;">Serial No</th>
+                                            <th style="width: 10%;">UM</th>
+                                            <th style="width: 10%;">QTY</th>
+                                            <th style="width: 15%;">Oil Cons (L)</th>
+                                            <th style="width: 15%;">Contract No</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="idx" t-value="1"/>
+                                        <tr t-foreach="o.line_ids" t-as="line">
+                                            <td><span t-esc="idx"/></td>
+                                            <td style="word-wrap: break-word;"><span t-field="line.description"/></td>
+                                            <td style="word-wrap: break-word;"><span t-field="line.serial_number"/></td>
+                                            <td><span t-field="line.uom_id"/></td>
+                                            <td><span t-field="line.quantity"/></td>
+                                            <td><span t-field="line.oil_consumption"/></td>
+                                            <td style="word-wrap: break-word;"><span t-field="line.contract_no"/></td>
+                                            <t t-set="idx" t-value="idx+1"/>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="5" class="text-end"><strong>Total oil consumption</strong></td>
+                                            <td style="background-color: #e6e6e6;"><strong><span t-field="o.total_oil"/></strong></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- CLOSING TEXT -->
+                        <div class="row mt-4">
+                            <div class="col-12" style="word-wrap: break-word;">
+                                <strong><span t-field="o.report_closing_text"/></strong>
+                            </div>
+                        </div>
+                        
+                        <!-- Extra Terms  -->
+                        <div class="row mt-2" t-if="o.report_terms">
+                            <div class="col-12" style="word-wrap: break-word;">
+                                <span t-field="o.report_terms"/>
+                            </div>
+                        </div>
+
+                        <!-- SIGNATURE SECTION -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <!-- Headers -->
+                                <div class="row">
+                                    <div class="col-4" /> 
+                                    <div class="col-3 text-center"><strong>Name/ስም</strong></div>
+                                    <div class="col-3 text-center"><strong>Signature/ፊርማ</strong></div>
+                                    <div class="col-2 text-center"><strong>Date/ቀን</strong></div>
+                                </div>
+
+                                <!-- Prepared By Row -->
+                                <div class="row mt-1 align-items-end">
+                                    <div class="col-4"><strong>ያዘጋጀው<br />Prepared By</strong></div>
+                                    <div class="col-3 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%;">
+                                            <span t-field="o.prepared_by_id.name"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%; display: flex; align-items: bottom; justify-content: center;">
+                                            <t t-if="o.prepared_by_id.sign_signature">
+                                                <img t-att-src="image_data_uri(o.prepared_by_id.sign_signature)" style="max-height: 35px; max-width: 100%;"/>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%;">
+                                            <span t-field="o.prepared_date" t-options='{"widget": "date"}'/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Approved By Row -->
+                                <div class="row mt-2 align-items-end">
+                                    <div class="col-4"><strong>ያጸደቀው<br />Approved By</strong></div>
+                                    <div class="col-3 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%;">
+                                            <span t-field="o.approved_by_id.name"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%; display: flex; align-items: bottom; justify-content: center;">
+                                            <t t-if="o.approved_by_id.sign_signature">
+                                                <img t-att-src="image_data_uri(o.approved_by_id.sign_signature)" style="max-height: 35px; max-width: 100%;"/>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        <div style="border-bottom: 1px solid black; min-height: 20px; width: 95%;">
+                                            <span t-field="o.approved_date" t-options='{"widget": "date"}'/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

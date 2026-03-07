@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_vendor_bid" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.vendor.bid</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Vendor Bid" string="Vendor Bid" name="vendor_bid">
+                    <block title="Vendor Bid Settings">
+                        <setting string="Petty Cash Limit" id="petty_cash_limit" help="Maximum amount allowed for petty cash purchases without additional approval.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field class="w-50" name="petty_cash_limit"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="CEO Approval Threshold" id="ceo_approval_threshold" help="Purchase requests above this amount will require CEO approval. Set to 0 to disable CEO approval requirement.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field class="w-50" name="ceo_approval_threshold"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

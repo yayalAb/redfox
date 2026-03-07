@@ -1,0 +1,19 @@
+<odoo>
+<record id="view_partner_bank_form_inherit_hr_payroll_account_inherit" model="ir.ui.view">
+        <field name="name">res.partner.bankt.button</field>
+        <field name="model">res.partner.bank</field>
+        <field name="inherit_id" ref="hr_payroll_account.view_partner_bank_form_inherit_hr_payroll_account" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="before">
+                    <field name="branch_address"/>
+                    <field name="is_payroll_account"/>
+                </xpath>
+                <xpath expr="//field[@name='bank_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='acc_number']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+            </field>
+        </record>
+</odoo>

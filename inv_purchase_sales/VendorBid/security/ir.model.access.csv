@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_supplies_rfp_approver,access.supplies.rfp.approver,model_supplies_rfp,base.group_user,1,1,1,1
+access_supplies_rfp_product_line,access.supplies.rfp.product.line,model_supplies_rfp_product_line,base.group_user,1,1,1,1
+access_purchase_order_document,access.purchase.order.document,model_purchase_order_document,base.group_user,1,1,1,1
+access_supplies_committee_member,access.supplies.committee.member,model_committee_member,base.group_user,1,1,1,1
+access_rfp_split_wizard,access.rfp.split.wizard,model_rfp_split_wizard,base.group_user,1,1,1,1
+access_rfp_split_wizard_line,access.rfp.split.wizard.line,model_rfp_split_wizard_line,base.group_user,1,1,1,1
+access_committee_reject_wizard,access.committee.reject.wizard,model_committee_member_reject_wizard,base.group_user,1,1,1,1

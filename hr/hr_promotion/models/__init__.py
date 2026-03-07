@@ -1,0 +1,1 @@
+from . import hr_promotion, hr_promotion_wizard

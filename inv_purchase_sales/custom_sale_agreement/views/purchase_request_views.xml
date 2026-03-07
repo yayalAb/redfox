@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- LIST VIEW -->
+    <record id="view_purchase_request_tree" model="ir.ui.view">
+        <field name="name">purchase.request.tree</field>
+        <field name="model">purchase.request</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Requests">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="subject"/>
+                <field name="state" widget="badge" decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_purchase_request_form" model="ir.ui.view">
+        <field name="name">purchase.request.form</field>
+        <field name="model">purchase.request</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight" invisible="state != 'draft'" groups="custom_sale_agreement.group_payment_request_submit"/>
+                    <button name="action_review" string="Review" type="object" class="oe_highlight" invisible="state != 'submitted'" groups="custom_sale_agreement.group_payment_request_review"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'review'" groups="custom_sale_agreement.group_payment_request_approve"/>
+                    <button name="action_print" string="Print Purchase request" type="object" icon="fa-print" invisible="state == 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ['sent', 'cancel']" groups="custom_sale_agreement.group_payment_request_cancel"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object" invisible="state == 'draft'" groups="custom_sale_agreement.group_payment_request_reset_to_draft"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Recipient">
+                            <field name="payment_request_id" readonly="1"/>
+                            <field name="partner_id"/>
+                            <field name="department_name"/>
+                            <field name="address_amharic"/>
+                            <field name="date"/>
+                        </group>
+                        <group string="Signatures">
+                            <field name="prepared_by_id"/>
+                            <field name="approved_by_id"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Content &amp; Table">
+                            <label for="subject" string="Subject"/>
+                            <field name="subject"/>
+                            
+                            <separator string="Letter Body (Paragraphs)"/>
+                            <field name="report_header_text" placeholder="Type the main letter content here..."/>
+
+                            <separator string="Structured Table Data"/>
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="description"/>
+                                    <field name="serial_number"/>
+                                    <field name="uom_id"/>
+                                    <field name="quantity"/>
+                                    <field name="oil_consumption"/>
+                                    <field name="contract_no"/>
+                                </list>
+                            </field>
+                            <group class="oe_right">
+                                <field name="total_oil"/>
+                            </group>
+
+                            <separator string="Closing Text"/>
+                            <field name="report_closing_text" placeholder="Closing remarks..."/>
+                            
+                            <separator string="Additional Terms"/>
+                            <field name="report_terms" placeholder="Extra tables or terms can go here..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION & MENU -->
+    <record id="action_purchase_request" model="ir.actions.act_window">
+        <field name="name">Purchase Requests</field>
+        <field name="res_model">purchase.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_purchase_request" 
+              name="Purchase Requests" 
+              parent="sale.sale_order_menu" 
+              action="action_purchase_request" 
+              sequence="40"/>
+</odoo>

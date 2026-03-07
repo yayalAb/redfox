@@ -1,0 +1,137 @@
+<odoo>
+    <record id="manufacturing_document_report_custom" model="ir.actions.report">
+        <field name="name">Manufacturing Documents</field>
+        <field name="model">manufacturing.balance.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">inventory_report.manufacturing_balance_report_template_custom</field>
+        <field name="report_file">inventory_report.manufacturing_balance_report_template_custom</field>
+    </record>
+
+    <!-- Report template for Property sale -->
+    <template id="manufacturing_balance_report_template_custom">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <style>
+                    .print_doc_header {
+                        text-align: center;
+                        text-decoration: underline;
+                        margin-bottom: 15px;
+                    }
+                </style>
+
+                <!-- <h3 class="print_doc_header">Jerr private Limited Company</h3> -->
+                <h5 class="print_doc_header">Manufacturing Balance report</h5>
+                <div class="row">
+                   <t t-if="warehouses">
+                        <div class="col-4">
+                                <div>
+                                    <strong>Selected Warehouses</strong>
+                                    <ul>
+                                        <t t-foreach="warehouses" t-as="warehouse">
+                                            <li t-esc="warehouse"/>
+                                        </t>
+                                    </ul>
+                                </div>
+                        </div>
+                    </t>
+                <t t-if="tags">
+                    <div class="col-4">
+                            <div>
+                                <strong>Selected Tags</strong>
+                                <ul>
+                                    <t t-foreach="tags" t-as="tag">
+                                        <li t-esc="tag"/>
+                                    </t>
+                                </ul>
+                            </div>
+                    </div>
+                    </t>
+                    <t t-if="categories">
+                        <div class="col-4">
+                                <div>
+                                    <strong>Selected Categories</strong>
+                                    <ul>
+                                        <t t-foreach="categories" t-as="category">
+                                            <li t-esc="category"/>
+                                        </t>
+                                    </ul>
+                                </div>
+                        </div>
+                    </t>
+                </div><br/>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SL.no</th>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Manufactured Amount</th>
+                            <th>Delivered Amount</th>
+                            <th>Stock Balance</th>
+                            <th>Manufactured Cost</th>
+                            <th>Total Manufactured Cost</th>
+                        </tr>
+                    </thead>
+                    <t t-set="i" t-value="0"/>
+                    <tbody>
+                        <!--                        <t t-foreach="datas" t-as="line">-->
+                        <tr t-foreach="datas" t-as="move" t-if="move['manufactured_amount'] &gt; 0">
+                            <td>
+                                <t t-set="i" t-value="i + 1"/>
+                                <span t-esc="i"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['item_code']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['item_name']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['manufactured_amount']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['delivered_amount']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['manufactured_amount'] - move['delivered_amount']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['manufactured_cost']"/>
+                            </td>
+                            <td>
+                                <span t-esc="(move['manufactured_amount'] - move['delivered_amount']) * move['manufactured_cost']"/>
+                            </td>
+
+                        </tr>
+                            <!-- Footer Row for Total Sum -->
+                        <tr style="font-weight: bold;">
+                            <td colspan="3"><strong>Total</strong></td>
+                            <td>
+                                <t t-set="total_manufactured_amount" t-value="sum(move['manufactured_amount'] for move in datas)"/>
+                                <span t-esc="total_manufactured_amount"/>
+                            </td>
+                            <td>
+                                <t t-set="total_delivered_amount" t-value="sum(move['delivered_amount'] for move in datas)"/>
+                                <span t-esc="total_delivered_amount"/>
+                            </td>
+                            <td>
+                                <t t-set="total_stock_balance" t-value="sum((move['manufactured_amount'] - move['delivered_amount']) for move in datas)"/>
+                                <span t-esc="total_stock_balance"/>
+                            </td>
+                            <td>
+                                <t t-set="total_manufactured_cost" t-value="sum(move['manufactured_cost'] for move in datas)"/>
+                                <span t-esc="total_manufactured_cost"/>
+                            </td>
+                            <td>
+                                <t t-set="total_value" t-value="sum((move['manufactured_amount'] - move['delivered_amount']) * move['manufactured_cost'] for move in datas)"/>
+                                <span t-esc="total_value"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </t>
+    </template>
+
+
+</odoo>

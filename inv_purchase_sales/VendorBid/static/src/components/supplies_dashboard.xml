@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="supplies.dashboard">
+        <Layout display="display" className="'o_dashboard'">
+            <div class="container py-2">
+                <div class="row align-items-center mt-3">
+                    <div class="col-md-7">
+                        <div class="d-flex flex-column">
+                            <h2 style="font-size: 1.8rem;font-weight: 600;">
+                                Vendor Dashboard
+                            </h2>
+                            <p class="text-muted">
+                                Information about the vendors and their statistics.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="d-flex flex-row justify-content-between">
+                            <select class="form-select me-1" t-model="state.selectedSupplierId">
+                                <i class="fas fa-chevron-down"></i>
+                                <option value="0">Select Vendor</option>
+                                <t t-foreach="state.suppliers" t-as="supplier" t-key="supplier.id">
+                                    <option t-att-value="supplier.id" t-out="supplier.name"/>
+                                </t>
+                            </select>
+                            <select class="form-select" t-model="state.selectedPeriod">
+                                <option value="0" selected="">All Time</option>
+                                <t t-foreach="timeperiods" t-as="period" t-key="period.tag">
+                                    <option t-att-value="period.tag" t-out="period.label"/>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-8">
+                        <t t-if="state.selectedSupplierId !== '0'">
+                            <StatBar rfp_stats="state.rfp"/>
+                            <t t-if="state.productLines.length > 0">
+                                <div class="my-3 p-4 bg-white products-container shadow-1 border-1">
+                                    <h2 class="text-muted" style="font-weight: 600">Product Breakdown</h2>
+                                    <div class="table-responsive border-1" style="max-height: calc(100vh - 300px); overflow-y: auto;">
+                                        <table class="table table-hover border-1 mb-0">
+                                            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Quantity</th>
+                                                    <th>Avg. Unit Price</th>
+                                                    <th>Total (<t t-out="state.currency"/>)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.productLines" t-as="line" t-key="line.id">
+                                                    <tr>
+                                                        <td>
+                                                            <img t-att-src="'data:image/png;base64,' + line.product_image" alt="product"
+                                                                 class="img-fluid rounded me-2 border" width="80"/>
+                                                            <h4 class="d-inline" t-out="line.product_name"/>
+                                                        </td>
+                                                        <td t-out="line.total_qty"/>
+                                                        <td t-out="line.avg_qty_price"/>
+                                                        <td t-out="line.subtotal_purchase"/>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="bg-white border-1 d-flex flex-column justify-content-center align-items-center mt-3"
+                                     style="padding: 7rem 0;">
+                                    <p class="text-muted text-center">
+                                        No purchase data available for the selection.
+                                    </p>
+                                </div>
+                            </t>
+                            
+                        </t>
+                    </div>
+                    <div class="col-md-4">
+                        <CompanyCard
+                                t-if="state.selectedSupplierId !== '0'"
+                                supplierId="state.selectedSupplierId"
+                                all_suppliers="state.suppliers"
+                        />
+                        <t t-if="state.selectedSupplierId !== '0'">
+                            <div t-if="state.rfqStatusChartData" class="bg-white p-4 shadow-1 border-1 mt-3">
+                                <Graph title="'RFQ Status'" type="'doughnut'" data="state.rfqStatusChartData"/>
+                            </div>
+                            <div t-if="state.rfpPurchaseChartData" class="bg-white p-4 shadow-1 border-1 mt-3">
+                                <Graph title="'Purchase Breakdown'" type="'line'" data="state.rfpPurchaseChartData"/>
+                            </div>
+                        </t>
+                    </div>
+                    <div class="col-md-12" t-if="state.selectedSupplierId === '0'">
+                        <div class="d-flex flex-column justify-content-center align-items-center my-5 p-5">
+                            <img src="/VendorBid/static/img/undraw_choice.svg" alt="Empty" class="img-fluid"
+                                 width="350"/>
+                            <h3 class="mt-3 mb-0 text-muted">
+                                No Vendor Selected
+                            </h3>
+                            <p class="text-muted text-center">
+                                Please select a vendor to view the details.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Layout>
+    </t>
+</templates>

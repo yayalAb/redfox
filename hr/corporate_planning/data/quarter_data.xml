@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="quarter_1" model="corporate.quarter">
+            <field name="name">Quarter 1</field>
+            <field name="code">Q1</field>
+        </record>
+        <record id="quarter_2" model="corporate.quarter">
+            <field name="name">Quarter 2</field>
+            <field name="code">Q2</field>
+        </record>
+        <record id="quarter_3" model="corporate.quarter">
+            <field name="name">Quarter 3</field>
+            <field name="code">Q3</field>
+        </record>
+        <record id="quarter_4" model="corporate.quarter">
+            <field name="name">Quarter 4</field>
+            <field name="code">Q4</field>
+        </record>
+    </data>
+</odoo>

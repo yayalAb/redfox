@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_quality_test_plan,access.quality.test.plan,model_quality_test_plan,base.group_user,1,1,1,1
+access_quality_test_plan_line,access.quality.test.plan.line,model_quality_test_plan_line,base.group_user,1,1,1,1
+access_fat_test_base,access.fat.test.base,model_fat_test_base,base.group_user,1,1,1,1
+access_fat_step1_insulation,access.fat.step1.insulation,model_fat_step1_insulation,base.group_user,1,1,1,1
+access_fat_step2_ratio,access.fat.step2.ratio,model_fat_step2_ratio,base.group_user,1,1,1,1
+access_fat_step3_no_load,access.fat.step3.no.load,model_fat_step3_no_load,base.group_user,1,1,1,1
+access_fat_step4_load_loss,access.fat.step4.load.loss,model_fat_step4_load_loss,base.group_user,1,1,1,1
+access_fat_step5_winding,access.fat.step5.winding,model_fat_step5_winding,base.group_user,1,1,1,1
+access_fat_step6_separate,access.fat.step6.separate,model_fat_step6_separate,base.group_user,1,1,1,1
+access_fat_step7_induced,access.fat.step7.induced,model_fat_step7_induced,base.group_user,1,1,1,1

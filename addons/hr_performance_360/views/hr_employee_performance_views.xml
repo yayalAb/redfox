@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_performance_employee_list_view" model="ir.ui.view">
+        <field name="name">hr.employee.performance.list</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <list string="Evaluatable Employees"
+                  decoration-success="is_evaluated == True"
+                  decoration-info="is_evaluated == False">
+                <field name="name"/>
+                <field name="work_phone" string="Phone"/>
+                <!-- <field name="department_id"/> -->
+                <field name="job_id"/>
+                <field name="evaluation_template_id"/>
+                <field name="evaluation_type" widget="badge"
+                       decoration-info="evaluation_type == 'self'"
+                       decoration-success="evaluation_type == 'peer'"
+                       decoration-warning="evaluation_type == 'subordinate'"
+                       decoration-danger="evaluation_type == 'supervisor'"/>
+                <field name="is_evaluated" column_invisible="1"/>
+                <button
+                    name="action_open_performance_evaluation"
+                    type="object"
+                    string="Evaluate"
+                    class="oe_highlight"
+                    invisible="is_evaluated"
+                />
+            </list>
+        </field>
+    </record>
+
+    <!-- <record id="action_hr_performance_employee_list" model="ir.actions.act_window">
+        <field name="name">Employee Evaluations</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="hr_performance_employee_list_view"/>
+        <field name="domain">
+                [
+                    '|','|','|',
+                    ('user_id', '=', uid),
+                    ('parent_id.user_id', '=', uid),
+                    ('id', 'in', context.get('child_ids', [])),
+                    ('job_id', 'in', context.get('peer_job_ids', []))
+                ]
+                </field>
+        <field name="context">{
+            'search_default_active': 1,
+            'evaluation_view': True,
+        }</field>
+    </record> -->
+    <record id="action_employee_evaluation_python" model="ir.actions.server">
+    <field name="name">Employee Evaluations (Python)</field>
+    <field name="model_id" ref="hr.model_hr_employee"/>
+    <field name="state">code</field>
+    <field name="code">
+            action = env['hr.employee'].action_open_employee_evaluations()
+        </field>
+    </record>
+
+    <menuitem
+        id="hr_performance_employee_menu"
+        name="Employees to Evaluate"
+        parent="hr_performance_360_menu"
+        action="action_employee_evaluation_python"
+        sequence="6"
+    />
+
+      <menuitem
+        id="hr_performance_employee_self_service_menu"
+        name="Employees to Evaluate"
+        parent="hr_employee_self_service.main_menu_self_service_probc"
+        action="action_employee_evaluation_python"
+        sequence="6"
+    />
+</odoo>

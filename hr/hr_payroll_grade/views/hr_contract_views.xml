@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_hr_contract_form_inherit_salary_grade_below_contract_type" model="ir.ui.view">
+    <field name="name">hr.contract.form.inherit.salary.grade.below.contract.type</field>
+    <field name="model">hr.contract</field>
+    <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="(//field[@name='contract_type_id'])[2]" position="after">
+            <field name="salary_grade_value_id" options="{'no_create': True, 'no_quick_create': True, 'no_open': True}"/>
+            <field name="scale_level_id" options="{'no_create': True, 'no_quick_create': True, 'no_open': True}"/>
+            <field name="has_deduction"/>
+            <field name="is_fixed_amount" invisible="not has_deduction" />
+            <field name="fixed_amount" invisible="not has_deduction or not is_fixed_amount" />
+            <field name="agreed_deduction" invisible="not has_deduction or is_fixed_amount" />
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_hr_contract_form_inherit_hide_wage_on_payroll" model="ir.ui.view">
+    <field name="name">hr.contract.form.inherit.hide.wage.on.payroll</field>
+    <field name="model">hr.contract</field>
+    <field name="inherit_id" ref="hr_contract_salary.hr_contract_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='wage']" position="replace"/>
+      <xpath expr="//label[@for='wage_on_signature']" position="replace"/>
+    </field>
+  </record>
+
+</odoo>

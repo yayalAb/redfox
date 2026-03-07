@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- LIST VIEW -->
+    <record id="view_payment_request_tree" model="ir.ui.view">
+        <field name="name">payment.request.tree</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <list string="Payment Requests" 
+                  decoration-info="state == 'draft'" 
+                  decoration-primary="state == 'submitted'"
+                  decoration-warning="state == 'review'"
+                  decoration-success="state == 'paid'" 
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="sale_order_id"/>
+                <field name="amount_total" widget="monetary"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'paid'" 
+                       decoration-warning="state == 'review'"
+                       decoration-info="state == 'approved'"
+                       decoration-primary="state == 'submitted'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_payment_request_form" model="ir.ui.view">
+        <field name="name">payment.request.form</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <form string="Payment Request">
+                <header>
+                    <!-- 1. Submit  -->
+                    <button name="action_submit" 
+                            string="Submit" 
+                            type="object" 
+                            class="oe_highlight" 
+                            groups="custom_sale_agreement.group_payment_request_submit" invisible="state != 'draft'"/>
+                    
+                    <!-- 2. Review  -->
+                    <button name="action_review" 
+                            string="Review" 
+                            type="object" 
+                            class="oe_highlight" 
+                            groups="custom_sale_agreement.group_payment_request_review"
+                            invisible="state != 'submitted'"/>
+
+                    <!-- 3. Approve  -->
+                    <button name="action_approve" 
+                            string="Approve" 
+                            type="object" 
+                            class="oe_highlight" 
+                            groups="custom_sale_agreement.group_payment_request_approve"
+                            invisible="state != 'review'"/>
+                    
+                    <!-- 4. PRINT/SEND (Available after Approve - usually open to Submitters/Reviewers too, or restrict to Approvers) -->
+                    <button name="action_print" 
+                            string="Print Payment Request" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-print" 
+                            invisible="state == 'draft'"/>
+                            
+                    <button name="action_send_email" 
+                            string="Send by Email" 
+                            type="object" 
+                            icon="fa-envelope" 
+                            invisible="state == 'draft'"/>
+                    
+                    <!-- 5. MARK PAID (Usually restricted to Approvers) -->
+                    <button name="action_mark_paid" 
+                            string="Mark Paid" 
+                            type="object" 
+                            class="oe_highlight" 
+                            groups="custom_sale_agreement.group_payment_request_approve" 
+                            invisible="state != 'sent'"/>
+                    
+                    <!-- 6. CANCEL -->
+                    <button name="action_cancel" 
+                            string="Cancel" 
+                            type="object" 
+                            groups="custom_sale_agreement.group_payment_request_cancel"
+                            invisible="state in ['paid', 'cancel']"/>
+
+                    <!-- 7. RESET TO DRAFT -->
+                    <button name="action_reset_draft" 
+                            string="Reset to Draft" 
+                            type="object" 
+                            groups="custom_sale_agreement.group_payment_request_reset_to_draft"
+                            invisible="state == 'draft'"/>
+                    
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,review,approved,sent,paid"/>
+
+                    <!--  Add Smart Button to the Button Box -->
+            <xpath expr="//div[@name='button_box']" position="inside"> <!-- Note: Ensure your parent form has div name='button_box' -->
+                <button name="action_view_purchase_requests"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o"
+                        invisible="purchase_request_count == 0">
+                    <field name="purchase_request_count" widget="statinfo" string="Purchase Requests"/>
+                </button>
+            </xpath>
+
+            <!--  Create Button to Header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_create_purchase_request" 
+                        string="Create Purchase Request" 
+                        type="object" 
+                        class="btn-primary"
+                        /> 
+            </xpath>
+
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Paid" bg_color="bg-success" invisible="state != 'paid'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary" invisible="state != 'cancel'"/>
+
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Reference Number" readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <!-- sale_order_id triggers the auto-fill of lines -->
+                            <field name="sale_order_id" readonly="state != 'draft'"/>
+                            <field name="partner_id"/>
+                            <field name="department_name" placeholder="e.g. Sourcing Contract Management"/>
+                            <field name="date" readonly="state == 'paid'"/>
+                        </group>
+                        <group>
+                            <field name="subject" readonly="state == 'paid'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Items">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="price_unit" widget="monetary"/>
+                                    <field name="total_price" widget="monetary"/>
+                                </list>
+                            </field>
+                            <group class="oe_right">
+                                <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                        </page>
+                        <page string="Payment Letter Content">
+                            <group string="Introduction">
+                                <field name="header_text" nolabel="1"/>
+                            </group>
+
+                            <group string="Reference &amp; Introduction">
+                                <field name="agreement_id"/>
+                                <field name="contract_ref_text"/>
+                            </group>
+
+                            <separator string="Bank Details"/>
+                            <field name="bank_details_html" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_payment_request_menu" model="ir.actions.act_window">
+        <field name="name">Payment Requests</field>
+        <field name="res_model">payment.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- MENU under Sales/orders -->
+    <menuitem id="menu_payment_request" 
+              name="Payment Requests" 
+              parent="sale.sale_order_menu" 
+              action="action_payment_request_menu" 
+              sequence="30"/>
+</odoo>

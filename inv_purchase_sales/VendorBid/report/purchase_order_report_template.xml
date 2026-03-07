@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="custom_purchase_order_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page"
+                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
+
+                        <div class="oe_structure" />
+
+                        <t t-set="doc_title" t-value="'PURCHASE ORDER'" />
+                        <t t-set="doc_number" t-value="o.display_name" />
+                        <t t-set="issue_number" t-value="'1'" />
+
+                        <div
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
+                            <div style="margin: 20px;">
+                                <div style="text-align: right; margin-bottom: 20px;">
+                                    <div style="margin-bottom: 10px;">
+                                        <strong>Date</strong>
+                                        <span
+                                            style="margin-left: 8px; border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
+                                            <span t-field="o.date_order"
+                                                t-options='{"format": "MM/dd/yyyy"}' />
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <strong>To</strong>
+                                    <span
+                                        style=" margin-left: 8px;border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
+                                        <span t-field="o.partner_id" />
+                                    </span>
+                                </div>
+                                <div class='row'>
+                                    <div class="col-6" style="margin-bottom: 20px;">
+                                        <strong>Proforma No</strong>
+                                        <span
+                                            style="margin-left: 8px; border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
+                                            <span t-field="o.partner_ref" />
+                                        </span>
+                                    </div>
+                                    <div class="col-6" style="margin-bottom: 20px;">
+                                        <strong>Pr No</strong>
+                                        <span
+                                            style="margin-left: 8px; border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
+                                            <span t-field="o.rfp_id.rfp_number" />
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-sm table-bordered mt-3"
+                                style="border: 1px solid black; border-collapse: collapse; width: 100%;">
+                                <thead
+                                    style="background-color: #f2f2f2; display: table-header-group;">
+                                    <tr style="font-weight: bold;">
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            S.No</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            Qty.</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">
+                                            UOM</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center; width: 30%;">
+                                            Description</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">Unit
+                                            Price</td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:center;">Total
+                                            Price</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Product Lines Loop -->
+                                    <t t-set="i" t-value="0" />
+                                    <t t-foreach="o.order_line" t-as="order">
+                                        <t t-set="i" t-value="i + 1" />
+                                        <t t-set="price"
+                                            t-value="order.price_unit if order.price_unit else 0.0" />
+                                        <t t-set="total" t-value="order.product_qty * price" />
+                                        <tr>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:center;">
+                                                <span t-esc="i" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                <span t-esc="'{0:,.2f}'.format(order.product_qty)" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:center;">
+                                                <span t-field="order.product_uom.name" />
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="order.product_id.name" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                <span t-esc="'{0:,.2f}'.format(price)" />
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                <span t-esc="'{0:,.2f}'.format(total)" />
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                    <!-- NEW TOTALS SECTION (Copied logic from Sale Order) -->
+                                    <tr>
+                                        <!-- Spacer cell with specific border style matching Sale
+                                        Order -->
+                                        <td colspan="4"
+                                            style="border-top: 1px solid black; border-bottom: none; border-left: none; border-right: 1px solid black;">
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <strong>Total Amount Before VAT</strong>
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <span t-esc="'{0:,.2f}'.format(o.amount_untaxed)" />
+                                        </td>
+                                    </tr>
+
+                                    <!-- Dynamic Tax Loop using tax_totals -->
+                                    <t t-foreach="o.tax_totals.get('subtotals', [])"
+                                        t-as="subtotal_item">
+                                        <t t-if="subtotal_item.get('name') == 'Untaxed Amount'">
+                                            <t t-foreach="subtotal_item.get('tax_groups', [])"
+                                                t-as="tax_group">
+                                                <tr>
+                                                    <td colspan="4"
+                                                        style="border-top: none; border-bottom: none; border-left: none; border-right: 1px solid black;"></td>
+                                                    <td
+                                                        style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                        <span t-esc="tax_group['group_name']" />
+                                                    </td>
+                                                    <td
+                                                        style="border: 1px solid black; padding: 2px; text-align:right;">
+                                                        <span
+                                                            t-esc="'{0:,.2f}'.format(tax_group['tax_amount_currency'])" />
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </t>
+
+                                    <!-- Grand Total -->
+                                    <tr>
+                                        <td colspan="4"
+                                            style="border-top: none; border-bottom: 1px solid black; border-left: none; border-right: 1px solid black;"></td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <strong>Total Amount With VAT</strong>
+                                        </td>
+                                        <td
+                                            style="border: 1px solid black; padding: 2px; text-align:right;">
+                                            <span t-esc="'{0:,.2f}'.format(o.amount_total)" />
+                                        </td>
+                                    </tr>
+                                    <!-- END TOTALS SECTION -->
+
+                                </tbody>
+                            </table>
+                            <div class="footer-block"
+                                style="margin-top: 20px; padding-top: 5px;">
+                                <div style="margin-bottom: 20px;">
+                                    <strong>Deliver To</strong>
+                                    <span
+                                        style="margin-left: 8px; border-bottom: 1px solid black; width: 400px; display: inline-block;">
+                                        <span t-field="o.company_id" />
+                                        <span />
+                                    </span>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <strong>By Date</strong>
+                                    <span
+                                        style="margin-left: 8px; border-bottom: 1px solid black; width: 400px; display: inline-block;">
+                                        <span />
+                                    </span>
+                                </div>
+
+                                <div class="container mt-5">
+                                    <div class="row align-items-end">
+
+                                        <!-- Prepared By Section -->
+                                        <div class="col-4 text-center">
+                                            <!-- 1. Name above the signature -->
+                                            <div t-field="o.submitted_by.name"
+                                                style="font-weight: bold;" />
+
+                                            <!-- 2. Signature (Smaller) -->
+                                            <div
+                                                style="min-height: 45px; display: flex; align-items: center; justify-content: center;">
+                                                <t t-if="o.submitted_by.sign_signature">
+                                                    <img
+                                                        t-att-src="'data:image/png;base64,%s' % (o.submitted_by.sign_signature.decode())"
+                                                        style="max-height: 40px; max-width: 120px;" />
+                                                </t>
+                                            </div>
+
+                                            <!-- 3. Line below the signature -->
+                                            <div
+                                                style="border-top: 1px solid black; margin: 0 20px;" />
+
+                                            <!-- 4. Label at the bottom -->
+                                            <strong>Prepared by</strong>
+                                        </div>
+
+                                        <!-- Verified By Section -->
+                                        <div class="col-4 text-center">
+                                            <!-- 1. Name above the signature -->
+                                            <div t-field="o.verified_by.name"
+                                                style="font-weight: bold;" />
+
+                                            <!-- 2. Signature (Smaller) -->
+                                            <div
+                                                style="min-height: 45px; display: flex; align-items: center; justify-content: center;">
+                                                <t t-if="o.verified_by.sign_signature">
+                                                    <img
+                                                        t-att-src="'data:image/png;base64,%s' % (o.verified_by.sign_signature.decode())"
+                                                        style="max-height: 40px; max-width: 120px;" />
+                                                </t>
+                                            </div>
+
+                                            <!-- 3. Line below the signature -->
+                                            <div
+                                                style="border-top: 1px solid black; margin: 0 20px;" />
+
+                                            <!-- 4. Label at the bottom -->
+                                            <strong>Verified by</strong>
+                                        </div>
+
+                                        <!-- Approved By Section -->
+                                        <div class="col-4 text-center">
+                                            <!-- 1. Name above the signature -->
+                                            <div t-field="o.approved_by.name"
+                                                style="font-weight: bold;" />
+
+                                            <!-- 2. Signature (Smaller) -->
+                                            <div
+                                                style="min-height: 45px; display: flex; align-items: center; justify-content: center;">
+                                                <t t-if="o.approved_by.sign_signature">
+                                                    <img
+                                                        t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                                        style="max-height: 40px; max-width: 120px;" />
+                                                </t>
+                                            </div>
+
+                                            <!-- 3. Line below the signature -->
+                                            <div
+                                                style="border-top: 1px solid black; margin: 0 20px;" />
+
+                                            <!-- 4. Label at the bottom -->
+                                            <strong>Approved by</strong>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="row mt-4 align-items-center">
+                                        <div class="col-2 text-center">
+                                            <strong>ክፍፍል:-</strong>
+                                        </div>
+                                        <div class="col-2 text-center">ዋናው ፋይናንስ ክፍል</div>
+                                        <div class="col-2 text-center">1<sup>ኛ</sup> ኮፒ ለአቅራቢ</div>
+                                        <div class="col-2 text-center">2<sup>ኛ</sup> ኮፒ ለግምጃ ቤት</div>
+                                        <div class="col-2 text-center">3<sup>ኛ</sup> ኮፒ በጥራዝ ላይ ቀሪ</div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-2 text-center">
+                                            <strong>Distribution:-</strong>
+                                        </div>
+                                        <div class="col-2 text-center">Original Finance Office</div>
+                                        <div class="col-2 text-center">1<sup>st</sup> copy Supplier</div>
+                                        <div class="col-2 text-center">2<sup>st</sup> copy Store
+                                            Office</div>
+                                        <div class="col-2 text-center">3<sup>st</sup> copy Pad</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="purchase_order_report_inherit_and_replace"
+        inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-call="VendorBid.custom_purchase_order_document" />
+        </xpath>
+    </template>
+
+</odoo>

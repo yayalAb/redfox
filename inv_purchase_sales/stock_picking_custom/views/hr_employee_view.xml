@@ -1,0 +1,12 @@
+<odoo>
+    <record id="hr_employee_signature_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.signatrue.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']/group/group[@name='identification_group']/div[@class='o_row']" position="after">
+                <field name="emp_signature" widget="signature" class="oe_signature"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

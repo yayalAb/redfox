@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="main_dashboard.MainDashboard" owl="1">
+        <div class="container-fluid overflow-scroll bg-light pb-2">
+            <div class="row m-1 ms-md-3 ms-0">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col p-0">
+<!--                            <div class="card shadow-sm border m-1 p-3 bg-white">-->
+                                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                    <div class="col p-0">
+                                        <div class="shadow-sm border m-1 p-2 bg-white">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <h1 class="fs-3 text-black">Dashboard</h1>
+                                                <div class="w-100 w-md-auto">
+                                                    <div class="d-flex flex-column flex-md-row gap-2">
+                                                        <input type="date" class="form-control" t-att-value="state.start_date" t-on-change="onStartDateChange" placeholder="Start Date"/>
+                                                        <input type="date" class="form-control" t-att-value="state.end_date" t-on-change="onEndDateChange" placeholder="End Date"/>
+<!--                                                        <select class="form-select w-100 w-md-auto" t-att-value="state.selected_plan_id" t-on-change="onPlanChange">-->
+<!--                                                            <option value="">Site</option>-->
+<!--                                                            <t t-foreach="state.campaign_plans" t-as="plan" t-key="plan.id">-->
+<!--                                                                <option t-att-value="plan.id" t-esc="plan.name"/>-->
+<!--                                                            </t>-->
+<!--                                                        </select>-->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+<!--                            </div>-->
+                        </div>
+                    </div>
+
+                    <!--Cards Section -->
+                    <div class="row">
+                        <DashboardCard name="'Fincance'" value="state.available_shop.value" percentage="state.available_shop.percentage"  iconClass="'fa-arrow-up'" bgColor="'#DDEDEA'" onClick="onAvailableShop"/>
+                        <DashboardCard name="'HR'" value="state.ranted_shop.value" percentage="state.ranted_shop.percentage"  iconClass="'fa-arrow-up'" bgColor="'#DAEAF6'"  onClick="onClickRantedShop"/>
+                        <DashboardCard name="'Sales'" value="state.this_collection.value" percentage="state.this_collection.percentage"  iconClass="'fa-arrow-up'" bgColor="'#FFE2E5'"  onClick="onThisCollection"/>
+                        <DashboardCard name="'Inventory'" value="state.expecting_collection.value" percentage="state.expecting_collection.percentage"  iconClass="'fa-arrow-up'" bgColor="'#F3E9FF'"  onClick="onExpectingCollection"/>
+                        <DashboardCard name="'Manufacturing'" value="state.expiring_contract.value" percentage="state.expiring_contract.percentage"  iconClass="'fa-arrow-up'" bgColor="'#FFF4DE'"  onClick="onExpiringContract"/>
+                        <DashboardCard name="'CRM'" value="state.expired_contract.value" percentage="state.expired_contract.percentage"  iconClass="'fa-arrow-up'" bgColor="'#DCFCE7'"  onClick="onExpiredContracts"/>
+                  </div>
+                    
+                    <!-- Chart Section -->
+                     <!-- row 1 -->
+                    <div class="row">
+                        <div class="col-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">REVENUE VS EXPENSES</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'line'"
+                                        title="'REVENUE VS EXPENSES'"
+                                        y_title="'REVENUE'"
+                                        x_title="'EXPENSES'"
+                                        data="state.collection_by_month"
+                                        onChartClick="onMonthlyCollectionChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">Employee Headcount</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'bar'"
+                                        title="'Employee Headcount'"
+                                        y_title="'EMployee'"
+                                        x_title="'Count'"
+                                        data="state.shop_by_state"
+                                        onChartClick="onShopByStateChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- row 2 -->
+                    <div class="row">
+                        <div class="col-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">STOCK LEVELS</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'pie'"
+                                        title="'STOCK LEVELS'"
+                                        y_title="'STOCK'"
+                                        x_title="'Status'"
+                                        data="state.collection_by_month"
+                                        onChartClick="onMonthlyCollectionChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">SALES PIPELINE</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'pie'"
+                                        title="'SALES PIPELINE'"
+                                        y_title="'PIPELINE'"
+                                        x_title="'State'"
+                                        data="state.shop_by_state"
+                                        onChartClick="onShopByStateChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- row 3 -->
+                    <div class="row">
+                        <div class="col-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">PRODUCTION VS TARGET </h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'bar'"
+                                        title="'PRODUCTION VS TARGET'"
+                                        y_title="'PRODUCTION'"
+                                        x_title="'TARGET'"
+                                        data="state.collection_by_month"
+                                        onChartClick="onMonthlyCollectionChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 m-0 p-0">
+                            <div class="shadow-sm border m-1 p-3 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">TICKETS BY PRIORITY</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <div class="col-12" style="min-height: 300px;">
+                                    <ChartRenderer
+                                        type="'bar'"
+                                        title="'TICKETS BY PRIORITY'"
+                                        y_title="'TICKETS'"
+                                        x_title="'PRIORITY'"
+                                        data="state.shop_by_state"
+                                        onChartClick="onShopByStateChartClick"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

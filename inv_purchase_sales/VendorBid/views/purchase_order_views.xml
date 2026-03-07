@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Committee Member List View -->
+        <record id="committee_member_list_view" model="ir.ui.view">
+            <field name="name">committee.member.list</field>
+            <field name="model">committee.member</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="member_id" />
+                    <field name="role" />
+                    <field name="approval_status" />
+                    <field name="approval_date" />
+                    <field name="can_user_approve" invisible="1" />
+
+                    <button name="action_committee_approve"
+                        type="object"
+                        icon="fa-check"
+                        title="Approve"
+                        class="btn-success"
+                        invisible="not can_user_approve" />
+
+                    <button name="action_committee_reject"
+                        type="object"
+                        icon="fa-times"
+                        title="Reject"
+                        class="btn-danger"
+                        invisible="not can_user_approve" />
+                </list>
+            </field>
+        </record>
+
+        <record id="purchase_order_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_submit" string="Submit" type="object"
+                        class="oe_highlight" invisible="state not in ('draft', 'sent')" />
+                </xpath>
+
+                <xpath expr="//button[@name='button_confirm'][1]" position="attributes">
+                    <attribute name="invisible">state != 'submit'</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='fiscal_position_id']" position='before'>
+                    <field name="bank_name" invisible="purchase_origin != 'foreign'" />
+                    <field name="bank_address" invisible="purchase_origin != 'foreign'" />
+                    <field name="swift_code" invisible="purchase_origin != 'foreign'" />
+                    <field name="account_number" invisible="purchase_origin != 'foreign'" />
+                    <field name="warranty_period" invisible="purchase_origin != 'local'" />
+                    <field name="validity_period" invisible="purchase_origin != 'local'" />
+                </xpath>
+
+                <xpath expr="//field[@name='payment_term_id']" position='after'>
+                    <field name="payment_term" invisible="purchase_origin != 'foreign'" />
+                </xpath>
+
+                <xpath expr="//field[@name='currency_id']" position="after">
+                    <field name="purchase_origin" />
+                    <field name="applied_tax_ids" widget="many2many_tags"
+                        invisible="purchase_origin != 'local'"
+                        options="{'no_create': True, 'no_create_edit': True}" />
+                    <field name="price_tax_included" invisible="purchase_origin != 'local'" />
+                    <field name="good_description" invisible="purchase_origin != 'foreign'" />
+                </xpath>
+
+                <xpath expr="//header/field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,sent,submit,to approve,purchase"
+                        readonly="1" />
+                </xpath>
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Attachements"
+                        invisible="purchase_origin != 'foreign' or state != 'purchase'">
+                        <field name="foreign_document_ids"
+                            context="{'default_purchase_order_id': id}">
+                            <list>
+                                <field name="document_type" readonly="state == 'done'" />
+                                <field name="attachement" />
+                                <field name="file_name" />
+                                <field name="attached_by" />
+                                <field name="state" />
+                                <button name="action_review_doc" string="Review" type="object"
+                                    class="btn-primary" invisible="state != 'pending'" />
+                                <button name="action_done_doc" string="Done" type="object"
+                                    class="btn-success" invisible="state != 'reviewed'" />
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+
+
+                <!-- Add Out of Stock field to purchase order lines -->
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                    position="before">
+                    <field name="out_of_stock" />
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/list//field[@name='product_qty']"
+                    position="before">
+                    <field name="hs_code" column_invisible='parent.purchase_origin != "foreign"' />
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                    position="attributes">
+                    <attribute name="readonly">out_of_stock</attribute>
+                    <attribute name="column_invisible">parent.price_tax_included</attribute>
+                </xpath>
+
+                <!-- Add Tax Included Price field - visible only when price_tax_included is checked -->
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                    position="after">
+                    <field name="tax_included_price"
+                        column_invisible="not parent.price_tax_included" />
+                </xpath>
+
+                <!-- Make taxes_id column hidden by default -->
+                <xpath expr="//field[@name='order_line']/list//field[@name='taxes_id']"
+                    position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+
+                <!-- Add Out of Stock field to purchase order lines -->
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                    position="before">
+                    <field name="out_of_stock" />
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                    position="attributes">
+                    <attribute name="readonly">out_of_stock</attribute>
+                    <attribute name="column_invisible">parent.price_tax_included</attribute>
+                </xpath>
+
+                <!-- Add Tax Included Price field - visible only when price_tax_included is checked -->
+                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                    position="after">
+                    <field name="tax_included_price"
+                        column_invisible="not parent.price_tax_included" />
+                </xpath>
+
+                <!-- Make taxes_id column hidden by default -->
+                <xpath expr="//field[@name='order_line']/list//field[@name='taxes_id']"
+                    position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="purchase_order_tree_inherit_type" model="ir.ui.view">
+            <field name="name">purchase.order.tree.inherit.type</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='activity_ids']" position="before">
+                    <field name="purchase_origin" optional="show" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_project_inherit_form" model="ir.ui.view">
+            <field name="name">purchase.order.project.inherit.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="project_purchase.view_order_form_inherit_project_purchase" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='project_id']" position="attributes">
+                    <attribute name="groups"></attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_foreign_purchase_order_port_form" model="ir.ui.view">
+            <field name="name">foreign.purchase.order.port.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='incoterm_location']" position="replace">
+                    <field name="country_origin" invisible="purchase_origin != 'foreign'" />
+                    <field name="port_loading" invisible="purchase_origin != 'foreign'" />
+                    <field name="port_discharge" invisible="purchase_origin != 'foreign'" />
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="purchase.purchase_form_action" model="ir.actions.act_window">
+            <field name="domain">[('state', 'in', ('submit', 'to approve', 'purchase', 'done',
+                'cancel'))]</field>
+        </record>
+
+        <record id="purchase_order_confirmed_search_panel" model="ir.ui.view">
+            <field name="name">purchase.order.confirmed.search.panel</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_search" />
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <searchpanel view_types="list,kanban">
+                        <field name="state" string="Status" select="multi" enable_counters="1"
+                            icon="fa-list" />
+                            <!-- <field name="purchase_origin" string="Purchase Origin" select="multi" enable_counters="1" /> -->
+                            <field name="partner_id" string="Vendor" select="multi" enable_counters="1"
+                            icon="fa-users" />
+                            <field name="company_id" expand="1" icon="fa-building"
+                                groups="base.group_multi_company" />
+                    </searchpanel>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

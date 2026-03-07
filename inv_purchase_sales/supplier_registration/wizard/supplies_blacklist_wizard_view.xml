@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_blacklist_wizard" model="ir.ui.view">
+            <field name="name">blacklist.wizard</field>
+            <field name="model">supplies.blacklist.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Blacklist Wizard">
+                    <group>
+                        <field name="email" readonly="1"/>
+                        <field name="reason"/>
+                    </group>
+                    <footer>
+                        <button name="action_blacklist" string="Confirm" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

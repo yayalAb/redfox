@@ -1,0 +1,58 @@
+<odoo>
+    <record id="view_account_move_group_form_inherit" model="ir.ui.view">
+        <field name="name">account.move.group.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_post'][1]" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_confirm</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_post'][2]" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_confirm</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_invoice_sent'][1]" position="attributes">
+                <attribute name="groups">group_accounting_journal_send</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_invoice_sent'][2]" position="attributes">
+                <attribute name="groups">group_accounting_journal_send</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_print_pdf'][1]" position="attributes">
+                <attribute name="groups">group_accounting_journal_print</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_print_pdf'][2]" position="attributes">
+                <attribute name="groups">group_accounting_journal_print</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_register_payment'][1]" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_pay</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_register_payment'][2]" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_pay</attribute>
+            </xpath>
+            <xpath expr="//button[@name='preview_invoice']" position="attributes">
+                <attribute name="groups">group_accounting_journal_preview</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_reverse']" position="attributes">
+                <attribute name="groups">group_accounting_journal_credit_note</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_cancel'][1]" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_cancel</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_cancel'][2]" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_cancel</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_draft']" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_reset_draft</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_hash']" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_lock</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_request_cancel']" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_request_cancel</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_set_checked']" position="attributes">
+                <attribute name="groups">account.group_account_invoice,group_accounting_journal_set_checked</attribute>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

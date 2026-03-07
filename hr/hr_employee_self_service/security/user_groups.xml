@@ -1,0 +1,10 @@
+<odoo>
+    <record id="category_employee_self_service" model="ir.module.category">
+        <field name="name">Employees Self Service</field>
+    </record>
+
+    <record id="group_employee_self_service" model="res.groups">
+        <field name="name">Employee Self Service</field>
+        <field name="category_id" ref="category_employee_self_service" />
+    </record>
+</odoo>

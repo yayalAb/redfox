@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_performance_evaluation_summary_list_view" model="ir.ui.view">
+        <field name="name">hr.performance.evaluation.summary.list</field>
+        <field name="model">hr.performance.evaluation.summary</field>
+        <field name="arch" type="xml">
+            <list string="Evaluation Summary Report">
+                <field name="employee_id"/>
+                <field name="evaluation_date"/>
+                <field name="supervisor_score" sum="Supervisor Total"/>
+                <field name="subordinate_score" sum="Subordinate Total"/>
+                <field name="peer_score" sum="Peer Total"/>
+                <field name="self_score" sum="Self Total"/>
+                <field name="total_score" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_performance_evaluation_summary" model="ir.actions.act_window">
+        <field name="name">Evaluation Summary Report</field>
+        <field name="res_model">hr.performance.evaluation.summary</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="hr_performance_evaluation_summary_list_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No evaluation summaries available.
+            </p>
+            <p>
+                This report shows aggregated evaluation scores grouped by employee and evaluator type.
+            </p>
+        </field>
+    </record>
+
+</odoo>
+

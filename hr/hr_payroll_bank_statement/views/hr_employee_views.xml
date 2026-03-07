@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_employee_form_bank_accounts" model="ir.ui.view">
+        <field name="name">hr.employee.form.bank.accounts</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Bank Accounts tab after hr_settings page -->
+            <xpath expr="//page[@name='hr_settings']" position="after">
+                <page name="bank_accounts" string="Bank Accounts" groups="hr.group_hr_user">
+                    <field name="work_contact_id" invisible="1"/>
+                    <field name="bank_account_ids" nolabel="1" invisible="not work_contact_id" 
+                           context="{'default_partner_id': work_contact_id}"
+                           readonly="not work_contact_id">
+                        <list>
+                            <field name="bank_id" string="Bank" required="1"/>
+                            <field name="acc_number" string="Account Number" required="1"/>
+                            <field name="acc_holder_name" string="Account Holder Name"/>
+                            <!-- <field name="currency_id" string="Currency"/> -->
+                            <field name="branch_address" string="Branch Address"/>
+                            <field name="is_payroll_account" string="Payroll Account"/>
+                        </list>
+                    </field>
+                    <div invisible="work_contact_id" class="alert alert-info" role="alert">
+                        <p>No work contact is set for this employee. Bank accounts will be displayed once a work contact is assigned.</p>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

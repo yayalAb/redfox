@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- 1. Create a new Structure Type -->
+        <record id="structure_type_wagwago_employee" model="hr.payroll.structure.type">
+            <field name="name">Wagwago Employee Structure</field>
+            <field name="country_id" eval="False"/> <!-- Make it available for all countries -->
+        </record>
+
+        <!-- 2. Create the Salary Structure itself, linked to our new type -->
+        <record id="structure_wagwago_base" model="hr.payroll.structure">
+            <field name="name">Wagwago Base Salary Structure</field>
+            <field name="type_id" ref="structure_type_wagwago_employee"/>
+        </record>
+    </data>
+</odoo>

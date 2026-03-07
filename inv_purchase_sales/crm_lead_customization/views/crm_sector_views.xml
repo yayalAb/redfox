@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sector and Industry Views and Actions are added below. -->
+    <!-- SECTOR VIEWS -->
+    <record id="crm_sector_view_tree" model="ir.ui.view">
+        <field name="name">crm.sector.tree</field>
+        <field name="model">crm.sector</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- INDUSTRY VIEWS -->
+    <record id="crm_industry_view_tree" model="ir.ui.view">
+        <field name="name">crm.industry.list</field>
+        <field name="model">crm.industry</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="sector_id"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="crm_industry_view_search" model="ir.ui.view">
+        <field name="name">crm.industry.search</field>
+        <field name="model">crm.industry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="sector_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Sector" name="groupby_sector" context="{'group_by': 'sector_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+    <record id="crm_sector_action" model="ir.actions.act_window">
+        <field name="name">Sectors</field>
+        <field name="res_model">crm.sector</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">Create a new business sector</p>
+        </field>
+    </record>
+
+    <record id="crm_industry_action" model="ir.actions.act_window">
+        <field name="name">Industries</field>
+        <field name="res_model">crm.industry</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_groupby_sector': 1}</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">Create a new industry</p>
+        </field>
+    </record>
+
+    <!-- MENUS (Under CRM > Configuration) -->
+    <menuitem id="menu_crm_sector"
+              name="Sectors"
+              parent="crm.crm_menu_config"
+              action="crm_sector_action"
+              sequence="15"/>
+
+    <menuitem id="menu_crm_industry"
+              name="Industries"
+              parent="crm.crm_menu_config"
+              action="crm_industry_action"
+              sequence="16"/>
+</odoo>

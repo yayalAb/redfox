@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_bincard_template_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-set="doc_title" t-valuef="Bin Card Report"/>
+                <t t-set="doc_number" t-valuef="WAG/INV/0007" t-esc-0="company.name[:3].upper()" t-esc-1="context_timestamp(datetime.datetime.now()).strftime('%Y%m%d')"/>
+                <t t-set="issue_number" t-value="'1'"/>
+                <t t-foreach="docs" t-as="doc">
+                    <div class="page" style="font-size: 11px; font-family: 'Noto Sans Ethiopic', sans-serif;">
+                        
+                        <!-- CSS Styles -->
+                        <style>
+                            .label-text {
+                                font-weight: bold;
+                                width: 120px;
+                            }
+                            .value-line {
+                                border-bottom: 1px solid black;
+                                flex-grow: 1;
+                                padding-left: 5px;
+                            }
+                            .info-row {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 4px;
+                            }
+                            .main-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                            }
+                            .main-table th, .main-table td {
+                                border: 1px solid black;
+                                padding: 4px;
+                                height: 28px;
+                            }
+                            .main-table th {
+                                font-weight: bold;
+                                text-align: center;
+                                vertical-align: middle;
+                            }
+                        </style>
+
+                        <!-- 1. Header Section -->
+                        <div class="row mb-3 justify-content-center">
+                            <div class="col-6 text-center">
+                                <h5 style="font-weight: bold;">የመደብ ካርድ</h5>
+                                <h5 style="font-weight: bold;">BIN CARD</h5>
+                            </div>
+                        </div>
+
+                        <!-- 2. Dynamic Information Block (UPDATED) -->
+                        <t t-set="header_info" t-value="doc._get_header_info()"/>
+                        <div class="row" style="margin-bottom: 1rem;">
+                            <div class="col-6">
+                                <div class="info-row">
+                                <span class="label-text">የዕቃው ስም / Description</span>
+                                    <!-- <span class="label-text">Description</span> -->
+                                    <span class="value-line" t-esc="header_info.get('description')"/>
+                                </div>
+                                <div class="info-row">
+                                    <!-- <span class="label-text">Stock No.</span> -->
+                                    <span class="label-text">ወይም ቁጥር / Stock No.</span>
+                                    <span class="value-line" t-esc="header_info.get('stock_no')"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label-text">ዝቅተኛ መወሰን / Minimum Level</span>
+                                    <!-- <span class="label-text">Minimum Level</span> -->
+                                    <span class="value-line" t-esc="header_info.get('min_level')"/>
+                                </div>
+                                <div class="info-row">
+                                    <!-- <span class="label-text">Location</span> -->
+                                    <span class="label-text">የተቀመጠበት ቦታ / Location</span>
+
+                                    <t t-if="doc.location_id">
+                                        <span class="value-line" t-esc="doc.location_id.display_name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="value-line">Full Warehouse</span>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-row">
+                                    <span class="label-text">መለኪያ / Unit</span>
+                                    <!-- <span class="label-text">Unit</span> -->
+                                    <span class="value-line" t-esc="header_info.get('unit')"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label-text">ካርድ ቁጥር / Card No.</span>
+                                    <!-- <span class="label-text">Card No.</span> -->
+                                    <span class="value-line" t-esc="header_info.get('card_no')"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label-text">ከፍተኛ መወሰን / Maximum Level</span>
+                                    <!-- <span class="label-text">Maximum Level</span> -->
+                                    <span class="value-line" t-esc="header_info.get('max_level')"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label-text">የገ/ቤት ቁ. / Warehouse No.</span>
+                                    <!-- <span class="label-text">Warehouse No.</span> -->
+                                    <span class="value-line" t-esc="'%s (%s)' % (doc.warehouse_id.name, doc.warehouse_id.code)"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date Range Header -->
+                        <div class="text-center my-3" t-if="doc.date_from or doc.date_to">
+                            <strong>Period:</strong>
+                            <span t-if="doc.date_from"><t t-esc="doc.date_from" t-options='{"widget": "date"}'/></span>
+                            <span t-if="doc.date_from and doc.date_to"> to </span>
+                            <span t-if="doc.date_to"><t t-esc="doc.date_to" t-options='{"widget": "date"}'/></span>
+                        </div>
+
+                        <!-- 3. Main Data Table -->
+                        <table class="main-table">
+                            <thead>
+                                <tr>
+                                <th rowspan="2">ቀን<br/>Date</th>
+                                    <!-- This column only appears if "All Variants" is selected -->
+                                <!-- <th t-if="not doc.product_id" rowspan="2" style="width: 20%;">Variant</th> -->
+                                <th rowspan="2">የዕቃ መረከቢያ ሰነድ<br/>GRN NO</th>
+                                <th rowspan="2">የዕቃ ማውጫ ሰነድ<br/>SIV NO</th>
+                                <th rowspan="2">ተቀባይ ክፍል<br/>Recipient/Supplier</th>
+                                <th colspan="3">የዕቃ ብዛት<br/>Quantity</th>
+                                <th rowspan="2">ፊርማ<br/>Signature</th>
+                                </tr>
+                                <tr>
+                                    <th>ገቢ<br/>Received</th>
+                                    <th>ወጪ<br/>Issued</th>
+                                    <th>ቀሪ<br/>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- UPDATED to call the consistent method name -->
+                                <t t-set="report_data" t-value="doc._get_report_data()"/>
+                                <t t-set="lines" t-value="report_data['lines']"/>
+                                
+                                <t t-if="not lines">
+                                    <tr>
+                                        <td t-att-colspan="doc.product_id and 8 or 9" class="text-center font-italic">No stock moves found for this period.</td>
+                                    </tr>
+                                </t>
+                                
+                                <tr t-foreach="lines" t-as="line">
+                                    <t t-if="line.get('is_opening')">
+                                        <td class="text-center">
+                                            <!-- Handles case where date is None (no start date chosen) -->
+                                            <span t-if="line['date']" t-esc="line['date']" t-options='{"widget": "date", "format": "yyyy-MM-dd"}'/>
+                                        </td>
+                                        <td t-att-colspan="5" class="text-center font-weight-bold">Opening Balance</td>
+                                        <td class="text-right font-weight-bold"><span t-esc="'{:.2f}'.format(line['balance'])"/></td>
+                                        <td></td>
+                                    </t>
+                                    
+                                    <t t-else="">
+                                        <td class="text-center"><span t-esc="line['date']" t-options='{"widget": "datetime", "format": "yyyy-MM-dd"}'/></td>
+                                        <!-- This cell only appears if "All Variants" is selected -->
+                                        <!-- <td t-if="not doc.product_id"><span t-esc="line['variant_name']"/></td> -->
+                                        <td><span t-esc="line['grn_no']"/></td>
+                                        <td><span t-esc="line['siv_no']"/></td>
+                                        <td><span t-esc="line['recipient']"/></td>
+                                        <td class="text-right"><span t-esc="'{:.2f}'.format(line['qty_in']) if line['qty_in'] else ''"/></td>
+                                        <td class="text-right"><span t-esc="'{:.2f}'.format(line['qty_out']) if line['qty_out'] else ''"/></td>
+                                        <td class="text-right"><span t-esc="'{:.2f}'.format(line['balance'])"/></td>
+                                        <td></td>
+                                    </t>
+                                </tr>
+                                
+                                <!-- Placeholder empty rows for manual entry -->
+                                <tr>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="font-weight-bold">
+                                    <td t-att-colspan="4" class="text-right">Totals</td>
+                                    <td class="text-right"><span t-esc="'{:.2f}'.format(report_data['total_in'])"/></td>
+                                    <td class="text-right"><span t-esc="'{:.2f}'.format(report_data['total_out'])"/></td>
+                                    <td class="text-right"><span t-esc="'{:.2f}'.format(report_data['final_balance'])"/></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

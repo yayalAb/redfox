@@ -1,0 +1,372 @@
+<odoo>
+  <record id="view_hr_employee_form_inherit_emergency" model="ir.ui.view">
+    <field name="name">hr.employee.form.emergency.relationship</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_form"/>
+    <field name="arch" type="xml">
+
+        <xpath expr="//field[@name='job_title']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <xpath expr="//sheet/group[1]" position="replace">
+          <group class="mb-5">
+              <!-- First Column -->
+              <group>
+                  <field name="identification_id" string="Employee ID" style="padding-bottom: 8px;"/>
+                  <field name="work_email" widget="email_field" style="padding-bottom: 8px;"/>
+                  <field name="work_phone" widget="phone_field"/>
+                  <field name="work_phone" widget="phone_field"/>
+                  <field name="company_id" />
+                  <field name="company_country_code" invisible="1"/>
+              </group>
+              <!-- Second Column -->
+              <group>
+                  <field name="department_id" style="padding-bottom: 15px;"/>
+                  <field name="job_id" context="{'default_no_of_recruitment': 0}" style="padding-bottom: 8px;"/>
+                  <field name="parent_id" widget="many2one_avatar_user"/>
+                  <field name="brach_id"/>
+              </group>
+          </group>
+        </xpath>
+
+        <xpath expr="//page[@name='skills_resume']" position="before">
+          <page name="personal_information" position="move"/>
+        </xpath>
+
+        <xpath expr="//page[@name='skills_resume']" position="before">
+          <page name="public" position="move"/>
+        </xpath>
+
+        <xpath expr="//group[@name='emergency']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <!--
+          2. Create the new "Emergency Contact and Guarantor" page
+            and place it right after the "Private Information" page.
+        -->
+        <xpath expr="//page[@name='public']" position="after">
+          <page name="emergency_guarantor" string="Emergency Contact &amp; Guarantor">
+              <!-- TOP ROW: Emergency Contact Section -->
+              <group string="Emergency Contact Section">
+                  <group>
+                      <field name="emergency_contact"/>
+                      <field name="emergency_phone" widget="phone"/>
+                      <field name="emergency_relationship_id"/>
+                  </group>
+                  <group>
+                      <!-- This group is intentionally empty to keep the top section on one row -->
+                  </group>
+              </group>
+
+              <!-- A visual line to separate the two sections -->
+              <separator string="Guarantor Details"/>
+
+              <!-- BOTTOM ROW: Guarantor Details in two columns -->
+              <group>
+                  <!-- Column 1 -->
+                  <group>
+                      <field name="guarantor_name"/>
+                      <field name="guarantor_relationship_id" string="Relationship"/>
+                      <field name="guarantor_phone" widget="phone"/>
+                      <field name="guarantor_address"/>
+                  </group>
+                  <!-- Column 2 -->
+                  <group>
+                      <field name="guarantor_id_type_id" style="padding-bottom: 8px;"/>
+                      <field name="guarantor_id_number" style="padding-bottom: 8px;"/>
+                      <field name="guarantor_id_attachment" widget="binary" filename="guarantor_id_attachment_name"/>
+                  </group>
+              </group>
+          </page>
+      </xpath>
+
+
+<xpath expr="//page[@name='personal_information']//group[.//field[@name='certificate']]" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
+
+<xpath expr="//field[@name='private_car_plate']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
+<!-- <xpath expr="//field[@name='identification_id']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath> -->
+
+<xpath expr="//label[@for='distance_home_work']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
+<xpath expr="//div[@name='div_km_home_work']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
+
+
+<!--
+  4. Move the 'Family Status' fields into a new, dedicated group.
+     Here we target the 'Citizenship' group by finding the 'country_id' field
+     inside it, which is a stable selector.
+-->
+<xpath expr="//page[@name='personal_information']//group[.//field[@name='country_id']]" position="after">
+    <group string="Family Status">
+        <group>
+          <field name="marital" position="move"/>
+          <field name="spouse_complete_name" position="move" invisible="marital not in ['married', 'cohabitant']"/>
+        </group>
+        <group>
+          <field name="spouse_birthdate" position="move" invisible="marital not in ['married', 'cohabitant']"/>
+          <field name="children" position="move"/>
+        </group>
+    </group>
+</xpath>
+
+<xpath expr="//page[@name='personal_information']//group[.//field[@name='marital']]" position="before">
+    <!-- This outer group creates the two-column container -->
+    <group>
+        <!-- Left Column: Private Contact -->
+        <group string="Private Contact">
+            <!--
+              We use 'position="move"' to pull the fields from their
+              original locations into this new structure.
+            -->
+            <label for="private_street" string="Private Address"/>
+            <div class="o_address_format">
+                <field name="private_street" placeholder="Street..." class="o_address_street"/>
+                <field name="private_street2" placeholder="Street 2..." class="o_address_street"/>
+                <field name="private_city" placeholder="City" class="o_address_city"/>
+                <field name="private_state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}" context="{'default_country_id': private_country_id}"/>
+                <field name="private_zip" placeholder="ZIP" class="o_address_zip"/>
+                <field name="private_country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+            </div>
+            <field name="private_email" position="move"/>
+            <field name="private_phone" position="move"/>
+        </group>
+        <!-- Right Column: Citizenship -->
+        <group string="Citizenship">
+            <field name="country_id" position="move"/>
+            <field name="gender" position="move"/>
+            <field name="birthday" position="move"/>
+            <field name="place_of_birth" position="move"/>
+            <field name="country_of_birth" position="move"/>
+            <field name="passport_id" position="move"/>
+        </group>
+    </group>
+</xpath>
+
+<xpath expr="//page[@name='public']//group[.//field[@name='address_id']]" position="before">
+    <!-- This outer group creates the two-column container -->
+    <group string="Employment Details">
+        <!-- Left Column -->
+            <field name="job_grade"/>
+            <field name="join_date"/> 
+            <field name="next_appraisal_date" invisible="ongoing_appraisal_count != 0"/>
+            <field name="next_appraisal_date" placeholder="Ongoing" invisible="ongoing_appraisal_count == 0"/>
+        <!-- Right Column -->
+            <field name="employment_type" readonly="1" style="padding-bottom: 8px;"/>
+            <field name="factory_id" />
+            <!-- <field name="employee_status" widget="badge" decoration-success="employee_status == 'active'" decoration-warning="employee_status == 'on_leave'" decoration-danger="employee_status == 'terminated'"/> -->
+    </group>
+</xpath>
+
+<xpath expr="//field[@name='employee_type']" position="attributes">
+  <attribute name="invisible">1</attribute>  
+</xpath>
+<!-- <xpath expr="//field[@name='joining_date']" position="replace" /> -->
+
+
+        <!-- Full Name -->
+        <xpath expr="//field[@name='name']" position="attributes">
+          <attribute name="required">1</attribute>
+          <attribute name="widget">name_field</attribute>
+        </xpath>
+
+        <!-- Work Phone -->
+        <xpath expr="//field[@name='work_phone']" position="attributes">
+          <attribute name="required">1</attribute>
+          <attribute name="widget">phone_field</attribute>
+        </xpath>
+
+        <!-- Position -->
+        <xpath expr="//field[@name='job_id']" position="attributes">
+          <attribute name="required">1</attribute>
+        </xpath>
+
+        <!-- Department -->
+        <xpath expr="//field[@name='department_id']" position="attributes">
+          <attribute name="required">1</attribute>
+        </xpath>
+
+        <!-- Work Location -->
+        <!-- <xpath expr="//field[@name='address_id']" position="attributes">
+          <attribute name="required">1</attribute>
+        </xpath> -->
+
+        <!-- <xpath expr="//field[@name='resource_calendar_id']" position="attributes">
+          <attribute name="required">1</attribute>
+        </xpath> -->
+
+        <!-- Emergency Contact Name -->
+        <!-- <xpath expr="//field[@name='emergency_contact']" position="attributes">
+          <attribute name="required">1</attribute>
+          <attribute name="widget">name_field</attribute>
+        </xpath> -->
+
+        <!-- Emergency Contact Phone -->
+        <!-- <xpath expr="//field[@name='emergency_phone']" position="attributes">
+          <attribute name="required">1</attribute>
+          <attribute name="widget">phone_field</attribute>
+        </xpath> -->
+        
+        <!-- <xpath expr="//field[@name='mobile_phone']" position="attributes">
+          <attribute name="widget">phone_field</attribute>
+        </xpath> -->
+
+        <!-- <xpath expr="//field[@name='job_title']" position="attributes">
+          <attribute name="readonly">1</attribute>
+        </xpath> -->
+
+        <!-- <xpath expr="//field[@name='emergency_phone']" position="after">
+          <field name="emergency_relationship_id"/>
+          <field name="emergency_relationship_id" required="1"/>
+        </xpath> -->
+
+    </field>
+  </record>
+
+  <record id="view_employee_form_payroll_compatibility" model="ir.ui.view">
+            <field name="name">hr.employee.form.payroll.compatibility</field>
+            <field name="model">hr.employee</field>
+           
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+               
+                <xpath expr="//page[@name='hr_payroll']" position="replace"/>
+            </field>
+        </record>
+
+        <!-- 
+            Record 2: FEATURE VIEW
+            This record inherits from the base employee form and will ALWAYS be applied.
+            It adds your new, correctly structured "Payroll" page.
+        -->
+        <record id="view_employee_form_payroll_add" model="ir.ui.view">
+            <field name="name">hr.employee.form.payroll.add</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <!-- 
+                    We add our new page before the 'hr_settings' page. This is a stable
+                    anchor and ensures consistent placement.
+                -->
+                <xpath expr="//page[@name='hr_settings']" position="before">
+                    <page name="custom_payroll" string="Payroll" groups="hr.group_hr_user">
+                        <group>
+                            <group string="Bank Account Info">
+                                <!-- The bank_name field is computed and should not be editable by the user -->
+                                 <field name="use_others_account"/>
+                                 <field name="merged_with_other"/>
+                                 <field name="other_account_name" required="use_others_account" invisible="not use_others_account"/>
+                                 <field name="merged_employee_id" invisible="not merged_with_other"/>
+                                 <field name="other_employee"/>
+                                 <field name="bank_name" readonly="1" invisible="1"/>
+                                <!-- The bank account its
+                                 elf should only be editable if the employee record is saved -->
+                                <field name="bank_account_id" context="{'default_partner_id': work_contact_id}" readonly="not id" invisible="1"/>
+                            </group>
+                            <group string="Tax Info">
+                                <field name="cost_center_id"/>
+                                <field name="pays_pension"/>
+                                <field name="pension_no" invisible="not pays_pension"/>
+                                <field name="tin_no"/>
+                            </group>
+                        </group>
+
+                        <!-- This is the conditional section for Cost Sharing -->
+                            <group string="Cost Sharing" >
+                                <group>
+                                    <field name="pays_costsharing"/>
+                                    <field name="cost_sharing_type" invisible="not pays_costsharing"/>
+                                    <field name="cost_sharing_purpose" invisible="not pays_costsharing"/>
+                                </group>
+                                <group invisible="not pays_costsharing">
+                                    <!-- This empty group on the right ensures the fields below align correctly under the "Tax Info" group -->
+                                    <field name="cost_sharing_start_date"/>
+                                    <field name="cost_sharing_amount_rate"/>
+                                    <field name="cost_sharing_end_date"/>
+                                </group>
+                            </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+ <record id="view_hr_employee_form_inherit_skills_experience" model="ir.ui.view">
+    <field name="name">hr.employee.form.inherit.skills.experience</field>
+    <field name="model">hr.employee</field>
+    <!-- We inherit from the correct view in hr_skills -->
+    <field name="inherit_id" ref="hr_skills.hr_employee_view_form"/>
+    <field name="arch" type="xml">
+
+        <!-- 1. Rename the tab -->
+        <xpath expr="//page[@name='skills_resume']" position="attributes">
+            <attribute name="string">Experience</attribute>
+        </xpath>
+
+        <!--
+          2. Add the attachment field to the list definition.
+             This is the CORRECTED xpath, targeting the field inside the <list> tag.
+        -->
+        <xpath expr="//field[@name='resume_line_ids']/list/field[@name='name']" position="after">
+            <field name="attachment" widget="binary" filename="attachment_name"/>
+        </xpath>
+
+        <!--
+          3. To add the field to the pop-up modal, we need to modify the hr.resume.line form view itself,
+             as it's not defined here. This must be a separate record.
+        -->
+
+        <!-- 4. Add your other fields below the resume/experience list -->
+        <xpath expr="//field[@name='resume_line_ids']" position="after">
+            <separator string="Additional Details"/>
+            <group>
+                    <field name="educational_status_id"/>
+                    <field name="field_of_study_ids" widget="many2many_tags"/>
+                    <field name="experience_outside_company"/>
+            </group>
+        </xpath>
+
+    </field>
+</record>
+
+    <record id="view_resume_line_form_inherit_attachment" model="ir.ui.view">
+      <field name="name">hr.resume.line.form.inherit.attachment</field>
+      <field name="model">hr.resume.line</field>
+      <field name="inherit_id" ref="hr_skills.resume_line_view_form"/>
+      <field name="arch" type="xml">
+          <!-- insert your file fields just after the description field -->
+          <xpath expr="//field[@name='description']" position="before">
+              <group>
+                  <field name="attachment" filename="attachment_name"/>
+                  <field name="attachment_name" invisible="1"/>
+              </group>
+          </xpath>
+          <xpath expr="//field[@name='name']" position="attributes">
+            <attribute name="placeholder">Experience or Education Title</attribute>
+          </xpath>
+      </field>
+    </record>
+
+  
+  <!-- <record id="view_employee_filter_inherit_employment_type" model="ir.ui.view">
+    <field name="name">hr.employee.search.inherit.type</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_filter"/>
+    <field name="arch" type="xml">
+        <xpath expr="//search" position="inside">
+            <field name="employment_type" string="Employment Type"/>
+        </xpath>
+    </field>
+  </record> -->
+
+
+</odoo>

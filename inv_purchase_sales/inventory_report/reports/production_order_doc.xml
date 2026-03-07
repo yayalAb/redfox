@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_production_print_document_report_custom" model="ir.actions.report">
+        <field name="name">Production Order Print</field>
+        <field name="model">mrp.production</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">inventory_report.mrp_production_print_document_template_custom</field>
+        <field name="report_file">inventory_report.mrp_production_print_document_template_custom</field>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="mrp_production_print_document_template_custom">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <style>
+                    .footer_span {
+                        font-size: 18px;
+                        font-weight: bold;
+                        margin-bottom: 18px;
+                    }
+                    .print_doc_header {
+                        text-align: center;
+                        text-decoration: underline;
+                        margin-bottom: 15px;
+                    }
+                </style>
+                 <!-- <h3 class="print_doc_header">Jerr private Limited Company</h3> -->
+
+                    <h5 class="print_doc_header">Finished Goods Receiving/Transfers Voucher</h5>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>NO</th>
+                            <th>item Code</th>
+                            <th>description</th>
+                            <th>um</th>
+                            <th>quantity</th>
+                            <th>remark</th>
+                        </tr>
+                    </thead>
+                    <t t-set="i" t-value="0"/>
+                    <tbody>
+                        <tr t-foreach="docs.move_raw_ids" t-as="move">
+                            <td>
+                                <t t-set="i" t-value="i + 1"/>
+                                <span t-esc="i"/>
+                            </td>
+                            <td>
+                                <span t-esc="move.product_id.default_code or ''"/>
+                            </td>
+                            <td>
+                                <span t-esc="move.product_id.name or ''"/>
+                            </td>
+                            <td>
+                                <span t-esc="move.product_uom.name or ''"/>
+                            </td>
+                            <td>
+                                <span t-esc="move.product_uom_qty"/>
+                            </td>
+                            <td>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table><br/>
+                 <div class="row">
+                    <div class="col-5">
+                        <span class="footer_span">Transfer by:____________________________________</span>
+                        <br/>
+                        <span class="footer_span">Checked by:____________________________________</span>
+                        <br/>
+                        <span class="footer_span">Approved by:___________________________________</span>
+                        <br/>
+                        <span class="footer_span">Received by:___________________________________</span>
+                        <br/>
+                        <span class="footer_span">Inspected by:___________________________________</span>
+                        <br/>
+                        <br/>
+                        <span>Copy Dist Original Finance</span>
+                        <br/>
+                    </div>
+                    <div class="col-3">
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+
+                        <br/>
+                        <span>1st copy pro Dep</span>
+                        <br/>
+                    </div>
+                    <div class="col-4">
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <br/>
+                        <span>2nd copy warehouse</span>
+                        <br/>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+   <template id="report_mrporder_custom" inherit_id="mrp.report_mrporder">
+        <xpath expr="//div[@class='oe_structure'][last()]" position="after">
+            <div class="row mt32 mb32">
+                <div class="col-12">
+                    <div class="row">
+                    <div class="col-5">
+                        <span class="footer_span">Transfer by:____________________________________</span>
+                        <br/>
+                        <span class="footer_span">Checked by:____________________________________</span>
+                        <br/>
+                        <span class="footer_span">Approved by:___________________________________</span>
+                        <br/>
+                        <span class="footer_span">Received by:___________________________________</span>
+                        <br/>
+                        <span class="footer_span">Inspected by:___________________________________</span>
+                        <br/>
+                        <br/>
+                        <span>Copy Dist Original Finance</span>
+                        <br/>
+                    </div>
+                    <div class="col-3">
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+                        <span class="footer_span">Sign: ____________________</span>
+                        <br/>
+
+                        <br/>
+                        <span>1st copy pro Dep</span>
+                        <br/>
+                    </div>
+                    <div class="col-4">
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <span class="footer_span">Date: _______________________________</span>
+                        <br/>
+                        <br/>
+                        <span>2nd copy warehouse</span>
+                        <br/>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_bid_power_attorney" model="ir.actions.report">
+        <field name="name">Power of Attorney</field>
+        <field name="model">bid.power.attorney</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">company_tender_management.report_bid_power_attorney_template</field>
+        <field name="report_file">company_tender_management.report_bid_power_attorney_template</field>
+        <field name="print_report_name">'Power of Attorney - %s' % (object.bid_reference)</field>
+        <field name="binding_model_id" ref="model_bid_power_attorney"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_bid_power_attorney_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 14pt; color: #000; line-height: 1.6; margin-top: 20px; margin-right: 40px; margin-left: 40px;">
+                        
+                        <!-- Title -->
+                        <div class="text-left mb-4">
+                            <h3 style="font-weight: bold; text-decoration: underline; font-size: 16pt;">Power of Attorney</h3>
+                        </div>
+
+                        <!-- Header / Company Details -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <strong>Bidder's Name: </strong> <span t-field="doc.company_id.name"/><br/>
+                                
+                                <strong>Address: </strong> 
+                                <span t-if="doc.company_id.street" t-field="doc.company_id.street"/>
+                                <span t-if="doc.company_id.street2" t-esc="', ' + doc.company_id.street2"/>
+                                <span t-if="doc.company_id.city" t-esc="', ' + doc.company_id.city"/>
+                                <span t-if="doc.company_id.country_id" t-esc="', ' + doc.company_id.country_id.name"/>
+                                <br/>
+
+                                <strong>Tel: </strong> <span t-field="doc.company_id.phone"/><br/>
+                                <strong>Mobile: </strong> <span t-field="doc.company_id.mobile"/>
+                            </div>
+                        </div>
+
+                        <!-- Recipient -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <strong>To: </strong> <span t-field="doc.procuring_entity_id.name"/>
+                            </div>
+                        </div>
+
+                        <!-- Body Paragraph -->
+                        <div class="row mb-5">
+                            <div class="col-12" style="text-align: justify;">
+                                <p>
+                                    Whereas <span t-field="doc.company_id.name"/>, a reputable supplier of 
+                                    <span t-field="doc.goods_description"/>, hereby authorizes 
+                                    <span t-field="doc.representative_id.name"/>, whose specimen signature appears below, 
+                                    to sign all our offers and related documents pertaining to the 
+                                    <span t-field="doc.tender_description"/>, 
+                                    under Bid Reference Number: <span t-field="doc.bid_reference"/>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Representative Signature Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <strong>Specimen Signature: </strong> ___________________<br/><br/>
+                                <strong>Name: </strong> <span t-field="doc.representative_id.name"/>
+                            </div>
+                        </div>
+
+                        <!-- Official Signature Section -->
+                        <div class="row mt-5">
+                            <div class="col-12">
+                                <strong>Authorized Company Official:</strong>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <strong>Name: </strong> <span t-field="doc.official_id.name"/><br/><br/>
+                                <strong>Title: </strong> <span t-field="doc.official_title"/>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

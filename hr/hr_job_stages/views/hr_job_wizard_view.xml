@@ -1,0 +1,48 @@
+<odoo>
+    <record id="hr_applicant_wizard_form_view" model="ir.ui.view">
+        <field name="name">hr.applicant.wizard.form.view</field>
+        <field name="model">hr.applicant.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="stage_id" />
+                </group>
+                <notebook>
+                    <page string="Applicants">
+                        <field name="applicant_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name='partner_name' />
+                                <field name='partner_phone' />
+                                <field name='gender' />
+                                <field name='type_id' />
+                                <field name='graduation_department' />
+                                <field name='cgpa' />
+                                <field name='exit_exam_result' />
+                                <field name='salary_expected' />
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+                <footer>
+                    <button name="action_change_stage"
+                        string="Change Stage"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="q" />
+                    <button string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        data-hotkey="z" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_change_stage_wizard" model="ir.actions.act_window">
+        <field name="name">Change Stage</field>
+        <field name="res_model">hr.applicant.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="hr_recruitment.model_hr_applicant" />
+    </record>
+</odoo>

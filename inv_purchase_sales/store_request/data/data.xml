@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+        <record id="seq_store_request_id" model="ir.sequence">
+            <field name="name">Store Request Sequence</field>
+            <field name="code">store.request</field>
+            <field name="prefix">MRN/</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"></field>
+        </record>
+    </data>
+</odoo>

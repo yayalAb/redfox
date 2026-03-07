@@ -1,0 +1,36 @@
+<odoo>
+
+    <record id="action_create_promotion" model="ir.actions.server">
+        <field name="name">Create Promotion from Appraisal</field>
+        <field name="model_id" ref="hr_appraisal.model_hr_appraisal" />
+        <field name="binding_model_id" ref="hr_appraisal.model_hr_appraisal" />
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'New Promotion',
+    'res_model': 'hr.promotion',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_employee_id': record.employee_id.id,
+        'default_appraisal_id': record.id,
+        'default_creator_id': env.user.id,
+    }
+}
+        </field>
+    </record>
+
+    <record id="hr_appraisal_form_view" model="ir.ui.view">
+        <field name="name">hr.appraisal.form</field>
+        <field name="model">hr.appraisal</field>
+        <field name="inherit_id" ref="hr_appraisal.view_hr_appraisal_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(action_create_promotion)d" string="Request Promotion" type="action"
+                    class="oe_highlight" invisible="state != 'done'" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

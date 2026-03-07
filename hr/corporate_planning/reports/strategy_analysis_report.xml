@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_strategy_analysis" model="ir.actions.report">
+        <field name="name">Strategic Analysis Report</field>
+        <field name="model">corporate.strategy.analysis</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">corporate_planning.report_strategy_analysis_doc</field>
+        <field name="report_file">corporate_planning.report_strategy_analysis_doc</field>
+        <field name="binding_model_id" ref="model_corporate_strategy_analysis"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_strategy_analysis_doc">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-size: 14px;">
+                        <div class="text-center mt-4 mb-4">
+                            <h2>Strategic Environment Analysis</h2>
+                            <h4><span t-field="o.name"/></h4>
+                            <p><strong>Fiscal Year:</strong> <span t-field="o.fiscal_year"/></p>
+                        </div>
+                        <hr/>
+
+                        <!-- 1. PESTEL -->
+                        <h3>1. PESTEL Analysis</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Factor</th><th>Sub-Factor</th><th>Status</th><th>Urgency</th><th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.pestel_ids" t-as="line">
+                                    <td><span t-field="line.factor"/></td>
+                                    <td><span t-field="line.sub_factor"/></td>
+                                    <td><span t-field="line.current_status"/></td>
+                                    <td><span t-field="line.urgency"/></td>
+                                    <td><span t-field="line.required_action"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="page-break-before:always;"></p>      
+
+                        <!-- Stackholder Analysis log--> 
+                        <h3>2. Stakeholder Analysis</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Stakeholder Category</th><th>Sub-Factor</th><th>Current Status</th><th>Influence Level</th><th>Expected Impact on P–Q–C–Qi–QI</th><th>Engagement Priority</th><th>Required Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.stakeholder_ids" t-as="line">
+                                    <td><span t-field="line.stakeholder_category"/></td>
+                                    <td><span t-field="line.sub_factor"/></td>
+                                    <td><span t-field="line.current_status"/></td>
+                                    <td><span t-field="line.influence_level"/></td>
+                                    <td><span t-field="line.expected_impact"/></td>
+                                    <td><span t-field="line.engagement_priority"/></td>
+                                    <td><span t-field="line.required_action"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="page-break-before:always;"></p>
+
+                        <!--3. Benchmark Analysis log-->
+                        <h3>3. Industry Benchmark Analysis</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Benchmark Area</th><th>Industry Standard</th><th>Current Status</th><th>Gap</th><th>Impact Code</th><th>Urgency</th><th>Required Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.benchmark_ids" t-as="line">
+                                    <td><span t-field="line.area"/></td>
+                                    <td><span t-field="line.industry_standard"/></td>
+                                    <td><span t-field="line.current_status"/></td>
+                                    <td><span t-field="line.gap"/></td>
+                                    <td><span t-field="line.impact_code"/></td>
+                                    <td><span t-field="line.urgency"/></td>
+                                    <td><span t-field="line.required_action"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="page-break-before:always;"></p>
+
+                        <!--4. Market Analysis log-->
+                        <h3>4. Market Analysis</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Market Factor</th><th>Current Status</th><th>Effect on BU</th><th>Opportunity/Threat</th><th>Urgency</th><th>Impact Code</th><th>Required Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.market_ids" t-as="line">
+                                    <td><span t-field="line.market_factor"/></td>
+                                    <td><span t-field="line.current_status"/></td>
+                                    <td><span t-field="line.effect_on_bu"/></td>
+                                    <td><span t-field="line.opportunity_threat"/></td>
+                                    <td><span t-field="line.urgency"/></td>
+                                    <td><span t-field="line.impact_code"/></td>
+                                    <td><span t-field="line.required_action"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="page-break-before:always;"></p>
+
+                        <!-- Porters 5 analysis-->
+                        <h3>5.. Porter's Five Forces Analysis</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Force</th><th>Sub-Factor</th><th>Current Status</th><th>Impact on Industry</th><th>Urgency</th><th>Required Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.porter_ids" t-as="line">
+                                    <td><span t-field="line.force"/></td>
+                                    <td><span t-field="line.sub_factor"/></td>
+                                    <td><span t-field="line.current_status"/></td>
+                                    <td><span t-field="line.level"/></td>
+                                    <td><span t-field="line.impact_code"/></td>
+                                    <td><span t-field="line.required_action"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="page-break-before:always;"></p>
+                        <!-- 3. SWOT Analysis log-->
+                         <h3>5. Internal Strength &amp; Weakness (SWOT)</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Category</th><th>Factor</th><th>Current Status</th><th>Strength/Weakness</th><th>Impact</th><th>Priority</th><th>Required Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.swot_ids" t-as="line">
+                                    <td><span t-field="line.category"/></td>
+                                    <td><span t-field="line.factor"/></td>
+                                    <td><span t-field="line.current_status"/></td>
+                                    <td><span t-field="line.type"/></td>
+                                    <td><span t-field="line.impact_code"/></td>
+                                    <td><span t-field="line.priority"/></td>
+                                    <td><span t-field="line.required_action"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="page-break-before:always;"></p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,67 @@
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.document.sequence</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='languages_setting_container']" position="after">
+                <block title="Reference Numbers" id="reference_number_setting">
+
+                    <!-- Section for Manual Year (placed first for logical flow) -->
+                    <setting>
+                        <div class="o_setting_right_pane">
+                            <label for="fiscal_year_for_sequence" />
+                            <div class="text-muted">
+                                Manually set the year for document references. Update this at the start of each new fiscal year.
+                            </div>
+                            <div class="content-group">
+                                <field name="fiscal_year_for_sequence" class="oe_inline"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <!-- Section for External Document Reference -->
+                    <setting string="External Document Reference">
+                        <div class="content-group mt16">
+                            <!-- Field to select the sequence -->
+                            <div>
+                                <span>Sequence: </span>
+                                <field name="external_ref_sequence_id" class="oe_inline" style="width: 50%;"/>
+                            </div>
+
+                            <!-- Block to edit the number, only visible if a sequence is selected -->
+                            <div class="mt-2" invisible="external_ref_sequence_id == False">
+                                <span>Next Number: </span>
+                                <field name="external_sequence_number_next" class="oe_inline" style="width: 100px;"/>
+                                <span class="ms-3 text-muted fst-italic">
+                                    Preview: <field name="external_sequence_preview" class="oe_inline"/>
+                                </span>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <!-- Section for Internal Document Reference -->
+                    <setting string="Internal Document Reference">
+                        <div class="content-group mt16">
+                            <!-- Field to select the sequence -->
+                            <div>
+                                <span>Sequence: </span>
+                                <field name="internal_ref_sequence_id" class="oe_inline" style="width: 50%;"/>
+                            </div>
+                            
+                            <!-- Block to edit the number, only visible if a sequence is selected -->
+                            <div class="mt-2" invisible="internal_ref_sequence_id == False">
+                                <span>Next Number: </span>
+                                <field name="internal_sequence_number_next" class="oe_inline" style="width: 100px;"/>
+                                <span class="ms-3 text-muted fst-italic">
+                                    Preview: <field name="internal_sequence_preview" class="oe_inline"/>
+                                </span>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

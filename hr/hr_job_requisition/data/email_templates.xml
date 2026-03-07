@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="application_acknowledgment_email_template_id" model="mail.template">
+           <field name="name">Application Acknowledgment</field>
+           <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+           <field name="email_from">{{object.job_id.user_id.login}}</field>
+           <field name="email_to">{{object.email_from}}</field>
+           <field name="subject">Job application for the {{object.job_id.name}}</field>
+           <field name="body_html" type="html">
+               <p> <span>Greetings <t t-esc="object.candidate_id.partner_name"/> </span></p>
+               <p> We have received your application. Thank you for your interest in the <t t-esc="object.job_id.name"/><br/> position at <t t-esc="object.company_id.name"/>. </p>
+               <p>Our hiring team will get in touch with you only in case you have been shortlisted 
+                for the position you have applied to.</p>
+                <br/>
+                <p>We appreciate your patience during this process.</p>
+                <br/>
+                <br/>
+                <p>Sincerely</p>
+                <p>HR Team</p>
+                <p><t t-esc="object.company_id.name"/></p>
+           </field>
+       </record>
+
+        <record id="invitation_first_stage_email_template_id" model="mail.template">
+           <field name="name">Invitation to a First-Stage Assessment</field>
+           <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+           <field name="email_from">{{object.job_id.user_id.login}}</field>
+           <field name="email_to">{{object.email_from}}</field>
+           <field name="subject">Invitation to a first-stage assessment for the {{object.job_id.name}} role</field>
+           <field name="body_html" type="html">
+               <p> <span>Greetings <t t-esc="object.candidate_id.partner_name"/> </span></p>
+               <p> We have received your application. Thank you for your interest in the <t t-esc="object.job_id.name"/><br/> position at <t t-esc="object.company_id.name"/>. </p>
+               <p>Our hiring team will get in touch with you only in case you have been shortlisted 
+                for the position you have applied to.</p>
+                <br/>
+                <p>We appreciate your patience during this process.</p>
+                <br/>
+                <br/>
+                <p>Sincerely</p>
+                <p>HR Team</p>
+                <p><t t-esc="object.company_id.name"/></p>
+           </field>
+       </record>
+
+    <record id="invitation_interview_email_template_id" model="mail.template">
+           <field name="name">Invitation to an Interview</field>
+           <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+           <field name="email_from">{{object.job_id.user_id.login}}</field>
+           <field name="email_to">{{object.email_from}}</field>
+           <field name="subject">Job application for the {{object.job_id.name}}</field>
+            <field name="body_html" type="html">
+               <p> <span>Greetings <t t-esc="object.candidate_id.partner_name"/> </span></p>
+               <p> We have received your application. Thank you for your interest in the <t t-esc="object.job_id.name"/><br/> position at <t t-esc="object.company_id.name"/>. </p>
+               <p>Our hiring team will get in touch with you only in case you have been shortlisted 
+                for the position you have applied to.</p>
+                <br/>
+                <p>We appreciate your patience during this process.</p>
+                <br/>
+                <br/>
+                <p>Sincerely</p>
+                <p>HR Team</p>
+                <p><t t-esc="object.company_id.name"/></p>
+           </field>
+       </record>
+
+       <record id="job_elected_candidate_email_template_id" model="mail.template">
+           <field name="name">Job Offer to Selected Candidate</field>
+           <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+           <field name="email_from">{{object.job_id.user_id.login}}</field>
+           <field name="email_to">{{object.email_from}}</field>
+           <field name="subject">Job application for the {{object.job_id.name}}</field>
+            <field name="body_html" type="html">
+               <p> <span>Greetings <t t-esc="object.candidate_id.partner_name"/> </span></p>
+               <p> We have received your application. Thank you for your interest in the <t t-esc="object.job_id.name"/><br/> position at <t t-esc="object.company_id.name"/>. </p>
+               <p>Our hiring team will get in touch with you only in case you have been shortlisted 
+                for the position you have applied to.</p>
+                <br/>
+                <p>We appreciate your patience during this process.</p>
+                <br/>
+                <br/>
+                <p>Sincerely</p>
+                <p>HR Team</p>
+                <p><t t-esc="object.company_id.name"/></p>
+           </field>
+       </record>
+    </data>
+</odoo>

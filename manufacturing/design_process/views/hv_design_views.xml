@@ -1,0 +1,121 @@
+<odoo>
+    <record id="view_hv_winding_design_list" model="ir.ui.view">
+        <field name="name">hv.winding.design.list.view</field>
+        <field name="model">hv.winding.design</field>
+        <field name="arch" type="xml">
+            <list string="HV Winding Designs">
+                <!-- <field name="name" /> -->
+                <field name="winding_type" />
+                <field name="turns_per_phase" />
+                <field name="discs_per_phase" />
+                <field name="turns_per_disc" />
+                <field name="state" widget="badge" decoration-success="state == 'approved'"
+                    decoration-warning="state == 'submitted'" decoration-info="state == 'draft'"
+                    decoration-danger="state == 'rejected'" />
+            </list>
+        </field>
+    </record>
+
+
+    <record id='view_hv_winding_design_form' model='ir.ui.view'>
+        <field name='name'>hv.winding.design.form.view</field>
+        <field name='model'>hv.winding.design</field>
+        <field name='arch' type='xml'>
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+                    <button name="action_approve" string="Confirm" type="object"
+                        class="oe_highlight" invisible="state != 'submitted'" />
+                    <button name="%(action_hv_design_reject_wizard)d" string="Reject"
+                        type="action" class="btn-danger"
+                        invisible="state in ['draft', 'approved', 'rejected']" />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <!-- <div class="oe_button_box" name="button_box">
+                        <button name="action_open_service_request" string="Service Request"
+                            type="object" />
+                    </div> -->
+                    <!-- <div class="oe_title">
+                        <label for="name" string="HV Design" />
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name"
+                                    options="{'line_breaks': False}" widget="text" />
+                            </div>
+                        </h1>
+                    </div> -->
+                    <group>
+                        <group>
+                            <field name="product_tmpl_id" />
+                            <field name='winding_type' />
+                            <field name='connection' />
+                            <field name='turns_per_phase' />
+                            <field name='bare_conductor_size' />
+                            <field name='conductor_insulation' />
+                            <field name='covered_conductor_size' />
+                            <field name='conductor_placement' />
+                            <field name='discs_per_phase' />
+                            <field name='turns_per_disc' />
+                            <field name='layers_per_disc' />
+                            <field name='turns_number_per_layer_per_coil' />
+                        </group>
+
+                        <group>
+                            <field name='inter_layer_insulation' />
+                            <field name='end_packing' />
+                            <field name='axial_length' />
+                            <field name='coil_height' />
+                            <field name='internal_diameter' />
+                            <field name='outer_diameter' />
+                            <field name='copper_weight_per_phase' />
+                            <field name='resistance_per_phase' />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string='Taps'>
+                            <field name='taps'>
+                                <list>
+                                    <field name='tap_number' />
+                                    <field name='connection_point' />
+                                    <field name='turn_numbers' />
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Edge Insulation">
+                            <field name="edge_insulation">
+                                <list>
+                                    <field name="layer" />
+                                    <field name="th" />
+                                    <field name="w1" />
+                                    <field name="w2" />
+                                    <field name="length" />
+                                    <field name="number_l" />
+                                    <field name="number_ph" />
+                                    <field name="number_tr" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Interlayer Insulation">
+                            <field name="interlayer_insulation">
+                                <list>
+                                    <field name="layer" />
+                                    <field name="th" />
+                                    <field name="width" />
+                                    <field name="length" />
+                                    <field name="number_l" />
+                                    <field name="number_ph" />
+                                    <field name="number_tr" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

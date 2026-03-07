@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Property Sale report form view -->
+    <record id="property_sale_report_view_form" model="ir.ui.view">
+        <field name="name">inventory.balance.report.view.form</field>
+        <field name="model">inventory.balance.report</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Balance Report">
+                <group>
+                    <field name="stock_location_ids" widget="many2many_tags"/>
+                    <field name="category_ids" widget="many2many_tags"/>
+                    <field name="tag_ids" widget="many2many_tags"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+
+                </group>
+                <footer>
+                    <button name="action_view" string="View"
+                            class="btn-primary" type="object"/>
+                    <button name="action_view_detail" string="View by Warehouse"
+                            class="btn-primary" type="object"/>
+                    <button name="action_print" string="Print(PDF)"
+                            class="btn-primary" type="object"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!-- Property Sale report action -->
+    <record id="action_product_stock_balance_report" model="ir.actions.act_window">
+        <field name="name">inventory.balance.report Wizard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">inventory.balance.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+<!--    groups="advanced_property_management.group_property_manager"-->
+    <menuitem id="product_stock_balance_menu"
+              name="Stock Balance"
+              parent="stock.menu_warehouse_report"
+              action="action_product_stock_balance_report"
+              sequence="2"/>
+</odoo>

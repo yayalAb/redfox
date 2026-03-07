@@ -1,0 +1,22 @@
+<odoo>
+    <record id="action_cip_request" model="ir.actions.act_window">
+        <field name="name">Cip Request</field>
+        <field name="res_model">cip.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_contract_request" model="ir.actions.act_window">
+        <field name="name">Contract Request</field>
+        <field name="res_model">contract.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_sale_requests" name="Requests" parent="sale.sale_menu_root" sequence="10" />
+
+    <menuitem id="menu_contract_request" name="Contract Requests" parent="menu_sale_requests"
+        action="action_contract_request" sequence='2'/>
+
+    <menuitem id="menu_cip_request" name="CIP Requests" parent="menu_sale_requests"
+        action="action_cip_request" sequence='3'/>
+    
+</odoo>

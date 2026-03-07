@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!--    Base User(Odoo Bot) Modifications    -->
+        <!--    Company User Modifications    -->
+        <record id="base.main_partner" model="res.partner" context="{'default_is_company': True}">
+            <field name="image_1920" type="base64" file="update_icons/static/description/icon.png"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_store_transfer_request_tree" model="ir.ui.view">
+        <field name="name">store.transfer.request.tree</field>
+        <field name="model">store.transfer.request</field>
+        <field name="arch" type="xml">
+            <list string="Store Requests">
+                <field name="name" string="Reference" />
+                <field name="requested_by" />
+                <field name="department_id" />
+                <field name="requested_date" />
+                <field name="warehouse_id" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_store_transfer_request_form" model="ir.ui.view">
+        <field name="name">store.transfer.request.form</field>
+        <field name="model">store.transfer.request</field>
+        <field name="arch" type="xml">
+            <form string="Store Request">
+                <header>
+                    <field name="is_department_head" invisible="1" />
+                    <field name="is_storeman" invisible="1" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,approved,transfered,cancel" />
+                    <button name="action_approve" string="Approve" type="object"
+                        class="oe_highlight" invisible="state != 'draft'" />
+                    <button name="action_store_transfer" string="Transfer" type="object"
+                        class="oe_highlight" invisible="state != 'approved'" />
+                    <button name="action_cancel" string="Cancel" type="object"
+                        invisible="state not in [ 'draft','approved']" />
+
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            type="object"
+                            name="action_open_transfer"
+                            invisible="transfer_id == False"
+                            string="Transfer"
+                            help="View the created transfer" />
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" class="oe_inline" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="requested_by" />
+                            <field name="department_id" />
+                            <field name="requested_date" />
+                            <field name="store_request_id" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="source_warehouse_id" />
+                            <field name="warehouse_id" />
+                            <field name="storeman_id" />
+                            <field name="approved_by" readonly="1" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Request Lines">
+                            <field name="request_line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id" />
+                                    <field name="product_uom_qty" />
+                                    <field name="product_uom" />
+                                    <field name="stock_available_qty" readonly="1" />
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="product_id" />
+                                            <field name="product_uom_qty" />
+                                        </group>
+                                        <group>
+                                            <field name="product_uom" />
+                                            <field name="stock_available_qty" readonly="1" />
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="note" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Action and Menu Items -->
+    <record id="action_store_transfer_request" model="ir.actions.act_window">
+        <field name="name">Transfer Requests</field>
+        <field name="res_model">store.transfer.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_store_transfer_request" name="Transfer Requests"
+        parent="store_request.menu_store_request_root" action="action_store_transfer_request" />
+</odoo>

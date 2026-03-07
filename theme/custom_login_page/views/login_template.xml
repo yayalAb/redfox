@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="niyat_login_template_override" name="Niyat Login Override" inherit_id="web.login">
+        <xpath expr="//t[@t-call='web.login_layout']" position="replace">
+            <t t-call="web.login_layout">
+                <div class="o_login_container">
+                    <!-- Top-left logo -->
+                    <img src="/custom_login_page/static/src/img/NiyatERP_PrimaryLogo.png" class="niyat-logo" alt="Niyat ERP Logo"/>
+
+                    <!-- THE FIX: Left Panel now contains an <img> tag -->
+                    <div class="left-panel">
+                        <img src="/custom_login_page/static/src/img/POS_login_image_fixed.svg" class="left-panel-img" alt="Login page illustration"/>
+                    </div>
+
+                    <!-- Right Panel with the login form -->
+                    <div class="right-panel">
+                        <form class="login-box" method="post" t-attf-action="/web/login">
+                            <!-- ... all the form content remains exactly the same ... -->
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <h2>👋</h2>
+                            <h2>Welcome back!</h2>
+                            <p class="login-subtitle">Please login to access your account.</p>
+                            <p t-if="error" class="alert alert-danger py-1" role="alert"><t t-esc="error"/></p>
+                            <p t-if="message" class="alert alert-success py-1" role="alert"><t t-esc="message"/></p>
+                            <div class="mb-3">
+                                <label for="login" class="form-label">Username</label>
+                                <input type="text" placeholder="Enter your username" name="login" t-att-value="login" id="login"
+                                    class="form-control" required="required" autofocus="autofocus" autocapitalize="off"/>
+                            </div>
+                            <div class="mb-3 password-container"> <!-- Use a custom container -->
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" placeholder="Enter your password" name="password" id="password"
+                                    class="form-control" required="required" autocomplete="current-password" t-att-autofocus="'autofocus' if login else None"
+                                    maxlength="4096"/>
+                                <!-- The icon is a direct sibling of the input -->
+                                <i class="fa fa-eye-slash toggle-password" role="img" aria-label="Toggle password visibility" title="Toggle password visibility"/>
+                            </div>                          <div class="login-links">
+                                <a t-if="reset_password_enabled" t-attf-href="/web/reset_password?{{ keep_query() }}">Forgot Password?</a>
+                            </div>
+                            <input type="hidden" name="redirect" t-att-value="redirect"/>
+                            <button type="submit" class="btn btn-primary">Login →</button>
+                            <div class="powered-by">
+                                Powered by <a href="https://www.niyatconsultancy.com/" target="_blank"><strong>Niyat Consultancy</strong></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>

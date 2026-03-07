@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_hr_job_form_inherited_portal_config" model="ir.ui.view">
+            <field name="name">hr.job.form.portal.config</field>
+            <field name="model">hr.job</field>
+            <field name="inherit_id" ref="hr.view_hr_job_form"/>
+            <field name="arch" type="xml">
+                <!-- Find the notebook element and add a new page inside it -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="Portal Form Configuration" name="portal_form_config">
+                        <group>
+                            <group string="Education Fields">
+                                <label for="x_show_graduation_department"/>
+                                <div class="o_row">
+                                    <field name="x_show_graduation_department"/>
+                                    <label for="x_required_graduation_department" string="Required?" class="ml-3"/>
+                                    <field name="x_required_graduation_department"/>
+                                </div>
+
+                                <label for="x_show_university"/>
+                                <div class="o_row">
+                                    <field name="x_show_university"/>
+                                    <label for="x_required_university" string="Required?" class="ml-3"/>
+                                    <field name="x_required_university"/>
+                                </div>
+
+                                <label for="x_show_graduation_year"/>
+                                <div class="o_row">
+                                    <field name="x_show_graduation_year"/>
+                                    <label for="x_required_graduation_year" string="Required?" class="ml-3"/>
+                                    <field name="x_required_graduation_year"/>
+                                </div>
+
+                                <label for="x_show_cgpa"/>
+                                <div class="o_row">
+                                    <field name="x_show_cgpa"/>
+                                    <label for="x_required_cgpa" string="Required?" class="ml-3"/>
+                                    <field name="x_required_cgpa"/>
+                                </div>
+
+                                <label for="x_show_exit_exam_result"/>
+                                <div class="o_row">
+                                    <field name="x_show_exit_exam_result"/>
+                                    <label for="x_required_exit_exam_result" string="Required?" class="ml-3"/>
+                                    <field name="x_required_exit_exam_result"/>
+                                </div>
+                            </group>
+                            <group string="Experience Fields">
+                                <label for="x_show_current_organization"/>
+                                <div class="o_row">
+                                    <field name="x_show_current_organization"/>
+                                    <label for="x_required_current_organization" string="Required?" class="ml-3"/>
+                                    <field name="x_required_current_organization"/>
+                                </div>
+
+                                <label for="x_show_current_position"/>
+                                <div class="o_row">
+                                    <field name="x_show_current_position"/>
+                                    <label for="x_required_current_position" string="Required?" class="ml-3"/>
+                                    <field name="x_required_current_position"/>
+                                </div>
+
+                                <label for="x_show_previous_job_start"/>
+                                <div class="o_row">
+                                    <field name="x_show_previous_job_start"/>
+                                    <label for="x_required_previous_job_start" string="Required?" class="ml-3"/>
+                                    <field name="x_required_previous_job_start"/>
+                                </div>
+
+                                <label for="x_show_previous_job_end"/>
+                                <div class="o_row">
+                                    <field name="x_show_previous_job_end"/>
+                                    <label for="x_required_previous_job_end" string="Required?" class="ml-3"/>
+                                    <field name="x_required_previous_job_end"/>
+                                </div>
+
+                                <label for="x_show_current_salary"/>
+                                <div class="o_row">
+                                    <field name="x_show_current_salary"/>
+                                    <label for="x_required_current_salary" string="Required?" class="ml-3"/>
+                                    <field name="x_required_current_salary"/>
+                                </div>
+
+                                <label for="x_show_experience_level"/>
+                                <div class="o_row">
+                                    <field name="x_show_experience_level"/>
+                                    <label for="x_required_experience_level" string="Required?" class="ml-3"/>
+                                    <field name="x_required_experience_level"/>
+                                </div>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

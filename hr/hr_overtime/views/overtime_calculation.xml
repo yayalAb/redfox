@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+    <record id="overtime_calculator_action" model="ir.actions.act_window">
+        <field name="name">Overtime Request</field>
+        <field name="res_model">overtime.calculator</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,form</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new overtime request
+            </p>
+
+        </field>
+    </record>
+    <record id="overtime_calculation_view_form" model="ir.ui.view">
+        <field name="name">Overtime Request Form</field>
+        <field name="model">overtime.calculator</field>
+        <field name="arch" type="xml">
+            <form string="Overtime Request">
+                <header>
+
+                     <button name="action_submit" invisible="state!='draft'" string="Submit" type="object"
+                        groups="hr_overtime.hr_overtime_group_submit"
+                        class="oe_highlight"/>
+                     <button name="action_dept_approve" invisible="state!='submit'" string="Review" type="object"
+                             groups="hr_overtime.hr_overtime_group_under_review"
+                             class="oe_highlight"/>
+                     <button name="action_reject" invisible="state!='department_approve'" string="Reject" type="object"
+                             groups="hr_overtime.hr_overtime_group_reject"
+                             class="oe_highlight"/>
+                     <button name="action_hr" invisible="state!='department_approve'" string="Hr Approve" type="object"
+                             groups="hr_overtime.hr_overtime_group_approve"
+                             class="oe_highlight"/>
+                    <button name="action_paid" invisible="state not in ['in_payment']" string="Paid" type="object"
+                            groups="hr_overtime.hr_overtime_group_mark_as_paid"
+                            class="oe_highlight" />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submit,department_approve,reject,hr_approve" statusbar_colors='{"undermodify":"red","obsoleted":"red"}' />
+               </header>
+
+
+                <sheet>
+                <widget name="web_ribbon" title="In Payment" bg_color="bg-success" invisible="state!= 'in_payment'"/>
+                    <widget name="web_ribbon" title="Paid" bg_color="bg-success" invisible="state != 'paid'"/>
+                    <group>
+                        <group>
+                         <field name="request_id"/>
+                         <field name="employee_id"/>
+                        <field name="contract_id"/>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                        <field name="department_id"/>
+                        <field name="review_by" readonly="1" invisible="not approve_by"/>
+                        <field name="approve_by" readonly="1" invisible="not approve_by"/>
+                      </group>
+                      <group>
+                          <field name="approved_date"/>
+                          <field name="requested_by"/>
+                          <field name="overtime_type_id" />
+                          <field name="hours" />
+                          <field name="value" />
+                          <field name="currency_id" />
+                          <field name="reject_by"  readonly="1" invisible="not reject_by"/>
+                          <field name="paid_by"  readonly="1" invisible="not paid_by"/>
+                       </group>
+                        <group>
+                        <field name="requesting_reason"/>
+                        </group>
+                    </group>
+                </sheet>
+                     <!-- <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div> -->
+            </form>
+        </field>
+    </record>
+    <record id="overtime_calculator_view_tree" model="ir.ui.view">
+        <field name="name">Overtime Request View</field>
+        <field name="model">overtime.calculator</field>
+        <field name="arch" type="xml">
+            <list>
+
+                <field name="employee_id"/>
+
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                        <field name="department_id"/>
+                        <field name="overtime_type_id" />
+                        <field name="value" string="Amount" sum="Sum of value"/>
+                        <field name="currency_id" />
+                        <field name="requested_hours" sum="Sum of hours"/>
+                        <field name="hours" sum="Sum of hours"/>
+                        <field name="state" />
+            </list>
+        </field>
+    </record>
+
+          <menuitem
+            id="hr_overtime_root"
+            name="Overtime"
+            parent="hr.menu_hr_root"
+            sequence="22"/>
+
+         <menuitem
+            id="hr_overtime_root_action"
+            name="Overtime"
+            action="overtime_calculator_action"
+            parent="hr_overtime_root"
+            sequence="22"/>
+
+<!--        <menuitem id="menu_overtime_request_workspace"-->
+<!--                  name="Overtime Request"-->
+<!--                  parent="de_hr_workspace.menu_my_workspace"/>-->
+
+
+<!--        <menuitem id="menu_support_letter_employee_workspace"-->
+<!--                  name="Overtime Request"-->
+<!--                  parent="menu_overtime_request_workspace"-->
+<!--                  action="overtime_calculator_action"/>-->
+
+            <record id="form_weekly_hour_inherited" model="ir.ui.view">
+            <field name="name">form_weekly_hour_inherited"</field>
+            <field name="model">resource.calendar</field>
+            <field name="inherit_id" ref="resource.resource_calendar_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='hours_per_day']" position="after">
+                        <field name="weekly_working_hour" />
+<!--                        <field name="total_hour" />-->
+                 </xpath>
+
+
+
+            </field>
+        </record>
+
+
+
+
+</data>
+
+</odoo>

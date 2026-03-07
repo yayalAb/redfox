@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="agreement_menu_root"
+        name="Agreements"
+        parent="sale.sale_menu_root"
+        sequence="10"
+    />
+    <menuitem
+        id="agreement_menu"
+        name="Agreements"
+        parent="agreement_menu_root"
+        sequence="0"
+        action="agreement_action"
+    />
+    <menuitem
+        id="agreement_type_menu"
+        name="Agreement Types"
+        parent="agreement_menu_root"
+        sequence="1"
+        action="agreement_type_action"
+    />
+</odoo>

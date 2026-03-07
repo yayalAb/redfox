@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Extension Action -->
+    <record id="overtime_request_action" model="ir.actions.act_window">
+        <field name="name">overtime request</field>
+        <field name="res_model">overtime.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new overtime request
+            </p>
+        </field>
+    </record>
+
+    <!-- Extension Tree View -->
+    <record id="overtime_request_view_tree" model="ir.ui.view">
+        <field name="name">overtime request</field>
+        <field name="model">overtime.request</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="requested_by"/>
+                <field name="state"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Extension Form View -->
+    <record id="overtime_request_view_form" model="ir.ui.view">
+        <field name="name">overtime.request</field>
+        <field name="model">overtime.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit"
+                            string="Submit"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ['draft']"/>
+                    <button name="action_review"
+                            string="Review"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ['submit']"/>
+                    <button name="action_approve"
+                            string="Approve"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ['review']"/>
+                    <button name="action_reject"
+                            string="Reject"
+                            type="object"
+                            invisible="state in ['approve']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group string="overtime request">
+                        <group>
+                           <field name="requested_by"/>
+                           <field name="start_date"/>
+                           <field name="review_by" readonly="1" invisible="not review_by"/>
+                         </group>
+                         <group>
+                            <field name="state" readonly="1"/>
+                            <field name="end_date"/>
+                            <field name="approve_by" readonly="1" invisible="not approve_by"/>
+                            <field name="reject_by" readonly="1" invisible="not reject_by"/>
+                        </group>
+                    </group>
+                      <notebook>
+                        <page string="Employees" name="employee">
+                            <field name="employee_ids" widget="section_and_note_one2many"
+                                mode="lis,kanban,form" >
+                                <list string="Employee Lines" editable="bottom" delete="0">
+                                    <control>
+                                        <create name="add_product_control" string="Add a Line" />
+                                    </control>
+                                    <field name="employee_id" />
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+<!--                                    <field name="hours"/>-->
+                                    <field name="remark"/>
+                                </list>
+                            </field>
+                        </page>
+                          <page name="reason"  string="Reason">
+                              <field name="requesting_reason"/>
+                          </page>
+                      </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="overtime_request_menu_id"
+                  name="Request"
+                  parent="hr_overtime_root"
+                  action="overtime_request_action"
+                  sequence="1" />
+</odoo>

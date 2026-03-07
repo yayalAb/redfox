@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. The Report Action -->
+    <record id="action_report_payslip_summary" model="ir.actions.report">
+        <field name="name">Payslip Summary Report</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <!-- This must be in the format: module_name.template_id -->
+        <field name="report_name">hr_generate_payslip_report_pdf.report_payslip_summary_template</field>
+        <field name="report_file">hr_generate_payslip_report_pdf.report_payslip_summary_template</field>
+        <field name="print_report_name">'Payslip Summary - %s' % (object.name)</field>
+        <field name="binding_model_id" eval="False"/> <!-- We call this from our button, not from the 'Print' menu -->
+    </record>
+
+    <!-- 2. The QWeb Template for the PDF -->
+    <!-- 2. The QWeb Template for the PDF (Updated for Compact View) -->
+<template id="report_payslip_summary_template">
+    <style type="text/css">
+        @page {
+            size: A4 landscape;
+        }
+
+        .table-bordered {
+            border: 2px solid black !important;
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid black !important;
+            padding: 1px; /* Reduced padding for a more compact table */
+            vertical-align: middle;
+        }
+        .category-header {
+            background-color: #f2f2f2;
+            text-align: center;
+            font-weight: bold;
+        }
+        .amount {
+            text-align: right;
+            line-height: 0.8em !important;  /* Adjust line height for better spacing */
+            font-size: 9px !important;  /* Smaller font size for compact view */
+            l
+        }
+        .padding-left-push {
+            padding-left: 1px !important;
+        }
+        .table-bordered {
+         border: 1px solid black !important;
+        border-collapse: collapse !important;  /* merge borders */
+        }
+
+      
+    </style>
+
+    <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+            <t t-set="doc_title" t-valuef="PAYSLIP REPORT DOCUMENT"/>
+            <t t-set="doc_number" t-valuef="OF/NC/FIN/051" t-esc-0="company.name[:3].upper()" t-esc-1="context_timestamp(datetime.datetime.now()).strftime('%Y%m%d')"/>
+            <t t-set="issue_number" t-value="'1'"/>
+            <div class="page" style="line-height: 0.5;">
+                <h5 class="content-center"> Payroll Report For <span t-esc="context.get('periods_str', 'N/A')"/></h5>
+
+                <div>
+                    <table class="table table-sm o_main_table table-bordered">
+                        <thead>
+                            <!-- HEADER ROW 1: Main Categories -->
+                            <tr>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2" class="text-center"><strong>S.No.</strong></th>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2"><strong>Employee Name</strong></th>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2"><strong>ID</strong></th>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2" class="amount"><strong>Basic Salary</strong></th>
+                                <th style="font-size: 9px !important; text-align: center !important;" colspan="6" class="category-header">Allowances</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2" class="amount"><strong>Gross Earning</strong></th>
+                                <th style="font-size: 9px !important; text-align: center !important;" colspan="6" class="category-header">Deductions</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2" class="category-header">Total Deduction</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" rowspan="2" class="amount"><strong>Net Pay</strong></th>
+                            </tr>
+                            <!-- HEADER ROW 2: Specific Column Names -->
+                            <tr>
+                                <!-- Allowance Columns -->
+                                <!-- <th style="font-size: 9px !important; text-align: center !important;" class="amount">House Rent</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Dearness</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Travel</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Meal</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Medical</th> -->
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">professional</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Position</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Housing</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Transport Taxable</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Total Nontaxable</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">OT</th>
+
+                                <!-- <th style="font-size: 9px !important; text-align: center !important;" class="amount">Transport Work</th> -->
+                                <!-- <th style="font-size: 9px !important; text-align: center !important;" class="amount">Fuel</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Cash Indemnity</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Other</th> -->
+                                
+                                <!-- <th style="font-size: 9px !important; text-align: center !important;" class="amount">Reimbu- rsement</th> -->
+                                <!-- Deduction Columns -->
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Income Tax</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Pension 7%</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Pension 11%</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Saving Deduction</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Loan Repayment</th>
+                                <th style="font-size: 9px !important; text-align: center !important;" class="amount">Social Commitee</th>
+                                
+
+                                <!-- <th style="font-size: 9px !important; text-align: center !important;" class="amount">Other Deduction</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 1. INITIALIZE TOTALS -->
+                            <t t-set="total_basic" t-value="0.0"/>
+                            <t t-set="total_hra" t-value="0.0"/>
+                            <t t-set="total_da" t-value="0.0"/>
+                            <t t-set="total_tra" t-value="0.0"/>
+                            <t t-set="total_mea" t-value="0.0"/>
+                            <t t-set="total_meda" t-value="0.0"/>
+                            <t t-set="total_prof" t-value="0.0"/>
+                            <t t-set="total_posa" t-value="0.0"/>
+                            <t t-set="total_tha" t-value="0.0"/>
+                            <t t-set="total_thna" t-value="0.0"/>
+                            <t t-set="total_twa" t-value="0.0"/>
+                            <t t-set="total_fuel" t-value="0.0"/>
+                            <t t-set="total_cia" t-value="0.0"/>
+                            
+                            <t t-set="total_otha" t-value="0.0"/>
+                            <t t-set="total_ot" t-value="0.0"/>
+                            <t t-set="total_reimbursement" t-value="0.0"/>
+                            <t t-set="total_income_tax" t-value="0.0"/>
+                            <t t-set="total_sco" t-value="0.0"/>
+                            <t t-set="total_aded" t-value="0.0"/>
+                            <t t-set="total_loan" t-value="0.0"/>
+                            <t t-set="total_pension" t-value="0.0"/>
+                            <t t-set="total_pension_11" t-value="0.0"/>
+                            <t t-set="total_deduction" t-value="0.0"/>
+                            <t t-set="total_gross" t-value="0.0"/>
+                            <t t-set="total_net" t-value="0.0"/>
+                            <t t-set="total_net" t-value="0.0"/>
+                            
+                            <!-- Set number formatting options (without currency) -->
+                            <t t-set="number_options" t-value="{'widget': 'float', 'precision': 2}"/>
+    
+                            <!-- Main loop for each payslip record -->
+                            <tr t-foreach="docs" t-as="payslip">
+
+                                <t t-set="loan_deduction" t-value="payslip.input_line_ids.filtered(lambda line: line.code == 'LO').amount or 0.0"/>
+                                <t t-set="overtime_amount" t-value="payslip.input_line_ids.filtered(lambda line: line.code == 'OT100').amount or 0.0"/>
+                                <!-- 2. INCREMENT TOTALS (Safely handling None values) -->
+                                <t t-set="total_basic" t-value="total_basic + (payslip.basic_wage or 0.0)"/>
+                                <t t-set="total_hra" t-value="total_hra + (payslip.house_rent_allowance or 0.0)"/>
+                                <t t-set="total_da" t-value="total_da + (payslip.dearness_allowance or 0.0)"/>
+                                <t t-set="total_tra" t-value="total_tra + (payslip.travel_allowance or 0.0)"/>
+                                <t t-set="total_mea" t-value="total_mea + (payslip.meal_allowance or 0.0)"/>
+                                <t t-set="total_meda" t-value="total_meda + (payslip.medical_allowance or 0.0)"/>
+                                <t t-set="total_posa" t-value="total_posa + (payslip.position_allowance or 0.0)"/>
+                                <t t-set="total_tha" t-value="total_tha + (payslip.transport_home_allowance or 0.0)"/>
+                                <t t-set="total_thna" t-value="total_thna + (payslip.total_none_taxiable or 0.0)"/>
+                                <t t-set="total_twa" t-value="total_twa + (payslip.transport_work_allowance or 0.0)"/>
+                                <t t-set="total_fuel" t-value="total_fuel + (payslip.fuel_allowance or 0.0)"/>
+                                <t t-set="total_cia" t-value="total_cia + (payslip.cash_indemnity_allowance or 0.0)"/>
+                                <t t-set="total_prof" t-value="total_prof + (payslip.professional_allowance or 0.0)"/>
+                                <t t-set="total_otha" t-value="total_otha + (payslip.other_allowance or 0.0)"/>
+                                <t t-set="total_ot" t-value="total_ot + overtime_amount"/>
+                                <t t-set="total_reimbursement" t-value="total_reimbursement + (payslip.reimbursement or 0.0)"/>
+                                <t t-set="total_income_tax" t-value="total_income_tax + (payslip.income_tax or 0.0)"/>
+                                <t t-set="total_sco" t-value="total_sco + (payslip.social_commite or 0.0)"/>
+                                <t t-set="total_aded" t-value="total_aded + (payslip.agreed_deduction or 0.0)"/>
+                                <t t-set="total_loan" t-value="total_loan + loan_deduction"/>
+                                <t t-set="total_pension" t-value="total_pension + (payslip.pension or 0.0)"/>
+                                <t t-set="total_pension_11" t-value="total_pension_11 + (payslip.pension_company or 0.0)"/>
+                                <t t-set="total_deduction" t-value="total_deduction + (payslip.deduction or 0.0)"/>
+                                <t t-set="total_gross" t-value="total_gross + (payslip.gross_wage or 0.0)"/>
+                                <t t-set="total_net" t-value="total_net + (payslip.net_wage or 0.0)"/>
+    
+                                <!-- Display data rows -->
+                                <td style="font-size: 9px !important;" class="text-center"><span t-esc="payslip_index + 1"/></td>
+                                <td><span style="font-size: 9px !important;" t-field="payslip.employee_id.name"/></td>
+                                <td><span style="font-size: 9px !important;" t-field="payslip.employee_id_no"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.basic_wage" t-options="number_options"/></td>
+                                <!-- 
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.dearness_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.travel_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.meal_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.medical_allowance" t-options="number_options"/></td> -->
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.professional_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.position_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.house_rent_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.transport_home_allowance" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.total_none_taxiable" t-options="number_options"/></td>
+                                <!-- <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.fuel_allowance" t-options="number_options"/></td> -->
+                                <!-- <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.cash_indemnity_allowance" t-options="number_options"/></td> -->
+                                <!-- <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.other_allowance" t-options="number_options"/></td> -->
+                                <td style="font-size: 9px !important;" class="amount"><span t-esc="overtime_amount" t-options="number_options"/></td>
+                                <!-- <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.reimbursement" t-options="number_options"/></td> -->
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.gross_wage" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.income_tax" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.pension" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.pension_company" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.agreed_deduction" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-esc="payslip.loan" t-options="number_options"/></td>
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.social_commite" t-options="number_options"/></td>
+
+                                
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.deduction" t-options="number_options"/></td>
+                                <!-- <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.gross_wage" t-options="number_options"/></td> -->
+                                <td style="font-size: 9px !important;" class="amount"><span t-field="payslip.net_wage" t-options="number_options"/></td>
+                            </tr>
+    
+                            <!-- 3. DISPLAY TOTALS -->
+                            <tr style="font-weight: bold; background-color: #f2f2f2;">
+                                <td colspan="3" class="text-left"><strong>Total</strong></td>
+                                <!-- <td></td> -->
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_basic" t-options="number_options"/></td>
+                                <!-- 
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_da" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_tra" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_mea" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_meda" t-options="number_options"/></td> -->
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_prof" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_posa" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_hra" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_tha" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_thna" t-options="number_options"/></td>
+                                <!-- <td class="amount"><span style="font-size: 9px !important;" t-esc="total_twa" t-options="number_options"/></td> -->
+                                <!-- <td class="amount"><span style="font-size: 9px !important;" t-esc="total_fuel" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_cia" t-options="number_options"/></td>
+                                
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_otha" t-options="number_options"/></td> -->
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_ot" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_gross" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_income_tax" t-options="number_options"/></td>
+
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_pension" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_pension_11" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_aded" t-options="number_options"/></td>
+
+
+
+                                <!-- <td class="amount"><span style="font-size: 9px !important;" t-esc="total_reimbursement" t-options="number_options"/></td> -->
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_loan" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_sco" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_deduction" t-options="number_options"/></td>
+                                <td class="amount"><span style="font-size: 9px !important;" t-esc="total_net" t-options="number_options"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="row" style="line-height: 1.2;">
+                        <div class="col-4" style="font-size: 16px !important;">
+                            <div>Prepered By <br/></div>
+                            <div>Name ____________________________ <br/></div>
+                            <div>Signature _______________________ <br/></div>
+                            <div>Date ____________________________<br/></div>
+                        </div>
+                        <div class="col-4" style="font-size: 16px !important;">
+                              <div>Checked By <br/></div>
+                            <div>Name ____________________________ <br/></div>
+                            <div>Signature _______________________ <br/></div>
+                            <div>Date ____________________________<br/></div>
+                        </div>
+                        <div class="col-4" style="font-size: 16px !important;">
+                              <div>Approved By <br/></div>
+                            <div>Name ____________________________ <br/></div>
+                            <div>Signature _______________________ <br/></div>
+                            <div>Date ____________________________<br/></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+</template>
+</odoo>

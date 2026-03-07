@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_salary_grade_manager,Salary Grade Manager Access,model_salary_grade,base.group_user,1,1,1,1
+access_salary_grade_value_user,Salary Grade Value User Access,hr_payroll_grade.model_salary_grade_value,base.group_user,1,1,1,1
+access_scale_level_user,Scale Level User Access,hr_payroll_grade.model_scale_level,base.group_user,1,1,1,1
+access_salary_grade_matrix_wizard,salary grade matrix wizard,model_salary_grade_matrix_wizard,base.group_user,1,1,1,1
+access_salary_grade_matrix_line,salary grade matrix line,model_salary_grade_matrix_line,base.group_user,1,1,1,1

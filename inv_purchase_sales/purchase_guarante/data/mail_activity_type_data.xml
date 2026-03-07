@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_act_purchase_guarantee_to_renew" model="mail.activity.type">
+            <field name="name">Guarantee to Renew</field>
+            <field name="icon">fa-bell</field>
+            <field name="res_model">purchase.guarante</field>
+        </record>
+
+        <record id="mail_act_payment_deadline_reminder" model="mail.activity.type">
+            <field name="name">Payment Deadline Reminder</field>
+            <field name="icon">fa-money</field>
+            <field name="res_model">purchase.guarante.payment.line</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,79 @@
+.clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.clickable-card:hover {
+    transform: scale(1.02);
+}
+
+/* Container padding */
+.o_corporate_dashboard {
+    padding: 20px;
+    background-color: #f8f9fa;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Card Base Style */
+.dashboard-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    overflow: hidden;
+    height: 100%;
+    background: white;
+    position: relative;
+}
+
+/* Hover Effect (Lift & Shadow) */
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Styling (faded in background) */
+.card-icon-bg {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3rem;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+/* Text Styling */
+.card-category {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 1;
+    position: relative;
+}
+
+.card-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-top: 5px;
+    z-index: 1;
+    position: relative;
+}
+
+/* Left Borders for Colors */
+.border-l-primary { border-left: 5px solid #4e73df; }
+.border-l-success { border-left: 5px solid #1cc88a; }
+.border-l-info    { border-left: 5px solid #36b9cc; }
+.border-l-warning { border-left: 5px solid #f6c23e; }
+.border-l-danger  { border-left: 5px solid #e74a3b; }
+.border-l-purple  { border-left: 5px solid #6f42c1; }
+
+/* Text Colors */
+.text-primary-custom { color: #4e73df; }
+.text-success-custom { color: #1cc88a; }
+.text-info-custom    { color: #36b9cc; }
+.text-warning-custom { color: #f6c23e; }
+.text-danger-custom  { color: #e74a3b; }
+.text-purple-custom  { color: #6f42c1; }

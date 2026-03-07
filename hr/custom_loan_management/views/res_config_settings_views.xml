@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_loan_policy" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.loan.policy</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!--
+                THE FIX: We now target the specific <block> element with the ID 'hr_payroll_settings'
+                that we found in your view's architecture. We will add our new settings inside it.
+            -->
+            <xpath expr="//block[@id='hr_payroll_settings']" position="inside">
+                <setting string="Loan Policies" id="loan_policy_settings">
+                    <div class="content-group">
+                        <div class="row mt16">
+                            <label for="loan_policy_emp_months" string="Employee Salary Multiplier" class="col-lg-4 o_light_label"/>
+                            <field name="loan_policy_emp_months" class="oe_inline"/>
+                        </div>
+                        <div class="row">
+                            <label for="loan_policy_emp_service_years" string="Employee Service Year Multiplier" class="col-lg-4 o_light_label"/>
+                            <field name="loan_policy_emp_service_years"/>
+                        </div>
+                        <div class="row mt16">
+                            <label for="loan_policy_mgr_emergency_months" string="Manager Emergency Multiplier" class="col-lg-4 o_light_label"/>
+                            <field name="loan_policy_mgr_emergency_months" class="oe_inline"/>
+                        </div>
+                        <div class="row">
+                            <label for="loan_policy_mgr_emergency_service_years" string="Manager Emergency Service Year" class="col-lg-4 o_light_label"/>
+                            <field name="loan_policy_mgr_emergency_service_years"/>
+                        </div>
+                        <div class="row mt16">
+                            <label for="loan_policy_mgr_fixed_asset_months" string="Manager Fixed Asset Multiplier" class="col-lg-4 o_light_label"/>
+                            <field name="loan_policy_mgr_fixed_asset_months" class="oe_inline"/>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

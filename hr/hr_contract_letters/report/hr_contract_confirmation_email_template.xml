@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Confirmation Letter Email Body Template -->
+    <template id="email_template_confirmation_body" name="Confirmation Letter Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref No ፡- <t t-esc="get_ref_no(contract) if get_ref_no else ('WG/' + str(contract.id).zfill(4) + '/2018' if contract.id else 'WG/0000/2018')"/></strong></p>
+                    <p><strong>Date ፡- <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- To Section -->
+                <div style="margin-bottom: 15px;">
+                    <p><strong>To: <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Ms. </t><span t-field="contract.employee_id.name"/><t t-if="contract.employee_id.identification_id"> / <span t-field="contract.employee_id.identification_id"/></t> /</strong></p>
+                    <p t-if="contract.employee_id and contract.employee_id.private_city">
+                        <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                    </p>
+                    <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                        <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                    </p>
+                    <p t-elif="contract.employee_id and contract.employee_id.work_contact_id and contract.employee_id.work_contact_id.city">
+                        <u><b><span t-field="contract.employee_id.work_contact_id.city"/></b></u>
+                    </p>
+                    <p t-else=""><u><b>Addis Ababa</b></u></p>
+                </div>
+                
+                <!-- Subject -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <p style="white-space: nowrap; display: inline-block;"><strong>Subject: <u>Confirmation to Permanent Status</u></strong></p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>Dear <span t-esc="contract.employee_id.name.split()[0] if contract.employee_id and contract.employee_id.name else 'Employee'"/>,</p>
+                    
+                    <p>We are pleased to inform you that based on our letter written dated on <strong>
+                        <t t-esc="original_letter_date_formatted or (original_letter_date.strftime('%B %d, %Y') if original_letter_date and hasattr(original_letter_date, 'strftime') else '_______________')"/>
+                    </strong>  you were employed as <strong>
+                        <!-- under Ref. No <strong><t t-esc="old_reference_number or '_______________'"/></strong>, -->
+                        <t t-if="contract.employee_id.job_id">
+                            <span t-field="contract.employee_id.job_id.name"/>
+                        </t>
+                        <t t-else="">
+                            _______________
+                        </t>
+                    </strong> at <strong><span t-field="contract.company_id.name"/></strong> for a probationary period of three months, which commenced on <strong>
+                        <t t-if="contract.date_start">
+                            <span t-field="contract.date_start" t-options="{'widget': 'date'}"/>
+                        </t>
+                        <t t-else="">
+                            _______________
+                        </t>
+                    </strong>.</p>
+                    
+                    <p>Your dedication and contributions during this probationary period have been invaluable. Consequently, the management is delighted to recommend your confirmation to permanent employment status within our organization, effective <strong>
+                        <t t-esc="confirmation_date_formatted or (confirmation_date.strftime('%B %d, %Y') if confirmation_date and hasattr(confirmation_date, 'strftime') else '_______________')"/>
+                    </strong>.</p>
+                    
+                    <p>As of this date, you are now a permanent employee of our esteemed company, and you will be entitled to the various benefits outlined in our Human Resource Management Policy and Procedure Manual. Please reach out to the Personnel Administration Section to initiate the processing of your ID card and other entitled benefits.</p>
+                    
+                    <p>Congratulations on achieving this significant milestone! We wish you continued success and fulfillment in your role.</p>
+                    
+                    <p class="d-flex justify-content-end">Yours sincerely,</p>
+                </div>
+                
+                 <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC.</strong></p>
+                    <ul class="gap-1">
+                        <t t-if="contract.department_id">
+                            <li> <span t-field="contract.department_id.name" /></li>
+                        </t>
+                        <li>Corporate Finance Office</li>
+                        <li>Personnel File</li>
+                        
+                    </ul>
+                    
+                    <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+                
+        </div>
+    </template>
+</odoo>

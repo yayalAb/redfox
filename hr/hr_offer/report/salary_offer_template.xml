@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_salary_offer_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="doc.with_context(lang=doc.applicant_id.partner_id.lang or user.lang)" />
+
+                    <t t-set="doc_title" t-value="'Job Offer Letter'" />
+                    <t t-set="doc_number" t-value="" />
+                    <t t-set="issue_number" t-value="'1'" />
+
+                    <div class="page" style="font-family: 'Times New Roman'; font-size: 15px; line-height: 1.5;">
+                        <div style="margin-top: 20px; text-align: right;">
+                            <strong>Refe.No: <u>WG/0706/18</u></strong>
+                            <!-- <span t-esc="doc.company_id._get_formatted_sequence('external')" /> -->
+                            <br />
+                            <strong>Date:</strong>
+                            <span t-esc="doc.offer_create_date" t-options='{"widget": "date", "format": "dd/MM/yy"}' />
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <strong>
+                                To: <strong><t t-esc="doc.contract_template_id.employee_id.name" /></strong>. 
+                                <!-- <t t-if="doc.applicant_id.gender == 'male'">Mr. </t>
+                                <t t-if="doc.applicant_id.gender == 'female'">Ms. </t>
+                                <span t-field="doc.applicant_id.partner_name" /> -->
+                            </strong>
+                            <br />
+                        </div>
+
+                        <div class="mt-4 content-center item-center fs-2" style="margin-top: 30px; text-align: center;">
+                            <strong><u>Subject: Job Offer Letter</u></strong>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: justify;">
+                            <p>
+                                Dear <strong><t t-esc="doc.contract_template_id.employee_id.name" /></strong>. 
+                                <!-- <t t-if="doc.applicant_id.gender == 'male'">Mr. </t>
+                                <t t-if="doc.applicant_id.gender == 'female'">Ms. </t>
+                                <span t-esc="doc.applicant_id.partner_name.split(' ')[0] if doc.applicant_id.partner_name else ''" />, -->
+                            </p>
+
+                            <p>
+                                It is our pleasure to formally inform you that you are selected and offer you the position of
+                                <strong><t t-esc="doc.job_title" /></strong> at
+                                <strong><t t-esc="doc.company_id.name" /></strong>.
+                                This is a full-time position, and you will report directly to the Delivery Manager.
+                            </p>
+
+                            <p>
+                                After careful evaluation of your application and thorough interviews, we are confident that your skills and experience will be a valuable addition to our team.
+                                In this role, you will work under the direct supervision of the Delivery Manager, where you will contribute your expertise to various projects.
+                                We believe your background aligns well with our organizational goals.
+                            </p>
+
+                            <t t-set="contract" t-value="doc.contract_template_id" />
+                            <t t-set="all_allowances"
+                                t-value="[
+                                    ('house_rent_allowance', 'House Rent Allowance'),
+                                    ('dearness_allowance', 'Dearness Allowance'),
+                                    ('travel_allowance', 'Travel Allowance'),
+                                    ('meal_allowance', 'Meal Allowance'),
+                                    ('medical_allowance', 'Medical Allowance'),
+                                    ('position_allowance', 'Position Allowance'),
+                                    ('transport_home_allowance', 'Transport (Home) Allowance'),
+                                    ('transport_work_allowance', 'Transport (Work) Allowance'),
+                                    ('fuel_allowance', 'Fuel Allowance'),
+                                    ('cash_indemnity_allowance', 'Cash Indemnity Allowance'),
+                                    ('professional_allowance', 'Professional Allowance'),
+                                    ('other_allowance', 'Other Allowance')
+                                ]" />
+                            <t t-set="active_allowances"
+                                t-value="[al for al in all_allowances if contract[al[0]] > 0]" />
+
+                            <t t-set="total_gross_salary" t-value="contract.wage" />
+                            <t t-foreach="active_allowances" t-as="allowance">
+                                <t t-set="total_gross_salary" t-value="total_gross_salary + contract[allowance[0]]" />
+                            </t>
+
+                            <p>
+                                Your monthly gross salary will be ETB
+                                <strong>Base Salary</strong> <strong t-esc="'{0:,.2f}'.format(contract.wage)" />
+                                (<span t-esc="doc.currency_id.amount_to_text(contract.wage)" />),
+                                categorized under Grade Level <strong><span t-esc="contract.salary_grade_value_id.name" /></strong>
+                                and Scale Level <strong><span t-esc="contract.scale_level_id.name" /></strong>,
+                                as per our internal compensation structure.
+                            </p>
+
+                            <p>On top of that, you are entitled to get the following benefits:</p>
+
+                            <ul>
+                                <t t-foreach="active_allowances" t-as="allowance">
+                                    <li>
+                                        <strong><t t-esc="allowance[1]" /></strong> of Birr
+                                        <strong t-esc="'{0:,.2f}'.format(contract[allowance[0]])" />
+                                        (<span t-esc="doc.currency_id.amount_to_text(contract[allowance[0]])" />)
+                                    </li>
+                                </t>
+                            </ul>
+
+                            <p>
+                                In total, your gross salary will amount to Birr
+                                <strong t-esc="'{0:,.2f}'.format(total_gross_salary)" />
+                                (<span t-esc="doc.currency_id.amount_to_text(total_gross_salary)" />).
+                            </p>
+
+                            <p>
+                                Your anticipated start date is
+                                <span t-esc="doc.contract_start_date" t-options='{"widget": "date", "format": "MMMM dd, yyyy"}' />.
+                                You will be given an employment contract for an
+                                <span t-esc="contract.contract_type_id.name" /> period as per the 1156/2019 Ethiopian Labor proclamation, subject to satisfactory completion of the probation period.
+                            </p>
+
+                            <p>
+                                We kindly ask you to respond to this offer by
+                                <strong><t t-esc="doc.offer_end_date" t-options='{"widget": "date", "format": "MMMM dd, yyyy"}' /></strong>
+                                to facilitate the necessary arrangements.
+                                Should you have any questions or require further information, please do not hesitate to contact us via email at
+                                <t t-esc="doc.company_id.email" /> or by phone at <t t-esc="doc.company_id.phone" />.
+                            </p>
+
+                            <p>
+                                We look forward to welcoming you to our team and embarking on this exciting journey together.
+                            </p>
+                             <div class="mt-4 justify-content-between d-flex" style="display: flex; justify-content: space-between; margin-top: 40px;">
+                                 <p class="mt-4">
+                                    Yours sincerely,
+                                </p>
+
+                                <div class="mt-2" style="margin-top:20px;">
+                                        <t t-if="doc.company_id.company_stamp">
+                                            <img t-att-src="image_data_uri(doc.company_id.company_stamp)"
+                                                style="max-height:120px; opacity:0.9;"/>
+                                        </t>
+                                </div>
+
+                           </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

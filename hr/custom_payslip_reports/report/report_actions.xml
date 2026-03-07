@@ -1,0 +1,55 @@
+<!-- custom_payslip_reports/report/report_actions.xml -->
+<odoo>
+    <data>
+        <record id="action_report_payroll_sheet" model="ir.actions.report">
+            <field name="name">Employee Payroll Sheet</field>
+            <field name="model">hr.payslip</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_payslip_reports.report_payroll_sheet_template</field>
+            <field name="report_file">custom_payslip_reports.report_payroll_sheet_template</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="paperformat_id" ref="custom_payslip_reports.paperformat_payroll_sheet_landscape"/>
+        </record>
+
+        <record id="action_report_tax_withheld" model="ir.actions.report">
+            <field name="name">Tax Withheld Report</field>
+            <field name="model">hr.payslip</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_payslip_reports.report_tax_withheld_template</field>
+            <field name="report_file">custom_payslip_reports.report_tax_withheld_template</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="paperformat_id" ref="custom_payslip_reports.paperformat_payroll_sheet_landscape"/>
+        </record>
+        
+        <record id="action_report_pension_contribution" model="ir.actions.report">
+            <field name="name">Employee Pension Contribution</field>
+            <field name="model">hr.payslip</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_payslip_reports.report_pension_contribution_template</field>
+            <field name="report_file">custom_payslip_reports.report_pension_contribution_template</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="paperformat_id" ref="custom_payslip_reports.paperformat_payroll_portrait"/>
+        </record>
+
+        <record id="action_report_saving_deduction" model="ir.actions.report">
+            <field name="name">Employee Saving Deduction</field>
+            <field name="model">hr.payslip</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_payslip_reports.report_saving_deduction_template</field>
+            <field name="report_file">custom_payslip_reports.report_saving_deduction_template</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="paperformat_id" ref="custom_payslip_reports.paperformat_payroll_portrait"/>
+
+        </record>
+
+        <record id="action_report_social_contribution" model="ir.actions.report">
+            <field name="name">Social Contribution</field>
+            <field name="model">hr.payslip</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_payslip_reports.report_social_contribution_template</field>
+            <field name="report_file">custom_payslip_reports.report_social_contribution_template</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="paperformat_id" ref="custom_payslip_reports.paperformat_payroll_portrait"/>
+        </record>
+    </data>
+</odoo>

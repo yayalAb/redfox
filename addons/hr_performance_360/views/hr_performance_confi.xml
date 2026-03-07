@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="hr_performance_confi_form_view" model="ir.ui.view">
+            <field name="name">hr.performance.confi.form.view</field>
+            <field name="model">hr.performance.confi</field>
+            <field name="arch" type="xml">
+                <form string="360 Performance Evaluation Configuration">
+                    <group colspan="4" col="4">
+                        <field name="name" />
+                        <field name="job_ids" widget="many2many_tags"/>
+                         <notebook>
+                            <page name="name" string="Evaluation Rates">
+                                <field name="rate_ids">
+                                    <list editable="bottom">
+                                        <field name="category"/>
+                                        <field name="rate"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page name="question_list" string="Question List">
+                                <field name="question_ids" context="{'default_config_id': id, 'default_display_type': 'question'}">
+                                    <list editable="bottom" default_order="sequence,id"
+                                          decoration-muted="display_type in ('line_section', 'line_note')"
+                                          decoration-bf="display_type == 'line_section'"
+                                          create="0"
+                                          no_create="1">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="display_type" widget="badge" optional="hide"
+                                               decoration-info="display_type == 'line_section'" 
+                                               decoration-success="display_type == 'line_note'"
+                                               decoration-muted="display_type == 'question'"/>
+                                        <field name="name" required="1" widget="section_and_note_text"/>
+                                        <field name="section_weight" 
+                                               optional="hide"
+                                               invisible="display_type != 'line_section'"
+                                               readonly="display_type != 'line_section'"
+                                               widget="percentage"/>
+                                        <field name="description" 
+                                               invisible="display_type in ['line_section', 'line_note']"/>
+                                    </list>
+                                </field>
+                                <div style="margin-top: 10px; padding: 10px 0;">
+                                    <button name="action_add_question" string="Add a question" type="object" class="oe_link" style="margin-right: 15px;"/>
+                                    <button name="action_add_section" string="Add a section" type="object" class="oe_link"/>
+                                </div>
+                            </page>
+                         </notebook>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="hr_performance_confi_tree_view" model="ir.ui.view">
+            <field name="name">hr.performance.confi.tree.view</field>
+            <field name="model">hr.performance.confi</field>
+            <field name="arch" type="xml">
+                <list string="360 Performance Evaluation Configuration">
+                      <field name="name"/>
+                      <field name="job_ids" widget="many2many_tags"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_hr_performance_confi_unit" model="ir.actions.act_window">
+            <field name="name">360 Performance Evaluation Configuration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.performance.confi</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">list,form</field>
+        </record>
+        <menuitem
+            id="hr_performance_360_menu"
+            parent="update_menus.main_hr_menu_id"
+            name="Performance 360"
+            sequence="10"/>
+
+        <menuitem
+            id="hr_performance_confi_menu"
+            name="Settings"
+            parent="hr_performance_360_menu"
+            action="action_hr_performance_confi_unit"
+            sequence="60"/>
+</odoo>

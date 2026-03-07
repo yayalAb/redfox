@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. ACTION -->
+    <record id="action_crm_facebook_post" model="ir.actions.act_window">
+        <field name="name">Facebook Inbox</field>
+        <field name="res_model">crm.facebook.post</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_state_new': 1}</field>
+    </record>
+
+    <!-- 2. SEARCH VIEW -->
+    <record id="view_crm_facebook_post_search" model="ir.ui.view">
+        <field name="name">crm.facebook.post.search</field>
+        <field name="model">crm.facebook.post</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="author_name" />
+                <field name="message" />
+                <filter string="New Posts" name="state_new" domain="[('state', '=', 'new')]" />
+                <filter string="Converted" name="state_converted"
+                    domain="[('state', '=', 'converted')]" />
+            </search>
+        </field>
+    </record>
+
+    <!-- 3. LIST VIEW -->
+    <record id="view_crm_facebook_post_list" model="ir.ui.view">
+        <field name="name">crm.facebook.post.list</field>
+        <field name="model">crm.facebook.post</field>
+        <field name="arch" type="xml">
+            <list decoration-bf="state=='new'" decoration-muted="state=='ignored'">
+
+                <!-- NEW HEADER ADDED HERE -->
+                <header>
+                    <button name="action_debug_connection"
+                        string="Test Connection"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-refresh" /> <!-- Added an icon for clarity -->
+                </header>
+
+                <field name="post_time" />
+                <field name="author_name" />
+                <field name="message" />
+                <field name="state" widget="badge" decoration-success="state=='converted'"
+                    decoration-info="state=='new'" />
+                <button name="action_create_lead" string="Create Lead" type="object"
+                    icon="fa-plus-square" invisible="state != 'new'" />
+            </list>
+        </field>
+    </record>
+
+    <!-- 4. FORM VIEW -->
+    <record id="view_crm_facebook_post_form" model="ir.ui.view">
+        <field name="name">crm.facebook.post.form</field>
+        <field name="model">crm.facebook.post</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_create_lead" string="Convert to Lead" type="object"
+                        class="oe_highlight" invisible="state != 'new'" />
+                    <button name="action_ignore" string="Ignore" type="object"
+                        invisible="state != 'new'" />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="author_name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="post_time" readonly="1" />
+                            <field name="permalink_url" widget="url" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="created_lead_id" readonly="1" />
+                        </group>
+                    </group>
+                    <group string="Content">
+                        <field name="message" readonly="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 5. MENU: Specific Submenu for Facebook -->
+    <!-- It sits under the existing "Social Media" root you created in Phase 1 -->
+    <menuitem
+        id="menu_crm_facebook_inbox"
+        name="Facebook"
+        parent="menu_crm_social_root"
+        action="action_crm_facebook_post"
+        sequence="1" />
+
+</odoo>

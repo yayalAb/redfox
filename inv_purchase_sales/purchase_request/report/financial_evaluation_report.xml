@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Report Action -->
+        <record id="action_report_financial_evaluation" model="ir.actions.report">
+            <field name="name">Financial Evaluation</field>
+            <field name="model">supplies.rfp</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">committee_evaluation.report_financial_evaluation_document</field>
+            <field name="report_file">committee_evaluation.report_financial_evaluation_document</field>
+            <field name="print_report_name">'Financial Evaluation - %s' % (object.rfp_number)</field>
+            <field name="binding_model_id" ref="model_supplies_rfp" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_financial_evaluation_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <!-- UPDATED: Added Margins, Changed Font to Times New Roman, Increased Font
+                        Size -->
+                        <div class="page"
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; margin-left: 40px; margin-right: 40px;">
+
+                            <!-- Meta Data -->
+                            <div class="row" style="margin-bottom: 5px; font-weight: bold;">
+                                <div class="col-10"></div>
+                                <div class="col-2 text-right">
+                                    <div>ቁጥር: <span t-field="o.rfp_number" /></div>
+                                    <div>ቀን: <span t-field="o.date_ordered"
+                                            t-options='{"format": "dd/MM/yyyy"}' /></div>
+                                </div>
+                            </div>
+
+                            <!-- Section 1: Committee Members -->
+                            <div style="margin-bottom: 20px; margin-top: 10px;">
+                                <div
+                                    style="font-weight: bold; font-size: 13pt; margin-bottom: 10px; text-decoration: underline;">
+                                    የግዢ ኮሚቴ አባላት ስም (Committee Members)
+                                </div>
+
+                                <!-- Column Headers -->
+                                <div class="row"
+                                    style="font-weight: bold; padding-bottom: 5px;">
+                                    <div class="col-1" style="text-decoration: underline;">No.</div>
+                                    <div class="col-4" style="text-decoration: underline;">ስም (Name)</div>
+                                    <div class="col-3" style="text-decoration: underline;">የስራ ድርሻ
+                                        (Role)</div>
+                                    <div class="col-2" style="text-decoration: underline;">ፊርማ
+                                        (Sign)</div>
+                                    <div class="col-2" style="text-decoration: underline;">ቀን (Date)</div>
+                                </div>
+
+                                <t t-if="o.committee_member_ids">
+                                    <t t-foreach="o.committee_member_ids" t-as="member">
+                                        <div class="row"
+                                            style="padding-top: 8px; padding-bottom: 4px;">
+                                            <div class="col-1">
+                                                <span t-esc="member_index + 1" />
+                                            </div>
+                                            <div class="col-4">
+                                                <span t-field="member.name" />
+                                            </div>
+                                            <div class="col-3">
+                                                <span t-if="member.role"
+                                                    t-field="member.role" />
+                                                <span t-else="">Member</span>
+                                            </div>
+                                            <div class="col-2"
+                                                style="border-bottom: 1px solid;"></div>
+                                            <div class="col-2"
+                                                style="border-bottom: 1px solid; margin-left: 15px;"></div>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-muted"
+                                        style="margin-top: 10px; font-style: italic;">
+                                        No committee members assigned.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Section 2: Item Header -->
+                            <div class="text-center"
+                                style="font-weight: bold; margin-bottom: 5px; margin-top: 15px;">
+                                Item Description and Suppliers List Table
+                            </div>
+
+                            <!-- Section 3: Suppliers Comparison Table -->
+                            <t t-set="main_product_line"
+                                t-value="o.product_line_ids and o.product_line_ids[0] or False" />
+
+                            <table
+                                style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                                <thead style="background-color: #d9d9d9;">
+                                    <tr>
+                                        <th rowspan="3"
+                                            style="border: 1px solid black; padding: 5px; text-align: center; width: 5%;">
+                                            No.</th>
+                                        <th rowspan="3"
+                                            style="border: 1px solid black; padding: 5px; text-align: center; width: 35%;">Suppliers
+                                            List Table</th>
+
+                                        <th colspan="2"
+                                            style="border: 1px solid black; padding: 2px; text-align: center; background-color: #ccc;">
+                                            <t t-if="main_product_line">
+                                                <span t-field="main_product_line.product_id.name" />
+                                                <br />
+                                                <span
+                                                    t-field="main_product_line.product_id.description_sale" />
+                                            </t>
+                                            <t t-else="">Item Details</t>
+                                        </th>
+                                        <th rowspan="3"
+                                            style="border: 1px solid black; padding: 5px; text-align: center; width: 15%;">
+                                            Total</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2"
+                                            style="border: 1px solid black; padding: 2px; text-align: center;">
+                                            Pcs</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2"
+                                            style="border: 1px solid black; padding: 2px; text-align: center;">
+                                            <span t-if="main_product_line"
+                                                t-esc="int(main_product_line.product_qty)" />
+                                            <span t-else="">0</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="row_idx" t-value="0" />
+                                    <t t-foreach="o.rfq_ids.sorted(key=lambda r: r.amount_total)"
+                                        t-as="rfq">
+                                        <t t-set="row_idx" t-value="row_idx + 1" />
+                                        <t t-set="is_winner"
+                                            t-value="rfq.state in ['purchase', 'done'] or (o.award_ids and rfq.partner_id in o.award_ids.mapped('partner_id'))" />
+                                        <t t-set="bg_color"
+                                            t-value="'background-color: #cccccc;' if is_winner else ''" />
+                                        <t t-set="is_out_of_spec"
+                                            t-value="rfq.amount_total == 0 or rfq.state == 'cancel'" />
+
+                                        <tr t-att-style="bg_color">
+                                            <td rowspan="2"
+                                                style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                <span t-esc="row_idx" />
+                                            </td>
+                                            <td rowspan="2"
+                                                style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="rfq.partner_id.name" />
+                                            </td>
+
+                                            <td
+                                                style="border-right: 1px solid black; border-bottom: 1px dotted gray; padding: 2px; width: 15%; text-align: right;">
+                                                Unit Price
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; border-bottom: 1px dotted gray; padding: 2px; width: 20%; text-align: right;">
+                                                <t t-if="not is_out_of_spec">
+                                                    <t t-set="first_line"
+                                                        t-value="rfq.order_line and rfq.order_line[0]" />
+                                                    <span t-if="first_line"
+                                                        t-field="first_line.price_unit"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="font-size: 9pt;">Out of Spec</span>
+                                                </t>
+                                            </td>
+
+                                            <td rowspan="2"
+                                                style="border: 1px solid black; padding: 2px; text-align: right; vertical-align: middle;">
+                                                <t t-if="not is_out_of_spec">
+                                                    <span t-field="rfq.amount_untaxed"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr t-att-style="bg_color">
+                                            <td
+                                                style="border-right: 1px solid black; border-bottom: 1px solid black; padding: 2px; text-align: right;">
+                                                Total Price
+                                            </td>
+                                            <td
+                                                style="border: 1px solid black; padding: 2px; text-align: right;">
+                                                <t t-if="not is_out_of_spec">
+                                                    <span t-field="rfq.amount_untaxed"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="font-size: 9pt;">Out of Spec</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <div style="margin-top: 20px; min-height: 80px;">
+                                <strong style="text-decoration: underline;">የውሳኔ ሃሳብ (Decision):-</strong>
+                                <br />
+                                <div t-field="o.internal_notes" style="margin-top: 5px;" />
+                            </div>
+
+                            <t t-set="winning_po"
+                                t-value="o.rfq_line_ids.filtered(lambda l: l.recommended).mapped('order_id')" />
+
+                            <t t-if="winning_po">
+                                <t t-set="winner" t-value="winning_po[0]" />
+                                <t t-set="amount_subtotal" t-value="winner.amount_untaxed" />
+                                <t t-set="amount_tax" t-value="winner.amount_tax" />
+                                <t t-set="withholding" t-value="amount_subtotal * 0.03" />
+                                <t t-set="net_pay"
+                                    t-value="(amount_subtotal + amount_tax) - withholding" />
+                            </t>
+
+                            <!-- NEW LAYOUT: Side-by-Side Sections -->
+                            <div class="row" style="margin-top: 20px; page-break-inside: avoid;">
+
+                                <!-- Left Column: Approval (Section 6) -->
+                                <div class="col-6">
+                                    <h6
+                                        style="font-weight: bold; text-decoration: underline; margin-bottom: 15px;">
+                                        ያጸደቀው ኃላፊ ስምና ፊርማ (Approver)
+                                    </h6>
+                                    <!-- Stacked layout to fit well in half-width column -->
+                                    <div style="margin-bottom: 10px;">
+                                        <strong>ስም:</strong> ______________________ </div>
+                                    <div>
+                                        <strong>ፊርማ:</strong> ______________________ </div>
+                                </div>
+
+                                <!-- Right Column: Financial Summary (Section 5) -->
+                                <div class="col-6">
+                                    <t t-if="winning_po">
+                                        <table
+                                            style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                                            <tr>
+                                                <td colspan="2"
+                                                    style="border: 1px solid black; padding: 2px; text-align: center; font-weight: bold; background-color: #f0f0f0;">
+                                                    <span t-field="winner.partner_id.name" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="border: 1px solid black; padding: 2px;">
+                                                    S.Total</td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: right;">
+                                                    <span t-esc="amount_subtotal"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="border: 1px solid black; padding: 2px;">VAT
+                                                    15%</td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: right;">
+                                                    <span t-esc="amount_tax"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="border: 1px solid black; padding: 2px;">With
+                                                    Holding 3%</td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: right;">
+                                                    <span t-esc="withholding"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </td>
+                                            </tr>
+                                            <tr style="font-weight: bold;">
+                                                <td style="border: 1px solid black; padding: 2px;">Net
+                                                    Pay</td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: right;">
+                                                    <span t-esc="net_pay"
+                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </t>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

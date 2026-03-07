@@ -1,0 +1,21 @@
+{
+    'name': 'Custom Manufacturing',
+    'version': '18.0.1.0.0',
+    'category': 'Manufacturing',
+    'description': 'A module for managing work order dependencies and other manufacutring customizations',
+    'author': 'Niyat ERP',
+    'depends': ['base', 'mrp', 'quality_mrp', 'nested_manufacturing'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/quality_data.xml',
+        'report/fat_report_template.xml',
+        'report/fat_report.xml',
+        'views/fat_test_views.xml',
+        'views/mrp_production_views.xml',
+        'views/quality_check_views.xml',
+        'views/quality_test_plan_views.xml',
+    ],
+    'installable': True,
+    'auto_install': False,
+    'application': False,
+}

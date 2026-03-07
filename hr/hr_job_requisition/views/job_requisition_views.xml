@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_job_requisition_tree" model="ir.ui.view">
+            <field name="name">job.requisition.tree</field>
+            <field name="model">hr.job.requisition</field>
+            <field name="arch" type="xml">
+                <list string="Job Requisitions" decoration-info="state == 'reviewed'"
+                    decoration-success="state == 'published'"
+                    decoration-danger="state == 'rejected'"
+                    decoration-muted="state == 'draft'">
+                    <field name="name" />
+                    <field name="job_id" />
+                    <field name="department_id" />
+                    <field name="create_date" string="Created On" />
+                    <field name="state" widget="badge"
+                        decoration-success="state == 'published'"
+                        decoration-info="state == 'reviewed'"
+                        decoration-danger="state == 'rejected'" />
+                </list>
+            </field>
+        </record>
+
+
+        <record id="view_job_requisition_form" model="ir.ui.view">
+            <field name="name">job.requisition.form</field>
+            <field name="model">hr.job.requisition</field>
+            <field name="arch" type="xml">
+                <form string="Job Requisition">
+                    <header>
+                        <button name="action_approve" string="Approve" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"
+                            groups="hr_job_requisition.hr_job_requisition_group_approve_co" />
+                        
+                        <button name="action_submit" string="Submit" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"
+                            groups="hr_job_requisition.hr_job_requisition_group_requester" />
+
+                        <button name="action_review" string="Review" type="object"
+                            class="oe_highlight" invisible="state != 'submitted'"
+                            groups="hr_job_requisition.hr_job_requisition_group_approve_department" />
+
+                        <button name="action_approve" string="Approve"
+                            type="object"
+                            class="oe_highlight" invisible="state != 'reviewed'"
+                            groups="hr_job_requisition.hr_job_requisition_group_approve_gm" />
+
+                        <button name="action_authorize" string="Authorize" type="object"
+                            class="oe_highlight" invisible="state != 'approved'"
+                            groups="hr_job_requisition.hr_job_requisition_group_authorize" />
+
+                        <button name="action_publish" string="Publish" type="object"
+                            class="oe_highlight" invisible="state != 'authorized'"
+                            groups="hr_job_requisition.hr_job_requisition_group_publish" />
+
+                        <button name="%(action_job_requisition_reject_wizard)d" string="Reject"
+                            type="action" class="btn-danger"
+                            invisible="state != 'draft'"
+                            groups="hr_job_requisition.hr_job_requisition_group_approve_department" />
+
+                        <!-- Reject button for Approver (GM) -->
+                        <button name="%(action_job_requisition_reject_wizard)d" string="Reject"
+                            type="action" class="btn-danger"
+                            invisible="state != 'reviewed'"
+                            groups="hr_job_requisition.hr_job_requisition_group_approve_gm" />
+
+                        <!-- Reject button for Authorizer -->
+                        <button name="%(action_job_requisition_reject_wizard)d" string="Reject"
+                            type="action" class="btn-danger"
+                            invisible="state != 'approved'"
+                            groups="hr_job_requisition.hr_job_requisition_group_authorize" />
+
+                        <field name="state" widget="statusbar"
+                            statusbar_visible="draft,reviewed,approved,authorized,published" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"
+                                    placeholder="name for the job requisition" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Requisition Details">
+                                <field name="department_id" readonly="state != 'draft'"
+                                     />
+                                     <!-- options="{'no_create': True, 'no_create_edit': True}" -->
+                                <field name="job_id"
+                                    readonly="(state != 'draft') or (not department_id)"
+                                     />
+                                     <!-- options="{'no_create': True, 'no_create_edit': True}" -->
+                                <field name="employees_needed" readonly="state != 'draft'"
+                                    widget='recruit_validation' />
+                            </group>
+                            <group string="Tracking Information">
+                                <field name="create_date" string="Created On" />
+                                <field name='published_date' string="Published On"
+                                    invisible="state != 'published'" />
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Justification">
+                                <group>
+                                    <field name="justification"
+                                        placeholder="Explain why this position is needed..."
+                                        readonly="state != 'draft'" />
+                                </group>
+                            </page>
+
+                            <page string='Approval Details'>
+                                <group>
+                                    <field name="requested_by" string='Requested By' />
+                                    <field name="reviewed_by" string='Reviewed By'
+                                        invisible="state == 'draft'" />
+                                    <field name="approved_by" string='Approved By'
+                                        invisible="state in ['draft', 'reviewed']" />
+                                    <field name="authorized_by" string='Authorized By'
+                                        invisible="state not in ['authorized', 'published']" />
+                                    <field name="published_by" string='Published By'
+                                        invisible="state != 'published'" />
+                                </group>
+                            </page>
+                            <page string='Rejection Details' invisible="state != 'rejected'">
+                                <group>
+                                    <field name="rejected_by" string='Rejected By' readonly="1" />
+                                    <field name="rejection_reason" readonly="1" />
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Action -->
+        <record id="action_job_requisition" model="ir.actions.act_window">
+            <field name="name">Job Requisitions</field>
+            <field name="res_model">hr.job.requisition</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Menu Item -->
+        <menuitem
+            id="menu_hr_recruitment_job_requisitions"
+            name="Job Requisitions"
+            parent="hr_recruitment.menu_crm_case_categ0_act_job"
+            action="action_job_requisition"
+            sequence="20" />
+    </data>
+</odoo>

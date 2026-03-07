@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================== -->
+    <!-- 1. ACTIVITY PERFORMANCE ANALYSIS               -->
+    <!-- ============================================== -->
+    
+    <!-- Graph View -->
+    <record id="view_activity_performance_graph" model="ir.ui.view">
+        <field name="name">activity.performance.graph</field>
+        <field name="model">corporate.performance.activity</field>
+        <field name="arch" type="xml">
+            <graph string="Activity Analysis" type="bar" sample="1">
+                <field name="department_id"/>
+                <field name="quarter_plan" type="measure"/>
+                <field name="quarter_actual" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_activity_performance_pivot" model="ir.ui.view">
+        <field name="name">activity.performance.pivot</field>
+        <field name="model">corporate.performance.activity</field>
+        <field name="arch" type="xml">
+            <pivot string="Activity Analysis" sample="1">
+                <field name="department_id" type="row"/>
+                <field name="activity_master_id" type="row"/>
+                <field name="quarter" type="col"/>
+                <field name="quarter_plan" type="measure"/>
+                <field name="quarter_actual" type="measure"/>
+                <field name="percent_achieved" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_activity_performance_search" model="ir.ui.view">
+        <field name="name">activity.performance.search</field>
+        <field name="model">corporate.performance.activity</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="department_id"/>
+                <field name="fiscal_year"/>
+                <field name="activity_master_id"/>
+                <filter string="My Department" name="my_dept" domain="[('department_id.manager_id.user_id', '=', uid)]"/>
+                <filter string="Low Performance (&lt; 50%)" name="low_perf" domain="[('percent_achieved', '&lt;', 50)]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Department" name="group_dept" context="{'group_by':'department_id'}"/>
+                    <filter string="Quarter" name="group_quarter" context="{'group_by':'quarter'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_activity_analysis" model="ir.actions.act_window">
+        <field name="name">Activity Analysis</field>
+        <field name="res_model">corporate.performance.activity</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="context">{'search_default_group_dept': 1}</field>
+    </record>
+
+
+    <!-- ============================================== -->
+    <!-- 2. FINANCIAL PERFORMANCE ANALYSIS              -->
+    <!-- ============================================== -->
+
+    <record id="view_financial_performance_graph" model="ir.ui.view">
+        <field name="name">financial.performance.graph</field>
+        <field name="model">corporate.performance.financial</field>
+        <field name="arch" type="xml">
+            <graph string="Financial Analysis" type="line" sample="1">
+                <field name="quarter"/>
+                <field name="quarter_plan_amount" type="measure"/>
+                <field name="quarter_actual_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_financial_performance_pivot" model="ir.ui.view">
+        <field name="name">financial.performance.pivot</field>
+        <field name="model">corporate.performance.financial</field>
+        <field name="arch" type="xml">
+            <pivot string="Financial Analysis" sample="1">
+                <field name="category" type="row"/>
+                <field name="item_id" type="row"/>
+                <field name="fiscal_year" type="col"/>
+                <field name="quarter" type="col"/>
+                <field name="quarter_plan_amount" type="measure"/>
+                <field name="quarter_actual_amount" type="measure"/>
+                <field name="variance_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_financial_analysis" model="ir.actions.act_window">
+        <field name="name">Financial Analysis</field>
+        <field name="res_model">corporate.performance.financial</field>
+        <field name="view_mode">pivot,graph</field>
+    </record>
+
+
+    <!-- ============================================== -->
+    <!-- 3. KPI DASHBOARD (BSC Analysis)                -->
+    <!-- ============================================== -->
+
+    <!-- <record id="view_kpi_performance_graph" model="ir.ui.view">
+        <field name="name">kpi.performance.graph</field>
+        <field name="model">corporate.performance.kpi</field>
+        <field name="arch" type="xml">
+            <graph string="KPI Analysis" type="bar" stacked="True">
+                <field name="department_id"/>
+                <field name="perspective"/>
+                <field name="percent_achieved" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_kpi_performance_pivot" model="ir.ui.view">
+        <field name="name">kpi.performance.pivot</field>
+        <field name="model">corporate.performance.kpi</field>
+        <field name="arch" type="xml">
+            <pivot string="KPI Analysis">
+                <field name="perspective" type="row"/>
+                <field name="kpi_id" type="row"/>
+                <field name="quarter" type="col"/>
+                <field name="quarter_target" type="measure"/>
+                <field name="quarter_actual" type="measure"/>
+                <field name="percent_achieved" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_kpi_analysis" model="ir.actions.act_window">
+        <field name="name">KPI Analysis</field>
+        <field name="res_model">corporate.performance.kpi</field>
+        <field name="view_mode">pivot,graph</field>
+    </record> -->
+
+
+    <record id="view_bsc_performance_search" model="ir.ui.view">
+        <field name="name">bsc.performance.search</field>
+        <field name="model">corporate.performance.okr.line</field>
+        <field name="arch" type="xml">
+            <search string="BSC Analysis">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <!-- <field name="bsc_perspective_id"/> -->
+                <field name="okr_id"/>
+
+                <!-- FILTERS -->
+                <filter string="My Department" name="my_dept" 
+                        domain="[('department_id.manager_id.user_id', '=', uid)]"/>
+                <filter string="High Performance (> 80%)" name="high_perf" 
+                        domain="[('actual_result', '>=', 80)]"/>
+                <filter string="Low Performance (&lt; 50%)" name="low_perf" 
+                        domain="[('actual_result', '&lt;', 50)]"/>
+                <separator/>
+                <filter string="Approved OKRs" name="approved" 
+                        domain="[('okr_id.state', '=', 'approved')]"/>
+
+                <!-- GROUP BY OPTIONS -->
+                <group expand="1" string="Group By">
+                    <filter string="Department" name="group_dept" context="{'group_by':'department_id'}"/>
+                    <filter string="BSC Perspective" name="group_perspective" context="{'group_by':'bsc_perspective_id'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by':'employee_id'}"/>
+                    <filter string="KPI / OKR" name="group_okr" context="{'group_by':'okr_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 1. GRAPH VIEW (VISUALIZATIONS)             -->
+    <!-- ========================================== -->
+    <record id="view_bsc_performance_graph" model="ir.ui.view">
+        <field name="name">bsc.performance.graph</field>
+        <field name="model">corporate.performance.okr.line</field>
+        <field name="arch" type="xml">
+            <!-- 
+                Stacked Bar Chart: 
+                X-Axis: Department
+                Bars: Stacked by Perspective
+                Y-Axis: Average Performance Score
+            -->
+            <graph string="Strategic Performance (BSC)" type="bar" sample="1" stacked="True">
+                <field name="department_id"/>
+                <!-- <field name="bsc_perspective_id"/> -->
+                <field name="performance_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- 2. PIVOT VIEW (MATRIX ANALYSIS)            -->
+    <!-- ========================================== -->
+    <record id="view_bsc_performance_pivot" model="ir.ui.view">
+        <field name="name">bsc.performance.pivot</field>
+        <field name="model">corporate.performance.okr.line</field>
+        <field name="arch" type="xml">
+            <pivot string="BSC Performance Matrix" sample="1" disable_linking="True">
+                <!-- Rows: Drill down from Dept -> Employee -> OKR -->
+                <field name="department_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                
+                <!-- Columns: The BSC Perspectives -->
+                <!-- <field name="bsc_perspective_id" type="col"/> -->
+                
+                <!-- Metrics -->
+                <field name="weight" type="measure" string="Total Weight"/>
+                <field name="actual_result" type="measure" string="Avg Actual %"/>
+                <field name="performance_score" type="measure" string="Weighted Score"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACTION                                     -->
+    <!-- ========================================== -->
+    <record id="action_bsc_performance_report" model="ir.actions.act_window">
+        <field name="name">KPI &amp; BSC Performance Analysis</field>
+        <field name="res_model">corporate.performance.okr.line</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="context">{'search_default_group_dept': 1, 'search_default_approved': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No performance data found.
+            </p>
+            <p>
+                Once OKRs are approved and employees update their progress (Actual Result),
+                the data will populate these graphs automatically.
+            </p>
+        </field>
+    </record>
+
+
+    <!-- ============================================== -->
+    <!-- 4. CAPEX ANALYSIS                              -->
+    <!-- ============================================== -->
+
+    <record id="view_capex_performance_pivot" model="ir.ui.view">
+        <field name="name">capex.performance.pivot</field>
+        <field name="model">corporate.performance.capex</field>
+        <field name="arch" type="xml">
+            <pivot string="Capex Analysis">
+                <field name="capex_item_id" type="row"/>
+                <field name="quarter" type="col"/>
+                <field name="quarter_plan_qty" type="measure"/>
+                <field name="quarter_actual_qty" type="measure"/>
+                <field name="quarter_budget_etb" type="measure"/>
+                <field name="quarter_actual_cost" type="measure"/>
+                <field name="budget_utilized_percent" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_capex_analysis" model="ir.actions.act_window">
+        <field name="name">Capex Analysis</field>
+        <field name="res_model">corporate.performance.capex</field>
+        <field name="view_mode">pivot,graph</field>
+    </record>
+
+</odoo>

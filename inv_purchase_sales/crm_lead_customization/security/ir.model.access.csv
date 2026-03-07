@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_social_message_user,crm.social.message.user,model_crm_social_message,base.group_user,1,1,1,1
+access_crm_facebook_post_user,crm.facebook.post.user,model_crm_facebook_post,base.group_user,1,1,1,1
+access_crm_sector_user,crm.sector.user,model_crm_sector,base.group_user,1,0,0,0
+access_crm_sector_manager,crm.sector.manager,model_crm_sector,sales_team.group_sale_manager,1,1,1,1
+access_crm_industry_user,crm.industry.user,model_crm_industry,base.group_user,1,0,0,0
+access_crm_industry_manager,crm.industry.manager,model_crm_industry,sales_team.group_sale_manager,1,1,1,1

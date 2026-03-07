@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Pivot Analysis -->
+    <record id="view_okr_analysis_pivot" model="ir.ui.view">
+        <field name="name">okr.analysis.pivot</field>
+        <field name="model">corporate.performance.okr.line</field>
+        <field name="arch" type="xml">
+            <pivot string="OKR Analysis">
+                <field name="department_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="bsc_perspective_id" type="col"/>
+                <field name="performance_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph Analysis -->
+    <record id="view_okr_analysis_graph" model="ir.ui.view">
+        <field name="name">okr.analysis.graph</field>
+        <field name="model">corporate.performance.okr.line</field>
+        <field name="arch" type="xml">
+            <graph string="OKR Performance" type="bar" stacked="True">
+                <field name="department_id"/>
+                <field name="bsc_perspective_id"/>
+                <field name="performance_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_okr_analysis_report" model="ir.actions.act_window">
+        <field name="name">OKR &amp; Performance Analysis</field>
+        <field name="res_model">corporate.performance.okr.line</field>
+        <field name="view_mode">pivot,graph</field>
+    </record>
+</odoo>

@@ -1,0 +1,93 @@
+<odoo>
+    <record id="hr_contract_inherited_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.inherited.view.form</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='resource_calendar_warning']" position="after" >
+                <field name="apply_cash_indemnity" />
+                <field name="cash_indemnity_start_date" invisible="not apply_cash_indemnity" />
+            </xpath>
+
+            <xpath expr="//page[@name='information']" position="inside">
+                <group string="Monthly Advantages in Cash">
+
+                    <group>
+                        <label for="house_rent_allowance" />
+                        <div class="o_row">
+                            <field name="house_rent_allowance" nolabel='1'
+                                widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+
+                        <label for="travel_allowance" />
+                        <div class="o_row">
+                            <field name="travel_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="medical_allowance" />
+                        <div class="o_row">
+                            <field name="medical_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="position_allowance" />
+                        <div class="o_row">
+                            <field name="position_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="transport_home_allowance" />
+                        <div class="o_row">
+                            <field name="transport_home_allowance" nolabel='1'
+                                widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="transport_work_allowance" />
+                        <div class="o_row">
+                            <field name="transport_work_allowance" nolabel='1'
+                                widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                    </group>
+
+
+                    <group>
+                        <label for="dearness_allowance" />
+                        <div class="o_row">
+                            <field name="dearness_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+
+                        <label for="meal_allowance" />
+                        <div class="o_row">
+                            <field name="meal_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="fuel_allowance" />
+                        <div class="o_row">
+                            <field name="fuel_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="cash_indemnity_allowance" invisible="not apply_cash_indemnity"/>
+                        <div class="o_row" invisible="not apply_cash_indemnity">
+                            <field name="cash_indemnity_allowance" nolabel='1'
+                                widget='salary_validation' invisible="not apply_cash_indemnity"/>
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="professional_allowance" />
+                        <div class="o_row">
+                            <field name="professional_allowance" nolabel='1'
+                                widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                        <label for="other_allowance" />
+                        <div class="o_row">
+                            <field name="other_allowance" nolabel='1' widget='salary_validation' />
+                            <span class="ms-2 text-muted">/ month</span>
+                        </div>
+                    </group>
+
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

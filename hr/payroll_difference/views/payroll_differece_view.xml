@@ -1,0 +1,88 @@
+<odoo>
+    <record id='payroll_difference_analysis_list_view' model='ir.ui.view'>
+        <field name='name'>payroll.difference.analysis.list.view</field>
+        <field name='model'>payroll.difference.analysis</field>
+        <field name='arch' type='xml'>
+            <list>
+                <field name="employee_id" />
+                <field name="rule_id" />
+                <field name="month" />
+                <field name="late_month" />
+                <field name="this_month"/>
+                <field name="difference"/>
+            </list>
+        </field>
+    </record>
+
+    <record id='payroll_difference_analysis_pivot_view' model='ir.ui.view'>
+    <field name='name'>payroll.difference.analysis.pivot.view</field>
+    <field name='model'>payroll.difference.analysis</field>
+    <field name='arch' type='xml'>
+        <pivot>
+            <field name="employee_id" type="row" string="Employee"/>
+            <field name="rule_id" type="col" string="Salary Rule"/>
+            <field name="difference" type="measure" string="Difference"/>
+        </pivot>
+    </field>
+</record>
+
+<record id="payroll_difference_analysis_search_view" model="ir.ui.view">
+    <field name="name">payroll.difference.analysis.search.view</field>
+    <field name="model">payroll.difference.analysis</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="employee_id"/>
+            <field name="rule_id"/>
+            <group expand="0" string="Group By">
+                <filter string="Employee" name="group_by_employee" context="{'group_by':'employee_id'}"/>
+                <filter string="Salary Rule" name="group_by_rule" context="{'group_by':'rule_id'}"/>
+            </group>
+        </search>
+    </field>
+</record>
+
+
+    
+
+    <record id="action_payroll_difference_analysis" model="ir.actions.act_window">
+    <field name="name">Payroll Difference Analysis</field>
+    <field name="res_model">payroll.difference.analysis</field>
+    <field name="view_mode">pivot,list,search</field>
+    <field name="view_id" ref="payroll_difference_analysis_list_view"/>
+    <!-- <field name="context">{'group_by': ['employee_id']}</field> -->
+</record>
+
+     <record id="hr_payslip_differece_button" model="ir.ui.view">
+        <field name="name">hr.payslip.run.button</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form" />
+        <field name="arch" type="xml">
+              <xpath expr="//button[@name='action_confirm']" position="after">
+                  <button name="action_get_payslip_difference"
+                     type="object"
+                     string="View Difference"
+                     class="btn-primary" />
+                </xpath>
+        </field>
+      </record>
+
+
+     <record id="hr_salary_rule_inherited" model="ir.ui.view">
+        <field name="name">hr.salary.rule.button</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="inherit_id" ref="hr_payroll.hr_salary_rule_form" />
+        <field name="arch" type="xml">
+              <xpath expr="//field[@name='appears_on_payroll_report']" position="after">
+                  <field name="is_basic"/>
+                  </xpath>
+        </field>
+      </record>
+
+
+    <menuitem
+        id="menu_training_requisitions"
+        name="Difference"
+        parent="base.edit_menu_access"
+        action="action_payroll_difference_analysis"
+        sequence="2" />
+</odoo>

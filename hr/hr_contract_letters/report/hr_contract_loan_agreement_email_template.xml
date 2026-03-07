@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Loan Agreement Email Body Template -->
+    <template id="email_template_loan_agreement_body" name="Loan Agreement Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+            <!-- Date -->
+            <div style="text-align: left; margin-bottom: 20px;">
+                <p><strong><span t-field="loan.payment_date" t-options="{'widget': 'date'}"/> ዓ.ም</strong></p>
+            </div>
+            
+            <!-- Letter Body -->
+            <div style="text-align: justify;">
+                <p>ድርጅታችን <strong><span t-field="loan.company_id.name"/></strong> ለሰራተኞቹ ለሚሰጠው የብድር አገልግሎት ከዚህ እንደሚከተለው ያለውን የብድር ውል ቅፅ በመሙላት ተፈፃሚ ይሆናል፡፡</p>
+                
+                <p>እኔ <t t-if="loan.employee_id.gender == 'male'">አቶ </t><t t-if="loan.employee_id.gender == 'female'">ወ/ሮ </t><strong><span t-field="loan.employee_id.name"/><t t-if="loan.employee_id.identification_id">/<span t-field="loan.employee_id.identification_id"/></t></strong> የተባልኩ የ<strong><span t-field="loan.company_id.name"/></strong> ሰራተኛ ከድርጅቱ የብድር አገልግሎት ብር <strong><span t-esc="'{0:,.2f}'.format(loan.loan_amount)"/></strong> /<span t-esc="loan.currency_id.amount_to_text(loan.loan_amount)"/> ብር ብቻ/ በመውሰዴ እና ከ<strong>
+                    <t t-if="loan.payment_date">
+                        <span t-field="loan.payment_date" t-options="{'widget': 'date'}"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> ወር <strong>
+                    <t t-if="loan.payment_date">
+                        <span t-field="loan.payment_date" t-options="{'widget': 'date'}"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> ዓ.ም ጀምሮ በየወሩ ከሚከፈለኝ ደመወዝ ብር <strong>
+                    <t t-if="monthly_amount and monthly_amount > 0">
+                        <span t-esc="'{0:,.2f}'.format(monthly_amount)"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> /<t t-if="monthly_amount and monthly_amount > 0">
+                    <span t-esc="loan.currency_id.amount_to_text(monthly_amount)"/>
+                </t>
+                <t t-else="">
+                    _______________
+                </t> ብር ብቻ/ በወር ተቀንሶ ገቢ ለማድረግ በመስማማት በድርጅቱ መመሪያና ደንብ መሰረት ውል መግባቴን በፊርማዬ አረጋግጣለሁ፡፡</p>
+                
+                <p>እኔ <strong>
+                    <t t-if="loan.guarantor_id and loan.guarantor_id.name">
+                        <span t-field="loan.guarantor_id.name"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> /<strong>
+                    <t t-if="loan.guarantor_id and loan.guarantor_id.identification_id">
+                        <span t-field="loan.guarantor_id.identification_id"/>
+                    </t>
+                    <t t-else="">
+                        _______________
+                    </t>
+                </strong> የተባልኩ ግለሰብ ለ<t t-if="loan.employee_id.gender == 'male'">አቶ </t><t t-if="loan.employee_id.gender == 'female'">ወ/ሮ </t><strong><span t-field="loan.employee_id.name"/><t t-if="loan.employee_id.identification_id">/<span t-field="loan.employee_id.identification_id"/></t></strong> ለተባሉት የድርጅቱን ተበዳሪ ተያዥ በመሆን ግለሰቡ መክፈል ባይችሉ ከወር ደመወዜ ላይ ተቀንሶ ገቢ እንዲደረግ በማለት በፊርማዬ አረጋግጣለሁ፡፡</p>
+            </div>
+            
+            <!-- Signature Section -->
+            <div style="margin-top: 40px;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr>
+                        <td style="width: 33%; padding: 10px; vertical-align: top;">
+                            <p><strong>አበዳሪ ድርጅት (ተወካይ)</strong></p>
+                            <p>ስም        <t t-if="loan.company_representative_id and loan.company_representative_id.name"><span t-field="loan.company_representative_id.name"/></t><t t-else="">--------------------</t></p>
+                            <p>የሥራ ኃላፊነት  <t t-if="loan.company_representative_id and loan.company_representative_id.job_id"><span t-field="loan.company_representative_id.job_id.name"/></t><t t-else="">--------------------</t></p>
+                            <p>ፊርማ</p>
+                            <t t-if="loan.company_representative_signature">
+                                <img t-att-src="'data:image/png;base64,' + loan.company_representative_signature" style="max-width: 200px; max-height: 80px;"/>
+                            </t>
+                            <t t-else="">
+                                <p>------------------------</p>
+                            </t>
+                        </td>
+                        <td style="width: 33%; padding: 10px; vertical-align: top;">
+                            <p><strong>ተበዳሪ ሰራተኛ</strong></p>
+                            <p>ስም        <t t-if="loan.employee_id.name"><span t-field="loan.employee_id.name"/></t><t t-else="">-------------------</t></p>
+                            <p>የሥራ ኃላፊነት  <t t-if="loan.employee_id.job_id"><span t-field="loan.employee_id.job_id.name"/></t><t t-else="">----------------------</t></p>
+                            <p>ፊርማ</p>
+                            <t t-if="loan.employee_signature">
+                                <img t-att-src="'data:image/png;base64,' + loan.employee_signature" style="max-width: 200px; max-height: 80px;"/>
+                            </t>
+                            <t t-else="">
+                                <p>------------------------</p>
+                            </t>
+                        </td>
+                        <td style="width: 33%; padding: 10px; vertical-align: top;">
+                            <p><strong>የተያዥ</strong></p>
+                            <p>ስም        <t t-if="loan.guarantor_id and loan.guarantor_id.name"><span t-field="loan.guarantor_id.name"/></t><t t-else="">------------------</t></p>
+                            <p>የሥራ ኃላፊነት  <t t-if="loan.guarantor_id and loan.guarantor_id.identification_id">ID: <span t-field="loan.guarantor_id.identification_id"/></t><t t-else="">-------------------</t></p>
+                            <p>ፊርማ</p>
+                            <t t-if="loan.guarantor_signature">
+                                <img t-att-src="'data:image/png;base64,' + loan.guarantor_signature" style="max-width: 200px; max-height: 80px;"/>
+                            </t>
+                            <t t-else="">
+                                <p>------------------------</p>
+                            </t>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </template>
+</odoo>
+

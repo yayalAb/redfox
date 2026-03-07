@@ -1,0 +1,19 @@
+<odoo>
+    <record id="supplies_rfp_action" model="ir.actions.act_window">
+        <field name="name">Purchase Requests</field>
+        <field name="res_model">supplies.rfp</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Purchase Requests found
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="supplies_rfp_menu"
+        name="Purchase Requests"
+        parent="purchase.menu_procurement_management"
+        action="supplies_rfp_action"
+    />
+</odoo>

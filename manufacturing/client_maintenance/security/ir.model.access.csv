@@ -1,0 +1,8 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_service_request,access service request,model_service_request,base.group_user,1,1,1,1
+access_service_request_reject_wizard,access service request reject wizard,model_service_request_reject_wizard,base.group_user,1,1,1,1
+access_service_type,access service type,model_service_type,base.group_user,1,1,1,1
+access_fault_category,access fault category,model_fault_category,base.group_user,1,1,1,1
+access_measurement_log,access measurement log,model_measurement_log,base.group_user,1,1,1,1
+access_measurement_log_reject_wizard,access measurement log reject wizard,model_measurement_form_reject_wizard,base.group_user,1,1,1,1
+access_insulation_log,access insulation log,model_insulation_log,base.group_user,1,1,1,1

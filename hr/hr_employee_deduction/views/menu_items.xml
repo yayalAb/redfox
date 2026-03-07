@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_employee_deduction_root"
+        name="Deductions"
+        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_root"
+        sequence="90"/>
+
+    <menuitem
+        id="menu_employee_deduction"
+        name="Employee Deductions"
+        parent="menu_employee_deduction_root"
+        action="action_employee_deduction"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_employee_deduction_type"
+        name="Deduction Types"
+        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+        action="action_employee_deduction_type"
+        sequence="100"/>
+</odoo>

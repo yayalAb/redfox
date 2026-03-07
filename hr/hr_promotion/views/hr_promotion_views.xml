@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_promotion_list" model="ir.ui.view">
+            <field name="name">hr.promotion.list</field>
+            <field name="model">hr.promotion</field>
+            <field name="arch" type="xml">
+                <list string='Promotions'
+                    decoration-info="state == 'in_review'"
+                    decoration-success="state == 'approved'"
+                    decoration-danger="state == 'rejected'"
+                    decoration-muted="state == 'draft'">
+                    <field name='name' />
+                    <field name='employee_id' />
+                    <field name='promotion_type' />
+                    <field name='creator_id' />
+                    <field name='request_date' />
+                    <field name='state' widget="badge"
+                        decoration-success="state in ('approved', 'open')"
+                        decoration-info="state == 'in_review'"
+                        decoration-danger="state == 'rejected'" />
+                </list>
+            </field>
+        </record>
+
+        <record id="hr_promotion_form" model="ir.ui.view">
+            <field name="name">hr.promotion.form</field>
+            <field name="model">hr.promotion</field>
+            <field name="arch" type="xml">
+                <form string='promotion'>
+                    <header>
+                        <button name='action_submit' string='Submit' type='object'
+                            class='oe_highlight'
+                            invisible="state != 'draft'" />
+                        <button name='action_approve' string='Approve' type='object'
+                            class='oe_highlight' 
+                            invisible="state != 'in_review'"
+                            groups="hr_promotion.hr_promotion_approve_group" />
+                        <button name="%(action_promotion_reject_wizard)d" string='Reject'
+                            type='action'
+                            class='btn-danger' 
+                            invisible="state != 'in_review'"
+                            groups="hr_promotion.hr_promotion_reject_group" />
+                        <button name='action_draft' string='Set to Draft' type='object'
+                            invisible="state != 'in_review'"
+                            groups="hr_promotion.hr_promotion_draft_group" />
+                        <button name='action_done' string='Mark As Done' type='object'
+                            class='oe_highlight' 
+                            invisible="state != 'approved'"
+                            groups="hr_promotion.hr_promotion_done_group" />
+                        <field name='state' widget='statusbar'
+                            statusbar_visible='draft,in_review,approved,done' />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"
+                                    placeholder="name for the job requisition" />
+                            </h1>
+                        </div>
+
+                        <group string='Employee Details'>
+                            <group>
+                                <field name='employee_id' />
+                                
+                                 <field name="appraisal_id"
+                                    string="Select Appraisal"
+                                    domain="[('employee_id', '=', employee_id), ('state', '=', 'done')]"
+                                    context="{'default_employee_id': employee_id}" 
+                                    options="{'no_create': True, 'no_quick_create': True}" />
+
+                            </group>
+                            <group>
+                                <field name='promotion_type' />
+                                    <field name="appraisal_final_rating"
+                                        string="Appraisal Rating"
+                                        invisible="not appraisal_id" />
+
+                            </group>
+
+
+                            
+                            
+                        </group>
+
+                                <group col="2" string="">
+                                    <!-- Left Column: Old Contract Details -->
+                                    <group string="Current Contract Details">
+                                        <field name="old_contract_id" invisible="1"/>
+                                        <field name="old_company_id" invisible="1"/>
+                                        <label for="old_department_id" string="Department"/>
+                                        <field name="old_department_id" nolabel="1"/>
+                                        <label for="old_job_id" string="Job Position"/>
+                                        <field name="old_job_id" nolabel="1"/>
+                                        <label for="old_date_start" string="Contract Start Date"/>
+                                        <field name="old_date_start" nolabel="1"/>
+                                        <label for="old_date_end" string="Contract End Date"/>
+                                        <field name="old_date_end" nolabel="1"/>
+                                        <label for="old_wage" string="Basic Salary"/>
+                                        <field name="old_wage" nolabel="1"/>
+                                        <label for="old_wage_type" string="Wage Type" invisible="old_wage_type != 'hourly'"/>
+                                        <field name="old_wage_type" nolabel="1" invisible="old_wage_type != 'hourly'"/>
+                                        <label for="old_hourly_wage" string="Hourly Wage" invisible="old_wage_type != 'hourly'"/>
+                                        <field name="old_hourly_wage" nolabel="1" invisible="old_wage_type != 'hourly'"/>
+                                        <label for="old_structure_type_id" string="Salary Structure Type"/>
+                                        <field name="old_structure_type_id" nolabel="1"/>
+                                        <label for="old_schedule_pay" string="Pay Schedule"/>
+                                        <field name="old_schedule_pay" nolabel="1"/>
+                                        <label for="old_resource_calendar_id" string="Working Schedule"/>
+                                        <field name="old_resource_calendar_id" nolabel="1"/>
+                                        <separator string="Allowances"/>
+                                        <label for="old_house_rent_allowance" string="House Rent Allowance"/>
+                                        <field name="old_house_rent_allowance" nolabel="1"/>
+                                        <label for="old_dearness_allowance" string="Dearness Allowance"/>
+                                        <field name="old_dearness_allowance" nolabel="1"/>
+                                        <label for="old_travel_allowance" string="Travel Allowance"/>
+                                        <field name="old_travel_allowance" nolabel="1"/>
+                                        <label for="old_meal_allowance" string="Meal Allowance"/>
+                                        <field name="old_meal_allowance" nolabel="1"/>
+                                        <label for="old_medical_allowance" string="Medical Allowance"/>
+                                        <field name="old_medical_allowance" nolabel="1"/>
+                                        <label for="old_position_allowance" string="Position Allowance"/>
+                                        <field name="old_position_allowance" nolabel="1"/>
+                                        <label for="old_transport_home_allowance" string="Transport Home Allowance"/>
+                                        <field name="old_transport_home_allowance" nolabel="1"/>
+                                        <label for="old_transport_work_allowance" string="Transport Work Allowance"/>
+                                        <field name="old_transport_work_allowance" nolabel="1"/>
+                                        <label for="old_fuel_allowance" string="Fuel Allowance"/>
+                                        <field name="old_fuel_allowance" nolabel="1"/>
+                                        <label for="old_professional_allowance" string="Professional Allowance"/>
+                                        <field name="old_professional_allowance" nolabel="1"/>
+                                        <label for="old_other_allowance" string="Other Allowance"/>
+                                        <field name="old_other_allowance" nolabel="1"/>
+                                        <separator string="Cash Indemnity"/>
+                                        <label for="old_apply_cash_indemnity" string="Apply Cash Indemnity"/>
+                                        <field name="old_apply_cash_indemnity" nolabel="1"/>
+                                        <label for="old_cash_indemnity_allowance" string="Cash Indemnity Allowance" invisible="not old_apply_cash_indemnity"/>
+                                        <field name="old_cash_indemnity_allowance" nolabel="1" invisible="not old_apply_cash_indemnity"/>
+                                        <label for="old_cash_indemnity_start_date" string="Cash Indemnity Start Date" invisible="not old_apply_cash_indemnity"/>
+                                        <field name="old_cash_indemnity_start_date" nolabel="1" invisible="not old_apply_cash_indemnity"/>
+                                    </group>
+
+                                    <!-- Right Column: New Contract Details -->
+                                    <group string="New Contract Details">
+                                        <field name="new_company_id" invisible="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <label for="new_department_id" string="Department"/>
+                                        <field name="new_department_id" nolabel="1"/>
+                                        <label for="new_job_id" string="Job Position"/>
+                                        <field name="new_job_id" nolabel="1"/>
+                                        <label for="new_date_start" string="Contract Start Date"/>
+                                        <field name="new_date_start" nolabel="1" required="1"/>
+                                        <label for="new_date_end" string="Contract End Date"/>
+                                        <field name="new_date_end" nolabel="1"/>
+                                        <label for="new_wage" string="Basic Salary"/>
+                                        <field name="new_wage" nolabel="1"/>
+                                        <label for="new_wage_type" string="Wage Type" invisible="new_wage_type != 'hourly'"/>
+                                        <field name="new_wage_type" nolabel="1" invisible="new_wage_type != 'hourly'"/>
+                                        <label for="new_hourly_wage" string="Hourly Wage" invisible="new_wage_type != 'hourly'"/>
+                                        <field name="new_hourly_wage" nolabel="1" invisible="new_wage_type != 'hourly'"/>
+                                        <label for="new_structure_type_id" string="Salary Structure Type"/>
+                                        <field name="new_structure_type_id" nolabel="1"/>
+                                        <label for="new_schedule_pay" string="Pay Schedule"/>
+                                        <field name="new_schedule_pay" nolabel="1"/>
+                                        <label for="new_resource_calendar_id" string="Working Schedule"/>
+                                        <field name="new_resource_calendar_id" nolabel="1"/>
+                                        <separator string="Allowances"/>
+                                        <label for="new_house_rent_allowance" string="House Rent Allowance"/>
+                                        <field name="new_house_rent_allowance" nolabel="1"/>
+                                        <label for="new_dearness_allowance" string="Dearness Allowance"/>
+                                        <field name="new_dearness_allowance" nolabel="1"/>
+                                        <label for="new_travel_allowance" string="Travel Allowance"/>
+                                        <field name="new_travel_allowance" nolabel="1"/>
+                                        <label for="new_meal_allowance" string="Meal Allowance"/>
+                                        <field name="new_meal_allowance" nolabel="1"/>
+                                        <label for="new_medical_allowance" string="Medical Allowance"/>
+                                        <field name="new_medical_allowance" nolabel="1"/>
+                                        <label for="new_position_allowance" string="Position Allowance"/>
+                                        <field name="new_position_allowance" nolabel="1"/>
+                                        <label for="new_transport_home_allowance" string="Transport Home Allowance"/>
+                                        <field name="new_transport_home_allowance" nolabel="1"/>
+                                        <label for="new_transport_work_allowance" string="Transport Work Allowance"/>
+                                        <field name="new_transport_work_allowance" nolabel="1"/>
+                                        <label for="new_fuel_allowance" string="Fuel Allowance"/>
+                                        <field name="new_fuel_allowance" nolabel="1"/>
+                                        <label for="new_professional_allowance" string="Professional Allowance"/>
+                                        <field name="new_professional_allowance" nolabel="1"/>
+                                        <label for="new_other_allowance" string="Other Allowance"/>
+                                        <field name="new_other_allowance" nolabel="1"/>
+                                        <separator string="Cash Indemnity"/>
+                                        <label for="new_apply_cash_indemnity" string="Apply Cash Indemnity"/>
+                                        <field name="new_apply_cash_indemnity" nolabel="1"/>
+                                        <label for="new_cash_indemnity_allowance" string="Cash Indemnity Allowance" invisible="not new_apply_cash_indemnity"/>
+                                        <field name="new_cash_indemnity_allowance" nolabel="1" invisible="not new_apply_cash_indemnity"/>
+                                        <label for="new_cash_indemnity_start_date" string="Cash Indemnity Start Date" invisible="not new_apply_cash_indemnity"/>
+                                        <field name="new_cash_indemnity_start_date" nolabel="1" invisible="not new_apply_cash_indemnity"/>
+                                    </group>
+                                </group>
+
+                        <group string='Request Details'>
+                            <field name='creator_id' readonly='1' widget="many2one_avatar_user" />
+                            <field name='request_date' />
+                            <field name='approval_date' invisible="state != 'approved'" />
+                        </group>
+
+                        <group string="Reason for Promotion">
+                            <field name="reason" nolabel="True"
+                                placeholder="Specify the reason for this promotion..." required='1'/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id='hr_promotion_action' model='ir.actions.act_window'>
+            <field name='name'>Promotion</field>
+            <field name='res_model'>hr.promotion</field>
+            <field name='view_mode'>list,form</field>
+        </record>
+
+        <menuitem
+            id='hr_promotion_menu'
+            name='Promotions'
+            parent="hr_appraisal.menu_hr_appraisal_root"
+            action='hr_promotion_action'
+            sequence='3' />
+    </data>
+</odoo>

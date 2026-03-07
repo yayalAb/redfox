@@ -1,0 +1,47 @@
+<odoo>
+    <record id="view_maintenance_request_inherited_form" model="ir.ui.view">
+        <field name="name">maintenance.request.inherited.form.view</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_store_request" string="Store Request" type="object"
+                    class="oe_highlight" invisible="not spare_parts"/>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_open_store_request"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart"
+                        invisible="store_request_count == 0">
+                        <field name="store_request_count" widget="statinfo" string="Store Requests" />
+                    </button>
+                </div>
+            </xpath>
+
+            <xpath expr="//notebook/page[1]" position="before">
+                <page string="Spare Parts">
+                    <field name="spare_parts">
+                        <list editable="bottom">
+                            <field name="product_id" />
+                            <field name="product_qty" />
+                            <field name="product_uom" />
+                            <field name="remark" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+            <xpath expr="//notebook/page[1]" position="after">
+                <page string="Breakdown Analysis" invisible="maintenance_type != 'corrective'" >
+                    <group>
+                        <field name="breakdown_description" />
+                        <field name="root_cause" />
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

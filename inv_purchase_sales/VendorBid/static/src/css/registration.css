@@ -1,0 +1,222 @@
+:root {
+    --primary-color: #604058;
+    --primary-color-hover: #4a2f4a;
+    --primary-color-light: #a99aa9;
+    --primary-color-transparent: rgba(96, 64, 88, 0.199);
+    --primary-color-disabled: rgba(96, 64, 88, 0.8);
+}
+
+.welcome-section {
+    img {
+        width: 150px;
+    }
+}
+
+
+.otp-form {
+    width: 350px;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 40px;
+    gap: 25px;
+    position: relative;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), -2px -2px 15px rgba(0, 0, 0, 0.04);
+    border-radius: 15px;
+}
+body {
+    background-color: rgba(232, 232, 232, 0.3) !important
+}
+.mainHeading {
+    font-size: 1.3rem;
+    color: rgb(15, 15, 15);
+    font-weight: 700;
+}
+
+.otpSubheading {
+    font-size: 1rem;
+    color: black;
+    line-height: 17px;
+    text-align: center;
+}
+
+.inputContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.otp-input {
+    background-color: rgb(228, 228, 228);
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    border: none;
+    border-radius: 7px;
+    caret-color: var(--primary-color);
+    color: rgb(44, 44, 44);
+    outline: none;
+    font-weight: 600;
+}
+
+.otp-input:focus,
+.otp-input:valid {
+    background-color: var(--primary-color-transparent);
+    transition-duration: .3s;
+}
+
+.otp-input:focus {
+    outline: 3px solid var(--primary-color-light);
+    transform: scale(1.05);
+    transition-duration: 50ms;
+    box-shadow: 0 0 5px var(--primary-color-light);
+}
+
+.verifyButton {
+    width: 100%;
+    height: 30px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 10px;
+    transition-duration: .2s;
+}
+
+.verifyButton:hover {
+    background-color: var(--primary-color-hover);
+    transition-duration: .2s;
+}
+
+.verifyButton:disabled {
+    background-color: var(--primary-color-disabled);
+    cursor: not-allowed;
+}
+
+.resendNote {
+    margin: 0;
+    font-size: 0.9rem;
+    color: black;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.resendBtn {
+    background-color: transparent;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
+.resendBtn:disabled {
+    color: var(--primary-color-disabled);
+    cursor: not-allowed;
+}
+
+.row.mb-3 {
+    justify-content: center;  /* Center the columns inside each row */
+    display: flex !important; /* Force flex layout on Bootstrap row */
+}
+
+/* Ensure the animations run when the page loads */
+.welcome-section {
+    opacity: 0; /* Start invisible to allow fade-in */
+    animation: fadeInSection 0.5s ease-out forwards; /* Fade in the whole section */
+}
+
+/* Image bounce-in animation */
+.welcome-section img.img-fluid {
+    animation: bounceIn 1s ease-out 0.2s forwards; /* Slight delay for sequence */
+    opacity: 0; /* Start invisible */
+}
+
+/* Heading fade-in with slight upward slide */
+.welcome-section h2 {
+    animation: fadeInUp 0.8s ease-out 0.4s forwards; /* Delayed after image */
+    opacity: 0; /* Start invisible */
+}
+
+/* Section text fade-in */
+.section-text h5 {
+    animation: fadeIn 1s ease-out 0.6s forwards; /* Delayed after heading */
+    opacity: 0; /* Start invisible */
+}
+
+/* Input and button slide-in from bottom with stagger */
+.welcome-section .form-control {
+    animation: slideInUp 0.8s ease-out 0.8s forwards; /* Delayed after text */
+    opacity: 0; /* Start invisible */
+}
+
+.welcome-section #send_otp_btn {
+    animation: slideInUp 0.8s ease-out 1s forwards; /* Slightly delayed after input */
+    opacity: 0; /* Start invisible */
+}
+
+/* Keyframes definitions */
+@keyframes fadeInSection {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

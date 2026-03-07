@@ -1,0 +1,22 @@
+<odoo>
+    <record id="stock_picking_view_inherited_form" model="ir.ui.view">
+        <field name="name">stock.picking.view.inherited.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="store_request_id" options="{'no_create': True}"
+                    invisible="picking_type_code != 'outgoing'" readonly="1" />
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="approved_by" readonly='1' />
+                <field name='carrier' invisible="picking_type_code != 'internal'"
+                    options="{'no_create': True}" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="stock.stock_picking_type_action" model="ir.actions.act_window">
+        <field name="context">{'search_default_groupby_code': 1}</field>
+    </record>
+</odoo>

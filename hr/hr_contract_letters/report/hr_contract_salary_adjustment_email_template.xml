@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Salary Adjustment Email Body Template -->
+    <template id="email_template_salary_adjustment_body" name="Salary &amp; Position Adjustment Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref No:- <t t-esc="get_ref_no(contract) if get_ref_no else (ref_no if ref_no else ('WG/' + str(contract.id).zfill(4) + '/2018' if contract.id else 'WG/0000/2018'))"/></strong></p>
+                    <p><strong>Date:- <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- To Section -->
+                <div style="margin-bottom: 15px;">
+                    <p><strong>To: <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t><span t-field="contract.employee_id.name"/><t t-if="contract.employee_id.identification_id">/<span t-field="contract.employee_id.identification_id"/></t>/</strong></p>
+                    <p t-if="contract.employee_id and contract.employee_id.private_city">
+                        <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                    </p>
+                    <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                        <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                    </p>
+                    <p t-else=""><u><b>Addis Ababa</b></u></p>
+                </div>
+                
+                <!-- Subject -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <p style="white-space: nowrap; display: inline-block;"><strong>Subject: <u>Salary &amp; Position Adjustment</u></strong></p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>Dear <span t-esc="contract.employee_id.name.split()[0] if contract.employee_id and contract.employee_id.name else 'Employee'"/>,</p>
+                    
+                    <p>In recognition of your expertise, skill, and value to our organization, we are pleased to inform you that the management has decided to increase your salary effective from <strong>
+                        <span t-if="contract.date_start" t-field="contract.date_start" t-options='{"widget": "date"}'/>
+                        <t t-else="">September 17, 2025</t>
+                    </strong> in the position of <strong>
+                        <span t-if="contract.employee_id and contract.employee_id.job_id" t-field="contract.employee_id.job_id.name"/>
+                        <t t-else="">your position</t>
+                    </strong> and job grade <strong>
+                        <span t-if="contract.salary_grade_value_id" t-field="contract.salary_grade_value_id.name"/>
+                        <t t-else="">IX</t>
+                    </strong> and scale level <strong>
+                        <span t-if="contract.scale_level_id" t-field="contract.scale_level_id.name"/>
+                        <t t-else="">Base</t>
+                    </strong>.</p>
+                    
+                    <p>As a result of your salary scale increment, based on your previous salary of Birr <strong>
+                        <t t-if="previous_salary">
+                            <span t-esc="'{0:,.2f}'.format(previous_salary)"/>
+                        </t>
+                        <t t-else="">
+                            <span t-esc="'{0:,.2f}'.format((contract.wage or 0) - (salary_increment or 0))"/>
+                        </t>
+                    </strong>, you will receive an additional salary increment of Birr <strong>
+                        <t t-if="salary_increment">
+                            <span t-esc="'{0:,.2f}'.format(salary_increment)"/>
+                        </t>
+                        <t t-else="">
+                            <span t-esc="'{0:,.2f}'.format(contract.wage * 0.2 if contract.wage else 0)"/>
+                        </t>
+                    </strong>, bringing your total monthly salary to Birr <strong>
+                        <span t-esc="'{0:,.2f}'.format(contract.wage or 0)"/>
+                    </strong> (<span t-esc="contract.currency_id.amount_to_text(contract.wage or 0)"/> Birr)<t t-if="contract.transport_home_allowance or contract.transport_work_allowance">
+                        , Transport Allowance of Birr <strong>
+                            <span t-esc="'{0:,.2f}'.format((contract.transport_home_allowance or 0) + (contract.transport_work_allowance or 0))"/>
+                        </strong> (<span t-esc="contract.currency_id.amount_to_text((contract.transport_home_allowance or 0) + (contract.transport_work_allowance or 0))"/> Birr)
+                    </t><t t-if="contract.position_allowance">
+                        <t t-if="contract.transport_home_allowance or contract.transport_work_allowance"> and </t><t t-else="">, </t>Position Allowance of Birr <strong>
+                            <span t-esc="'{0:,.2f}'.format(contract.position_allowance)"/>
+                        </strong> (<span t-esc="contract.currency_id.amount_to_text(contract.position_allowance)"/> Birr)
+                    </t> subject to income taxes and pension contribution.</p>
+                    
+                    <p>We hope that this adjustment will boost your morale and encourage you to maintain your efforts in our company while performing your responsibilities diligently.</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <p class="d-flex justify-content-end">With best regards,</p>
+                    </div>
+                </div>
+                  <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC:</strong></p>
+                    <ul class="gap-1">
+                        <li>Finance Department</li>
+                        <li>File</li>
+                    </ul>
+                    
+                    <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+    </template>
+</odoo>
+

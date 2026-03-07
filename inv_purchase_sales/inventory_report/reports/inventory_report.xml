@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report action for property sale -->
+    <record id="inventory_balance_report_action_report_custom" model="ir.actions.report">
+        <field name="name">Inventory Balance Report</field>
+        <field name="model">inventory.balance.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">inventory_report.inventory_balance_report_template_custom</field>
+        <field name="report_file">inventory_report.inventory_balance_report_template_custom</field>
+    </record>
+
+    <!-- Report template for Property sale -->
+    <template id="inventory_balance_report_template_custom">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <style>
+                    .print_doc_header {
+                        text-align: center;
+                        text-decoration: underline;
+                        margin-bottom: 15px;
+                    }
+                </style>
+
+                <!-- <h3 class="print_doc_header">Jerr private Limited Company</h3> -->
+                <h5 class="print_doc_header">Stock Balance report</h5>
+                <div class="row">
+                   <t t-if="warehouses">
+                        <div class="col-4">
+                                <div>
+                                    <strong>Selected Warehouses</strong>
+                                    <ul>
+                                        <t t-foreach="warehouses" t-as="warehouse">
+                                            <li t-esc="warehouse"/>
+                                        </t>
+                                    </ul>
+                                </div>
+                        </div>
+                    </t>
+                <t t-if="tags">
+                    <div class="col-4">
+                            <div>
+                                <strong>Selected Tags</strong>
+                                <ul>
+                                    <t t-foreach="tags" t-as="tag">
+                                        <li t-esc="tag"/>
+                                    </t>
+                                </ul>
+                            </div>
+                    </div>
+                    </t>
+                    <t t-if="categories">
+                        <div class="col-4">
+                                <div>
+                                    <strong>Selected Categories</strong>
+                                    <ul>
+                                        <t t-foreach="categories" t-as="category">
+                                            <li t-esc="category"/>
+                                        </t>
+                                    </ul>
+                                </div>
+                        </div>
+                    </t>
+                </div><br/>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SL.no</th>
+                            <th>Item Code</th>
+                            <th>Product Name</th>
+                            <th>Receiving Amount</th>
+                            <th>Issued Amount</th>
+                            <th>Stock Balance</th>
+                            <th>Unit Cost</th>
+                            <th>Total Cost</th>
+                        </tr>
+                    </thead>
+                    <t t-set="i" t-value="0"/>
+                    <tbody>
+                        <!--                        <t t-foreach="datas" t-as="line">-->
+                        <tr t-foreach="datas" t-as="move">
+                            <td>
+                                <t t-set="i" t-value="i + 1"/>
+                                <span t-esc="i"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['default_code']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['product_name']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['incoming_qty']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['outgoing_qty']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['stock_balance']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['unit_price']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['total_cost']"/>
+                            </td>
+
+                        </tr>
+                            <!-- Footer Row for Total Sum -->
+                        <tr style="font-weight: bold;">
+                            <td colspan="3"><strong>Total</strong></td>
+                            <td>
+                                <t t-set="total_incoming_qty" t-value="sum(move['incoming_qty'] for move in datas)"/>
+                                <span t-esc="total_incoming_qty"/>
+                            </td>
+                            <td>
+                                <t t-set="total_outgoing_qty" t-value="sum(move['outgoing_qty'] for move in datas)"/>
+                                <span t-esc="total_outgoing_qty"/>
+                            </td>
+                            <td>
+                                <t t-set="total_stock_balance" t-value="sum(move['stock_balance'] for move in datas)"/>
+                                <span t-esc="total_stock_balance"/>
+                            </td>
+                            <td>
+                                <t t-set="total_standard_price" t-value="sum(move['unit_price'] for move in datas)"/>
+                                <span t-esc="total_standard_price"/>
+                            </td>
+                            <td>
+                                <t t-set="total_value" t-value="sum(move['total_cost'] for move in datas)"/>
+                                <span t-esc="total_value"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </t>
+    </template>
+</odoo>

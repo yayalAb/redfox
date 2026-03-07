@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_purchase_request" model="ir.actions.report">
+        <field name="name">Requisiton for Purchase</field>
+        <field name="model">supplies.rfp</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">purchase_request.report_purchase_request_document</field>
+        <field name="report_file">purchase_request.report_purchase_request_document</field>
+        <field name="print_report_name">'Requisiton for Purchase - %s' % (object.display_name)</field>
+        <field name="binding_model_id" ref="model_supplies_rfp" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_purchase_request_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page"
+                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
+
+                        <div class="oe_structure" />
+
+                        <t t-set="doc_title" t-value="'PURCHASE REQUISITION FORM'" />
+                        <t t-set="doc_number" t-value="o.display_name" />
+                        <t t-set="issue_number" t-value="'1'" />
+
+                        <!-- Header Section with precise positioning -->
+                        <div
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
+                            <div class="row mb-2">
+                                <div class='col-9'></div>
+                                <div class="col-1">
+                                    <strong>Date</strong>: </div>
+                                <div class='col-2'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="o.requested_date"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class='col-9'></div>
+                                <div class="col-1">
+                                    <strong>No</strong>: </div>
+                                <div class='col-2'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="o.display_name"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-2">
+                                    <strong>Department/section/Division</strong>
+                                </div>
+                                <div class='col-5'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="o.department_id.name"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class='col-5'></div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-2">
+                                    <strong>Purpose</strong>
+                                </div>
+                                <div class='col-5'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="o.purpose"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class='col-6'>
+                                    <div class='row' style='margin-left: 20px;'>
+                                        <div class='col-5'>
+                                            <strong>Local purchase</strong>
+                                        </div>
+                                        <div class='col-1'
+                                            style="border: 1px solid black; width: 50px; height: 25px; text-align: center;">
+                                            <t t-if="o.purchase_origin == 'local'">X</t>
+
+                                        </div>
+                                    </div>
+                                    <div class='row mt-2' style='margin-left: 20px;'>
+                                        <div class='col-5'>
+                                            <strong>Foreign Purchase</strong>
+                                        </div>
+                                        <div class='col-1'
+                                            style="border: 1px solid black; width: 50px; height: 25px; text-align: center;">
+                                            <t t-if="o.purchase_origin == 'foreign'">X</t>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row mb-4 mt-4">
+                                <div class="col-2">
+                                    <strong>Store Request No</strong>
+                                </div>
+                                <div class='col-4'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="o.store_request_id.name"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <strong>Requesting store Name/No</strong>
+                                </div>
+                                <div class='col-4'>
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; min-height: 20px;">
+                                        <span t-field="o.store_request_id.warehouse_id.name"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-bordered"
+                                style="border: 1px solid black; page-break-inside: auto;">
+                                <thead
+                                    style="background-color: #f2f2f2; display: table-header-group;">
+                                    <tr style="font-weight: bold;">
+                                        <th class="text-center"
+                                            style="width: 5%; border: 1px solid black; padding: 2px;">
+                                            S.No
+                                        </th>
+                                        <th class="text-center"
+                                            style="width: 15%; border: 1px solid black; padding: 2px;">
+                                            Item No
+                                        </th>
+                                        <th class="text-center"
+                                            style="width: 40%; border: 1px solid black; padding: 2px;">
+                                            Description
+                                        </th>
+                                        <th class="text-center"
+                                            style="width: 10%; border: 1px solid black; padding: 2px;">
+                                            Unit of Measure
+                                        </th>
+                                        <th class="text-center"
+                                            style="width: 15%; border: 1px solid black; padding: 2px;">
+                                            Qauntity Requested
+                                        </th>
+                                        <th class="text-center"
+                                            style="width: 15%; border: 1px solid black; padding: 2px;">
+                                            Remarks
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="row_count" t-value="0" />
+                                    <t t-foreach="o.product_line_ids" t-as="line">
+                                        <t t-set="row_count" t-value="row_count + 1" />
+                                        <tr style="page-break-inside: avoid;">
+                                            <td class="text-center"
+                                                style="border: 1px solid black; padding: 2px; height: 35px;">
+                                                <span t-esc="row_count" />
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="line.product_id.default_code" />
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="line.product_id.name" />
+                                            </td>
+                                            <td class="text-center"
+                                                style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="line.product_uom.name" />
+                                            </td>
+                                            <td class="text-end"
+                                                style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="line.product_qty" />
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 2px;">
+                                                <span t-field="line.product_id.description_picking" />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <div class="footer-block"
+                                style="margin-top: 20px; padding-top: 5px;">
+                                <!-- STYLE CHANGE: Changed labels to <strong> and removed inline
+                                font-size -->
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-8 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Requested by Name</strong>
+                                        <div
+                                            style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                            <span t-field="o.create_uid.name"
+                                                style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Sig.</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <t
+                                                t-if="o.create_uid.employee_id.emp_signature">
+                                                <img
+                                                    t-att-src="'data:image/png;base64,%s' % (o.create_uid.employee_id.emp_signature.decode())"
+                                                    style="max-height:60px; max-width:180px;" />
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-8 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Approved by Name</strong>
+                                        <div
+                                            style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                            <span t-field="o.approved_by.name"
+                                                style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Sig.</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <t
+                                                t-if="o.approved_by.employee_id.emp_signature">
+                                                <img
+                                                    t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
+                                                    style="max-height:60px; max-width:180px;" />
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 15px;">
+                                    <div class="col-8 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Authorized by Name</strong>
+                                        <div
+                                            style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
+                                            <span t-field="o.approved_by.name"
+                                                style="padding-left: 15px;" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-end">
+                                        <strong style="white-space: nowrap;">Sig.</strong>
+                                        <div
+                                            style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
+                                            <t
+                                                t-if="o.approved_by.employee_id.emp_signature">
+                                                <img
+                                                    t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
+                                                    style="max-height:60px; max-width:180px;" />
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- STYLE CHANGE: Applied border-top, padding-top, margin-top,
+                                font-size, and <strong> label like template 1 -->
+                                <div
+                                    style="font-size: 11px; text-align: center; margin-top: 40px; border-top: 1px solid black; padding-top: 5px;">
+                                    <div style="padding-top: 5px;">
+                                        <strong>distribution:-</strong>
+                                        <span style="margin-left: 20px;">Original - White Purchase</span>
+                                        <span style="margin-left: 20px;">1st Copy Pink Store
+                                            Division</span>
+                                        <span style="margin-left: 20px;">2nd Green Pad</span>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        PLEASE MAKE SURE THAT THIS IS THE CORRECT ISSUE BEFORE USE
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

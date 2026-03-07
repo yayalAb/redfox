@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_agreement_document_wizard_form_view" model="ir.ui.view">
+        <field name="name">sale.agreement.document.wizard.form</field>
+        <field name="model">sale.agreement.document.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Approve Quality Documents">
+                <p>Please review the quality approval documents for the manufactured items below before creating the Sales Order.</p>
+                <field name="agreement_id" invisible="1"/>
+                <field name="line_ids" nolabel="1">
+                    <list>
+                        <field name="name" string="Document Name"/>
+                        <button name="action_view_document" type="object" string="View" icon="fa-external-link" class="btn-link"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm_and_create_so" string="Approve &amp; Create SO" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,22 @@
+<odoo>
+    <record id="action_lv_design" model="ir.actions.act_window">
+        <field name="name">LV Design</field>
+        <field name="res_model">lv.winding.design</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_hv_design" model="ir.actions.act_window">
+        <field name="name">HV Design</field>
+        <field name="res_model">hv.winding.design</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_design" name="Designs" sequence="10"
+        parent="mrp.menu_mrp_root" />
+
+    <menuitem id="menu_lv_design" name="LV Designs"
+        parent="menu_design" action="action_lv_design" />
+        
+    <menuitem id="menu_hv_design" name="HV Designs"
+        parent="menu_design" action="action_hv_design" />
+</odoo>

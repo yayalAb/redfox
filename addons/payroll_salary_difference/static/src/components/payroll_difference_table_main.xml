@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="payroll_salary_difference.PayrollDifferenceTable" owl="1">
+        <div class="d-flex flex-column" style="height: 100vh; overflow: hidden; max-width: 100vw; box-sizing: border-box;">
+            <!-- Fixed Header Section - Responsive -->
+            <div class="flex-shrink-0" style="width: 100%; max-width: 100vw; overflow-x: hidden; box-sizing: border-box;">
+                <div style="width: 100%; padding: 0.25rem 0.5rem; max-width: 100vw; box-sizing: border-box;">
+                    <div class="shadow-sm p-1 bg-white" style="width: 100%; margin-bottom: 0.25rem; max-width: 100vw; box-sizing: border-box;">
+                        <div class="d-flex align-items-center flex-wrap gap-2" style="row-gap: 0.25rem;">
+                            <div class="flex-shrink-0" title="Payroll Salary Difference Report" style="cursor: help;">
+                                <i class="fa fa-bar-chart" style="color: #355c9d; font-size: clamp(1rem, 2vw, 1.5rem);"></i>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-wrap gap-2 align-items-center" style="min-width: 0;">
+                                <div class="flex-shrink-0" style="min-width: 200px; max-width: 100%; position: relative;">
+                                    <input 
+                                        type="text" 
+                                        class="form-control form-control-sm" 
+                                        placeholder="Search by name or ID..."
+                                        t-att-value="state.searchTerm"
+                                        t-on-input="onSearchChange"
+                                        title="Search employees by name or employee ID"
+                                        style="max-width: 100%; font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.2rem 0.4rem; padding-left: 2rem;"/>
+                                    <i class="fa fa-search" style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; font-size: clamp(0.7rem, 1.5vw, 0.875rem);"></i>
+                                </div>
+                                <div class="flex-grow-1" style="min-width: 150px; max-width: 100%; position: relative;">
+                                    <select 
+                                        class="form-select form-select-sm" 
+                                        t-att-value="state.selected_batch1_id"
+                                        t-on-change="onBatch1Change"
+                                        title="Batch 1 (From)"
+                                        style="max-width: 100%; font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.2rem 0.4rem; padding-left: 2rem;">
+                                        <option value="">-- Select Batch 1 --</option>
+                                        <t t-foreach="state.available_batches" t-as="batch" t-key="batch.id">
+                                            <option t-att-value="batch.id" 
+                                                    t-att-selected="state.selected_batch1_id === batch.id ? 'selected' : undefined">
+                                                <t t-esc="batch.name"/> - <t t-esc="batch.date_start"/> to <t t-esc="batch.date_end"/> (<t t-esc="batch.state_label || batch.state"/>)
+                                            </option>
+                                        </t>
+                                    </select>
+                                    <i class="fa fa-calendar" style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; font-size: clamp(0.7rem, 1.5vw, 0.875rem);"></i>
+                                </div>
+                                <div class="flex-grow-1" style="min-width: 150px; max-width: 100%; position: relative;">
+                                    <select 
+                                        class="form-select form-select-sm" 
+                                        t-att-value="state.selected_batch2_id"
+                                        t-on-change="onBatch2Change"
+                                        title="Batch 2 (To)"
+                                        style="max-width: 100%; font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.2rem 0.4rem; padding-left: 2rem;">
+                                        <option value="">-- Select Batch 2 --</option>
+                                        <t t-foreach="state.available_batches" t-as="batch" t-key="batch.id">
+                                            <option t-att-value="batch.id"
+                                                    t-att-selected="state.selected_batch2_id === batch.id ? 'selected' : undefined">
+                                                <t t-esc="batch.name"/> - <t t-esc="batch.date_start"/> to <t t-esc="batch.date_end"/> (<t t-esc="batch.state_label || batch.state"/>)
+                                            </option>
+                                        </t>
+                                    </select>
+                                    <i class="fa fa-calendar" style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; font-size: clamp(0.7rem, 1.5vw, 0.875rem);"></i>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <button 
+                                        class="btn btn-success btn-sm" 
+                                        type="button"
+                                        title="Export to CSV"
+                                        style="background-color: #198754; color: white; border-color: #198754; font-size: clamp(0.9rem, 2vw, 1.2rem); padding: 0.3rem 0.5rem; min-width: 2.5rem;"
+                                        t-on-click="onExportExcelClick"
+                                        t-att-disabled="!state.batch1 or !state.batch2">
+                                        <i class="fa fa-download"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scrollable Content Section -->
+            <div class="flex-grow-1 overflow-auto" style="width: 100%; max-width: 100vw; min-height: 0; box-sizing: border-box;">
+                <div style="width: 100%; padding: 0.25rem 0.75rem 0.5rem 0.75rem; max-width: 100%; box-sizing: border-box;">
+                    <!-- Loading State -->
+                    <t t-if="state.loading">
+                        <div class="text-center p-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Payroll Difference Table -->
+                    <t t-if="!state.loading and state.batch1 and state.batch2 and getEmployeesWithDifference().length > 0">
+                        <div class="card mt-0 mb-0" style="width: 100%; max-width: 100%; box-sizing: border-box; height: 100%; display: flex; flex-direction: column;">
+                            <div class="card-body p-0" style="width: 100%; max-width: 100%; box-sizing: border-box; flex: 1; min-height: 0; display: flex; flex-direction: column;">
+                                <div class="payroll-difference-table-wrapper" style="flex: 1; overflow-x: auto; overflow-y: auto; min-height: 0;">
+                                    <table class="table table-bordered table-striped table-hover mb-0" style="width: 100%; min-width: 100%; table-layout: auto;">
+                                        <thead class="table-primary" style="position: sticky; top: 0; z-index: 20;">
+                                            <tr>
+                                                <th class="sticky-column fw-bold text-center" style="background-color: #cfe2ff !important; color: #355c9d !important; position: sticky; left: 0; top: 0; z-index: 21; width: 60px; min-width: 60px; max-width: 60px;">S.No</th>
+                                                <th class="sticky-column fw-bold" style="background-color: #cfe2ff !important; color: #355c9d !important; position: sticky; left: 60px; top: 0; z-index: 21; width: clamp(200px, 25vw, 300px); min-width: 200px; max-width: 300px;">Employee</th>
+                                                <t t-foreach="state.salary_rules" t-as="rule" t-key="rule.code">
+                                                    <th class="text-center" 
+                                                        t-att-title="rule.name"
+                                                        style="background-color: #d4edda !important; color: #333; min-width: clamp(80px, 10vw, 120px); white-space: nowrap; cursor: pointer; position: sticky; top: 0; z-index: 20;"
+                                                        t-on-click="() => onHeaderClick(rule.id)">
+                                                        <t t-esc="rule.code"/>
+                                                    </th>
+                                                </t>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="getPaginatedEmployees()" t-as="employee" t-key="employee.id">
+                                                <t t-set="index" t-value="employee_index"/>
+                                                <t t-set="globalIndex" t-value="(state.currentPage - 1) * state.itemsPerPage + index"/>
+                                                <tr>
+                                                    <td class="text-center fw-bold sticky-column" style="background-color: white !important; color: #355c9d; position: sticky; left: 0; z-index: 5; width: 60px; min-width: 60px; max-width: 60px;">
+                                                        <t t-esc="globalIndex + 1"/>
+                                                    </td>
+                                                    <td class="fw-bold sticky-column" style="background-color: white !important; color: #355c9d; position: sticky; left: 60px; z-index: 5; width: clamp(200px, 25vw, 300px); min-width: 200px; max-width: 300px; word-wrap: break-word;">
+                                                        <t t-esc="employee.name"/>
+                                                    </td>
+                                                    <t t-foreach="state.salary_rules" t-as="rule" t-key="rule.code">
+                                                        <td class="text-center bg-light" 
+                                                            style="min-width: clamp(100px, 12vw, 150px); white-space: nowrap; cursor: pointer;"
+                                                            t-on-click="() => onCellClick(employee.id, rule.id)"
+                                                            title="Click to view details">
+                                                            <t t-set="diff" t-value="calculateDifference(employee.id, rule.id)"/>
+                                                            <t t-if="diff !== null and diff !== undefined">
+                                                                <span t-att-class="getDifferenceClass(diff)" class="fw-bold">
+                                                                    <t t-if="diff > 0">+</t>
+                                                                    <t t-esc="formatCurrency(diff)"/>
+                                                                </span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span class="text-muted">--</span>
+                                                            </t>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                        <tfoot class="table-secondary">
+                                            <tr>
+                                                <td class="fw-bold text-center" colspan="2" style="background-color: rgba(53, 92, 157, 0.2) !important; color: #355c9d !important;">Total</td>
+                                                <t t-foreach="state.salary_rules" t-as="rule" t-key="rule.code">
+                                                    <td class="text-center fw-bold" style="background-color: rgba(53, 92, 157, 0.1) !important; color: #333; white-space: nowrap;">
+                                                        <t t-set="ruleTotal" t-value="calculateRuleTotal(rule.id)"/>
+                                                        <t t-if="ruleTotal !== null and ruleTotal !== undefined">
+                                                            <span t-att-class="getDifferenceClass(ruleTotal)" class="fw-bold">
+                                                                <t t-if="ruleTotal > 0">+</t>
+                                                                <t t-esc="formatCurrency(ruleTotal)"/>
+                                                            </span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="text-muted">--</span>
+                                                        </t>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Pagination Controls -->
+                            <t t-if="getEmployeesWithDifference().length > 0">
+                                <div class="card-footer bg-light flex-shrink-0" style="padding: 0.5rem;">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center gap-2" style="flex-wrap: wrap;">
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <label class="form-label mb-0" style="font-size: clamp(0.7rem, 1.5vw, 0.875rem); white-space: nowrap;">Items per page:</label>
+                                            <select class="form-select form-select-sm" style="width: auto; font-size: clamp(0.7rem, 1.5vw, 0.875rem);" 
+                                                    t-att-value="state.itemsPerPage"
+                                                    t-on-change="onItemsPerPageChange">
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                <option value="200">200</option>
+                                            </select>
+                                            <span class="text-muted" style="font-size: clamp(0.7rem, 1.5vw, 0.875rem); white-space: nowrap;">
+                                                Page <strong><t t-esc="state.currentPage"/></strong> of <strong><t t-esc="getTotalPages()"/></strong> 
+                                                (<strong><t t-esc="getEmployeesWithDifference().length"/></strong> employees with difference)
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    type="button"
+                                                    style="font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.25rem 0.5rem;"
+                                                    t-on-click="previousPage"
+                                                    t-att-disabled="state.currentPage === 1">
+                                                <i class="fa fa-chevron-left"/> Previous
+                                            </button>
+                                            <div class="btn-group" role="group">
+                                                <t t-foreach="getPageNumbers()" t-as="pageItem" t-key="pageItem_index">
+                                                    <t t-if="pageItem.type === 'ellipsis'">
+                                                        <button class="btn btn-sm btn-outline-secondary" disabled="disabled" style="font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.25rem 0.5rem;">...</button>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <button class="btn btn-sm" 
+                                                                t-att-class="state.currentPage === pageItem.value ? 'btn-primary' : 'btn-outline-secondary'"
+                                                                style="font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.25rem 0.5rem;"
+                                                                t-on-click="() => goToPage(pageItem.value)">
+                                                            <t t-esc="pageItem.value"/>
+                                                        </button>
+                                                    </t>
+                                                </t>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    type="button"
+                                                    style="font-size: clamp(0.7rem, 1.5vw, 0.875rem); padding: 0.25rem 0.5rem;"
+                                                    t-on-click="nextPage"
+                                                    t-att-disabled="state.currentPage === getTotalPages()">
+                                                Next <i class="fa fa-chevron-right"/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    
+                    <!-- No Data Message -->
+                    <t t-if="!state.loading and state.batch1 and state.batch2 and getEmployeesWithDifference().length === 0 and state.employees.length > 0">
+                        <div class="card">
+                            <div class="card-body text-center p-5">
+                                <i class="fa fa-info-circle fa-3x text-muted mb-3"/>
+                                <p class="text-muted fs-5">No salary differences found for the selected batches.</p>
+                                <p class="text-muted">All employees have the same amounts in both batches.</p>
+                            </div>
+                        </div>
+                    </t>
+                    
+                    <!-- No Employees Message -->
+                    <t t-if="!state.loading and state.batch1 and state.batch2 and state.employees.length === 0">
+                        <div class="card">
+                            <div class="card-body text-center p-5">
+                                <i class="fa fa-info-circle fa-3x text-muted mb-3"/>
+                                <p class="text-muted fs-5">No payroll data found for the selected batches.</p>
+                                <p class="text-muted">Please ensure both batches contain payslips with salary rule lines.</p>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Empty State -->
+                    <t t-if="!state.loading and (!state.batch1 or !state.batch2)">
+                        <div class="card">
+                            <div class="card-body text-center p-5">
+                                <p class="text-muted">Please select two payroll batches to compare</p>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+        <style>
+            .sticky-column {
+                background-color: white !important;
+            }
+            .payroll-difference-table-wrapper {
+                max-height: calc(100vh - 180px);
+                overflow-y: auto;
+                overflow-x: auto;
+            }
+            .table thead th.sticky-column {
+                position: sticky;
+                left: 0;
+                top: 0;
+                z-index: 21;
+                background-color: #cfe2ff !important;
+            }
+            .table thead th.sticky-column:nth-child(2) {
+                left: 60px;
+                top: 0;
+                z-index: 21;
+                background-color: #cfe2ff !important;
+            }
+            .table thead th {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+            }
+            .table tbody td.sticky-column {
+                position: sticky;
+                left: 0;
+                z-index: 5;
+                background-color: white !important;
+            }
+            .table tbody td.sticky-column:nth-child(2) {
+                left: 60px;
+            }
+            .table tbody tr:hover td.sticky-column {
+                background-color: #f8f9fa !important;
+            }
+            /* Responsive table adjustments */
+            @media (max-width: 768px) {
+                .payroll-difference-table-wrapper {
+                    max-height: calc(100vh - 220px);
+                }
+            }
+            /* Ensure table cells don't break layout */
+            .table td, .table th {
+                box-sizing: border-box;
+            }
+        </style>
+        
+        <!-- Modal for Cell Details -->
+        <t t-if="state.showModal and state.modalData">
+            <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1050;" t-att-role="dialog">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #355c9d; color: white;">
+                            <h5 class="modal-title">
+                                <i class="fa fa-info-circle me-2"></i>
+                                <t t-if="state.modalData.isHeaderClick">Salary Rule Information</t>
+                                <t t-else="">Salary Rule Details</t>
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" t-on-click="closeModal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Header Click - Show Only Salary Rule -->
+                            <t t-if="state.modalData.isHeaderClick">
+                                <div class="mb-3">
+                                    <strong>Salary Rule Name:</strong> <t t-esc="state.modalData.rule.name"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Code:</strong> <t t-esc="state.modalData.rule.code"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Sequence:</strong> <t t-esc="state.modalData.rule.sequence"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Formula:</strong>
+                                    <div class="bg-light p-2 mt-1 rounded" style="font-family: monospace; font-size: 0.9rem; max-height: 200px; overflow-y: auto;">
+                                        <t t-if="state.modalData.rule.formula">
+                                            <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;"><t t-esc="state.modalData.rule.formula"/></pre>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-if="state.modalData.rule.amount_select === 'fix'">
+                                                Fixed Amount: <t t-esc="formatCurrency(state.modalData.rule.amount_fix)"/>
+                                            </t>
+                                            <t t-elif="state.modalData.rule.amount_select === 'percentage'">
+                                                Percentage: <t t-esc="state.modalData.rule.amount_percentage"/>%
+                                            </t>
+                                            <t t-else="">
+                                                N/A
+                                            </t>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                            
+                            <!-- Cell Click - Show Employee Specific Details -->
+                            <t t-if="!state.modalData.isHeaderClick">
+                                <div class="mb-3">
+                                    <strong>Employee:</strong> <t t-esc="state.modalData.employee.name"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Salary Rule:</strong> <t t-esc="state.modalData.rule.name"/> (<t t-esc="state.modalData.rule.code"/>)
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Formula:</strong>
+                                    <div class="bg-light p-2 mt-1 rounded" style="font-family: monospace; font-size: 0.9rem; max-height: 200px; overflow-y: auto;">
+                                        <t t-if="state.modalData.rule.formula">
+                                            <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;"><t t-esc="state.modalData.rule.formula"/></pre>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-if="state.modalData.rule.amount_select === 'fix'">
+                                                Fixed Amount: <t t-esc="formatCurrency(state.modalData.rule.amount_fix)"/>
+                                            </t>
+                                            <t t-elif="state.modalData.rule.amount_select === 'percentage'">
+                                                Percentage: <t t-esc="state.modalData.rule.amount_percentage"/>%
+                                            </t>
+                                            <t t-else="">
+                                                N/A
+                                            </t>
+                                        </t>
+                                    </div>
+                                </div>
+                                <div class="mb-3" t-if="state.modalData.batch1Details or state.modalData.batch2Details">
+                                    <strong>Formula with values:</strong>
+                                    <div class="mt-2">
+                                        <t t-if="state.modalData.variableBreakdownLoading">
+                                            <div class="text-muted small">Loading…</div>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-set="vb1" t-value="state.modalData.variableBreakdown &amp;&amp; state.modalData.variableBreakdown.batch1 ? state.modalData.variableBreakdown.batch1 : null"/>
+                                            <t t-set="vb2" t-value="state.modalData.variableBreakdown &amp;&amp; state.modalData.variableBreakdown.batch2 ? state.modalData.variableBreakdown.batch2 : null"/>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong>Batch 1 (<t t-esc="state.modalData.batch1Name"/>):</strong>
+                                                    <div class="bg-light p-2 mt-1 rounded small" style="font-family: monospace;">
+                                                        <t t-if="vb1">
+                                                            <t t-if="vb1.formula_with_values">
+                                                                result = <t t-esc="vb1.formula_with_values"/>
+                                                            </t>
+                                                            <t t-else="">
+                                                                result =
+                                                                <t t-esc="formatCurrency(vb1.contract_wage)"/>
+                                                                * <t t-esc="vb1.calculate_active_rate_worked_days || formatCurrency(vb1.calculate_active_rate)"/>
+                                                                +
+                                                                <t t-esc="formatCurrency(vb1.old_contract_wage)"/>
+                                                                * <t t-esc="vb1.old_active_rate_worked_days || formatCurrency(vb1.old_active_rate)"/>
+                                                            </t>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="text-muted">No payslip found in this batch for this employee.</span>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Batch 2 (<t t-esc="state.modalData.batch2Name"/>):</strong>
+                                                    <div class="bg-light p-2 mt-1 rounded small" style="font-family: monospace;">
+                                                        <t t-if="vb2">
+                                                            <t t-if="vb2.formula_with_values">
+                                                                result = <t t-esc="vb2.formula_with_values"/>
+                                                            </t>
+                                                            <t t-else="">
+                                                                result =
+                                                                <t t-esc="formatCurrency(vb2.contract_wage)"/>
+                                                                * <t t-esc="vb2.calculate_active_rate_worked_days || formatCurrency(vb2.calculate_active_rate)"/>
+                                                                +
+                                                                <t t-esc="formatCurrency(vb2.old_contract_wage)"/>
+                                                                * <t t-esc="vb2.old_active_rate_worked_days || formatCurrency(vb2.old_active_rate)"/>
+                                                            </t>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="text-muted">No payslip found in this batch for this employee.</span>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Batch 1 (<t t-esc="state.modalData.batch1Name"/>):</strong>
+                                        <div class="mt-1">
+                                            <span class="fs-5 fw-bold">
+                                                <t t-if="state.modalData.batch1Amount !== null and state.modalData.batch1Amount !== undefined">
+                                                    <t t-esc="formatCurrency(state.modalData.batch1Amount)"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-muted">-</span>
+                                                </t>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Batch 2 (<t t-esc="state.modalData.batch2Name"/>):</strong>
+                                        <div class="mt-1">
+                                            <span class="fs-5 fw-bold">
+                                                <t t-if="state.modalData.batch2Amount !== null and state.modalData.batch2Amount !== undefined">
+                                                    <t t-esc="formatCurrency(state.modalData.batch2Amount)"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-muted">-</span>
+                                                </t>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Difference:</strong>
+                                    <div class="mt-1">
+                                        <t t-if="state.modalData.difference !== null and state.modalData.difference !== undefined">
+                                            <span t-att-class="getDifferenceClass(state.modalData.difference)" class="fs-4 fw-bold">
+                                                <t t-if="state.modalData.difference > 0">+</t>
+                                                <t t-esc="formatCurrency(state.modalData.difference)"/>
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="text-muted fs-4">--</span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" t-on-click="closeModal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+</templates>
+

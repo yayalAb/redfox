@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_emp_rel_user,Access Emergency Contact Relationship,model_hr_employee_relationship,base.group_user,1,0,0,0
+access_hr_emp_rel_hr_user,Access Emergency Contact Relationship for HR Users,model_hr_employee_relationship,hr.group_hr_user,1,1,1,1
+access_hr_educational_status_user,Hr Educational Status User Access,model_hr_educational_status,base.group_user,1,1,1,1
+access_hr_field_study_user,access_hr_field_study_user,model_hr_field_study,base.group_user,1,1,1,1
+access_hr_guarantor_id_type_user,Hr Guarantor Id Type User,model_hr_guarantor_id_type,base.group_user,1,1,1,1
+access_employee_factory_user,hr.employee.factory.user,model_hr_employee_factory,base.group_user,1,1,1,1
+access_hr_cost_center,hr.cost.center,model_hr_cost_center,base.group_user,1,1,1,1

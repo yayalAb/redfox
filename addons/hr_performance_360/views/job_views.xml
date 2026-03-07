@@ -1,0 +1,17 @@
+<odoo>
+    <record id="view_hr_job_form_inherit_performance" model="ir.ui.view">
+        <field name="name">hr.job.form.inherit.performance</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr.view_hr_job_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Insert new tab after Job Summary -->
+            <xpath expr="//page[@name='job_description_page']" position="after">
+                <page string="Peers" name="peer_page">
+                    <field name="peer_job_ids"/>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

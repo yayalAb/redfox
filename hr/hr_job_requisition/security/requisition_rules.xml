@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="job_requisition_rule_all_users_see_own" model="ir.rule">
+            <field name="name">Job Requisition: Users can see their own requests</field>
+            <field name="model_id" ref="model_hr_job_requisition" />
+            <field name="domain_force">[('requested_by', '=', user.id)]</field>
+            <!-- Apply this rule to all relevant groups -->
+            <field name="groups"
+                eval="[(6, 0, [
+                    ref('hr_job_requisition_group_requester'),
+                    ref('hr_job_requisition_group_approve_department'),
+                    ref('hr_job_requisition_group_approve_gm'),
+                    ref('hr_job_requisition_group_authorize'),
+                    ref('hr_job_requisition_group_publish'),
+                    ref('hr_job_requisition_group_approve_co')
+                ])]" />
+        </record>
+
+        <record id="job_requisition_rule_reviewer" model="ir.rule">
+            <field name="name">Job Requisition: Reviewer Visibility</field>
+            <field name="model_id" ref="model_hr_job_requisition" />
+            <field name="domain_force">[('department_id', 'child_of',
+                user.employee_id.department_id.id), ('state', '!=', 'draft')]</field>
+            <field name="groups"
+                eval="[(4, ref('hr_job_requisition.hr_job_requisition_group_approve_department'))]" />
+            <field name="perm_create" eval="False" />
+        </record>
+
+        <record id="job_requisition_rule_approver" model="ir.rule">
+            <field name="name">Job Requisition: Approver Visibility</field>
+            <field name="model_id" ref="model_hr_job_requisition" />
+            <field name="domain_force">[('department_id', 'child_of',
+                user.employee_id.department_id.id), ('state', 'not in', ['draft', 'submitted'])]</field>
+            <field name="groups"
+                eval="[(4, ref('hr_job_requisition.hr_job_requisition_group_approve_gm'))]" />
+            <field name="perm_create" eval="False" />
+        </record>
+
+        <record id="job_requisition_rule_authorizer" model="ir.rule">
+            <field name="name">Job Requisition: Authorizer Visibility</field>
+            <field name="model_id" ref="model_hr_job_requisition" />
+            <field name="domain_force">[('state', 'in', ['approved', 'authorized'])]</field>
+            <field name="groups"
+                eval="[(4, ref('hr_job_requisition.hr_job_requisition_group_authorize'))]" />
+            <field name="perm_create" eval="False" />
+        </record>
+
+        <record id="job_requisition_rule_publisher" model="ir.rule">
+            <field name="name">Job Requisition: Publisher Visibility</field>
+            <field name="model_id" ref="model_hr_job_requisition" />
+            <field name="domain_force">[('state', 'in', ['authorized', 'published'])]</field>
+            <field name="groups"
+                eval="[(4, ref('hr_job_requisition.hr_job_requisition_group_publish'))]" />
+            <field name="perm_create" eval="False" />
+        </record>
+
+    </data>
+</odoo>

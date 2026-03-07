@@ -1,0 +1,311 @@
+/* --- Base Styles --- */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap");
+body.o_database_list,
+body.o_login_page {
+    background: #f8f9fa !important; /* A slightly off-white background for the page #F2F3F7*/
+    font-family: "Inter", sans-serif; /* A modern, clean font */
+    overflow: none; /* Prevent scrollbars on the main page */
+}
+
+/* --- Main Layout Container --- */
+.o_login_container {
+    background: #f2f3f7;
+    display: flex;
+    flex-direction: row;
+    height: 94vh;
+    width: 99vw;
+    padding-bottom: 1rem;
+    padding-top: 0.5rem;
+    padding-left: 0px;
+    padding-right: 0px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box; /* Ensures padding is included in the dimensions */
+}
+
+/* --- Left Panel (Image Container) --- */
+.left-panel {
+    background-image: url("/custom_login_page/static/src/img/POS_background_image_flexible.svg");
+    background-size: cover;
+    background-position: center;
+    flex: 0 0 55%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding-right: 0.5rem; /* Space between the image and the login form */
+    border-radius: 24px;
+    margin-right: 1.5rem;
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.left-panel-img {
+    width: 60%;
+    height: 55%;
+    object-fit: contain; /* Ensures the entire image is visible without distortion */
+    bottom: 5rem;
+    right: auto;
+    position: absolute;
+}
+
+/* --- Right Panel (Form Container) --- */
+.right-panel {
+    background: #f8fafd;
+    flex: 0 0 43%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 0.5rem; /* Space between the login form and the image */
+    box-sizing: border-box;
+    border-radius: 24px;
+}
+
+/* --- Login Form Box --- */
+.login-box {
+    background: #ffffff;
+    padding: 48px;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.01);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* --- Niyat ERP Logo (Top-Left) --- */
+.niyat-logo {
+    display: none;
+    height: 32px; /* Adjusted size for better presence */
+    position: absolute;
+    top: 48px; /* Consistent with padding */
+    left: 48px;
+    width: auto;
+    z-index: 10;
+}
+
+/* --- Form Typography & Elements --- */
+.login-box h2:first-of-type {
+    /* Target the waving hand emoji */
+    font-size: 32px;
+    margin-bottom: 16px;
+}
+
+.login-box h2 {
+    font-weight: 400; /* Bolder */
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #5576ad; /* Darker text for better contrast */
+    font-family: Sora;
+}
+
+.login-box .login-subtitle {
+    color: #5576ad; /* Softer grey */
+    margin-bottom: 40px;
+    font-size: 14px;
+}
+
+.login-box .form-label {
+    display: block;
+    text-align: left;
+    font-weight: 300;
+    margin-bottom: 8px;
+    color: #355c9d;
+    font-size: 14px;
+    font-family: Sora;
+}
+
+.login-box .form-control {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    height: 52px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-family: sora;
+    margin-bottom: 24px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+.login-box .form-control::placeholder {
+    color: #5576ad;
+}
+.login-box .form-control:focus {
+    background-color: #fff;
+    border-color: #ed8a4c;
+    box-shadow: 0 0 0 2px rgba(237, 138, 76, 0.2);
+}
+
+.login-box .input-group {
+    margin-bottom: 24px;
+}
+
+/* .login-box .input-group .input-group-text {
+    background-color: #fff; 
+    border: 1px solid #dee2e6; 
+    border-left: none; 
+    border-radius: 12px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    cursor: pointer;
+}
+
+.login-box .input-group .toggle-password {
+    color: #5576AD;
+} */
+
+.login-box .password-container {
+    position: relative;
+}
+
+/* 2. Add padding to the input so text doesn't go under the icon */
+.login-box .password-container .form-control {
+    padding-right: 40px; /* Make space for the icon */
+}
+
+/* 3. Position the icon absolutely within the container */
+.login-box .toggle-password {
+    position: absolute;
+    top: 60%; /* Center vertically */
+    right: 16px; /* Position from the right */
+    cursor: pointer;
+    color: #5576ad;
+    font-size: 18px;
+    z-index: 2; /* Ensure it's above the input field */
+}
+
+/* This rule forces the input field to have its right border radius back */
+.login-box .input-group > .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.login-box .input-group .form-control {
+    margin-bottom: 0; /* Remove double margin */
+}
+
+/* --- Login Button --- */
+.login-box .btn-primary {
+    background-color: #ed8a4c;
+    border-color: #ed8a4c;
+    border-radius: 12px;
+    width: 100%;
+    height: 52px;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    margin-top: 1rem;
+}
+
+.login-box .btn-primary:hover {
+    background-color: #e37430;
+    border-color: #e37430;
+    transform: translateY(-2px); /* Subtle lift effect */
+    box-shadow: 0 4px 12px rgba(237, 138, 76, 0.3);
+}
+
+.login-box a:link {
+    color: #5576ad;
+    font-style: light;
+    text-decoration: none;
+    font-weight: 300;
+    font-size: 14px;
+    font-family: Sora;
+}
+
+/* --- Links (Forgot Password, etc.) --- */
+.login-links {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -16px; /* Pull it up closer to the password field */
+    margin-bottom: 24px;
+}
+
+.login-links a {
+    color: #6c757d;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-links a:hover {
+    color: #ed8a4c;
+    text-decoration: underline;
+}
+
+/* --- "Powered by" Footer --- */
+.powered-by {
+    margin-top: 40px;
+    font-size: 14px;
+    color: #0b2144;
+}
+.powered-by strong {
+    color: #5576ad;
+    font-weight: 600;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+
+/* For Tablets and smaller desktops (e.g., screen width <= 1200px) */
+@media (max-width: 1200px) {
+    .o_login_container {
+        padding: 2rem;
+    }
+    .left-panel {
+        flex: 0 0 60%;
+        padding-right: 1.5rem;
+    }
+    .left-panel-img {
+        width: 50%;
+        height: 45%;
+        object-fit: contain; /* Ensures the entire image is visible without distortion */
+        bottom: 5rem;
+        right: auto;
+        position: absolute;
+    }
+    .right-panel {
+        flex: 0 0 35%;
+        padding-left: 1.5rem;
+    }
+}
+
+/* For Tablets (e.g., screen width <= 992px) */
+@media (max-width: 992px) {
+    .o_login_container {
+        padding: 0;
+    }
+
+    .left-panel {
+        display: none; /* Hide the image panel */
+    }
+
+    .right-panel {
+        flex: 1; /* Make the login form take up the full width */
+        padding: 2rem;
+    }
+
+    .niyat-logo {
+        top: 32px;
+        left: 32px;
+    }
+}
+
+/* For Mobile Phones (e.g., screen width <= 576px) */
+@media (max-width: 576px) {
+    .right-panel {
+        padding: 1rem; /* Reduce padding on small screens */
+    }
+
+    .login-box {
+        padding: 32px; /* Reduce padding inside the login box */
+        box-shadow: none; /* Remove shadow to feel more native */
+    }
+
+    .niyat-logo {
+        /* Optionally hide the logo if space is very tight */
+        display: none;
+    }
+}

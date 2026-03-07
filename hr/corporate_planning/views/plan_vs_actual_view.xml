@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_plan_actual_search" model="ir.ui.view">
+        <field name="name">plan.actual.search</field>
+        <field name="model">corporate.plan.actual.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Plan vs Actual">
+                <field name="department_id"/>
+                <field name="item_name"/>
+                <field name="fiscal_year"/>
+                
+                <filter string="Activity" name="type_act" domain="[('report_type', '=', 'activity')]"/>
+                <filter string="Financial" name="type_fin" domain="[('report_type', '=', 'financial')]"/>
+                <filter string="Capex" name="type_cap" domain="[('report_type', '=', 'capex')]"/>
+                
+                <group expand="1" string="Group By">
+                    <filter string="Department" name="grp_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Type" name="grp_type" context="{'group_by': 'report_type'}"/>
+                    <filter string="Quarter" name="grp_q" context="{'group_by': 'period_quarter'}"/>
+                    <filter string="Month" name="grp_m" context="{'group_by': 'period_month'}"/>
+                    <filter string="Item" name="grp_item" context="{'group_by': 'item_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- PIVOT VIEW (The Best View for Variance) -->
+    <record id="view_plan_actual_pivot" model="ir.ui.view">
+        <field name="name">plan.actual.pivot</field>
+        <field name="model">corporate.plan.actual.analysis</field>
+        <field name="arch" type="xml">
+            <pivot string="Plan vs Actual Analysis" disable_linking="True" sample="1">
+                <field name="report_type" type="row"/>
+                <field name="item_name" type="row"/>
+                <field name="period_quarter" type="col"/>
+                
+                <field name="plan_amount" type="measure" string="Plan"/>
+                <field name="actual_amount" type="measure" string="Actual"/>
+                <field name="variance" type="measure" string="Variance"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- GRAPH VIEW -->
+    <record id="view_plan_actual_graph" model="ir.ui.view">
+        <field name="name">plan.actual.graph</field>
+        <field name="model">corporate.plan.actual.analysis</field>
+        <field name="arch" type="xml">
+            <graph string="Plan vs Actual Comparison" type="bar" sample="1">
+                <field name="period_month"/>
+                <field name="plan_amount" type="measure"/>
+                <field name="actual_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_plan_vs_actual" model="ir.actions.act_window">
+        <field name="name">Plan vs Actual Analysis</field>
+        <field name="res_model">corporate.plan.actual.analysis</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="context">{'search_default_current_year': 1, 'search_default_grp_type': 1}</field>
+    </record>
+
+    
+
+</odoo>

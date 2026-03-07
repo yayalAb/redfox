@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_form_social_media" model="ir.ui.view">
+        <field name="name">crm.lead.form.social.media</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form" />
+        <field name="arch" type="xml">
+
+            <!-- 1. Add 'Log Social Interaction' to the Header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_log_social_interaction" 
+                        string="Log Social Interaction" 
+                        type="object" 
+                        class="btn-primary"
+                        icon="fa-commenting"/>
+            </xpath>
+
+            <!-- 2. Smart Button (View History) -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(crm_lead_customization.action_crm_social_message)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-comments"
+                    context="{'search_default_lead_id': id, 'default_lead_id': id}">
+                    <field name="social_message_count" widget="statinfo" string="Social Logs" />
+                </button>
+            </xpath>
+
+            <!-- 3. Social Media Tab with 'Click to Chat' -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Social Media">
+                    <group>
+                        <group>
+                            <field name="social_platform" />
+                            <field name="social_account" placeholder="e.g. 251911223344 or username"/>
+                            
+                            <!-- CLICK TO CHAT BUTTON -->
+                            <label for="action_open_social_chat" string="Start Chat"/>
+                            <div>
+                                <button name="action_open_social_chat" 
+                                        string="Click to Chat" 
+                                        type="object" 
+                                        class="oe_link"
+                                        icon="fa-external-link"
+                                        invisible="not social_platform"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="social_profile_url" widget="url"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

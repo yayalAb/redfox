@@ -1,0 +1,22 @@
+<odoo>
+     <record id="view_workorder_type_form" model="ir.ui.view">
+        <field name="name">workorder.type.form</field>
+        <field name="model">workorder.type</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name" />
+            </list>
+        </field>
+     </record>
+
+     <record id="action_workorder_type" model="ir.actions.act_window">
+        <field name="name">Workorder Types</field>
+        <field name="res_model">workorder.type</field>
+        <field name="view_mode">list</field>
+     </record>
+
+     <menuitem id="menu_workorder_type"
+        name="Workorder Types"
+        action="action_workorder_type"
+        parent="mrp.menu_mrp_configuration"/>
+</odoo>

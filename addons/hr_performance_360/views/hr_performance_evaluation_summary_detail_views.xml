@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_performance_evaluation_summary_detail_list_view" model="ir.ui.view">
+        <field name="name">hr.performance.evaluation.summary.detail.list</field>
+        <field name="model">hr.performance.evaluation.summary.detail</field>
+        <field name="arch" type="xml">
+            <list string="Evaluation Summary Detail">
+                <field name="employee_id"/>
+                <field name="config_id"/>
+                <field name="supervisor_rate" optional="hide"/>
+                <field name="subordinate_rate" optional="hide"/>
+                <field name="peer_rate" optional="hide"/>
+                <field name="self_rate" optional="hide"/>
+                <field name="supervisor_result" sum="Supervisor Total" optional="hide"/>
+                <field name="subordinate_result" sum="Subordinate Total" optional="hide"/>
+                <field name="peer_result" sum="Peer Total" optional="hide"/>
+                <field name="self_result" sum="Self Total" optional="hide"/>
+                <field name="supervisor_weighted" sum="Supervisor"/>
+                <field name="subordinate_weighted" sum="Subordinate"/>
+                <field name="peer_weighted" sum="Peer"/>
+                <field name="self_weighted" sum="Self"/>
+                <field name="total_weighted" sum="Total"/>
+                <field name="total_percentage" widget="percentage" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_performance_evaluation_summary_detail_form_view" model="ir.ui.view">
+        <field name="name">hr.performance.evaluation.summary.detail.form</field>
+        <field name="model">hr.performance.evaluation.summary.detail</field>
+        <field name="arch" type="xml">
+            <form string="Evaluation Summary Detail">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="config_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <h2>Configuration Rates</h2>
+                            <field name="supervisor_rate" readonly="1"/>
+                            <field name="subordinate_rate" readonly="1"/>
+                            <field name="peer_rate" readonly="1"/>
+                            <field name="self_rate" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <h2>Evaluation Results</h2>
+                            <field name="supervisor_result" readonly="1"/>
+                            <field name="subordinate_result" readonly="1"/>
+                            <field name="peer_result" readonly="1"/>
+                            <field name="self_result" readonly="1"/>
+                            <separator string="Weighted Scores"/>
+                            <field name="supervisor_weighted" readonly="1"/>
+                            <field name="subordinate_weighted" readonly="1"/>
+                            <field name="peer_weighted" readonly="1"/>
+                            <field name="self_weighted" readonly="1"/>
+                            <field name="total_weighted" readonly="1"/>
+                            <field name="total_percentage" readonly="1" widget="percentage"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_performance_evaluation_summary_detail" model="ir.actions.act_window">
+        <field name="name">Evaluation Summary Detail</field>
+        <field name="res_model">hr.performance.evaluation.summary.detail</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="hr_performance_evaluation_summary_detail_list_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No evaluation summary details available.
+            </p>
+            <p>
+                This report shows evaluation summary details for each employee that has at least one evaluation.
+                Results are displayed immediately when evaluations are created or updated.
+                The report includes rates from the evaluation configuration and aggregated results 
+                from evaluations grouped by evaluator type (supervisor, subordinate, peer, self).
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="hr_performance_evaluation_summary_detail_menu"
+        name="Evaluation Summary"
+        parent="hr_performance_360_menu"
+        action="action_hr_performance_evaluation_summary_detail"
+        sequence="10"
+    />
+</odoo>

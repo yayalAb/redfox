@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Delete old action if it exists (from previous version) -->
+    <delete id="action_manager_dashboard" model="ir.actions.act_window"/>
+    
+    <!-- Create new client action -->
+    <record id="action_manager_dashboard" model="ir.actions.client">
+        <field name="name">Manager Dashboard</field>
+        <field name="tag">manager_dashboard.dashboard_main_view</field>
+    </record>
+
+    <menuitem id="menu_manager_dashboard"
+              name="Manager Dashboard"
+              action="action_manager_dashboard"
+              sequence="1"
+              groups="base.group_user"/>
+</odoo>

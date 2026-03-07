@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Guarantor and Company Representative fields to hr.loan form view -->
+    <record id="hr_loan_view_form_fields" model="ir.ui.view">
+        <field name="name">hr.loan.fields.view.form</field>
+        <field name="model">hr.loan</field>
+        <field name="inherit_id" ref="ent_ohrms_loan.hr_loan_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add signature fields on a new page after installment page (at index 1) -->
+            <xpath expr="//notebook/page[1]" position="after">
+                <page string="Signatures" name="signatures">
+                    <group string="Loan Agreement Signatures" col="2">
+                        <group string="Guarantor Information">
+                            <field name="guarantor_id" 
+                                   options="{'no_create': True, 'no_open': True}"
+                                   placeholder="Select Guarantor Employee"/>
+                            <field name="guarantor_signature" widget="signature" 
+                                   class="oe_signature"/>
+                        </group>
+                        <group string="Company Representative">
+                            <field name="company_representative_id" 
+                                   options="{'no_create': True, 'no_open': True}"
+                                   placeholder="Select Company Representative"/>
+                            <field name="company_representative_signature" widget="signature" 
+                                   class="oe_signature"/>
+                        </group>
+                    </group>
+                    <group string="Employee Signature">
+                        <field name="employee_signature" widget="signature" 
+                               class="oe_signature"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

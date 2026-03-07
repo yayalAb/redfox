@@ -1,0 +1,29 @@
+<odoo>
+    <record id="view_purchase_order_form_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_guarantee" string="Create Guarantee" type="object"
+                    class="btn-primary" invisible="state != 'purchase' or purchase_origin != 'foreign'" />
+            </xpath>
+            
+            <xpath expr="//sheet/div[@class='oe_button_box']" position="inside">
+                <button name="action_view_guarantees"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-shopping-cart"
+                    invisible="guarantee_count == 0">
+                    <field name="guarantee_count" widget="statinfo"
+                        string="Guarantees" />
+                </button>
+            </xpath>
+
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="lc_number" invisible="purchase_origin != 'foreign' or state not in ['purchase', 'done']"/>
+                <field name="lc_amount" widget="monetary" invisible="purchase_origin != 'foreign' or state not in ['purchase', 'done']"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

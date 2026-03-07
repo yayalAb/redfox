@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Property Sale report form view -->
+    <record id="purchase_order_report_view_form" model="ir.ui.view">
+        <field name="name">purchase Report</field>
+        <field name="model">purchase.order.report</field>
+        <field name="arch" type="xml">
+            <form string="Sale Report">
+                <group>
+<!--                    <field name="warehouse_ids" widget="many2many_tags"/>-->
+                    <field name="category_ids" widget="many2many_tags"/>
+                    <field name="tag_ids" widget="many2many_tags"/>
+                    <field name="product_ids" widget="many2many_tags"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </group>
+                <footer>
+                    <button name="action_view" string="View"
+                            class="btn-primary" type="object"/>
+                    <button name="action_print_pdf" string="Print(PDF)"
+                            class="btn-primary" type="object"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!-- Property Sale report action -->
+    <record id="purchase_order_report_card_report" model="ir.actions.act_window">
+        <field name="name">purchase.order.report</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">purchase.order.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="purchase_order_report_report_menu"
+              name="Purchase Report"
+              parent="purchase.purchase_report_main"
+              action="purchase_order_report_card_report"
+              sequence="3"/>
+</odoo>

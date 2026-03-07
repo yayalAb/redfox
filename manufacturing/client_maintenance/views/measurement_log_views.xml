@@ -1,0 +1,152 @@
+<odoo>
+    <record id="view_measurement_log_list" model="ir.ui.view">
+        <field name="name">measurement.log.list.view</field>
+        <field name="model">measurement.log</field>
+        <field name="arch" type="xml">
+            <list string="Measurement Logs">
+                <field name="name" />
+                <field name="job_number" />
+                <field name="serial_number" />
+                <field name="manufacturer" />
+                <field name="date" />
+                <field name="measured_by" />
+                <field name="state" widget="badge" decoration-success="state == 'approved'"
+                    decoration-warning="state == 'submitted'" decoration-info="state == 'draft'"
+                    decoration-danger="state == 'rejected'" />
+            </list>
+        </field>
+    </record>
+
+    <record id='view_measurement_log_form' model='ir.ui.view'>
+        <field name='name'>measurement.log.form.view</field>
+        <field name='model'>measurement.log</field>
+        <field name='arch' type='xml'>
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+                    <button name="action_approve" string="Confirm" type="object"
+                        class="oe_highlight" invisible="state != 'submitted'" />
+                    <button name="%(action_measurement_form_reject_wizard)d" string="Reject"
+                        type="action" class="btn-danger"
+                        invisible="state in ['draft', 'approved', 'rejected']" />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_service_request" string="Service Request"
+                            type="object" />
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Measurement Form" />
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name"
+                                    options="{'line_breaks': False}" widget="text" />
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string='Transformer Information'>
+                            <field name='transformer_kva' />
+                            <field name='transformer_kv' />
+                            <field name='job_number' />
+                            <field name='serial_number' />
+                            <field name='manufacturer' />
+                            <field name='manufacturing_year' />
+                        </group>
+
+                        <group string='Core'>
+                            <field name='core_type' />
+                            <field name='core_diameter' />
+                            <field name='limb_center' />
+                            <field name='window_height' />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string='LV Winding'>
+                            <group>
+                                <field name='turns_per_layer' />
+                                <field name='lv_internal_diameter' />
+                                <field name='lv_external_diameter' />
+                                <field name='lv_axial_length' />
+                                <field name='coil_height' />
+                                <field name='copper_placement' />
+                                <field name='winding_direction' />
+                            </group>
+                            <group string='Lv Edge Paper'>
+                                <field name='w1' />
+                                <field name='w2' />
+                            </group>
+                            <group string='Copper Size'>
+                                <field name='rectangular_w' />
+                                <field name='rectangular_d' />
+                                <field name='foil_t' />
+                            </group>
+                        </page>
+
+                        <page string='HV Winding'>
+                            <group>
+                                <field name='tap_turns' />
+                                <field name='hv_internal_diameter' />
+                                <field name='hv_external_diameter' />
+                                <field name='hv_axial_length' />
+                                <field name='lv_edge_paper' />
+                            </group>
+                            <group string='Coil Height'>
+                                <field name='disc1' />
+                                <field name='disc2' />
+                                <field name='disc3' />
+                                <field name='disc4' />
+                                <field name='disc5' />
+                                <field name='disc6' />
+                            </group>
+                            <group string='Copper Size'>
+                                <field name='copper_s1' />
+                                <field name='copper_s2' />
+                                <field name='copper_s3' />
+                            </group>
+                            <group>
+                                <field name='number_of_coils' />
+                            </group>
+                        </page>
+
+                        <page string='Insulation'>
+                            <field name='insulation_lines'>
+                                <list>
+                                    <field name='category' />
+                                    <field name='insulation_type' />
+                                    <field name='ntxwxh' />
+                                    <field name='place' />
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string='Additional'>
+                            <group>
+                                <field name='measured_by' />
+                                <field name='approved_by' />
+                                <field name='date' />
+                                <field name='additional' />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_measurement_form" model="ir.actions.act_window">
+        <field name="name">Measurement Forms</field>
+        <field name="res_model">measurement.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_measurement_form"
+        name="Measurement Forms"
+        parent="menu_client_maintenance"
+        action="action_measurement_form"
+    />
+</odoo>

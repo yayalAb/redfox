@@ -1,0 +1,31 @@
+# -*- coding: utf-8 -*-
+{
+    'name': 'Employee Disciplinary Management',
+    'version': '15.0.0',
+    'summary': """Employee Disciplinary Tracking Management""",
+    'description': 'To manage employee disciplinary tracking',
+    'category': 'Generic Modules/Human Resources',
+    'author': "Neoteric Hub",
+    'company': 'Neoteric Hub',
+    'live_test_url': '',
+    'price': 0.0,
+    'currency': 'USD',
+    'website': "https://www.neoterichub.com",
+    'depends': ['base', 'hr', 'mail', 'hr_payroll'],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/disciplinary_rule.xml',
+        'data/disciplinary_sequence.xml',
+        'views/disciplinary_action.xml',
+        'views/category_view.xml',
+        'views/hr_payslip.xml',
+
+    ],
+    'demo': ['data/demo_data.xml'],
+    'images': ['static/description/banner.gif'],
+    'license': 'LGPL-3',
+    'installable': True,
+    'auto_install': False,
+    'application': False,
+}

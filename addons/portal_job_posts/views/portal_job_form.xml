@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="job_apply_form_extended" inherit_id="website_hr_recruitment.apply"
+        name="Extended Job Application Form">
+        <xpath expr="//form[@id='hr_recruitment_form']" position="replace">
+            <form id="hr_recruitment_form" action="/website/form/" method="post"
+                enctype="multipart/form-data" class="o_mark_required row" data-mark="*"
+                data-model_name="hr.applicant" data-success-mode="redirect"
+                data-success-page="/job-thank-you" hide-change-model="true">
+
+                <ul class="nav nav-pills d-none mb-4 col-12" id="apply-pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-personal-tab"
+                            data-bs-target="#pills-personal" type="button" role="tab"
+                            aria-controls="pills-personal" aria-selected="true">1. Personal</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-education-tab"
+                            data-bs-target="#pills-education" type="button" role="tab"
+                            aria-controls="pills-education" aria-selected="false">2. Education</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-experience-tab"
+                            data-bs-target="#pills-experience" type="button" role="tab"
+                            aria-controls="pills-experience" aria-selected="false">3. Experience</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-additional-tab"
+                            data-bs-target="#pills-additional" type="button" role="tab"
+                            aria-controls="pills-additional" aria-selected="false">4. Additional</button>
+                    </li>
+                </ul>
+
+
+                <div class="tab-content row s_col_no_bgcolor col-12" id="apply-pills-tabContent">
+
+                    <div class="tab-pane fade show active" id="pills-personal" role="tabpanel"
+                        aria-labelledby="pills-personal-tab">
+                        <div
+                            class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="recruitment1">
+                                    <span class="s_website_form_label_content">Your Name</span>
+                                    <span class="s_website_form_mark"> *</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="recruitment1" type="text"
+                                        class="form-control s_website_form_input"
+                                        name="partner_name" required="1" data-fill-with="name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="recruitment2">
+                                    <span class="s_website_form_label_content">Your Email</span>
+                                    <span class="s_website_form_mark"> *</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="recruitment2" type="email"
+                                        class="form-control s_website_form_input" name="email_from"
+                                        required="1" data-fill-with="email" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="recruitment3">
+                                    <span class="s_website_form_label_content">Your Phone</span>
+                                    <span class="s_website_form_mark"> *</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="recruitment3" type="tel"
+                                        class="form-control s_website_form_input"
+                                        name="partner_phone" required="1" data-fill-with="phone" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="x_gender">
+                                    <span class="s_website_form_label_content">Gender</span>
+                                    <span class="s_website_form_mark"> *</span>
+                                </label>
+                                <div class="col-sm">
+                                    <select id="x_gender" class="form-control s_website_form_input"
+                                        name="gender" required="1">
+                                        <option value="">Select...</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="x_current_address">
+                                    <span class="s_website_form_label_content">Current Address</span>
+                                </label>
+                                <div class="col-sm">
+                                    <textarea id="x_current_address"
+                                        class="form-control s_website_form_input"
+                                        name="current_address" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="date_of_birth">
+                                    <span class="s_website_form_label_content">Date of Birth</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="date_of_birth" type="date"
+                                        class="form-control s_website_form_input"
+                                        name="date_of_birth" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-primary btn-next">Next <i
+                                    class="fa fa-arrow-right" /></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-education" role="tabpanel"
+                        aria-labelledby="pills-education-tab">
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="type_id">
+                                    <span class="s_website_form_label_content">Educational
+                                        Qualification</span>
+                                </label>
+                                <div class="col-sm">
+                                    <select id="type_id" class="form-control s_website_form_input"
+                                        name="type_id">
+                                        <option value="">Select an option...</option>
+                                        <t t-foreach="degree or []" t-as="deg">
+                                            <option t-att-value="deg.id" t-esc="deg.name" />
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_graduation_department"
+                            class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="graduation_department">
+                                    <span class="s_website_form_label_content">Graduation Department</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="graduation_department" type="text"
+                                        class="form-control s_website_form_input"
+                                        name="graduation_department"
+                                        t-att-required="job.x_required_graduation_department and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_university" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="university">
+                                    <span class="s_website_form_label_content">University</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="university" type="text"
+                                        class="form-control s_website_form_input" name="university"
+                                        t-att-required="job.x_required_university and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_graduation_year" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="graduation_year">
+                                    <span class="s_website_form_label_content">Year of Graduation</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="graduation_year" type="number"
+                                        class="form-control s_website_form_input"
+                                        name="graduation_year" placeholder="YYYY"
+                                        t-att-required="job.x_required_graduation_year and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_cgpa" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="cgpa">
+                                    <span class="s_website_form_label_content">CGPA</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="cgpa" type="number" step="0.01"
+                                        class="form-control s_website_form_input" name="cgpa"
+                                        t-att-required="job.x_required_cgpa and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_exit_exam_result" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="exit_exam_result">
+                                    <span class="s_website_form_label_content">Exit Exam Result</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="exit_exam_result" type="text"
+                                        class="form-control s_website_form_input"
+                                        name="exit_exam_result"
+                                        t-att-required="job.x_required_exit_exam_result and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-secondary btn-prev"><i
+                                    class="fa fa-arrow-left" /> Previous</button>
+                            <button type="button" class="btn btn-primary btn-next">Next <i
+                                    class="fa fa-arrow-right" /></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-experience" role="tabpanel"
+                        aria-labelledby="pills-experience-tab">
+                        <div t-if="job.x_show_experience_level" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="experience_level">
+                                    <span class="s_website_form_label_content">Experience Level</span>
+                                </label>
+                                <div class="col-sm">
+                                    <select id="experience_level"
+                                        class="form-control s_website_form_input"
+                                        name="experience_level"
+                                        t-att-required="job.x_required_experience_level and 'required'">
+                                        <option value="">Select...</option>
+                                        <option value="junior">Junior</option>
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="senior">Senior</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_current_organization" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="current_organization">
+                                    <span class="s_website_form_label_content">Current Organization</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="current_organization" type="text"
+                                        class="form-control s_website_form_input"
+                                        name="current_organization" 
+                                        t-att-required="job.x_required_current_organization and 'required'"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_current_position" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="current_position">
+                                    <span class="s_website_form_label_content">Current Position
+                                        Title</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="current_position" type="text"
+                                        class="form-control s_website_form_input"
+                                        name="current_position"
+                                        t-att-required="job.x_required_current_position and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_previous_job_start" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="previous_job_start">
+                                    <span class="s_website_form_label_content">Start Date</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="previous_job_start" type="date"
+                                        class="form-control s_website_form_input"
+                                        name="previous_job_start"
+                                        t-att-required="job.x_required_previous_job_start and 'required'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_previous_job_end" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="previous_job_end">
+                                    <span class="s_website_form_label_content">Ending Date</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="previous_job_end" type="date"
+                                        class="form-control s_website_form_input"
+                                        name="previous_job_end" 
+                                        t-att-required="job.x_required_previous_job_end and 'required'"/>
+                                    <small class="form-text text-muted">Leave blank if this is your
+                                        current role.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-if="job.x_show_current_salary" class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="current_salary">
+                                    <span class="s_website_form_label_content">Current Salary
+                                        (Monthly)</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="current_salary" type="number"
+                                        class="form-control s_website_form_input"
+                                        name="current_salary" 
+                                        t-att-required="job.x_required_current_salary and 'required'"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-secondary btn-prev"><i
+                                    class="fa fa-arrow-left" /> Previous</button>
+                            <button type="button" class="btn btn-primary btn-next">Next <i
+                                    class="fa fa-arrow-right" /></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-additional" role="tabpanel"
+                        aria-labelledby="pills-additional-tab">
+                        <div
+                            class="col-12 mb-0 py-2 s_website_form_field s_website_form_custom s_website_form_required">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="recruitment6">
+                                    <span class="s_website_form_label_content">Resume</span>
+                                    <span class="s_website_form_mark"> *</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="recruitment6" type="file"
+                                        class="form-control s_website_form_input" name="Resume"
+                                        required="1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="salary_expected">
+                                    <span class="s_website_form_label_content">Expected Salary
+                                        (Monthly)</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="salary_expected" type="number"
+                                        class="form-control s_website_form_input"
+                                        name="salary_expected" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="recruitment5">
+                                    <span class="s_website_form_label_content">Short Introduction</span>
+                                </label>
+                                <div class="col-sm">
+                                    <textarea id="recruitment5"
+                                        class="form-control s_website_form_input"
+                                        name="applicant_notes" rows="5"
+                                        placeholder="Tell us a bit about yourself or ask any questions..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="availability">
+                                    <span class="s_website_form_label_content">Availability (Date
+                                        you can start)</span>
+                                </label>
+                                <div class="col-sm">
+                                    <input id="availability" type="date"
+                                        class="form-control s_website_form_input"
+                                        name="availability" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-0 py-2 s_website_form_field">
+                            <div class="row">
+                                <label class="col-sm-auto s_website_form_label" style="width: 200px"
+                                    for="source_id">
+                                    <span class="s_website_form_label_content">How did you hear
+                                        about us?</span>
+                                </label>
+                                <div class="col-sm">
+                                    <select id="source_id" class="form-control s_website_form_input"
+                                        name="source_id">
+                                        <option value="">Select an option...</option>
+                                        <t t-foreach="sources or []" t-as="source">
+                                            <option t-att-value="source.id" t-esc="source.name" />
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 s_website_form_field s_website_form_dnone">
+                            <input id="recruitment7" type="hidden"
+                                class="form-control s_website_form_input" name="job_id" />
+                        </div>
+                        <div class="col-12 s_website_form_field s_website_form_dnone">
+                            <input id="recruitment8" type="hidden"
+                                class="form-control s_website_form_input" name="department_id" />
+                        </div>
+
+                        <div class="col-12 s_website_form_submit mb-5" data-name="Submit Button">
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary btn-prev"><i
+                                        class="fa fa-arrow-left" /> Previous</button>
+                                <div>
+                                    <div class="alert alert-danger mt-2 d-none" id="warning-message"></div>
+                                    <button type="submit"
+                                        class="btn btn-primary btn-lg s_website_form_send"
+                                        id="apply-btn">Submit Application</button>
+                                    <span id="s_website_form_result"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script type="text/javascript">
+                    document.addEventListener('DOMContentLoaded', function () {
+                    const form = document.querySelector('#hr_recruitment_form');
+                    if (!form) return;
+
+                    const nextButtons = form.querySelectorAll('.btn-next');
+                    const prevButtons = form.querySelectorAll('.btn-prev');
+                    const tabPills = form.querySelectorAll('#apply-pills-tab .nav-link');
+                    const warningMessage = form.querySelector('#warning-message');
+
+                    const validatePane = (pane) => {
+                    let isValid = true;
+                    // Get all required fields IN THE CURRENT PANE ONLY
+                    const requiredFields = pane.querySelectorAll('[required]');
+
+                    // First, clear all previous validation errors in the pane
+                    pane.querySelectorAll('.is-invalid').forEach(el =>
+                    el.classList.remove('is-invalid'));
+                    warningMessage.classList.add('d-none');
+
+                    for (const field of requiredFields) {
+                    if (!field.value || (field.type === 'checkbox' &amp;&amp; !field.checked)) {
+                    isValid = false;
+                    field.classList.add('is-invalid'); // Add red border to invalid field
+                    }
+                    }
+
+                    if (!isValid) {
+                    warningMessage.textContent = 'Please fill all required fields marked in red.';
+                    warningMessage.classList.remove('d-none');
+                    // Focus the first invalid field to guide the user
+                    pane.querySelector('.is-invalid').focus();
+                    }
+                    return isValid;
+                    };
+
+                    const switchTab = (direction) => {
+                    const activeTab = form.querySelector('#apply-pills-tab .nav-link.active');
+                    const activePane = form.querySelector('.tab-pane.show.active');
+                    const activeLi = activeTab.closest('li');
+                    const targetLi = direction === 'next' ? activeLi.nextElementSibling :
+                    activeLi.previousElementSibling;
+
+                    if (targetLi) {
+                    const nextTab = targetLi.querySelector('.nav-link');
+                    activeTab.classList.remove('active');
+                    activeTab.setAttribute('aria-selected', 'false');
+                    activePane.classList.remove('show', 'active');
+
+                    nextTab.classList.add('active');
+                    nextTab.setAttribute('aria-selected', 'true');
+                    const nextPane = form.querySelector(nextTab.getAttribute('data-bs-target'));
+                    nextPane.classList.add('show', 'active');
+                    }
+                    };
+
+                    nextButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const activePane = form.querySelector('.tab-pane.show.active');
+                    if (validatePane(activePane)) {
+                    switchTab('next');
+                    }
+                    });
+                    });
+
+                    prevButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab('prev');
+                    });
+                    });
+                    });
+                </script>
+            </form>
+        </xpath>
+    </template>
+</odoo>

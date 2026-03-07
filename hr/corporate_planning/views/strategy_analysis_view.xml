@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_strategy_analysis_list" model="ir.ui.view">
+        <field name="name">strategy.analysis.list</field>
+        <field name="model">corporate.strategy.analysis</field>
+        <field name="arch" type="xml">
+            <list string="Strategic Analyses">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="department_id"/>
+                <field name="fiscal_year"/>
+                <field name="analysis_date"/>
+                <field name="state" widget="badge" decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_strategy_analysis_form" model="ir.ui.view">
+        <field name="name">strategy.analysis.form</field>
+        <field name="model">corporate.strategy.analysis</field>
+        <field name="arch" type="xml">
+            <form string="Strategic Analysis">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'confirmed'" groups="base.group_user"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" options="{'no_create': True}"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year"/>
+                            <field name="analysis_date"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- SECTION B: PESTEL -->
+                        <page string="PESTEL Log">
+                            <field name="pestel_ids">
+                                <list editable="bottom">
+                                    <field name="factor"/>
+                                    <field name="sub_factor"/>
+                                    <field name="current_status"/>
+                                    <field name="impact_code" string="Influence P-Q-C..."/>
+                                    <field name="urgency" decoration-danger="urgency == 'high'" 
+                                                          decoration-warning="urgency == 'medium'" 
+                                                          decoration-success="urgency == 'low'"/>
+                                    <field name="required_action"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- SECTION C: STAKEHOLDER -->
+                        <page string="Stakeholder Log">
+                            <field name="stakeholder_ids">
+                                <list editable="bottom">
+                                    <field name="stakeholder_category"/>
+                                    <field name="sub_factor"/>
+                                    <field name="current_status"/>
+                                    <field name="influence_level"/>
+                                    <field name="expected_impact"/>
+                                    <field name="engagement_priority" decoration-danger="engagement_priority == 'high'" 
+                                                                      decoration-warning="engagement_priority == 'medium'" 
+                                                                      decoration-success="engagement_priority == 'low'"/>
+                                    <field name="required_action"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- SECTION D: BENCHMARK -->
+                        <page string="Industry Benchmark">
+                            <field name="benchmark_ids">
+                                <list editable="bottom">
+                                    <field name="area"/>
+                                    <field name="industry_standard"/>
+                                    <field name="current_status"/>
+                                    <field name="gap"/>
+                                    <field name="impact_code"/>
+                                    <field name="urgency" decoration-danger="urgency == 'high'" decoration-warning="urgency == 'medium'" decoration-success="urgency == 'low'"/>
+                                    <field name="required_action"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- SECTION E: MARKET ANALYSIS -->
+                        <page string="Market Analysis">
+                            <field name="market_ids">
+                                <list editable="bottom">
+                                    <field name="market_factor"/>
+                                    <field name="current_status"/>
+                                    <field name="effect_on_bu"/>
+                                    <field name="opportunity_threat" decoration-success="opportunity_threat=='opportunity'" decoration-danger="opportunity_threat=='threat'"/>
+                                    <field name="urgency" decoration-danger="urgency == 'high'" decoration-warning="urgency == 'medium'" decoration-success="urgency == 'low'"/><field name="impact_code"/>
+                                    <field name="required_action"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- SECTION F: PORTER'S 5 FORCES -->
+                        <page string="Porter's 5 Forces">
+                            <field name="porter_ids">
+                                <list editable="bottom">
+                                    <field name="force"/>
+                                    <field name="sub_factor"/>
+                                    <field name="current_status"/>
+                                    <field name="level" decoration-danger="level=='high'"/>
+                                    <field name="impact_code"/>
+                                    <field name="required_action"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- SECTION G: INTERNAL STRENGTH/WEAKNESS -->
+                        <page string="Internal S/W Log">
+                            <field name="swot_ids">
+                                <list editable="bottom">
+                                    <field name="category"/>
+                                    <field name="factor"/>
+                                    <field name="current_status"/>
+                                    <field name="type" decoration-success="type=='strength'" decoration-danger="type=='weakness'"/>
+                                    <field name="impact_code"/>
+                                    <field name="priority" />
+                                    <field name="required_action"/>
+                                </list>
+                            </field>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="action_strategy_analysis" model="ir.actions.act_window">
+        <field name="name">Strategic Analysis</field>
+        <field name="res_model">corporate.strategy.analysis</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Strategic Analysis Document.
+            </p>
+        </field>
+    </record>
+
+</odoo>

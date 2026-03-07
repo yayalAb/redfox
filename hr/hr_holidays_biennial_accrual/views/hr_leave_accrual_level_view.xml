@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_leave_accrual_level_view_form_inherit_biennial" model="ir.ui.view">
+        <field name="name">hr.leave.accrual.level.form.inherit.biennial</field>
+        <field name="model">hr.leave.accrual.level</field>
+        <!--
+            THE FINAL, ABSOLUTELY CORRECT FIX:
+            The ID does not contain the word 'leave'. This matches the parent view XML.
+        -->
+        <field name="inherit_id" ref="hr_holidays.hr_accrual_level_view_form"/>
+        <field name="arch" type="xml">
+            <!-- This XPath is correct and will now find its target inside the correct parent view -->
+            <xpath expr="//div[@name='yearly']" position="after">
+                <div name="biennially" invisible="frequency != 'biennially'">
+                    <field name="frequency" style="width: 6.5rem"/>
+                    <label for="yearly_day_display" string="on the" class="me-1"/>
+                    <field name="yearly_day_display" required="1" style="width: 4rem"/> of <field name="yearly_month" required="1" style="width: 5.4rem"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

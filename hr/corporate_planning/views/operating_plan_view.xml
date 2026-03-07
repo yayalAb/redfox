@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- FORM VIEW -->
+    <record id="view_operating_plan_form" model="ir.ui.view">
+        <field name="name">operating.plan.form</field>
+        <field name="model">corporate.operating.plan</field>
+        <field name="arch" type="xml">
+            <form string="Annual Operating Plan">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'submitted'" groups="base.group_user"/>
+                    <button name="action_reset" string="Reset" type="object" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="previous_plan_id" options="{'no_create': True}"/>
+                            <field name="visible_quarter_ids" widget="many2many_checkboxes"/>
+    
+                            <field name="show_q1" invisible="1"/>
+                            <field name="show_q2" invisible="1"/>
+                            <field name="show_q3" invisible="1"/>
+                            <field name="show_q4" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        
+                        <!-- TAB 1: ACTIVITY PLAN -->
+                        <page string="1. Activity Plan">
+                            <field name="op_activity_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="activity_master_id"/>
+                                    <field name="okr_line_id" options="{'no_create': True}" />
+                                    <field name="uom_id" optional="show"/>
+                                    <field name="annual_target" sum="Total" decoration-bf="1"/>
+                                    
+                                    <field name="m1" string="July" column_invisible="not parent.show_q1"/>
+                                    <field name="m2" string="Aug"  column_invisible="not parent.show_q1"/>
+                                    <field name="m3" string="Sep"  column_invisible="not parent.show_q1"/>
+
+                                    <!-- Q2 MONTHS -->
+                                    <field name="m4" string="Oct" column_invisible="not parent.show_q2"/>
+                                    <field name="m5" string="Nov" column_invisible="not parent.show_q2"/>
+                                    <field name="m6" string="Dec" column_invisible="not parent.show_q2"/>
+
+                                    <!-- Q3 MONTHS -->
+                                    <field name="m7" string="Jan" column_invisible="not parent.show_q3"/>
+                                    <field name="m8" string="Feb" column_invisible="not parent.show_q3"/>
+                                    <field name="m9" string="Mar" column_invisible="not parent.show_q3"/>
+
+                                    <!-- Q4 MONTHS -->
+                                    <field name="m10" string="Apr" column_invisible="not parent.show_q4"/>
+                                    <field name="m11" string="May" column_invisible="not parent.show_q4"/>
+                                    <field name="m12" string="Jun" column_invisible="not parent.show_q4"/>
+                                    
+                                    <field name="responsible_person"/>
+                                    <field name="remarks" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- TAB 2: FINANCIAL PLAN -->
+                        <page string="2. Financial Plan">
+                            <field name="financial_ids">
+                                <list editable="bottom" 
+                                    decoration-bf="is_section==True or is_total==True" 
+                                    decoration-muted="is_section==True"
+                                    decoration-info="is_total==True and category!=False"
+                                    decoration-success="is_total==True and category==False and annual_budget &gt;= 0"
+                                    decoration-danger="is_total==True and category==False and annual_budget &lt; 0"> 
+                                    
+                                    <!-- CONTROLS -->
+                                    <control>
+                                        <create name="add_line_control" string="Add Line Item"/>
+                                        <create name="add_section_control" string="Add Category Section" context="{'default_is_section': True}"/>
+                                    </control>
+
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="is_section" column_invisible="1"/>
+                                    <field name="is_total" column_invisible="1"/>
+                                    <field name="display_type" column_invisible="1"/>
+
+                                    <!-- FIELDS -->
+                                    
+                                    <!-- Category (Only for Section Headers) -->
+                                    <field name="category" 
+                                        string="Section / Category"
+                                        invisible="is_section == False"
+                                        required="is_section == True"/>
+
+                                    <!-- Item (Only for Data Lines) -->
+                                    <field name="item_id" 
+                                        invisible="is_section == True or is_total == True"
+                                        required="is_section == False and is_total == False"/>
+                                    
+                                    <!-- Name (Shows for Normal lines AND Total lines) -->
+                                    <field name="name" 
+                                        string="Line Item" 
+                                        invisible="is_section == True"
+                                        readonly="is_total == True"/> <!-- Readonly if it's a calculated total -->
+                                    <field name="okr_line_id" options="{'no_create': True}" />
+
+                                    <!-- UOM (Hide for totals) -->
+                                    <field name="uom_id" optional="hide" invisible="is_section == True or is_total == True"/>
+                                    
+                                    <!-- ANNUAL BUDGET -->
+                                    <field name="annual_budget" 
+                                        decoration-bf="1" widget="monetary" 
+                                        invisible="is_section == True"
+                                        readonly="is_total == True"/> <!-- Readonly if total -->
+                                    
+                                    <!-- MONTHLY COLUMNS -->
+                                    <!-- Note: We apply readonly="is_total == True" to all months -->
+                                    <field name="m1" string="July" column_invisible="not parent.show_q1" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m2" string="Aug"  column_invisible="not parent.show_q1" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m3" string="Sep"  column_invisible="not parent.show_q1" invisible="is_section == True" readonly="is_total == True"/>
+
+                                    <field name="m4" string="Oct" column_invisible="not parent.show_q2" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m5" string="Nov" column_invisible="not parent.show_q2" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m6" string="Dec" column_invisible="not parent.show_q2" invisible="is_section == True" readonly="is_total == True"/>
+
+                                    <field name="m7" string="Jan" column_invisible="not parent.show_q3" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m8" string="Feb" column_invisible="not parent.show_q3" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m9" string="Mar" column_invisible="not parent.show_q3" invisible="is_section == True" readonly="is_total == True"/>
+
+                                    <field name="m10" string="Apr" column_invisible="not parent.show_q4" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m11" string="May" column_invisible="not parent.show_q4" invisible="is_section == True" readonly="is_total == True"/>
+                                    <field name="m12" string="Jun" column_invisible="not parent.show_q4" invisible="is_section == True" readonly="is_total == True"/>
+                                    
+                                    <field name="responsible" invisible="is_section == True or is_total == True"/>
+                                    <field name="remarks" optional="hide" invisible="is_section == True or is_total == True"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- TAB 3: KPI PLAN -->
+                        <!-- <page string="3. KPI Dashboard">
+                            <field name="kpi_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="perspective"/>
+                                    <field name="kpi_id"/>
+                                    <field name="weight" sum="Total Weight"/>
+                                    <field name="annual_target"/>
+                                    
+                                    <field name="m1" string="July" optional="hide"/>
+                                    <field name="m2" string="Aug" optional="hide"/>
+                                    <field name="m3" string="Sep" optional="hide"/>
+                                    <field name="m4" string="Oct" optional="hide"/>
+                                    <field name="m5" string="Nov" optional="hide"/>
+                                    <field name="m6" string="Dec" optional="hide"/>
+                                    <field name="m7" string="Jan" optional="hide"/>
+                                    <field name="m8" string="Feb" optional="hide"/>
+                                    <field name="m9" string="Mar" optional="hide"/>
+                                    <field name="m10" string="Apr" optional="hide"/>
+                                    <field name="m11" string="May" optional="hide"/>
+                                    <field name="m12" string="Jun" optional="hide"/>
+                                    
+                                    <field name="responsible"/>
+                                    <field name="remarks" optional="hide"/>
+                                </list>
+                            </field>
+                        </page> -->
+
+                        <!-- TAB 4: CAPEX PLAN -->
+                        <page string="3. Capex Plan">
+                            <field name="capex_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="capex_item_id"/> 
+                                    <field name="okr_line_id" options="{'no_create': True}" />
+                                    
+                                    <field name="annual_target_qty" sum="Total Qty"/>
+                                    <field name="q1_qty" optional="hide"/>
+                                    <field name="q2_qty" optional="hide"/>
+                                    <field name="q3_qty" optional="hide"/>
+                                    <field name="q4_qty" optional="hide"/>
+                                    
+                                    <field name="annual_budget_etb" sum="Total Budget" widget="monetary" decoration-bf="1"/>
+                                    <field name="q1_budget" optional="hide"/>
+                                    <field name="q2_budget" optional="hide"/>
+                                    <field name="q3_budget" optional="hide"/>
+                                    <field name="q4_budget" optional="hide"/>
+                                    
+                                    <field name="user_department"/>
+                                    <field name="remark" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- LIST VIEW -->
+    <record id="view_operating_plan_list" model="ir.ui.view">
+        <field name="name">operating.plan.list</field>
+        <field name="model">corporate.operating.plan</field>
+        <field name="arch" type="xml">
+            <list string="AOP Plans">
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="fiscal_year"/>
+                <field name="state" widget="badge" decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_operating_plan" model="ir.actions.act_window">
+        <field name="name">Annual Operating Plans (AOP)</field>
+        <field name="res_model">corporate.operating.plan</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

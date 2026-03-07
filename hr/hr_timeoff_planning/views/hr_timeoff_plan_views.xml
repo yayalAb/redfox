@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- list View -->
+    <record id="view_hr_timeoff_plan_list" model="ir.ui.view">
+        <field name="name">hr.timeoff.plan.list</field>
+        <field name="model">hr.timeoff.plan</field>
+        <field name="arch" type="xml">
+            <list default_group_by="employee_id">
+            
+                <header>
+                    <button name="action_approve_timeoff_plan" string="Approve" type="object" groups="hr.group_hr_manager" icon="fa-check"/>
+                    <button name="action_reject_timeoff_plan" string="Reject" type="object" groups="hr.group_hr_manager" icon="fa-times"/>
+                </header>
+                <field name="employee_id"/>
+                <field name="year"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="days"/>
+                <field name="state"/>
+               
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hr_timeoff_plan_form" model="ir.ui.view">
+        <field name="name">hr.timeoff.plan.form</field>
+        <field name="model">hr.timeoff.plan</field>
+        <field name="priority" eval="20"/>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Submit" type="object" name="action_submit_timeoff_plan" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button string="Approve" type="object" groups="hr.group_hr_user" name="action_approve_timeoff_plan" invisible="state != 'submitted'"/>
+                    <button string="Reject" type="object" groups="hr.group_hr_user" name="action_reject_timeoff_plan" invisible="state != 'submitted'"/>
+                    <button string="Set to Draft" type="object" groups="hr.group_hr_manager" name="action_reset_to_draft" invisible="state not in ('submitted', 'refused')"/>
+                    <button name="action_request_timeoff" type="object" invisible="state != 'approved' or timeoff_count != 0 or not is_current_employee" string="Request Time Off" class="btn-primary" icon="fa-plus"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,refused"/>
+                    <field name="is_current_employee" invisible="1"/>
+                </header>
+                <sheet>
+                <div class="oe_button_box" name="button_box">
+                        <button name="action_view_timeoffs" type="object" string="Time Offs" invisible="timeoff_count == 0" icon="fa-calendar">
+                            <field string="Timeoff" name="timeoff_count" widget="statinfo"/>
+                        
+                        </button>
+                </div>
+                
+                    <group>
+                        <field name="employee_id" readonly="1" options="{'no_create': True}"/>
+                        <field name="year" readonly="state == 'approved'"/>
+                        <field name="start_date" widget="date" required="1"/>
+                        <field name="end_date" widget="date" required="1"/>
+                        <field name="days" readonly="1"/>
+                    </group>
+                   
+                    <chatter/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Gantt View -->
+    <record id="view_hr_timeoff_plan_gantt" model="ir.ui.view">
+        <field name="name">hr.timeoff.plan.gantt</field>
+        <field name="model">hr.timeoff.plan</field>
+        <field name="arch" type="xml">
+            <gantt date_start="start_date" date_stop="end_date" default_group_by="employee_id" string="Time Off Plans"/>
+        </field>
+    </record>
+
+    <record id="action_hr_timeoff_plan" model="ir.actions.act_window">
+        <field name="name">My Time Off Plans</field>
+        <field name="res_model">hr.timeoff.plan</field>
+        <field name="view_mode">list,form,gantt</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+    </record>
+
+    <!-- Action for HR Manager -->
+    <record id="action_hr_timeoff_plan_all" model="ir.actions.act_window">
+        <field name="name">All Time Off Plans</field>
+        <field name="res_model">hr.timeoff.plan</field>
+        <field name="view_mode">list,form,gantt</field>
+    </record>
+
+    <!-- Menu Item for Employee Self-Service -->
+    <menuitem id="menu_hr_timeoff_plan" name="My Time Off Plans"
+              parent="hr_employee_self_service.sub_menu_employee_leave"
+              action="action_hr_timeoff_plan" 
+              sequence="10"/>
+
+    <!-- Menu Item for HR Manager -->
+    <menuitem id="menu_hr_timeoff_plan_all" name="All Time Off Plans"
+              parent="hr_holidays.menu_hr_holidays_management"
+              action="action_hr_timeoff_plan_all"
+              groups="hr.group_hr_manager"
+              sequence="20"/>
+</odoo>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Report Action -->
+        <record id="action_report_cip_request" model="ir.actions.report">
+            <field name="name">CIP Inspection Call Request</field>
+            <field name="model">cip.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_sale_agreement.report_cip_request_document</field>
+            <field name="report_file">custom_sale_agreement.report_cip_request_document</field>
+            <field name="print_report_name">'CIP Request - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_cip_request" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_cip_request_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page"
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 14px; padding: 0 30px;">
+
+                            <div class="oe_structure" />
+
+                            <t t-set="doc_title" t-value="'OUTGOING LETTER '" />
+                            <t t-set="doc_number" t-value="o.name" />
+                            <t t-set="issue_number" t-value="'1'" />
+
+                            <style>
+                                .content-table { width: 100%; border-collapse: collapse;
+                                margin-bottom: 15px; }
+                                .content-table th, .content-table td { border: 1px solid black;
+                                padding: 6px; }
+                                .content-table th { background-color: #f0f0f0; text-align: left; }
+                                .right-align { text-align: right; }
+                                .center-align { text-align: center; }
+                                .bold { font-weight: bold; }
+                            </style>
+
+                            <!-- REFERENCE AND DATE (Top Right) -->
+                            <div class="row mb-4">
+                                <div class="col-9"></div>
+                                <div class="col-3 text-right">
+                                    <p>
+                                        <strong>የደብዳቤ ቁጥር፡</strong>
+                                        <span t-field="o.name" />
+                                        <br />
+                                        <strong>Ref No</strong>
+                                        <br />
+                                        <strong>ቀን፡</strong>
+                                        <span
+                                            t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d')" />
+                                        <br />
+                                        <strong>Date</strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- ADDRESSEE & TITLE -->
+                            <div class="mb-3">
+                                <strong>To- Contract Management</strong>
+                                <br />
+                                <br />
+                                <p class="mb-0">CIP INSPECTION CALL REQUEST</p>
+                            </div>
+
+                            <!-- TABLE 1: LOGISTICS -->
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>Proposed date of for Inspection</th>
+                                        <th>Inspection Place ( Specific place )</th>
+                                        <th>Name of Manufacturer / Supplier</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-field="o.proposed_date" />
+                                        </td>
+                                        <td>
+                                            <span t-field="o.inspection_place" />
+                                        </td>
+                                        <td>
+                                            <span t-field="o.supplier_name" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- TABLE 2: CONTRACT DETAILS -->
+                            <div class="bold mb-1">CONTRACT DETAILS</div>
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>Contract No.</th>
+                                        <th>Contract Name</th>
+                                        <th>Contract date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-if="o.agreement_id"
+                                                t-field="o.agreement_id.name" />
+                                        </td>
+                                        <td>
+                                            <span t-field="o.contract_name" />
+                                        </td>
+                                        <td>
+                                            <span t-field="o.contract_date" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- TABLE 3: ITEM DETAILS -->
+                            <div class="bold mb-1">ITEM DETAILS</div>
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item description</th>
+                                        <th>Quantity total(contract)</th>
+                                        <th>Quantity accepted up to date</th>
+                                        <th>Quantity offered (Now)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.line_ids" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-field="line.product_id.name" />
+                                            </td>
+                                            <td>
+                                                <span t-field="line.quantity_total" />
+                                            </td>
+                                            <td>
+                                                <span t-field="line.quantity_accepted" />
+                                            </td>
+                                            <td>
+                                                <span t-field="line.quantity_offered" />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr t-if="not o.line_ids">
+                                        <td style="height: 30px;"></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- TABLE 4: SUPPLIER DETAILS -->
+                            <div class="bold mb-1">SUPPLIER‘S/MANUFACTURE’S DETAILS</div>
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name of Supplier ‘s/manufacture’s</th>
+                                        <th>Contract Name(for inspection)</th>
+                                        <th>Tel.Mobil No</th>
+                                        <th>E-mail</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-field="o.env.company.name" />
+                                        </td>
+                                        <td>
+                                            <span t-field="o.contract_name" />
+                                        </td>
+                                        <td><span t-field="o.env.company.phone" /> / <span
+                                                t-field="o.env.company.mobile" /></td>
+                                        <td>
+                                            <span t-field="o.env.company.email" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- BODY TEXT -->
+                            <div style="text-align: justify; margin-top: 20px; line-height: 1.5;">
+                                <p>
+                                    We confirm that all the documents related to the contract are
+                                    available at the place of inspection. We
+                                    categorically confirm that the material offered has already been
+                                    inspected by our quality assurance department
+                                    and found in order. We confirm that the item meets approved
+                                    standard and EEU specification requirements.
+                                    And all previous inspection stages have been cleared .we also
+                                    confirm that this material has not been offered to
+                                    the any other inspection agency /EEU in the past.
+                                </p>
+                            </div>
+
+                            <!-- SIGN OFF -->
+                            <div class="mt-4">
+                                <p>Best Regards</p>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

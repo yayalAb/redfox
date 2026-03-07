@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <menuitem id="menu_corporate_planning_root" 
+                name="Corporate Planning" 
+                sequence="10"
+                groups="group_planning_user,group_planning_strategist,group_planning_manager" />
+
+
+
+        <!-- Annual plans -->
+        <menuitem id="menu_aop_root"
+                name="Annual Planning"
+                parent="menu_corporate_planning_root"
+                sequence="6"
+                groups="group_planning_user" />
+
+        <menuitem id="menu_annual_plan" 
+                name="Summary of Annual Plan" 
+                parent="menu_aop_root"
+                action="action_annual_plan" 
+                sequence="4" />
+
+        <menuitem id="menu_aop_plans"
+                name="Operating Plans"
+                parent="menu_aop_root"
+                action="action_operating_plan"
+                sequence="2" />
+
+        <!-- 2. OKRs (New) -->
+        <menuitem id="menu_okr_monitor"
+                name="OKR Planning &amp; Tracking"
+                parent="menu_aop_root"
+                action="action_okr_performance"
+                sequence="1" />
+
+
+        <menuitem id="menu_budget_planning_root" name="Budget Planning"
+                parent="menu_aop_root" sequence="3" groups="group_planning_user"/>
+
+        <menuitem id="menu_budget_hr"
+                name="Human Resource Planning"
+                parent="menu_budget_planning_root"
+                action="action_budget_hr_planning"
+                sequence="1" />
+        <menuitem id="menu_budget_training"
+                name="Training Planning"
+                parent="menu_budget_planning_root"
+                action="action_budget_training_planning"
+                sequence="2" />
+        <menuitem id="menu_budget_project"
+                name="Project Planning"
+                parent="menu_budget_planning_root"
+                action="action_budget_project_planning"
+                sequence="3" />
+        <menuitem id="menu_budget_general"
+                name="Asset &amp; Other Budget Planning"
+                parent="menu_budget_planning_root"
+                action="action_budget_general_planning"
+                sequence="4" />
+        <menuitem id="menu_corporate_planning_config"
+                name="Configuration"
+                parent="menu_corporate_planning_root"
+                sequence="100" 
+                groups="group_planning_manager,group_planning_user"/>
+
+        <menuitem id="menu_config_budget_types"
+                name="General Budget Types"
+                parent="menu_corporate_planning_config"
+                action="action_budget_type_config"
+                sequence="1" />
+        <!-- <menuitem id="menu_config_bsc"
+                name="BSC Perspectives"
+                parent="menu_corporate_planning_config"
+                action="action_bsc_perspective"
+                sequence="2" /> -->
+        <menuitem id="menu_kpi_registry_monitor"
+                name="KPI Registry"
+                parent="menu_corporate_planning_config"
+                action="hr_kpi_appraisal.action_appraisal_kpi"
+                sequence="3" />
+        <menuitem id="menu_config_risk" 
+                name="Risk Categories" 
+                parent="menu_corporate_planning_config" 
+                action="action_risk_category" 
+                sequence="10"/>
+        <menuitem id="menu_config_strategy_type" 
+                name="Business Strategy Types" 
+                parent="menu_corporate_planning_config" 
+                action="action_strategy_type_config" 
+                sequence="11"/>
+
+        <menuitem id="menu_strategy_creation_root"
+                name="Strategy Creation"
+                parent="menu_corporate_planning_root"
+                sequence="5" 
+                groups="group_planning_strategist"/>
+
+        <menuitem id="menu_strategy_document"
+                name="Strategic Plans (5-Year)"
+                parent="menu_strategy_creation_root"
+                action="action_strategy_document"
+                sequence="0" />
+
+        <menuitem id="menu_strategy_analysis"
+                name="Strategic Analysis Logs"
+                parent="menu_strategy_creation_root"
+                action="action_strategy_analysis"
+                sequence="5" />
+
+        <!-- Risk management-->
+        <menuitem id="menu_risk_management_root" 
+                name="Risk Management" 
+                parent="menu_corporate_planning_root" 
+                sequence="45"
+                groups="group_planning_strategist,group_planning_user"/>
+
+        <menuitem id="menu_risk_register" 
+                name="Risk Register" 
+                parent="menu_risk_management_root" 
+                action="action_risk_register" 
+                sequence="1"/>
+
+        
+                <!-- <menuitem id="menu_config_bsc_weights"
+                        name="Department Weights"
+                        parent="menu_corporate_planning_config"
+                        action="action_bsc_dept_weight"
+                        sequence="6" /> -->
+
+
+        <menuitem id="menu_corporate_reporting_root"
+                name="Reporting &amp; Analysis"
+                parent="menu_corporate_planning_root"
+                sequence="50" 
+                groups="group_planning_user"/>
+
+        <menuitem id="budget_report"
+                name="Budget Report"
+                parent="menu_corporate_reporting_root"
+                action="account_budget.budget_report_action"
+                sequence="1" />
+
+        <!-- 3. KPI -->
+        <menuitem id="menu_reporting_kpi"
+                name="OKR &amp; KPI Analysis"
+                parent="menu_corporate_reporting_root"
+                action="action_bsc_performance_report"
+                sequence="3" />
+
+
+        <menuitem id="menu_kpi_root" name="KPIs" parent="menu_corporate_planning_root" sequence="30" />
+
+
+        
+    <!-- ==================================================== -->
+    <!-- MENUS execute tracking                                               -->
+    <!-- ==================================================== -->
+    
+        <menuitem id="menu_execution_tracking_root" 
+                name="Execution Tracking" 
+                parent="menu_corporate_planning_root" 
+                sequence="8"
+                groups="group_planning_user"/>
+
+        <menuitem id="menu_track_activity" 
+                name="Activity Actuals" 
+                parent="menu_execution_tracking_root" 
+                action="action_track_activity" 
+                sequence="1"/>
+
+        <menuitem id="menu_track_financial" 
+                name="Financial Actuals" 
+                parent="menu_execution_tracking_root" 
+                action="action_track_financial" 
+                sequence="2"/>
+
+        <menuitem id="menu_track_capex" 
+                name="Capex Actuals" 
+                parent="menu_execution_tracking_root" 
+                action="action_track_capex" 
+                sequence="3"/>
+
+        <!-- MENU for Plan vs Actual-->
+        <menuitem id="menu_reporting_variance" 
+                        name="Plan vs Actual" 
+                        parent="menu_corporate_reporting_root" 
+                        action="action_plan_vs_actual" 
+                        sequence="1"/>
+
+</odoo>

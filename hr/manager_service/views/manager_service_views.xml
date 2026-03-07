@@ -1,0 +1,105 @@
+<odoo>
+    <menuitem name="Employee Requests"
+        id="employee_requests_menu_probc"
+        sequence="8"
+        web_icon="manager_service,static/description/icon.png"
+        groups="manager_service.group_manager_service_user"
+    />
+
+    <record id="manager_job_requisition_action" model="ir.actions.act_window">
+        <field name="name">Job Requisition</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.job.requisition</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" eval="False" />
+        <field name="help" type="html">
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    There are no job requisitions yet.
+                </p>
+            </field>
+        </field>
+    </record>
+
+    <menuitem id="sub_menu_job_requisition_probc"
+        action="manager_job_requisition_action"
+        name="Job Requisitions"
+        sequence="12"
+        parent="employee_requests_menu_probc"
+        groups="manager_service.group_manager_service_user"
+    />
+
+
+    <record id="manager_store_request_action" model="ir.actions.act_window">
+        <field name="name">Equipment Request</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">store.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" eval="False" />
+        <field name="help" type="html">
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    You do not have any store request.
+                </p>
+            </field>
+        </field>
+    </record>
+
+    <menuitem id="sub_menu_self_service_store_request"
+        action="manager_store_request_action"
+        name="Equipment Requests"
+        sequence="10"
+        parent="employee_requests_menu_probc"
+        groups="manager_service.group_manager_service_user" />
+
+    <record id="manager_hr_leave_action" model="ir.actions.act_window">
+        <field name="name">Leave</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.leave</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" eval="False" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Leave Detail.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_manager_hr_leave"
+        name="Leave Requests"
+        action="manager_hr_leave_action"
+        sequence="3"
+        parent="employee_requests_menu_probc"
+        groups="manager_service.group_manager_service_user" />
+
+
+    <record id="manager_hr_kpi_appraisal_action" model="ir.actions.act_window">
+        <field name="name">KPIs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">appraisal.kpi</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" eval="False" />
+    </record>
+
+    <menuitem id="menu_manager_hr_kpi_appraisal"
+        name="KPI"
+        action="manager_hr_kpi_appraisal_action"
+        sequence="15"
+        parent="employee_requests_menu_probc"
+    /> 
+
+    <record id="manager_payment_request_action" model="ir.actions.act_window">
+        <field name="name">Payment Requests</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.expense.sheet</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" eval="False" />
+    </record>
+
+    <menuitem id="menu_manager_payment_request"
+        name="Payment Requests"
+        action="manager_payment_request_action"
+        sequence="15"
+        parent="employee_requests_menu_probc"
+    /> 
+</odoo>

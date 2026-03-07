@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom view for new evaluations (with widget) - only used when creating from Evaluate button -->
+    <record id="hr_evaluation_direct_form_view" model="ir.ui.view">
+        <field name="name">hr.performance.evaluation.direct.form</field>
+        <field name="model">hr.performance.evaluation</field>
+        <field name="arch" type="xml">
+            <form string="Employee Evaluation">
+                <sheet class="evaluation-full-width-sheet">
+                    <field name="employee_id" invisible="1"/>
+                    <field name="config_id" invisible="1"/>
+                    <field name="evaluator_id" invisible="1"/>
+                    <field name="evaluator_category" invisible="1"/>
+                    <field name="evaluation_date" invisible="1"/>
+                    <field name="note" invisible="1"/>
+                    <field name="line_ids" invisible="1"/>
+                    <field name="question_data" widget="evaluation_wizard" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
+

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_loan_form_inherit_custom" model="ir.ui.view">
+        <field name="name">hr.loan.form.inherit.custom</field>
+        <field name="model">hr.loan</field>
+        <field name="inherit_id" ref="ent_ohrms_loan.hr_loan_view_form"/>
+        <field name="arch" type="xml">
+
+            <!--
+                THE DEFINITIVE FIX:
+                Replace the entire original group with our new, perfectly aligned structure.
+                This avoids all alignment issues and complex xpaths.
+            -->
+            <xpath expr="//group[field[@name='loan_amount']]" position="replace">
+                <group>
+                    <group>
+                        <field name="employee_id" readonly="state == 'approve'"/>
+                        <field name="is_employee_manager" invisible="1"/>
+                        <field name="is_special_loan" groups="hr.group_hr_manager"/>
+                        <field name="manager_loan_type"
+                               invisible="not is_employee_manager or is_special_loan"
+                               required="is_employee_manager and not is_special_loan and state != 'draft'"
+                               readonly="state == 'approve'"/>
+                        <field name="department_id"/>
+                        <field name="job_position_id"/>
+                        <field name="company_id"/>
+                        <field name="pay_in_cash"/>
+                    </group>
+                    <group>
+                        <field name="date"/>
+                        <field name="loan_amount" readonly="state == 'approve'"/>
+                        <field name="adjust_installment_amount"/>
+                        <field name="installment" readonly="adjust_installment_amount or state == 'approve'"/>
+                        <field name="installment_amount" readonly="not adjust_installment_amount"/>
+                        <field name="payment_date" readonly="state == 'approve'"/>
+                        <field name="has_grace_period"/>
+                        <field name="grace_period_start_date"
+                               invisible="not has_grace_period"
+                               required="has_grace_period"/>
+                        <field name="grace_period_end_date"
+                               invisible="not has_grace_period"
+                               required="has_grace_period"/>
+                        <field name="company_id"
+                               options="{'no_create': True}"
+                               readonly="state != 'draft'"
+                               groups="base.group_multi_company"/>
+                        <field name="currency_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                    </group>
+                </group>
+            </xpath>
+            
+            <!-- This part remains the same, it is correct -->
+            <xpath expr="//field[@name='loan_line_ids']//field[@name='paid']" position="attributes">
+                <attribute name="column_invisible">False</attribute>
+                <attribute name="readonly">0</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='loan_line_ids']/list/field[@name='paid']" position="after">
+                <field name="paid_to_date_amount" sum="Total Paid"/>
+            </xpath>
+
+        </field>
+    </record>
+    <record id="hr_loan_view_tree_inherit" model="ir.ui.view">
+        <field name="name">hr.loan.view.tree.inherit</field>
+        <field name="model">hr.loan</field>
+        <field name="inherit_id" ref="ent_ohrms_loan.hr_loan_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="sequence_no"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Search view with default filter for not fully paid loans -->
+    <record id="custom_loan_management_hr_loan_search_inherit" model="ir.ui.view">
+        <field name="name">hr.loan.view.search.inherit</field>
+        <field name="model">hr.loan</field>
+        <field name="inherit_id" ref="ent_ohrms_loan.hr_loan_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='status']" position="after">
+                <filter string="Not Fully Paid" name="not_fully_paid" domain="[('balance_amount', '>', 0)]"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Modify action to use default filter in context -->
+    <record id="ent_ohrms_loan.hr_loan_action" model="ir.actions.act_window">
+        <field name="context">{'search_default_myrequest': 1, 'search_default_not_fully_paid': 1}</field>
+    </record>
+</odoo>

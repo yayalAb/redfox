@@ -1,0 +1,145 @@
+<odoo>
+     <record id="hr_payslip_view_hr_payslip_filter_inherit" model="ir.ui.view">
+        <field name="name">hr.payslip.bank.statement.button</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_filter" />
+        <field name="arch" type="xml">
+            
+             <xpath expr="//field[@name='employee_id']" position="before">
+                <field name="employee_search_key" />
+                <field name="employee_id_no" />
+            </xpath>
+
+             <xpath expr="//filter[@name='group_by_job_id']" position="before">
+                <filter string="Cost Center" name="group_by_core_department_id" context="{'group_by':'core_department_id'}"/>
+                <filter string="Branch" name="group_by_branch" context="{'group_by':'branch_id'}"/>
+            </xpath>
+            
+            </field>
+            </record>
+     <!-- <record id="view_department_form_inherit" model="ir.ui.view">
+        <field name="name">hhr.department</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form" />
+        <field name="arch" type="xml">
+             <xpath expr="//field[@name='parent_id']" position="after">
+                 <field name="cost_center" />
+                </xpath>
+            </field>
+            </record> -->
+
+    <record id="hr_payslip_bank_statement_button" model="ir.ui.view">
+        <field name="name">hr.payslip.bank.statement.button</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(hr_payroll_bank_statement.action_open_bank_statement_wizard)d"
+                    type="action" string="bank letter"
+                    class="btn-primary"
+                    groups="hr_payroll.group_hr_payroll_manager"
+                    />
+            </xpath>
+            <xpath expr="//field[@name='number']" position="before">
+                <field name="sequence_no" string="S.No." optional="hide" />
+                </xpath>
+            <xpath expr="//field[@name='number']" position="attributes">
+                <attribute name="optional">hide</attribute> 
+            </xpath>
+            <xpath expr="//field[@name='payslip_run_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='basic_wage']" position="attributes">
+                <attribute name="string">Basic Salary</attribute>
+                <attribute name="sum">Total</attribute>
+            </xpath>
+            <xpath expr="//field[@name='gross_wage']" position="attributes">
+                <attribute name="string">Gross Earning</attribute>
+                <attribute name="sum">Total</attribute>
+            </xpath>
+
+             <xpath expr="//field[@name='net_wage']" position="attributes">
+                <attribute name="string">Net Pay</attribute>
+                <attribute name="sum">Total</attribute>
+            </xpath>
+            <xpath expr="//field[@name='employee_id']" position="after">
+                 <field name="employee_id_no" optional="hide" />
+                 <field name="branch_name" optional="hide" />
+                 <field name="employee_bank_id" optional="hide" />
+                 <field name="hr_contract_start" optional="hide"/>
+                <field name="hr_contract_end" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='basic_wage']" position="after">
+                     <field name="professional_allowance" optional="hide"  sum="Total" />
+                    <field name="position_allowance" optional="hide"  sum="Total" />
+                    <field name="house_rent_allowance" string="Housing Allowance" optional="hide"  sum="Total" />
+                    <field name="transport_home_allowance" string="Taxable Transport Allowance" optional="hide"  sum="Total" />
+                    <field name="none_taxiable_transport_allowance" string="Non Taxable Transport Allowance"  optional="hide"  sum="Total" />
+                    <field name="dearness_allowance" optional="hide"  sum="Total" invisible="1" />
+                    <field name="travel_allowance" optional="hide"  sum="Total" invisible="1" />
+                    <field name="medical_allowance" optional="hide"  sum="Total" invisible="1" />
+                    
+                     <field name="transport_work_allowance" optional="hide"  sum="Total" />
+                    <field name="fuel_allowance" optional="hide"  sum="Total" />
+                    <field name="other_allowance" optional="hide"  sum="Total" />
+                    <field name="total_none_taxiable" string="Total Nontaxable Allowance" optional="hide"  sum="Total" />
+                    <field name="over_time" string="OT" optional="hide"  sum="Total" />
+                     <field name="cash_indemnity_reward" optional="hide"  sum="Total" />
+                     <field name="cash_indemnity_allowance" optional="hide"  sum="Total" />
+                     <field name="cash_indemnity_deduction" optional="hide"  sum="Total" />
+                     
+                </xpath>
+             <xpath expr="//field[@name='gross_wage']" position="after">
+                     <field name="taxable_salary" string="Total Taxable Earning" optional="hide"  sum="Total" />
+                     <field name="income_tax" optional="show"  sum="Total" /> 
+                     <field name="pension" string="Pension Contribution 7%" optional="show"  sum="Total" />
+                    <field name="pension_company" string="Pension Contribution 11%" optional="hide"  sum="Total" />
+                    <field name="calculate_active_rate" invisible="1" optional="hide"  sum="Total" />
+                    <field name="reimbursement" optional="hide"  sum="Total" invisible="1" />
+                    <field name="attachment_salary" optional="hide"  sum="Total" />
+                    <field name="assignment_salary" optional="hide"  sum="Total" />
+                    <field name="child_support" optional="hide"  sum="Total" invisible="1" />
+                    <field name="agreed_deduction" string="Saving Deduction" optional="hide"  sum="Total" />
+                    <field name="loan" string="Company Loan Repayment" optional="hide"  sum="Total" />
+                    <field name="lunch" string="Cafteria Deduction" optional="hide"  sum="Total" />
+                    <field name="other_deduction"  optional="hide"  sum="Total" />
+                    <field name="social_commite" optional="hide"  sum="Total" />
+                    <field name="deduction" optional="hide" sum="Total"/>  
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="hr_payslip_search_view_add_bank_filter" model="ir.ui.view">
+        <field name="name">hr.payslip.search.filter.by.bank</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_filter" />
+        <field name="arch" type="xml">
+           
+            <xpath expr="//search" position="inside">
+                <separator />
+                <field name="employee_bank_id" />
+                <filter name="group_by_bank" string="Bank" domain="[]"
+                    context="{'group_by': 'employee_bank_id'}" />
+            </xpath>
+        </field>
+    </record>
+
+
+        <record id="hr_payslip_form_view_" model="ir.ui.view">
+        <field name="name">hr.payslip.form</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form" />
+        <field name="arch" type="xml">
+             <xpath expr="//field[@name='contract_id']" position="after">
+                <field name="old_contract_id" invisible="not old_contract_id"/>
+                <field name="old_active_rate" invisible="not old_active_rate"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

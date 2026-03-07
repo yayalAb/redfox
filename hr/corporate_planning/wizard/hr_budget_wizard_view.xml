@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_budget_wizard_form" model="ir.ui.view">
+        <field name="name">hr.budget.wizard.form</field>
+        <field name="model">corporate.budget.hr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add Employees">
+                <group>
+                    <field name="department_id" invisible="1"/>
+                    <field name="increment_percentage"/>
+                </group>
+                <group>
+                    <field name="employee_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_add_employees" string="Add &amp; Calculate" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

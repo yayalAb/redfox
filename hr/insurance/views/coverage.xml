@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+        <record id="employee_insurance_coverage_type_action" model="ir.actions.act_window">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="res_model">employee.insurance.coverage</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="context" eval="{'search_default_my_courses': 1}"/>
+        <!-- <field name="domain">[('company_id', '=', allowed_company_ids[0])]</field> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new type of insurance coverage
+            </p>
+        </field>
+    </record>
+
+
+    <record id="employee_insurance_coverage_type_view_form" model="ir.ui.view">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="model">employee.insurance.coverage</field>
+        <field name="arch" type="xml">
+            <form string="Employee Insurance Coverage">
+              <header>
+                    <button name="renew_insurance_action" type="object" string="Renew" class="oe_highlight" />
+                    <button name="copy_insurance_employee_action" type="object" string="Copy Insurance"
+                            groups="insurance_saria.insurance_group_copy"
+                            class="oe_highlight" />
+                     <field name="status" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div name="button_box" position="inside">
+                     <button name="renew_insurance_list_action" type="object" string="Renewal History" class="oe_stat_button">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <!-- Replace 'related_count' with the field holding the count of related records -->
+                            <field name="renewal_count"/>
+                        </span>
+                        <span class="o_stat_text">Renewal History</span>
+                    </div>
+                    </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                             <field name="employee_id" />
+                            <field name="category_id" />
+                            <field name="provider_id" />
+                            <field name="total_annual_premium" />
+                        </group>
+                        <group>
+                            <field name="from_date" />
+                            <field name="date_to" />
+
+                        </group>
+
+
+                    </group>
+
+                    <notebook>
+                        <page name="claim" string="Coverages">
+                           <field name="insurance_coverage_ids">
+                                      <list editable="bottom">
+                                        <field name="coverage_type" />
+                                          <field name="value" />
+                                     </list>
+                                 </field>
+                        </page>
+                    </notebook>
+
+                    <group>
+                        <field name="total_claim"/>
+                    </group>
+                </sheet>
+                <chatter/>
+
+            </form>
+        </field>
+    </record>
+    <record id="employee_insurance_coverage_type_view_tree" model="ir.ui.view">
+        <field name="name">Employee Insurance Coverage</field>
+        <field name="model">employee.insurance.coverage</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="category_id"/>
+                <field name="provider_id"/>
+                <field name="from_date"/>
+                <field name="date_to"/>
+
+
+            </list>
+        </field>
+    </record>
+<record id="insurance_coverage_search_view" model="ir.ui.view">
+        <field name="name">Search</field>
+        <field name="model">employee.insurance.coverage</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter name="Active" string="Active" domain="[('status','=','active')]"/>
+                <filter name="Inactive" string="Inactive" domain="[('status','=','inactive')]"/>
+                <filter name="Expired" string="Expired" domain="[('status','=','expired')]"/>
+                <filter name="Renewed" string="This month Renewed"
+                        domain="[('last_renewed_date','>',(context_today()+ datetime.timedelta(-30)).strftime('%Y-%m-%d'))]"/>
+            </search>
+        </field>
+    </record>
+
+          <menuitem
+            id="menu_employee_insurances_main"
+            name="Insurances"/>
+           <menuitem
+            id="employee_insurances_menu"
+            name="Employee Insurance"
+            sequence="1"
+            parent="menu_employee_insurances_main" />
+
+             <menuitem
+            id="menu_employee_insurances_coverage"
+            name="Insurance Coverage"
+            sequence="1"
+            parent="employee_insurances_menu"
+            action="employee_insurance_coverage_type_action"/>
+
+</odoo>

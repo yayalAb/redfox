@@ -1,0 +1,88 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_annual_plan_user,Annual Plan User Access,model_corporate_planning_annual_plan,base.group_user,1,1,1,1
+access_risk_mitigation_user,Risk Mitigation User Access,model_corporate_planning_risk_mitigation,base.group_user,1,1,1,1
+access_performance_measure_user,Performance Measure User Access,model_corporate_planning_performance_measure,base.group_user,1,1,1,1
+access_budget_hr_plan,Budget HR Plan Access,model_corporate_planning_budget_hr,base.group_user,1,1,1,1
+access_budget_hr_line,Budget HR Line Access,model_corporate_planning_budget_hr_line,base.group_user,1,1,1,1
+access_budget_training,Budget Training Access,model_corporate_planning_budget_training,base.group_user,1,1,1,1
+access_budget_training_line,Budget Training Line Access,model_corporate_planning_budget_training_line,base.group_user,1,1,1,1
+access_budget_manpower_line,Budget Manpower Line Access,model_corporate_planning_budget_manpower_line,base.group_user,1,1,1,1
+access_budget_project,Budget Project Access,model_corporate_planning_budget_project,base.group_user,1,1,1,1
+access_budget_project_line,Budget Project Line Access,model_corporate_planning_budget_project_line,base.group_user,1,1,1,1
+access_budget_general,Budget General Access,model_corporate_planning_budget_general,base.group_user,1,1,1,1
+access_budget_general_line,Budget General Line Access,model_corporate_planning_budget_general_line,base.group_user,1,1,1,1
+access_budget_type,Budget Type Config Access,model_corporate_planning_budget_type,base.group_user,1,1,1,1
+
+access_strategy_analysis,Strategy Analysis Access,model_corporate_strategy_analysis,base.group_user,1,1,1,1
+access_strategy_pestel,Strategy PESTEL Access,model_corporate_strategy_pestel,base.group_user,1,1,1,1
+access_strategy_stakeholder,Strategy Stakeholder Access,model_corporate_strategy_stakeholder,base.group_user,1,1,1,1
+access_strategy_benchmark,Strategy Benchmark Access,model_corporate_strategy_benchmark,base.group_user,1,1,1,1
+access_strategy_market,Strategy Market Access,model_corporate_strategy_market,base.group_user,1,1,1,1
+access_strategy_porter,Strategy Porter Access,model_corporate_strategy_porter,base.group_user,1,1,1,1
+access_strategy_swot,Strategy SWOT Access,model_corporate_strategy_swot,base.group_user,1,1,1,1
+
+
+access_strategy_doc,Strategy Doc Access,model_corporate_strategy_document,base.group_user,1,1,1,1
+access_strategy_core_value,Core Value Access,model_corporate_strategy_core_value,base.group_user,1,1,1,1
+access_strategy_core_pillar,Core Pillar Access,model_corporate_strategy_core_pillar,base.group_user,1,1,1,1
+access_strategy_goal,Strategy Goal Access,model_corporate_strategy_goal,base.group_user,1,1,1,1
+access_strategy_objective,Strategy Obj Access,model_corporate_strategy_objective,base.group_user,1,1,1,1
+access_strategy_key_result,Strategy Key Result Access,model_corporate_strategy_key_result,base.group_user,1,1,1,1
+access_strategy_bsc_impl,BSC Impl Access,model_corporate_strategy_bsc_impl,base.group_user,1,1,1,1
+access_strategy_fin_forecast,Fin Forecast Access,model_corporate_strategy_finance_forecast,base.group_user,1,1,1,1
+
+
+access_perf_review,Performance Review Access,model_corporate_performance_review,base.group_user,1,1,1,1
+access_perf_kpi,Performance KPI Line Access,model_corporate_performance_kpi_line,base.group_user,1,1,1,1
+access_perf_budget,Performance Budget Line Access,model_corporate_performance_budget_line,base.group_user,1,1,1,1
+access_perf_project,Performance Project Line Access,model_corporate_performance_project_line,base.group_user,1,1,1,1
+
+
+access_operational_plan,Operational Plan Access,model_corporate_planning_operational_plan,base.group_user,1,1,1,1
+access_operational_plan_line,Operational Plan Line Access,model_corporate_planning_operational_plan_line,base.group_user,1,1,1,1
+
+
+access_operating_plan,AOP Access,model_corporate_operating_plan,base.group_user,1,1,1,1
+access_operating_activity,AOP Activity Access,model_corporate_operating_activity,base.group_user,1,1,1,1
+access_operating_financial,AOP Financial Access,model_corporate_operating_financial,base.group_user,1,1,1,1
+access_operating_kpi_line,AOP KPI Line Access,model_corporate_operating_kpi_line,base.group_user,1,1,1,1
+access_operating_capex,AOP Capex Access,model_corporate_operating_capex,base.group_user,1,1,1,1
+
+
+access_performance_report,Perf Report Access,model_corporate_performance_report,base.group_user,1,1,1,1
+access_performance_activity,Perf Activity Access,model_corporate_performance_activity,base.group_user,1,1,1,1
+access_performance_financial,Perf Financial Access,model_corporate_performance_financial,base.group_user,1,1,1,1
+access_performance_kpi,Perf KPI Access,model_corporate_performance_kpi,base.group_user,1,1,1,1
+access_performance_capex,Perf Capex Access,model_corporate_performance_capex,base.group_user,1,1,1,1
+
+access_corporate_quarter,Corporate Quarter Access,model_corporate_quarter,base.group_user,1,1,1,1
+
+access_corporate_activity_master,Activity Master Access,model_corporate_activity_master,base.group_user,1,1,1,1
+access_corporate_financial_item,Financial Item Access,model_corporate_financial_item,base.group_user,1,1,1,1
+access_corporate_capex_item,Capex Item Access,model_corporate_capex_item,base.group_user,1,1,1,1
+
+
+access_bsc_perspective,BSC Config Access,model_corporate_bsc_perspective,base.group_user,1,1,1,1
+access_corporate_okr,OKR Access,model_corporate_performance_okr,base.group_user,1,1,1,1
+access_corporate_okr_line,OKR Line Access,model_corporate_performance_okr_line,base.group_user,1,1,1,1
+access_bsc_dept_weight,BSC Dept Weight Access,model_corporate_bsc_department_weight,base.group_user,1,1,1,1
+
+access_risk_category,Risk Category Access,model_corporate_risk_category,base.group_user,1,1,1,1
+access_risk_register,Risk Register Access,model_corporate_risk_register,base.group_user,1,1,1,1
+
+access_execution_actual_activity,Execution Activity Access,model_corporate_execution_activity,base.group_user,1,1,1,1
+access_execution_actual_financial,Execution Financial Access,model_corporate_execution_financial,base.group_user,1,1,1,1
+access_execution_actual_capex,Execution Capex Access,model_corporate_execution_capex,base.group_user,1,1,1,1
+
+project.task.log.activity,Project Task Log Activity Access,model_project_task_log_activity,base.group_user,1,1,1,1
+project.task.log.capex,Project Task Log Capex Access,model_project_task_log_capex,base.group_user,1,1,1,1
+project.task.log.financial,Project Task Log Financial Access,model_project_task_log_financial,base.group_user,1,1,1,1
+
+access_execution_actual_okr,Execution OKR Access,model_corporate_execution_okr,base.group_user,1,1,1,1
+
+access_plan_vs_actual,Plan vs Actual Access,model_corporate_plan_actual_analysis,base.group_user,1,0,0,0
+
+access_corporate_strategy_type_mgr,Strategy Type Manager,model_corporate_strategy_type,group_planning_manager,1,1,1,1
+access_corporate_strategy_type_user,Strategy Type User,model_corporate_strategy_type,group_planning_user,1,0,0,0
+
+access_hr_budget_wizard,HR Wizard Access,model_corporate_budget_hr_wizard,base.group_user,1,1,1,1

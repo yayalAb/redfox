@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_payroll_difference_table" model="ir.actions.client">
+        <field name="name">Payroll Salary Difference</field>
+        <field name="tag">payroll_salary_difference.payroll_difference_table_action</field>
+    </record>
+
+
+    <record id="hr_salary_rule_inherited" model="ir.ui.view">
+            <field name="name">hr.salary.rule.button</field>
+            <field name="model">hr.salary.rule</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='appears_on_payroll_report']" position="after">
+                    <field name="is_basic"/>
+                    </xpath>
+            </field>
+        </record>
+
+    <menuitem id="menu_payroll_difference_report"
+              name="Salary Difference"
+              parent="hr_payroll.menu_hr_payroll_payslips"
+              action="action_payroll_difference_table"
+              sequence="90"/>
+</odoo>

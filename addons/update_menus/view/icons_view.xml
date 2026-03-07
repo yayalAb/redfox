@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="main_hr_menu_id"
+            name="Human Resource"
+            sequence="-1"
+            web_icon="update_menus,static/src/description/employee.png"/>
+
+        <menuitem id="hr_dashboard.main_dashboard_menu"
+               name="Dashboard"
+               sequence="1"
+               action="hr_dashboard.action_main_dashboard"
+               parent="main_hr_menu_id"/>
+        
+        <menuitem id="hr.menu_hr_employee_user"
+                    name="Employee"
+                    sequence="2"
+                    parent="main_hr_menu_id"/>
+         <menuitem id="hr_org_chart.menu_hr_employee_org_chart"
+                    name="Org Structure"
+                    sequence="3"
+                    parent="main_hr_menu_id"/>
+        
+        <menuitem id="hr_contract.hr_menu_contract"
+                    name="Contract"
+                    sequence="4"
+                    parent="main_hr_menu_id"/>
+        <menuitem id="hr_payroll_account.menu_hr_employee_bank_account"
+                    name="Bank Accounts"
+                    sequence="4"
+                    parent="hr.menu_hr_root"/>
+        
+       
+        
+        
+        <menuitem id="hr_recruitment.menu_hr_recruitment_root"
+                    name="Recruitment"
+                    sequence="5"
+                    parent="main_hr_menu_id"/>
+        <menuitem id="hr_holidays.menu_hr_holidays_root"
+                    name="Leave"
+                    sequence="6"
+                    parent="main_hr_menu_id"/>
+
+        <menuitem id="hr_appraisal.menu_hr_appraisal_root"
+                    name="Appraisal"
+                    sequence="7"
+                    parent="main_hr_menu_id"/>
+
+        <menuitem id="hr_expense.menu_hr_expense_root"
+                    name="Expenses"
+                    sequence="9"
+                    parent="main_hr_menu_id"/>
+
+        <menuitem id="hr_resignation.hr_resignation_menu_root"
+                    name="Resignation"
+                    sequence="10"
+                    parent="main_hr_menu_id"/>
+        <menuitem id="lunch_management.menu_lunch_log_action"
+                name="Lunch"
+                sequence="11"
+                parent="main_hr_menu_id"/>
+
+        <menuitem id="hr_attendance.menu_hr_attendance_root"
+                    name="Attendance"
+                    sequence="21"
+                    parent="main_hr_menu_id"/>
+
+        <menuitem id="planning.planning_menu_root"
+                    name="Planning"
+                    sequence="32"
+                    parent="main_hr_menu_id"/>
+
+        
+        <menuitem id="hr.menu_hr_root"
+                    name="Employee Settings"
+                    sequence="30"
+                    parent="main_hr_menu_id"/>
+        <menuitem id="hr_work_entry_contract_enterprise.menu_hr_payroll_root"
+            name="Payroll"
+            sequence="4"
+            web_icon="update_menus,static/src/description/payroll.png"/>
+
+        <menuitem id="fleet.menu_root"
+            name="Fleet"
+            sequence="7"
+            web_icon="update_menus,static/src/description/car.png"/>
+        
+        <menuitem id="website_slides.website_slides_menu_root"
+            name="Training"
+            sequence="8"
+            web_icon="update_menus,static/src/description/learn.png"/>
+        
+                 
+        <menuitem id="hr_employee_self_service.main_menu_self_service_probc"
+                    name="Self Service"
+                    sequence="9"
+                     web_icon="update_menus,static/src/description/self_service.png"/>
+        <menuitem id="accountant.menu_accounting"
+                name="Accounting"
+                sequence="14"
+                web_icon="update_menus,static/src/description/accountant.png"/>
+
+        <menuitem
+            id="main_supply_chain_menu_id"
+            name="Supply Chain"
+            sequence="15"
+            web_icon="update_menus,static/src/description/supply-chain.png"/>
+
+        <menuitem id="stock.menu_stock_root"
+                    name="Inventory"
+                    sequence="1"
+                    parent="main_supply_chain_menu_id"/>
+        <menuitem id="purchase.menu_purchase_root"
+                    name="Purchase"
+                    sequence="2"
+                    parent="main_supply_chain_menu_id"/>
+        <menuitem id="sale.sale_menu_root"
+                    name="Sales"
+                    sequence="3"
+                    parent="main_supply_chain_menu_id"/>
+        <menuitem id="project.menu_main_pm"
+                    name="Project"
+                    sequence="5"
+                    web_icon="update_menus,static/src/description/project.png"/>
+
+
+    </data>
+</odoo>

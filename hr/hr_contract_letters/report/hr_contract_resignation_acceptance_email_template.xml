@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Acceptance of Resignation Letter Email Body Template -->
+    <template id="email_template_resignation_acceptance_body" name="Acceptance of Resignation Letter Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref No :- <t t-esc="get_ref_no(contract) if get_ref_no else (ref_no if ref_no else ('WG/' + str(contract.id).zfill(4) + '/2025' if contract.id else 'WG/0000/2025'))"/></strong></p>
+                    <p><strong><t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- To Section -->
+                <div style="margin-bottom: 15px;">
+                    <p><strong>To: <span t-field="contract.employee_id.name"/><t t-if="contract.employee_id.identification_id">/<span t-field="contract.employee_id.identification_id"/></t>/</strong></p>
+                    <p t-if="contract.employee_id and contract.employee_id.private_city">
+                        <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                    </p>
+                    <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                        <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                    </p>
+                    <p t-else=""><u><b>Addis Ababa</b></u></p>
+                </div>
+                
+                <!-- Salutation -->
+                <div style="margin-bottom: 10px;">
+                    <p>Dear <span t-esc="contract.employee_id.name.split()[0] if contract.employee_id and contract.employee_id.name else 'Employee'"/>,</p>
+                </div>
+                
+                <!-- Subject -->
+                <div style="margin-bottom: 20px;">
+                    <p><strong>Subject: <u>Acceptance of your Resignation Letter</u></strong></p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>We acknowledge receipt of your resignation letter written dated on <strong>
+                        <t t-if="resignation_date">
+                            <span t-esc="resignation_date.strftime('%B %d, %Y') if hasattr(resignation_date, 'strftime') else (str(resignation_date) if resignation_date else '')"/>
+                        </t>
+                        <t t-else="">
+                            <span t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/>
+                        </t>
+                    </strong>, in which you expressed your intention to resign from your position as <strong>
+                        <span t-if="contract.employee_id and contract.employee_id.job_id" t-field="contract.employee_id.job_id.name"/>
+                        <t t-else="">
+                            <span t-if="contract.job_id" t-field="contract.job_id.name"/>
+                            <t t-else="">Junior Customs and Transit Officer</t>
+                        </t>
+                    </strong>. Your resignation has been accepted, and your last working day will be on <strong>
+                        <t t-if="last_working_date">
+                            <span t-esc="last_working_date.strftime('%B %d, %Y') if hasattr(last_working_date, 'strftime') else (str(last_working_date) if last_working_date else '')"/>
+                        </t>
+                        <t t-else="">
+                            <span t-if="contract.date_end" t-field="contract.date_end" t-options='{"widget": "date"}'/>
+                            <t t-else="">October 31, 2025</t>
+                        </t>
+                    </strong>.</p>
+                    
+                    <p>We appreciate the contributions you have made during your tenure with us. By copy of this letter the corporate finance department is advised to terminate and finalize the payment effective <strong>
+                        <t t-if="payment_effective_date">
+                            <span t-esc="payment_effective_date.strftime('%B %d, %Y') if hasattr(payment_effective_date, 'strftime') else (str(payment_effective_date) if payment_effective_date else '')"/>
+                        </t>
+                        <t t-else="">
+                            <span t-if="contract.date_end" t-field="contract.date_end" t-options='{"widget": "date"}'/>
+                            <t t-else="">November 01, 2025</t>
+                        </t>
+                    </strong>; Upon successful completion and submission of your clearance form.</p>
+                    
+                    <p>Please ensure that all company property is returned and that any outstanding tasks are handed over appropriately. If you require any assistance during your transition, do not hesitate to reach out.</p>
+                    
+                    <p>We wish you the best in your future endeavors.</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <p>Sincerely,</p>
+                    </div>
+                </div>
+                  <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC:</strong></p>
+                    <ul class="gap-1">
+                        <li>Corporate Logistics Department</li>
+                        <li>Corporate Finance Office</li>
+                        <li>Personnel File</li>
+                    </ul>
+                    
+                    <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+    </template>
+</odoo>
+

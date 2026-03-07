@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Salary Increment Email Body Template -->
+    <template id="email_template_salary_increment_body" name="Salary Increment Email Body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 20px;">
+                <!-- Reference Number and Date -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <p><strong>Ref no: <t t-esc="get_ref_no(contract) if get_ref_no else (ref_no if ref_no else ('WE/OT/' + str(contract.id).zfill(4) + '/2025' if contract.id else 'WE/OT/0000/2025'))"/></strong></p>
+                    <p><strong>Date: <t t-esc="current_date_formatted or (current_date.strftime('%B %d, %Y') if current_date and hasattr(current_date, 'strftime') else '')"/></strong></p>
+                </div>
+                
+                <!-- To Section -->
+                <div style="margin-bottom: 15px;">
+                    <p><strong>To: <t t-if="contract.employee_id.gender == 'male'">Mr. </t><t t-if="contract.employee_id.gender == 'female'">Mrs. </t><span t-field="contract.employee_id.name"/></strong></p>
+                    <p t-if="contract.employee_id and contract.employee_id.private_city">
+                        <u><b><span t-field="contract.employee_id.private_city"/></b></u>
+                    </p>
+                    <p t-elif="contract.employee_id and contract.employee_id.address_id and contract.employee_id.address_id.city">
+                        <u><b><span t-field="contract.employee_id.address_id.city"/></b></u>
+                    </p>
+                    <p t-else=""><u><b>Addis Ababa</b></u></p>
+                </div>
+                
+                <!-- Subject -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <p><strong>Subject: <u>Salary Increment</u></strong></p>
+                </div>
+                
+                <!-- Salutation -->
+                <div style="margin-bottom: 10px;">
+                    <p>Dear <span t-esc="contract.employee_id.name.split()[0] if contract.employee_id and contract.employee_id.name else 'Employee'"/>,</p>
+                </div>
+                
+                <!-- Letter Body -->
+                <div style="text-align: justify;">
+                    <p>Wagwago is going from strength to strength, and while the enabling context contributes to our progress, it is also the sheer dedication and commitment of our dear employees, such as yourself, that have brought us where we are.</p>
+                    
+                    <p>Despite the current economic challenges, we remain committed to our employees' well-being and professional development. We recognize and value the hard work, dedication, and resilience you have demonstrated during this time.</p>
+                    
+                    <p>Therefore, your basic salary is adjusted to Birr <strong>
+                        <t t-esc="'{:,.2f}'.format(contract.wage or 0)"/>
+                    </strong>.00 (<strong>
+                        <t t-if="contract.currency_id and contract.currency_id.amount_to_text">
+                            <span t-esc="contract.currency_id.amount_to_text(contract.wage or 0)"/>
+                        </t>
+                        <t t-else="">
+                            <span t-esc="number_to_words(int(contract.wage or 0)) if number_to_words else ''"/>
+                        </t>
+                    </strong>) effective from <strong>
+                        <t t-if="effective_date">
+                            <span t-esc="effective_date.strftime('%B %d, %Y') if hasattr(effective_date, 'strftime') else (str(effective_date) if effective_date else '')"/>
+                        </t>
+                        <t t-else="">
+                            <span t-if="contract.date_start" t-field="contract.date_start" t-options='{"widget": "date"}'/>
+                            <t t-else="">____ 01, 2024</t>
+                        </t>
+                    </strong>.</p>
+                    
+                    <t t-set="has_allowances" t-value="contract.house_rent_allowance or contract.dearness_allowance or contract.travel_allowance or contract.meal_allowance or contract.medical_allowance or contract.position_allowance or contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance"/>
+                    <t t-if="has_allowances">
+                        <p>Additionally, you are entitled to 
+                            <t t-if="contract.house_rent_allowance">
+                                <strong>House Rent Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.house_rent_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.house_rent_allowance)"/> Birr)<t t-if="contract.dearness_allowance or contract.travel_allowance or contract.meal_allowance or contract.medical_allowance or contract.position_allowance or contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.dearness_allowance">
+                                <strong>Dearness Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.dearness_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.dearness_allowance)"/> Birr)<t t-if="contract.travel_allowance or contract.meal_allowance or contract.medical_allowance or contract.position_allowance or contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.travel_allowance">
+                                <strong>Travel Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.travel_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.travel_allowance)"/> Birr)<t t-if="contract.meal_allowance or contract.medical_allowance or contract.position_allowance or contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.meal_allowance">
+                                <strong>Meal Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.meal_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.meal_allowance)"/> Birr)<t t-if="contract.medical_allowance or contract.position_allowance or contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.medical_allowance">
+                                <strong>Medical Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.medical_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.medical_allowance)"/> Birr)<t t-if="contract.position_allowance or contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.position_allowance">
+                                <strong>Position Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.position_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.position_allowance)"/> Birr)<t t-if="contract.transport_home_allowance or contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.transport_home_allowance">
+                                <strong>Transport (Home) Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.transport_home_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.transport_home_allowance)"/> Birr)<t t-if="contract.transport_work_allowance or contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.transport_work_allowance">
+                                <strong>Transport (Work) Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.transport_work_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.transport_work_allowance)"/> Birr)<t t-if="contract.fuel_allowance or contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.fuel_allowance">
+                                <strong>Fuel Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.fuel_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.fuel_allowance)"/> Birr)<t t-if="contract.cash_indemnity_allowance or contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.cash_indemnity_allowance">
+                                <strong>Cash Indemnity Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.cash_indemnity_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.cash_indemnity_allowance)"/> Birr)<t t-if="contract.professional_allowance or contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.professional_allowance">
+                                <strong>Professional Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.professional_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.professional_allowance)"/> Birr)<t t-if="contract.other_allowance">, </t>
+                            </t>
+                            <t t-if="contract.other_allowance">
+                                <strong>Other Allowance: birr <span t-esc="'{0:,.2f}'.format(contract.other_allowance)"/></strong> (<span t-esc="contract.currency_id.amount_to_text(contract.other_allowance)"/> Birr)
+                            </t>
+                        .</p>
+                    </t>
+                    
+                    <p>Finally, I would like to take this opportunity in wishing you success during your stay with us and look forward to your continued and unreserved contribution towards meeting the vision and mission of Wagwago Electric.</p>
+                    
+                    <div style="margin-top: 40px;">
+                        <p>With all good wishes to you.</p>
+                        <p><strong>Kind Regards.</strong></p>
+                    </div>
+                </div>
+                  <div class="mt-4 justify-content-between d-flex row">
+                    <div class="col-4">
+                        <p><strong>CC:</strong></p>
+                    <ul class="gap-1">
+                        <li>Finance Department</li>
+                        <li>File</li>
+                    </ul>
+                    
+                    <div><u><b><span t-esc="contract.company_id.name.split()[0] if contract.company_id and contract.company_id.name else ''"/></b></u></div>
+                    </div>
+                    
+                    <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.company_id.company_stamp">
+                            <img t-att-src="image_data_uri(contract.company_id.company_stamp)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                     <div class="col-4 d-flex justify-content-end">
+                        <t t-if="contract.approved_by_id.sign_signature">
+                            <img t-att-src="image_data_uri(contract.approved_by_id.sign_signature)"
+                                style="max-height:140px; min-height:140px;"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+    </template>
+</odoo>
+

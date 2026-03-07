@@ -1,0 +1,15 @@
+.btn-show-ovn {
+    display: none;
+    border: 0px;
+    font-weight: bolder;
+}
+.btn-hide-ovn {
+    border: 0px;
+    font-weight: bolder;
+}
+.custom-ovn-wrapper {
+    gap: 5px;
+    background-color: beige;
+    z-index: 999;
+    border-radius: 40px;
+}

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_salary_rule_house_rent" model="hr.salary.rule">
+            <field name="name">House Rent Allowance</field>
+            <field name="code">HRA</field>
+            <field name="sequence" eval="50" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.house_rent_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.house_rent_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_dearness" model="hr.salary.rule">
+            <field name="name">Dearness Allowance</field>
+            <field name="code">DA</field>
+            <field name="sequence" eval="51" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.dearness_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.dearness_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_travel" model="hr.salary.rule">
+            <field name="name">Travel Allowance</field>
+            <field name="code">DA</field>
+            <field name="sequence" eval="52" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.travel_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.travel_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_meal" model="hr.salary.rule">
+            <field name="name">Meal Allowance</field>
+            <field name="code">DA</field>
+            <field name="sequence" eval="53" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.meal_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.meal_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_medical" model="hr.salary.rule">
+            <field name="name">Medical Allowance</field>
+            <field name="code">DA</field>
+            <field name="sequence" eval="54" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.medical_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.medical_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_position" model="hr.salary.rule">
+            <field name="name">Position Allowance</field>
+            <field name="code">DA</field>
+            <field name="sequence" eval="55" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.position_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.position_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_transport_home" model="hr.salary.rule">
+            <field name="name">Transport Home Allowance</field>
+            <field name="code">THA</field>
+            <field name="sequence" eval="56" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.transport_home_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.transport_home_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_transport_work" model="hr.salary.rule">
+            <field name="name">Transport Work Allowance</field>
+            <field name="code">TWA</field>
+            <field name="sequence" eval="57" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.transport_work_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.transport_work_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_fuel" model="hr.salary.rule">
+            <field name="name">Fuel Allowance</field>
+            <field name="code">FUEL</field>
+            <field name="sequence" eval="58" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.fuel_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.fuel_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_cash_indemnity_allow" model="hr.salary.rule">
+            <field name="name">Cash Indemnity Allowance</field>
+            <field name="code">CIA</field>
+            <field name="sequence" eval="59" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.apply_cash_indemnity</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.cash_indemnity_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_cash_indemnity_deduct" model="hr.salary.rule">
+            <field name="name">Cash Indemnity Deduction</field>
+            <field name="code">CID</field>
+            <field name="sequence" eval="60" />
+            <field name="category_id" ref="hr_payroll.DED" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.apply_cash_indemnity</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -contract.cash_indemnity_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_cash_indemnity_reward" model="hr.salary.rule">
+            <field name="name">Cash Indemnity Reward</field>
+            <field name="code">CIR</field>
+            <field name="sequence" eval="61" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.apply_cash_indemnity and ('CIR' in inputs)
+    ]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs['CIR'].amount</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_other_allow" model="hr.salary.rule">
+            <field name="name">Other Allowance</field>
+            <field name="code">OTHA</field>
+            <field name="sequence" eval="62" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.other_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.other_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_salary_rule_professional" model="hr.salary.rule">
+            <field name="name">professional Allowance</field>
+            <field name="code">PROA</field>
+            <field name="sequence" eval="63" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = contract.professional_allowance > 0</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.professional_allowance</field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <record id="hr_payroll_input_CIR" model="hr.payslip.input.type">
+            <field name="code">CIR</field>
+            <field name="name">Cash Indemnity Reward</field>
+        </record>
+    </data>
+</odoo>

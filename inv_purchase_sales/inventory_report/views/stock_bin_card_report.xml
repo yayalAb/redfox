@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_bin_card_report_tree" model="ir.ui.view">
+        <field name="name">inventory bin card report tree</field>
+        <field name="model">inventory.bin.card.report.tree</field>
+        <field name="arch" type="xml">
+            <list string="Bin-card" create="False" expand="1"
+                  decoration-success="move_id == False"
+                  decoration-info="incoming_qty &gt; 0 and outgoing_qty == 0"
+                  decoration-danger="outgoing_qty &gt; 0 and incoming_qty == 0"
+                  decoration-warning="item_name == 'Total'">
+                <field name="item_name"/>
+                <field name="item_code"/>
+                <field name="move_id" widget="many2one"/>
+                <field name="date"/>
+                <field name="initial_balance" />
+                <field name="incoming_qty" />
+                <field name="outgoing_qty"/>
+                <field name="stock_balance"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id="view_bin_card_report_filter" model="ir.ui.view">
+    <field name="name">inventory bin card report search</field>
+    <field name="model">inventory.bin.card.report.tree</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="item_name"/>
+            <field name="item_code"/>
+            <field name="move_id"/>
+            <group  string="Group By">
+                <filter name="group_by_item_code" string="Product" domain="[]" context="{'group_by': 'item_code'}"/>
+            </group>
+        </search>
+    </field>
+</record>
+
+
+    <record id="action_bin_card_report_tree" model="ir.actions.act_window">
+        <field name="name">manufactured balance report</field>
+        <field name="res_model">inventory.bin.card.report.tree</field>
+        <field name="view_mode">list,search,graph,pivot</field>
+        <field name="view_id" ref="view_bin_card_report_tree"/>
+        <field name="target">current</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tender_request_kanban" model="ir.ui.view">
+        <field name="name">tender.request.kanban</field>
+        <field name="model">tender.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id"
+                class="o_kanban_small_column"
+                sample="1"
+                quick_create="false">
+
+                <!-- Fields needed for logic and display -->
+                <field name="stage_id" />
+                <field name="id" />
+                <field name="name" />
+                <field name="title" />
+                <field name="customer_id" />
+                <field name="tender_value" />
+                <field name="currency_id" />
+                <field name="state" />
+                <field name="submission_deadline" />
+                <field name="create_uid" />
+                <field name="activity_ids" />
+                <field name="activity_state" />
+
+                <!-- Progress Bar similar to CRM (Success/Warning/Danger based on activity) -->
+                <progressbar field="activity_state"
+                    colors='{"planned": "success", "today": "warning", "overdue": "danger"}'
+                    sum_field="tender_value"
+                    help="This bar allows to filter the tenders based on scheduled activities." />
+
+                <templates>
+                    <!-- Gear Icon Menu -->
+                    <t t-name="menu">
+                        <t t-if="widget.editable">
+                            <a role="menuitem" type="open" class="dropdown-item">Edit</a>
+                        </t>
+                        <t t-if="widget.deletable">
+                            <a role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                        </t>
+                    </t>
+
+                    <!-- Card Body -->
+                    <t t-name="card">
+                        <!-- Ribbons for Status -->
+                        <widget name="web_ribbon" title="Lost" bg_color="text-bg-danger"
+                            invisible="state != 'lost'" />
+                        <widget name="web_ribbon" title="Won" bg_color="text-bg-success"
+                            invisible="state != 'won'" />
+
+                        <!-- Title Section -->
+                        <div class="fw-bold fs-5">
+                            <field name="title" />
+                        </div>
+                        <div class="text-muted small mb-1">
+                            <field name="name" />
+                        </div>
+
+                        <!-- Monetary Value -->
+                        <div t-if="record.tender_value.raw_value">
+                            <field name="tender_value" widget="monetary"
+                                options="{'currency_field': 'currency_id'}" />
+                        </div>
+
+                        <!-- Customer -->
+                        <div class="text-truncate">
+                            <span t-if="record.customer_id.value">
+                                <i class="fa fa-building-o me-1" title="Customer" />
+                                <field name="customer_id" />
+                            </span>
+                        </div>
+
+                        <!-- Submission Deadline (Crucial for Tenders) -->
+                        <div class="text-muted small mt-1"
+                            t-if="record.submission_deadline.raw_value">
+                            <i class="fa fa-clock-o me-1" title="Submission Deadline" />
+                            <field name="submission_deadline" widget="remaining_days" />
+                        </div>
+
+                        <!-- Footer: Activities and User -->
+                        <footer class="pt-1">
+                            <div class="d-flex mt-auto align-items-center">
+                                <field name="activity_ids" widget="kanban_activity" />
+                            </div>
+                            <!-- Using create_uid because user_id isn't in your model definition -->
+                            <field name="create_uid" widget="many2one_avatar_user" class="ms-auto" />
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_tender_request_form" model="ir.ui.view">
+        <field name="name">tender.request.form</field>
+        <field name="model">tender.request</field>
+        <field name="arch" type="xml">
+            <form string="Tender Request">
+                <header>
+                    <field name="state" invisible="1" />
+                    <button name="action_submit" type="object" string="Submit" class="btn-primary"
+                        invisible="state != 'draft'" />
+                    <button name="action_win" type="object" string="Mark as Won" class="btn-primary"
+                        invisible="state not in ['submitted', 'under_review']" />
+                    <button name="action_lose" type="object" string="Mark as Lost"
+                        invisible="state not in ['submitted', 'under_review']" />
+                    <button name="action_create_agreement" type="object" string="Create Agreement"
+                        class="oe_highlight" invisible="state != 'won'" />
+
+                    <button name="action_create_warranty_letter" type="object"
+                        string="Create Warranty Letter"
+                        class="oe_highlight" invisible="state != 'submission'" />
+
+                    <button name="action_create_power_of_attorney" type="object"
+                        string="Create Power of Attorney"
+                        class="oe_highlight" invisible="state != 'submission'" />
+
+                    <button name="action_create_bid_bond" type="object"
+                        string="Create Bid Bond"
+                        class="oe_highlight" invisible="state != 'submission'" />
+
+                    <field name="stage_id" widget="statusbar"
+                        options="{'clickable': '1', 'fold_field': 'fold'}" />
+                </header>
+                <sheet>
+                    <field name="state" invisible="1" />
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_agreements" type="object" class="oe_stat_button"
+                            icon="fa-file-text-o" invisible="agreement_count == 0">
+                            <field name="agreement_count" widget="statinfo" string="Agreements" />
+                        </button>
+
+                        <button name="action_view_bid_bonds"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            invisible="bid_bond_count == 0">
+                            <field name="bid_bond_count" widget="statinfo" string="Bid Bonds" />
+                        </button>
+
+                        <button name="action_view_warranty_letters"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shield"
+                            invisible="warranty_count == 0">
+                            <field name="warranty_count" widget="statinfo" string="Warranty Letters" />
+                        </button>
+
+                        <button name="action_view_power_of_attorneys"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-signature"
+                            invisible="power_attorney_count == 0">
+                            <field name="power_attorney_count" widget="statinfo"
+                                string="Power of Attorneys" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="title" />
+                            <field name="customer_id" />
+                            <field name="goods_description" />
+                            <field name="tender_doc_cost" />
+                            <field name="winning_price" invisible="state != 'lost'" />
+
+                        </group>
+                        <group>
+                            <field name="submission_deadline" />
+                            <field name="decision_date" />
+                            <field name="supplier_id" />
+                            <field name="company_id" groups="base.group_multi_company" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Products" name="tender_lines">
+                            <field name="tender_line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id" />
+                                    <field name="description" />
+                                    <field name="quantity" />
+                                    <field name="unit_price"
+                                        invisible="parent.state not in ['submission', 'won', 'lost']" />
+                                    <field name="subtotal" sum="Total"
+                                        invisible="parent.state not in ['submission', 'won', 'lost']" />
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="tender_value" class="oe_subtotal_footer_separator" />
+                            </group>
+                        </page>
+                        <page string="Documents &amp; Legal" name="documents">
+                            <group string="Submission Files">
+                                <field name="tender_document_filename" invisible="1" />
+                                <field name="tender_document" filename="tender_document_filename"
+                                    widget="binary" string="Tender Request Document" />
+                            </group>
+
+                            <group string="Company Legal Documents">
+                                <p class="text-muted" colspan="2">
+                                    The documents below are automatically linked from your Company
+                                    Profile for the submission package.
+                                </p>
+                                <group>
+                                    <field name="co_business_license" widget="binary" />
+                                    <field name="co_commercial_reg" widget="binary" />
+                                    <field name="co_tin_cert" widget="binary" />
+                                    <field name="co_vat_cert" widget="binary" />
+                                    <field name="co_experience_letters" widget="many2many_binary" />
+                                </group>
+                                <group>
+                                    <field name="co_tax_clearance" widget="binary" />
+                                    <field name="co_egp_reg" widget="binary" />
+                                    <field name="co_audit_report" widget="binary" />
+                                    <field name="co_financial_standing" widget="binary" />
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Checklists" name="checklists">
+                            <field name="check_list_id">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="description" />
+                                    <field name="is_mandatory" />
+                                    <field name="is_done" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Outcome Details" name="outcome_details"
+                            invisible="state not in ['lost']">
+                            <group>
+                                <field name="lost_reason_id" />
+                                <field name="lost_reason_notes" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tender_request_list" model="ir.ui.view">
+        <field name="name">tender.request.list</field>
+        <field name="model">tender.request</field>
+        <field name="arch" type="xml">
+            <list string="Tender Requests" decoration-success="state == 'won'"
+                decoration-danger="state == 'lost'" decoration-muted="state == 'cancelled'">
+                <field name="name" />
+                <field name="title" />
+                <field name="customer_id" />
+                <field name="submission_deadline" />
+                <field name="tender_value" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tender_request_search" model="ir.ui.view">
+        <field name="name">tender.request.search</field>
+        <field name="model">tender.request</field>
+        <field name="arch" type="xml">
+            <search string="Search Tenders">
+                <field name="name" />
+                <field name="title" />
+                <field name="customer_id" />
+                <filter string="My Tenders" name="my_tenders" domain="[('create_uid', '=', uid)]" />
+                <filter string="Won" name="won" domain="[('state', '=', 'won')]" />
+                <filter string="Lost" name="lost" domain="[('state', '=', 'lost')]" />
+                <filter string="Active Tenders" name="active_tenders"
+                    domain="[('state', 'not in', ['won', 'lost', 'cancelled'])]" />
+                <group expand="0" string="Group By">
+                    <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}" />
+                    <filter string="Customer" name="group_customer"
+                        context="{'group_by': 'customer_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_tender_request" model="ir.actions.act_window">
+        <field name="name">Tender Participation</field>
+        <field name="res_model">tender.request</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+    <menuitem id="menu_tender_root" name="Tenders" parent="sale.sale_menu_root" sequence="10" />
+    <menuitem id="menu_tender_request" name="Tender Participation" parent="menu_tender_root"
+        action="action_tender_request" sequence="1" />
+
+    <record id="view_tender_request_pivot" model="ir.ui.view">
+        <field name="name">tender.request.pivot</field>
+        <field name="model">tender.request</field>
+        <field name="arch" type="xml">
+            <pivot string="Tender Analysis">
+                <field name="customer_id" type="row" />
+                <field name="state" type="col" />
+                <field name="tender_value" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_tender_analysis" model="ir.actions.act_window">
+        <field name="name">Tender Analysis</field>
+        <field name="res_model">tender.request</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="view_id" ref="view_tender_request_pivot" />
+    </record>
+
+    <menuitem id="menu_tender_reporting" name="Reporting" parent="menu_tender_root" sequence="99" />
+    <menuitem id="menu_tender_analysis_report" name="Tender Analysis" parent="menu_tender_reporting"
+        action="action_tender_analysis" sequence="1" />
+</odoo>

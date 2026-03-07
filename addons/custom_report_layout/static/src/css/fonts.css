@@ -1,0 +1,8 @@
+/* /static/src/css/fonts.css */
+
+@font-face {
+  font-family: 'Noto Sans Ethiopic';
+  src: url('/custom_report_layout/static/src/fonts/NotoSansEthiopic-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

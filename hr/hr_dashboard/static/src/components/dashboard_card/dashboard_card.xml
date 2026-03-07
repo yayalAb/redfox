@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_dashboard.DashboardCard" owl="1">
+        <div class="col-lg-2 col-md-4 col-sm-12 m-0 p-0 text-center">
+            <div class="shadow-sm border m-1 p-0 d-flex flex-column"
+                 style="background-color: white; cursor: pointer; border-radius: 10px;border: 1px solid #ccc;  position: relative;'"
+                 t-on-click="props.onClick">
+    
+                <div class="card-container" style="display: flex; border-radius: 10px; overflow: hidden; height: 120px;">
+                    <!-- Red Side (10px wide) -->
+                    <div style="width: 10px; background-color: #1c3462; border-top-left-radius: 10px; border-bottom-left-radius: 10px;"></div>
+                    
+                    <!-- Main Card Content -->
+                    <div style="flex: 1; padding: 20px;">
+                        <div class="row h-100">
+                            <div class="col-9 text-start d-flex flex-column justify-content-center">
+                                <h4 class="mb-1"><span t-esc="props.name"/></h4>
+                                
+                                <h5><div class="text-center"><span t-esc="props.text1"/> <span t-esc="props.value"/> <span t-esc="props.uom"/></div></h5>
+                                <t t-if="props.current_month_count !== undefined">
+                                      
+                                        <span t-attf-class="text-#{ props.current_month_count > 0 ? 'success':'danger' }">
+                                            <span t-attf-class="me-1 oi oi-arrow-#{ props.current_month_count > 0 ? 'up-right':'down-right' }"  style="font-size: 22px;"/>
+                                            <span t-esc="props.current_month_count"/>
+                                            
+                                        </span>
+                                        <!-- <span t-attf-class="text-#{ props.current_month_count < 0 ? 'success':'danger' }">
+                                            <span t-attf-class="me-1 oi oi-arrow-#{ props.current_month_count < 0 ? 'up-right':'down-right' }"  style="font-size: 22px;"/>
+                                            <span t-esc="props.current_month_count"/>
+                                           
+                                        </span> -->
+                                </t>
+                                <!-- <span t-attf-class="text-#{ props.percentage > 0 ? 'success':'danger' }">
+                                    <span t-attf-class="me-1 oi oi-arrow-#{ props.percentage > 0 ? 'up-right':'down-right' }"  style="font-size: 22px;"/>
+                                    <span t-esc="props.percentage"/>
+                                    %
+                                </span> -->
+                            </div>
+                            <div class="col-3 d-flex justify-content-center align-items-center">
+                                <i t-att-class="'me-1 fa ' + props.iconClass" style="font-size: 24px; color: green;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+</templates>

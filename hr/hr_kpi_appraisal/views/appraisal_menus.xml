@@ -1,0 +1,34 @@
+<odoo>
+    <menuitem
+        id="menu_appraisal_result"
+        name="Appraisal Result"
+        parent="hr_appraisal.menu_hr_appraisal_root"
+        sequence="14"
+        action="hr_kpi_appraisal.action_employee_appraisal" />
+
+    <menuitem
+        id="menu_kpi_and_eval_root"
+        name="KPI &amp; Eval"
+        parent="hr_appraisal.menu_hr_appraisal_root"
+        sequence="16" />
+
+    <menuitem
+        id="menu_employee_evaluation_list"
+        name="Evaluations"
+        parent="hr_kpi_appraisal.menu_kpi_and_eval_root"
+        action="hr_kpi_appraisal.action_employee_evaluation"
+        sequence="20" />
+
+    <menuitem
+        id="menu_appraisal_kpi_list"
+        name="KPIs"
+        parent="hr_kpi_appraisal.menu_kpi_and_eval_root"
+        action="hr_kpi_appraisal.action_appraisal_kpi"
+        sequence="10" />
+     <menuitem id="menu_kpi_category_config"
+              name="KPI Categories"
+              parent="hr_kpi_appraisal.menu_kpi_and_eval_root"
+              action="action_kpi_category_config"
+              sequence="20"/>
+
+</odoo>

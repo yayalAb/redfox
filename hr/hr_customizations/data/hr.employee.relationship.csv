@@ -1,0 +1,5 @@
+id,name,active
+rel_spouse,Spouse,True
+rel_parent,Parent,True
+rel_friend,Friend,True
+rel_sibling,Sibling,True

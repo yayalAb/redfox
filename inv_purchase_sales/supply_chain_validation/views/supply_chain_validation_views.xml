@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_view_form_inherit_price_validation" model="ir.ui.view">
+        <field name="name">product.form.inherit.price.validation</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lst_price']" position="attributes">
+                <attribute name="widget">salary_validation</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

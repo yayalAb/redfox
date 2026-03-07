@@ -1,0 +1,113 @@
+<odoo>
+    <record id="view_lv_winding_design_list" model="ir.ui.view">
+        <field name="name">lv.winding.design.list.view</field>
+        <field name="model">lv.winding.design</field>
+        <field name="arch" type="xml">
+            <list string="LV Winding Designs">
+                <!-- <field name="name" /> -->
+                <field name="connection_type" />
+                <field name="turns_per_phase" />
+                <field name="conductor_type" />
+                <field name="layers_number" />
+                <field name="state" widget="badge" decoration-success="state == 'approved'"
+                    decoration-warning="state == 'submitted'" decoration-info="state == 'draft'"
+                    decoration-danger="state == 'rejected'" />
+            </list>
+        </field>
+    </record>
+
+    <record id='view_lv_winding_design_form' model='ir.ui.view'>
+        <field name='name'>lv.winding.design.form.view</field>
+        <field name='model'>lv.winding.design</field>
+        <field name='arch' type='xml'>
+            <form>
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight"
+                        invisible="state != 'draft'" />
+                    <button name="action_approve" string="Confirm" type="object"
+                        class="oe_highlight" invisible="state != 'submitted'" />
+                    <button name="%(action_lv_design_reject_wizard)d" string="Reject"
+                        type="action" class="btn-danger"
+                        invisible="state in ['draft', 'approved', 'rejected']" />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <!-- <div class="oe_button_box" name="button_box">
+                        <button name="action_open_service_request" string="Service Request"
+                            type="object" />
+                    </div> -->
+                    <!-- <div class="oe_title">
+                        <label for="name" string="LV Design" />
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name"
+                                    options="{'line_breaks': False}" widget="text" />
+                            </div>
+                        </h1>
+                    </div> -->
+                    <group>
+                        <group>
+                            <field name="product_tmpl_id" />
+                            <field name='connection_type' />
+                            <field name='connection' />
+                            <field name='turns_per_phase' />
+                            <field name='conductor_type' />
+                            <field name='bare_conductor_size' />
+                            <field name='covering' />
+                            <field name='insulated_conductor_size' />
+                            <field name='conductor_arrangement' />
+                            <field name='parallel_conductors_number' />
+                            <field name='transposition' />
+                            <field name='taping' />
+                        </group>
+
+                        <group>
+                            <field name='layers_number' />
+                            <field name='turn_numbers_per_layer_per_coil' />
+                            <field name='inter_layer_insulation' />
+                            <field name='gap_clearance_between_core_lv' />
+                            <field name='internal_diameter' />
+                            <field name='outer_diameter' />
+                            <field name='end_insulation' />
+                            <field name='radial_length' />
+                            <field name='axial_length' />
+                            <field name='copper_weight_per_phase' />
+                            <field name='resistance_per_phase' />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Edge Insulation">
+                            <field name="edge_insulation">
+                                <list>
+                                    <field name="layer" />
+                                    <field name="th" />
+                                    <field name="w1" />
+                                    <field name="w2" />
+                                    <field name="length" />
+                                    <field name="number_l" />
+                                    <field name="number_ph" />
+                                    <field name="number_tr" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Interlayer Insulation">
+                            <field name="interlayer_insulation">
+                                <list>
+                                    <field name="layer" />
+                                    <field name="th" />
+                                    <field name="width" />
+                                    <field name="length" />
+                                    <field name="number_l" />
+                                    <field name="number_ph" />
+                                    <field name="number_tr" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

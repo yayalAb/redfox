@@ -1,0 +1,53 @@
+.statbar {
+    display: flex;
+    padding: 10px;
+
+    .statbar-item {
+        flex: 1;
+        padding: 10px;
+        .icon-box {
+            border-radius: 12px;
+            .icon {
+                width: 2rem;
+                height: 2rem;
+            }
+        }
+        .content {
+            justify-content: center;
+            margin-left: 12px;
+            .title {
+                font-size: 1rem;
+                font-weight: 700;
+                color: #bfbfbf;
+            }
+            .value {
+                font-weight: 600;
+                font-size: 1.2rem;
+            }
+        }
+    }
+    .statbar-item:nth-child(1) {
+        .icon-box {
+            background-color: rgba(40, 167, 69, 0.1);
+            .icon {
+                fill: #28a745;
+            }
+        }
+    }
+    .statbar-item:nth-child(2) {
+        .icon-box {
+            background-color: rgba(0, 123, 255, 0.1);
+            .icon {
+                fill: #007bff;
+            }
+        }
+    }
+    .statbar-item:nth-child(3) {
+        .icon-box {
+            background-color: rgba(255, 183, 0, 0.1);
+            .icon {
+                fill: #ffb700;
+            }
+        }
+    }
+}

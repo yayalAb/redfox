@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Report Action -->
+        <record id="action_report_financial_evaluation" model="ir.actions.report">
+            <field name="name">Financial Evaluation</field>
+            <field name="model">supplies.rfp</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">VendorBid.report_financial_evaluation_document</field>
+            <field name="report_file">VendorBid.report_financial_evaluation_document</field>
+            <field name="print_report_name">'Financial Evaluation - %s' % (object.rfp_number)</field>
+            <field name="binding_model_id" ref="model_supplies_rfp" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_financial_evaluation_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <!-- UPDATED: Added Margins, Changed Font to Times New Roman, Increased Font
+                    Size, No Header/Footer -->
+                        <div class="page"
+                            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; margin: 5px 20px 20px 20px; padding: 0;">
+                            <style>
+                                @page {
+                                margin: 0 !important;
+                                }
+                                .header, .footer {
+                                display: none !important;
+                                }
+                                .page {
+                                margin-top: 5px !important;
+                                }
+                            </style>
+                            <t t-set="doc_title" t-value="'FINANCIAL EVALUATION FORMAT'" />
+                            <t t-set="doc_number" t-value="o.rfp_number" />
+                            <t t-set="issue_number" t-value="'1'" />
+
+                            <!-- Meta Data -->
+                            <div class="row"
+                                style="margin-bottom: 2px; margin-top: 0; font-weight: bold;">
+                                <div class="col-10"></div>
+                                <div class="col-2 text-right">
+                                    <div>ቁጥር: <span t-field="o.rfp_number" /></div>
+                                    <div>ቀን: <span
+                                            t-esc="datetime.date.today().strftime('%d/%m/%Y')" /></div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 10px; margin-top: 5px;">
+                                <div
+                                    style="font-weight: bold; font-size: 13pt; margin-bottom: 2px; text-decoration: underline;">
+                                    የግዢ ኮሚቴ አባላት ስም (Committee Members)
+                                </div>
+
+                                <div class="row"
+                                    style="font-weight: bold; padding-bottom: 2px; border-bottom: 2px solid #000;">
+                                    <div class="col-1">No.</div>
+                                    <div class="col-4">ስም (Name)</div>
+                                    <div class="col-3">የስራ ድርሻ (Role)</div>
+                                    <div class="col-2">ፊርማ (Sign)</div>
+                                    <div class="col-2">ቀን (Date)</div>
+                                </div>
+
+                                <t t-if="o.committee_member_ids">
+                                    <t t-foreach="o.committee_member_ids" t-as="member">
+                                        <div class="row d-flex align-items-center"
+                                            style="padding-top: 1px; padding-bottom: 1px; min-height: 30px;">
+
+                                            <!-- Index -->
+                                            <div class="col-1">
+                                                <span t-esc="member_index + 1" />
+                                            </div>
+
+                                            <!-- Name -->
+                                            <div class="col-4">
+                                                <span t-field="member.name" />
+                                            </div>
+
+                                            <!-- Role -->
+                                            <div class="col-3">
+                                                <span t-if="member.role" t-field="member.role" />
+                                                <span t-else="">Member</span>
+                                            </div>
+
+                                            <div class="col-2"
+                                                style="border-bottom: 1px solid #000; height: 100%; min-height: 22px; display: flex; align-items: flex-end;">
+                                                <t
+                                                    t-if="member.approval_status == 'approved' and member.member_id.user_id.sign_signature">
+                                                    <img
+                                                        t-att-src="image_data_uri(member.member_id.user_id.sign_signature)"
+                                                        style="max-height: 25px; max-width: 100%; display: block;" />
+                                                </t>
+                                            </div>
+
+                                            <!-- Date Column -->
+                                            <div class="col-2"
+                                                style="border-bottom: 1px solid #000; height: 100%; min-height: 22px; display: flex; align-items: flex-end; margin-left: 4px;">
+                                                <t t-if="member.approval_status == 'approved'">
+                                                    <span t-field="member.approval_date"
+                                                        t-options='{"widget": "date"}' />
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-muted"
+                                        style="margin-top: 10px; font-style: italic; padding: 10px;">
+                                        No committee members assigned.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Section 2: Item Header -->
+                            <div class="text-center"
+                                style="font-weight: bold; margin-bottom: 5px; margin-top: 15px;">
+                                Item Description and Suppliers List Table
+                            </div>
+
+                            <!-- Determine layout: products as rows if products > suppliers -->
+                            <t t-set="product_count" t-value="len(o.product_line_ids)" />
+                            <t t-set="supplier_count"
+                                t-value="len(o.rfq_ids.filtered(lambda r: r.amount_total > 0 and r.state != 'cancel'))" />
+                            <t t-set="use_products_as_rows" t-value="product_count > supplier_count" />
+
+                            <!-- Pre-calculate winning prices for each product -->
+                            <t t-set="winning_prices" t-value="{}" />
+                            <t t-foreach="o.product_line_ids" t-as="product_line">
+                                <t t-set="all_lines_for_product"
+                                    t-value="o.rfq_ids.mapped('order_line').filtered(lambda l: l.product_id == product_line.product_id and not l.out_of_stock and l.price_subtotal > 0)" />
+                                <t t-if="all_lines_for_product">
+                                    <t t-set="winning_line"
+                                        t-value="min(all_lines_for_product, key=lambda l: l.price_subtotal)" />
+                                    <t t-set="winning_prices"
+                                        t-value="{**winning_prices, **{product_line.product_id.id: winning_line.id}}" />
+                                </t>
+                            </t>
+
+                            <!-- Layout 1: Products as Rows, Suppliers as Columns (when products >
+                        suppliers) -->
+                            <t t-if="use_products_as_rows">
+                                <table
+                                    style="width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 10px;">
+                                    <thead style="background-color: #f0f0f0;">
+                                        <tr>
+                                            <th rowspan="3"
+                                                style="border: 1px solid black; padding: 5px; text-align: center; width: 3%;">
+                                                No.</th>
+                                            <th rowspan="3"
+                                                style="border: 1px solid black; padding: 5px; text-align: center; width: 20%;">Product
+                                                Description</th>
+                                            <th rowspan="3"
+                                                style="border: 1px solid black; padding: 5px; text-align: center; width: 8%;">Qty
+                                                (UOM)</th>
+                                            <!-- Dynamic Supplier Columns -->
+                                            <t
+                                                t-foreach="o.rfq_ids.sorted(key=lambda r: r.amount_total)"
+                                                t-as="rfq">
+                                                <t
+                                                    t-if="rfq.amount_total > 0 and rfq.state != 'cancel'">
+                                                    <th colspan="2"
+                                                        style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                        <span t-field="rfq.partner_id.name" />
+                                                    </th>
+                                                </t>
+                                            </t>
+                                        </tr>
+                                        <tr>
+                                            <!-- Unit Price / Total headers for each supplier -->
+                                            <t
+                                                t-foreach="o.rfq_ids.sorted(key=lambda r: r.amount_total)"
+                                                t-as="rfq">
+                                                <t
+                                                    t-if="rfq.amount_total > 0 and rfq.state != 'cancel'">
+                                                    <th
+                                                        style="border: 1px solid black; padding: 2px; text-align: center; border-right: 1px dotted gray;">
+                                                        Unit Price
+                                                    </th>
+                                                    <th
+                                                        style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                        Total
+                                                    </th>
+                                                </t>
+                                            </t>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="row_idx" t-value="0" />
+                                        <t t-foreach="o.product_line_ids" t-as="product_line">
+                                            <t t-set="row_idx" t-value="row_idx + 1" />
+                                            <tr>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: center; vertical-align: middle;">
+                                                    <span t-esc="row_idx" />
+                                                </td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; vertical-align: middle;">
+                                                    <span t-field="product_line.product_id.name" />
+                                                    <t t-if="product_line.description">
+                                                        <br />
+                                                        <span t-field="product_line.description" />
+                                                    </t>
+                                                </td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: center; vertical-align: middle;">
+                                                    <span t-esc="int(product_line.product_qty)" /> (<span
+                                                        t-field="product_line.product_uom.name" />) </td>
+                                                <!-- Supplier columns - showing Unit Price and Total
+                                            Price -->
+                                                <t
+                                                    t-foreach="o.rfq_ids.sorted(key=lambda r: r.amount_total)"
+                                                    t-as="rfq">
+                                                    <t
+                                                        t-if="rfq.amount_total > 0 and rfq.state != 'cancel'">
+                                                        <t t-set="rfq_line"
+                                                            t-value="rfq.order_line.filtered(lambda l: l.product_id == product_line.product_id)" />
+                                                        <t t-set="stock_status"
+                                                            t-value="rfq_line and rfq_line[0].out_of_stock or False" />
+                                                        <t t-set="is_winning_price"
+                                                            t-value="rfq_line and rfq_line[0].id == winning_prices.get(product_line.product_id.id, False)" />
+                                                        <t t-set="winning_bg_color"
+                                                            t-value="'background-color: #cccccc;' if is_winning_price else ''" />
+
+                                                        <t
+                                                            t-if="stock_status == 'out_of_stock' or stock_status == 'out_of_specification'">
+                                                            <td colspan="2"
+                                                                style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                                <t
+                                                                    t-if="stock_status == 'out_of_stock'">
+                                                                    <span style="font-size: 8pt;">Out
+                                                                        of
+                                                                        Stock</span>
+                                                                </t>
+                                                                <t
+                                                                    t-elif="stock_status == 'out_of_specification'">
+                                                                    <span style="font-size: 8pt;">Out
+                                                                        of
+                                                                        Specification</span>
+                                                                </t>
+                                                            </td>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <td
+                                                                style="border: 1px solid black; border-right: 1px dotted gray; padding: 2px; text-align: right;">
+                                                                <t t-if="rfq_line">
+                                                                    <span
+                                                                        t-field="rfq_line[0].price_unit"
+                                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <span style="font-size: 8pt;">-</span>
+                                                                </t>
+                                                            </td>
+                                                            <td
+                                                                t-attf-style="border: 1px solid black; padding: 2px; text-align: right; {{ winning_bg_color }}">
+                                                                <t t-if="rfq_line">
+                                                                    <span
+                                                                        t-field="rfq_line[0].price_subtotal"
+                                                                        t-options='{"widget": "float", "precision": 2}' />
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <span style="font-size: 8pt;">-</span>
+                                                                </t>
+                                                            </td>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- Layout 2: Suppliers as Rows, Products as Columns (when suppliers >=
+                        products) -->
+                            <t t-if="not use_products_as_rows">
+                                <table
+                                    style="width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 10px;">
+                                    <thead style="background-color: #f0f0f0;">
+                                        <tr>
+                                            <th rowspan="3"
+                                                style="border: 1px solid black; padding: 5px; text-align: center; width: 3%;">
+                                                No.</th>
+                                            <th rowspan="3"
+                                                style="border: 1px solid black; padding: 5px; text-align: center; width: 15%;">Suppliers
+                                                List Table</th>
+                                            <!-- Dynamic Product Columns -->
+                                            <t t-foreach="o.product_line_ids" t-as="product_line">
+                                                <th colspan="2"
+                                                    style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                    <span t-field="product_line.product_id.name" />
+                                                    <br />
+                                                    <span t-if="product_line.description"
+                                                        t-field="product_line.description" />
+                                                </th>
+                                            </t>
+                                            <th rowspan="3"
+                                                style="border: 1px solid black; padding: 5px; text-align: center; width: 8%;">
+                                                Total</th>
+                                        </tr>
+                                        <tr>
+                                            <!-- UOM row for each product -->
+                                            <t t-foreach="o.product_line_ids" t-as="product_line">
+                                                <th colspan="2"
+                                                    style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                    <span t-esc="int(product_line.product_qty)" />(<span
+                                                        t-field="product_line.product_uom.name" />) </th>
+                                            </t>
+                                        </tr>
+                                        <tr>
+                                            <!-- Quantity row for each product -->
+                                            <t t-foreach="o.product_line_ids" t-as="product_line">
+                                                <th
+                                                    style="border: 1px solid black; padding: 2px; text-align: center; border-right: 1px dotted gray;">
+                                                    Unit Price
+                                                </th>
+                                                <th
+                                                    style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                    Total
+                                                </th>
+                                            </t>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="row_idx" t-value="0" />
+                                        <t
+                                            t-foreach="o.rfq_ids.sorted(key=lambda r: r.amount_total)"
+                                            t-as="rfq">
+                                            <t t-set="row_idx" t-value="row_idx + 1" />
+                                            <t t-set="is_out_of_spec"
+                                                t-value="rfq.amount_total == 0 or rfq.state == 'cancel'" />
+
+                                            <tr>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: center; vertical-align: middle;">
+                                                    <span t-esc="row_idx" />
+                                                </td>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; vertical-align: middle;">
+                                                    <span t-field="rfq.partner_id.name" />
+                                                </td>
+                                                <!-- Product columns - showing Unit Price and Total
+                                            Price -->
+                                                <t t-foreach="o.product_line_ids"
+                                                    t-as="product_line">
+                                                    <t t-set="rfq_line"
+                                                        t-value="rfq.order_line.filtered(lambda l: l.product_id == product_line.product_id)" />
+                                                    <t t-set="stock_status"
+                                                        t-value="rfq_line and rfq_line[0].out_of_stock or False" />
+                                                    <t t-set="is_winning_price"
+                                                        t-value="rfq_line and rfq_line[0].id == winning_prices.get(product_line.product_id.id, False)" />
+                                                    <t t-set="winning_bg_color"
+                                                        t-value="'background-color: #cccccc;' if is_winning_price else ''" />
+
+                                                    <t
+                                                        t-if="stock_status == 'out_of_stock' or stock_status == 'out_of_specification'">
+                                                        <!-- Merged cell for out of stock or out of
+                                                    specification -->
+                                                        <td colspan="2"
+                                                            style="border: 1px solid black; padding: 2px; text-align: center;">
+                                                            <t t-if="stock_status == 'out_of_stock'">
+                                                                <span style="font-size: 8pt;">Out of
+                                                                    Stock</span>
+                                                            </t>
+                                                            <t
+                                                                t-elif="stock_status == 'out_of_specification'">
+                                                                <span style="font-size: 8pt;">Out of
+                                                                    Specification</span>
+                                                            </t>
+                                                        </td>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <!-- Separate cells for unit price and total -->
+                                                        <td
+                                                            style="border: 1px solid black; border-right: 1px dotted gray; padding: 2px; text-align: right;">
+                                                            <t
+                                                                t-if="rfq_line and not is_out_of_spec">
+                                                                <span
+                                                                    t-field="rfq_line[0].price_unit"
+                                                                    t-options='{"widget": "float", "precision": 2}' />
+                                                            </t>
+                                                            <t t-elif="is_out_of_spec">
+                                                                <span style="font-size: 8pt;">Out of
+                                                                    Spec</span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span style="font-size: 8pt;">-</span>
+                                                            </t>
+                                                        </td>
+                                                        <td
+                                                            t-attf-style="border: 1px solid black; padding: 2px; text-align: right; {{ winning_bg_color }}">
+                                                            <t
+                                                                t-if="rfq_line and not is_out_of_spec">
+                                                                <span
+                                                                    t-field="rfq_line[0].price_subtotal"
+                                                                    t-options='{"widget": "float", "precision": 2}' />
+                                                            </t>
+                                                            <t t-elif="is_out_of_spec">
+                                                                <span style="font-size: 8pt;">Out of
+                                                                    Spec</span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span style="font-size: 8pt;">-</span>
+                                                            </t>
+                                                        </td>
+                                                    </t>
+                                                </t>
+                                                <td
+                                                    style="border: 1px solid black; padding: 2px; text-align: right; vertical-align: middle;">
+                                                    <t t-if="not is_out_of_spec">
+                                                        <span t-field="rfq.amount_untaxed"
+                                                            t-options='{"widget": "float", "precision": 2}' />
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <div style="margin-top: 20px; min-height: 80px;">
+                                <strong style="text-decoration: underline;">የውሳኔ ሃሳብ (Decision):-</strong>
+                                <br />
+                                <div t-field="o.internal_notes" style="margin-top: 5px;" />
+                            </div>
+
+                            <!-- Collect ALL winning lines grouped by supplier -->
+                            <!-- This ensures EVERY product in product_line_ids gets a winning bid
+                            (if
+                        available) -->
+                            <t t-set="winning_lines_by_supplier"
+                                t-value="o.env['purchase.order.line']" />
+                            <t t-foreach="o.product_line_ids" t-as="product_line">
+                                <!-- Find all valid lines for this product (not out of stock, has
+                                price) -->
+                                <t t-set="all_lines_for_product"
+                                    t-value="o.rfq_ids.mapped('order_line').filtered(lambda l: l.product_id == product_line.product_id and not l.out_of_stock and l.price_subtotal > 0)" />
+                                <t t-if="all_lines_for_product">
+                                    <!-- Select the line with minimum price_subtotal (winning bid) -->
+                                    <t t-set="winning_line"
+                                        t-value="min(all_lines_for_product, key=lambda l: l.price_subtotal)" />
+                                    <!-- Add winning line to collection - this ensures ALL products
+                                    are
+                                included -->
+                                    <t t-set="winning_lines_by_supplier"
+                                        t-value="winning_lines_by_supplier | winning_line" />
+                                </t>
+                            </t>
+                            <!-- winning_lines_by_supplier now contains ALL winning products from
+                            ALL
+                        suppliers -->
+
+                            <!-- Get unique suppliers from winning lines -->
+                            <t t-set="winning_suppliers"
+                                t-value="winning_lines_by_supplier.mapped('order_id.partner_id')" />
+
+                            <!-- NEW LAYOUT: Side-by-Side Sections -->
+                            <div class="row" style="margin-top: 20px; page-break-inside: avoid;">
+
+                                <!-- Left Column: Approval (Section 6) -->
+                                <div class="col-3">
+                                    <h6
+                                        style="font-weight: bold; text-decoration: underline; margin-bottom: 15px;">
+                                        ያጸደቀው ኃላፊ ስምና ፊርማ (Approver)
+                                    </h6>
+                                    <!-- Use approved_by and date_approve from RFP -->
+                                    <div style="margin-bottom: 10px;">
+                                        <strong>ስም:</strong>
+                                        <t t-if="o.f_approved_by">
+                                            <span t-field="o.f_approved_by.name" />
+                                        </t>
+                                        <t t-else="">
+                                            ______________________
+                                        </t>
+                                    </div>
+                                    <div style="margin-bottom: 10px;">
+                                        <strong>ፊርማ:</strong>
+                                        <t t-if="o.f_approved_by and o.f_approved_by.sign_signature">
+                                            <img
+                                                t-att-src="image_data_uri(o.f_approved_by.sign_signature)"
+                                                style="max-height: 40px; max-width: 150px; display: inline-block; vertical-align: middle;" />
+                                        </t>
+                                        <t t-else="">
+                                            ______________________
+                                        </t>
+                                    </div>
+                                    <div>
+                                        <strong>ቀን:</strong>
+                                        <t t-if="o.f_approved_date">
+                                            <span t-field="o.f_approved_date"
+                                                t-options='{"widget": "date"}' />
+                                        </t>
+                                        <t t-else="">
+                                            ______________________
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Financial Summary (Section 5) -->
+                                <div class="col-9">
+                                    <div
+                                        style="font-weight: bold; margin-bottom: 10px; text-decoration: underline;">
+                                        Financial Summary (Winning Products Only)
+                                    </div>
+                                    <t t-if="winning_suppliers">
+                                        <!-- Build table with separate columns for each supplier -->
+                                        <!-- IMPORTANT: This summary shows ONLY the products that
+                                        each
+                                    supplier WON, not all products in their RFQ -->
+                                        <table
+                                            style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                                            <!-- Header row with supplier names -->
+                                            <tr>
+                                                <t t-foreach="winning_suppliers" t-as="supplier">
+                                                    <td colspan="2"
+                                                        style="border: 1px solid black; padding: 5px; text-align: center; font-weight: bold; background-color: #f0f0f0;">
+                                                        <span t-field="supplier.name" />
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                            <!-- Untaxed Amount row - Use sum of ONLY winning lines
+                                            for
+                                        this supplier -->
+                                            <tr>
+                                                <t t-foreach="winning_suppliers" t-as="supplier">
+                                                    <t t-set="supplier_winning_lines"
+                                                        t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier)" />
+                                                    <!-- CRITICAL: Sum ONLY winning products for
+                                                    this
+                                                supplier, NOT all products in their RFQ -->
+                                                    <!-- supplier_winning_lines contains ONLY the
+                                                products this supplier won (lowest price per
+                                                product) -->
+                                                    <t t-set="supplier_total"
+                                                        t-value="sum(supplier_winning_lines.mapped('price_subtotal')) if supplier_winning_lines else 0.0" />
+                                                    <td
+                                                        style="border: 1px solid black; padding: 5px;">Untaxed
+                                                        Amount</td>
+                                                    <td
+                                                        style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                        <span
+                                                            t-esc="'{0:,.2f}'.format(supplier_total)" />
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                            <!-- Sales / Purchase Taxes row - Only show if there are
+                                        positive taxes (excluding withholding) -->
+                                            <!-- Check using proportional calculation from
+                                            tax_totals
+                                        based on winning lines -->
+                                            <t t-set="has_any_positive_tax" t-value="False" />
+                                            <t t-foreach="winning_suppliers" t-as="supplier_check">
+                                                <t t-set="supplier_winning_lines_check"
+                                                    t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier_check)" />
+                                                <t t-set="supplier_rfq_check"
+                                                    t-value="supplier_winning_lines_check[0].order_id if supplier_winning_lines_check else False" />
+                                                <t t-set="supplier_tax_check" t-value="0.0" />
+                                                <t
+                                                    t-if="supplier_rfq_check and supplier_rfq_check.tax_totals and supplier_rfq_check.amount_untaxed > 0">
+                                                    <t t-set="winning_subtotal_check"
+                                                        t-value="sum(supplier_winning_lines_check.mapped('price_subtotal'))" />
+                                                    <t t-set="rfq_subtotal_check"
+                                                        t-value="supplier_rfq_check.amount_untaxed" />
+                                                    <t t-set="ratio_check"
+                                                        t-value="winning_subtotal_check / rfq_subtotal_check if rfq_subtotal_check > 0 else 0.0" />
+                                                    <t
+                                                        t-foreach="supplier_rfq_check.tax_totals.get('subtotals', [])"
+                                                        t-as="subtotal_item">
+                                                        <t
+                                                            t-foreach="subtotal_item.get('tax_groups', [])"
+                                                            t-as="tax_group">
+                                                            <t t-set="group_name"
+                                                                t-value="(tax_group.get('group_name', '') or '').lower()" />
+                                                            <t t-set="group_label"
+                                                                t-value="(tax_group.get('group_label', '') or '').lower()" />
+                                                            <t t-set="tax_amount"
+                                                                t-value="tax_group.get('tax_amount_currency', 0)" />
+                                                            <t t-set="proportional_tax"
+                                                                t-value="tax_amount * ratio_check" />
+                                                            <!-- Separate positive taxes from
+                                                        withholding -->
+                                                            <t
+                                                                t-if="not (('withhold' in group_name or 'withholding' in group_name or 'withhold' in group_label or 'withholding' in group_label) or tax_amount &lt; 0)">
+                                                                <t t-if="proportional_tax > 0">
+                                                                    <t t-set="supplier_tax_check"
+                                                                        t-value="supplier_tax_check + proportional_tax" />
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                                <t t-if="supplier_tax_check > 0">
+                                                    <t t-set="has_any_positive_tax" t-value="True" />
+                                                </t>
+                                            </t>
+                                            <t t-if="has_any_positive_tax">
+                                                <tr>
+                                                    <t t-foreach="winning_suppliers" t-as="supplier">
+                                                        <t t-set="supplier_winning_lines"
+                                                            t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier)" />
+                                                        <t t-set="supplier_rfq"
+                                                            t-value="supplier_winning_lines[0].order_id if supplier_winning_lines else False" />
+                                                        <t t-set="supplier_tax" t-value="0.0" />
+                                                        <!-- Calculate tax proportionally from RFQ
+                                                    tax_totals based on winning lines ratio -->
+                                                        <t
+                                                            t-if="supplier_rfq and supplier_rfq.tax_totals and supplier_rfq.amount_untaxed > 0">
+                                                            <t t-set="winning_subtotal"
+                                                                t-value="sum(supplier_winning_lines.mapped('price_subtotal'))" />
+                                                            <t t-set="rfq_subtotal"
+                                                                t-value="supplier_rfq.amount_untaxed" />
+                                                            <t t-set="ratio"
+                                                                t-value="winning_subtotal / rfq_subtotal if rfq_subtotal > 0 else 0.0" />
+                                                            <t
+                                                                t-foreach="supplier_rfq.tax_totals.get('subtotals', [])"
+                                                                t-as="subtotal_item">
+                                                                <t
+                                                                    t-foreach="subtotal_item.get('tax_groups', [])"
+                                                                    t-as="tax_group">
+                                                                    <t t-set="group_name"
+                                                                        t-value="(tax_group.get('group_name', '') or '').lower()" />
+                                                                    <t t-set="group_label"
+                                                                        t-value="(tax_group.get('group_label', '') or '').lower()" />
+                                                                    <t t-set="tax_amount"
+                                                                        t-value="tax_group.get('tax_amount_currency', 0)" />
+                                                                    <t t-set="proportional_tax"
+                                                                        t-value="tax_amount * ratio" />
+                                                                    <!-- Separate positive taxes
+                                                                    from
+                                                                withholding -->
+                                                                    <t
+                                                                        t-if="not (('withhold' in group_name or 'withholding' in group_name or 'withhold' in group_label or 'withholding' in group_label) or tax_amount &lt; 0)">
+                                                                        <t
+                                                                            t-if="proportional_tax > 0">
+                                                                            <t t-set="supplier_tax"
+                                                                                t-value="supplier_tax + proportional_tax" />
+                                                                        </t>
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <!-- Fallback: use price_tax from
+                                                            winning
+                                                        lines if no tax_totals -->
+                                                            <t t-set="positive_taxes"
+                                                                t-value="supplier_winning_lines.filtered(lambda l: l.price_tax > 0)" />
+                                                            <t t-set="supplier_tax"
+                                                                t-value="sum(positive_taxes.mapped('price_tax')) if positive_taxes else 0.0" />
+                                                        </t>
+                                                        <td
+                                                            style="border: 1px solid black; padding: 5px;">Sales
+                                                            / Purchase Taxes</td>
+                                                        <td
+                                                            style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                            <span
+                                                                t-esc="'{0:,.2f}'.format(supplier_tax)" />
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                            <!-- Withholding Taxes row - Only show if there are
+                                            actual
+                                        withholding taxes -->
+                                            <!-- Check using proportional calculation from
+                                            tax_totals
+                                        based on winning lines -->
+                                            <t t-set="has_any_withholding" t-value="False" />
+                                            <t t-foreach="winning_suppliers" t-as="supplier_check">
+                                                <t t-set="supplier_winning_lines_check"
+                                                    t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier_check)" />
+                                                <t t-set="supplier_rfq_check"
+                                                    t-value="supplier_winning_lines_check[0].order_id if supplier_winning_lines_check else False" />
+                                                <t t-set="supplier_withholding_check" t-value="0.0" />
+                                                <t
+                                                    t-if="supplier_rfq_check and supplier_rfq_check.tax_totals and supplier_rfq_check.amount_untaxed > 0">
+                                                    <t t-set="winning_subtotal_check"
+                                                        t-value="sum(supplier_winning_lines_check.mapped('price_subtotal'))" />
+                                                    <t t-set="rfq_subtotal_check"
+                                                        t-value="supplier_rfq_check.amount_untaxed" />
+                                                    <t t-set="ratio_check"
+                                                        t-value="winning_subtotal_check / rfq_subtotal_check if rfq_subtotal_check > 0 else 0.0" />
+                                                    <t
+                                                        t-foreach="supplier_rfq_check.tax_totals.get('subtotals', [])"
+                                                        t-as="subtotal_item">
+                                                        <t
+                                                            t-foreach="subtotal_item.get('tax_groups', [])"
+                                                            t-as="tax_group">
+                                                            <t t-set="group_name"
+                                                                t-value="(tax_group.get('group_name', '') or '').lower()" />
+                                                            <t t-set="group_label"
+                                                                t-value="(tax_group.get('group_label', '') or '').lower()" />
+                                                            <t t-set="tax_amount"
+                                                                t-value="tax_group.get('tax_amount_currency', 0)" />
+                                                            <t t-set="proportional_tax"
+                                                                t-value="tax_amount * ratio_check" />
+                                                            <!-- Check if it's withholding -->
+                                                            <t
+                                                                t-if="('withhold' in group_name or 'withholding' in group_name or 'withhold' in group_label or 'withholding' in group_label) or tax_amount &lt; 0">
+                                                                <t
+                                                                    t-set="supplier_withholding_check"
+                                                                    t-value="supplier_withholding_check + abs(proportional_tax)" />
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                                <t t-if="supplier_withholding_check > 0">
+                                                    <t t-set="has_any_withholding" t-value="True" />
+                                                </t>
+                                            </t>
+                                            <t t-if="has_any_withholding">
+                                                <tr>
+                                                    <t t-foreach="winning_suppliers" t-as="supplier">
+                                                        <t t-set="supplier_winning_lines"
+                                                            t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier)" />
+                                                        <t t-set="supplier_rfq"
+                                                            t-value="supplier_winning_lines[0].order_id if supplier_winning_lines else False" />
+                                                        <t t-set="supplier_withholding"
+                                                            t-value="0.0" />
+                                                        <!-- Calculate withholding proportionally
+                                                        from
+                                                    RFQ tax_totals based on winning lines ratio -->
+                                                        <t
+                                                            t-if="supplier_rfq and supplier_rfq.tax_totals and supplier_rfq.amount_untaxed > 0">
+                                                            <t t-set="winning_subtotal"
+                                                                t-value="sum(supplier_winning_lines.mapped('price_subtotal'))" />
+                                                            <t t-set="rfq_subtotal"
+                                                                t-value="supplier_rfq.amount_untaxed" />
+                                                            <t t-set="ratio"
+                                                                t-value="winning_subtotal / rfq_subtotal if rfq_subtotal > 0 else 0.0" />
+                                                            <t
+                                                                t-foreach="supplier_rfq.tax_totals.get('subtotals', [])"
+                                                                t-as="subtotal_item">
+                                                                <t
+                                                                    t-foreach="subtotal_item.get('tax_groups', [])"
+                                                                    t-as="tax_group">
+                                                                    <t t-set="group_name"
+                                                                        t-value="(tax_group.get('group_name', '') or '').lower()" />
+                                                                    <t t-set="group_label"
+                                                                        t-value="(tax_group.get('group_label', '') or '').lower()" />
+                                                                    <t t-set="tax_amount"
+                                                                        t-value="tax_group.get('tax_amount_currency', 0)" />
+                                                                    <t t-set="proportional_tax"
+                                                                        t-value="tax_amount * ratio" />
+                                                                    <!-- Check if it's withholding -->
+                                                                    <t
+                                                                        t-if="('withhold' in group_name or 'withholding' in group_name or 'withhold' in group_label or 'withholding' in group_label) or tax_amount &lt; 0">
+                                                                        <t
+                                                                            t-set="supplier_withholding"
+                                                                            t-value="supplier_withholding + abs(proportional_tax)" />
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <!-- Fallback: use price_tax from
+                                                            winning
+                                                        lines if no tax_totals -->
+                                                            <t t-set="negative_taxes"
+                                                                t-value="supplier_winning_lines.filtered(lambda l: l.price_tax &lt; 0)" />
+                                                            <t t-set="supplier_withholding"
+                                                                t-value="abs(sum(negative_taxes.mapped('price_tax'))) if negative_taxes else 0.0" />
+                                                        </t>
+                                                        <td
+                                                            style="border: 1px solid black; padding: 5px;">Withholding
+                                                            Taxes</td>
+                                                        <td
+                                                            style="border: 1px solid black; padding: 5px; text-align: right;">
+                                                            <t t-if="supplier_withholding > 0">
+                                                                <span
+                                                                    t-esc="'-{0:,.2f}'.format(supplier_withholding)" />
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span
+                                                                    t-esc="'{0:,.2f}'.format(supplier_withholding)" />
+                                                            </t>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                            <!-- Total row -->
+                                            <tr
+                                                style="font-weight: bold; border-top: 1px solid #000;">
+                                                <t t-foreach="winning_suppliers" t-as="supplier">
+                                                    <t t-set="supplier_winning_lines"
+                                                        t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier)" />
+                                                    <t t-set="supplier_rfq"
+                                                        t-value="supplier_winning_lines[0].order_id if supplier_winning_lines else False" />
+                                                    <!-- Calculate ALL values from winning lines
+                                                    ONLY to
+                                                ensure all winning products are included -->
+                                                    <!-- Untaxed Amount: Sum of ALL winning lines'
+                                                price_subtotal -->
+                                                    <t t-set="supplier_total"
+                                                        t-value="sum(supplier_winning_lines.mapped('price_subtotal')) if supplier_winning_lines else 0.0" />
+                                                    <!-- Sales/Purchase Taxes and Withholding:
+                                                    Calculate
+                                                proportionally from RFQ tax_totals -->
+                                                    <t t-set="supplier_tax" t-value="0.0" />
+                                                    <t t-set="supplier_withholding" t-value="0.0" />
+                                                    <t
+                                                        t-if="supplier_rfq and supplier_rfq.tax_totals and supplier_rfq.amount_untaxed > 0">
+                                                        <t t-set="winning_subtotal"
+                                                            t-value="supplier_total" />
+                                                        <t t-set="rfq_subtotal"
+                                                            t-value="supplier_rfq.amount_untaxed" />
+                                                        <t t-set="ratio"
+                                                            t-value="winning_subtotal / rfq_subtotal if rfq_subtotal > 0 else 0.0" />
+                                                        <t
+                                                            t-foreach="supplier_rfq.tax_totals.get('subtotals', [])"
+                                                            t-as="subtotal_item">
+                                                            <t
+                                                                t-foreach="subtotal_item.get('tax_groups', [])"
+                                                                t-as="tax_group">
+                                                                <t t-set="group_name"
+                                                                    t-value="(tax_group.get('group_name', '') or '').lower()" />
+                                                                <t t-set="group_label"
+                                                                    t-value="(tax_group.get('group_label', '') or '').lower()" />
+                                                                <t t-set="tax_amount"
+                                                                    t-value="tax_group.get('tax_amount_currency', 0)" />
+                                                                <t t-set="proportional_tax"
+                                                                    t-value="tax_amount * ratio" />
+                                                                <!-- Separate positive taxes from
+                                                            withholding -->
+                                                                <t
+                                                                    t-if="('withhold' in group_name or 'withholding' in group_name or 'withhold' in group_label or 'withholding' in group_label) or tax_amount &lt; 0">
+                                                                    <t t-set="supplier_withholding"
+                                                                        t-value="supplier_withholding + abs(proportional_tax)" />
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <t t-if="proportional_tax > 0">
+                                                                        <t t-set="supplier_tax"
+                                                                            t-value="supplier_tax + proportional_tax" />
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <!-- Fallback: use price_tax from winning
+                                                        lines
+                                                    if no tax_totals -->
+                                                        <t t-set="positive_taxes"
+                                                            t-value="supplier_winning_lines.filtered(lambda l: l.price_tax > 0)" />
+                                                        <t t-set="supplier_tax"
+                                                            t-value="sum(positive_taxes.mapped('price_tax')) if positive_taxes else 0.0" />
+                                                        <t t-set="negative_taxes"
+                                                            t-value="supplier_winning_lines.filtered(lambda l: l.price_tax &lt; 0)" />
+                                                        <t t-set="supplier_withholding"
+                                                            t-value="abs(sum(negative_taxes.mapped('price_tax'))) if negative_taxes else 0.0" />
+                                                    </t>
+                                                    <!-- Calculate total: Untaxed + Sales/Purchase
+                                                    Taxes
+                                                - Withholding (same as price comparison) -->
+                                                    <!-- Ensure all values are numeric and handle
+                                                    edge
+                                                cases -->
+                                                    <t t-set="supplier_total"
+                                                        t-value="supplier_total or 0.0" />
+                                                    <t t-set="supplier_tax"
+                                                        t-value="supplier_tax or 0.0" />
+                                                    <t t-set="supplier_withholding"
+                                                        t-value="supplier_withholding or 0.0" />
+                                                    <t t-set="supplier_grand_total"
+                                                        t-value="supplier_total + supplier_tax - supplier_withholding" />
+                                                    <td
+                                                        style="border: 1px solid black; padding: 5px; font-weight: bold;">
+                                                        Total</td>
+                                                    <td
+                                                        style="border: 1px solid black; padding: 5px; text-align: right; font-weight: bold;">
+                                                        <span
+                                                            t-esc="'{0:,.2f}'.format(supplier_grand_total)" />
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </table>
+                                    </t>
+                                    <t t-else="">
+                                        <div
+                                            style="padding: 10px; border: 1px solid black; text-align: center; font-style: italic;">
+                                            No winning suppliers found. Please evaluate bids first.
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

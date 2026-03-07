@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. REPORT ACTION -->
+    <record id="action_report_strategy_document" model="ir.actions.report">
+        <field name="name">Strategic Plan Document (PDF)</field>
+        <field name="model">corporate.strategy.document</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">corporate_planning.report_strategy_document</field>
+        <field name="report_file">corporate_planning.report_strategy_document</field>
+        <field name="binding_model_id" ref="model_corporate_strategy_document"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- 2. REPORT TEMPLATE -->
+    <template id="report_strategy_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    
+                    <!-- ========================================== -->
+                    <!-- PAGE 1: COVER PAGE                         -->
+                    <!-- ========================================== -->
+                    <div class="page" style="font-family: 'Helvetica', sans-serif;">
+                        <div style="height: 800px; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+                            
+                            <!-- Company Logo (Large) -->
+                            <div class="mb-5">
+                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 200px;"/>
+                            </div>
+
+                            <h1 style="font-size: 36px; font-weight: bold; margin-bottom: 20px;">
+                                <span t-field="o.name"/>
+                            </h1>
+                            
+                            <h2 style="color: #666;">
+                                <span t-field="o.start_year"/> - <span t-field="o.end_year"/>
+                            </h2>
+
+                            <div style="margin-top: 100px;">
+                                <h4><strong><span t-field="o.company_id.name"/></strong></h4>
+                                <p>Prepared by Corporate Planning Department</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 2: VISION, MISSION, VALUES            -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 20px; padding-right: 20px;">
+                        
+                        <div class="text-center mb-5">
+                            <h2>Strategic Identity</h2>
+                            <hr/>
+                        </div>
+
+                        <!-- Vision -->
+                        <div style="background-color: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                            <h3 style="color: #0d47a1;">Our Vision</h3>
+                            <div t-field="o.vision" style="font-size: 16px; font-style: italic;"/>
+                        </div>
+
+                        <!-- Mission -->
+                        <div style="background-color: #e8f5e9; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                            <h3 style="color: #1b5e20;">Our Mission</h3>
+                            <div t-field="o.mission" style="font-size: 16px;"/>
+                        </div>
+
+                        <!-- Core Values Section -->
+                        <div class="mt-5">
+                            <h3 style="color: #2c3e50; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;">Core Values</h3>
+                            
+                            <!-- Loop for Core Values Cards -->
+                            <t t-foreach="o.core_value_ids" t-as="val">
+                                <div style="background-color: #fff8e1; padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #ffa000;">
+                                    <!-- Value Name as Header -->
+                                    <h4 style="color: #b00020; font-weight: bold; margin-top: 0; margin-bottom: 5px; text-transform: uppercase;">
+                                        <i class="fa fa-star" style="font-size: 12px; vertical-align: middle;"/> <span t-field="val.name"/>
+                                    </h4>
+                                    <!-- Description -->
+                                    <div style="font-size: 14px; text-align: justify; color: #424242;">
+                                        <span t-field="val.description"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 3: STRATEGIC PILLARS                  -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 20px; padding-right: 20px;">
+                        <h2 style="color: #2c3e50;">Strategic Pillars</h2>
+                        <p class="text-muted" style="margin-bottom: 20px;">The core foundational areas of our strategy.</p>
+                        
+                        <table class="table table-bordered mt-4" style="border: 1px solid #ddd;">
+                            <!-- Styled Header -->
+                            <thead style="background-color: #004d40; color: white;">
+                                <tr>
+                                    <th style="color: white; width: 20%; vertical-align: middle; font-size: 14px;">Pillar</th>
+                                    <th style="color: white; width: 40%; vertical-align: middle; font-size: 14px;">Description</th>
+                                    <th style="color: white; width: 40%; vertical-align: middle; font-size: 14px;">Strategic Outcomes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.pillar_ids" t-as="pillar">
+                                    <!-- Styled Rows -->
+                                    <td style="font-weight: bold; background-color: #f1f8e9; vertical-align: top; color: #004d40;">
+                                        <span t-field="pillar.name"/>
+                                    </td>
+                                    <td style="text-align: justify; vertical-align: top;">
+                                        <span t-field="pillar.description"/>
+                                    </td>
+                                    <td style="text-align: justify; vertical-align: top;">
+                                        <span t-field="pillar.strategic_outcomes"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 4: GOALS & OBJECTIVES                 -->
+                    <!-- ========================================== -->
+                    <div class="page" style="padding-left: 20px; padding-right: 20px;">
+                        <h2 class="text-center mb-4" style="color: #2c3e50;">Strategic Goals &amp; Objectives</h2>
+                        <hr/>
+
+                        <t t-foreach="o.goal_ids" t-as="goal">
+                            <div style="margin-bottom: 30px; border: 1px solid #ddd; padding: 25px; border-radius: 5px; box-shadow: 3px 3px 8px #eee; page-break-inside: avoid;">
+                                <!-- Strategy Goal -->
+                                <h3 style="color: #c0392b; font-weight: bold; margin-top: 0;">
+                                    <i class="fa fa-flag-checkered"/> <span t-field="goal.name"/>
+                                </h3>
+                                
+                                <!-- Incentives -->
+                                <div class="mb-3 p-2" style="background-color: #f9f9f9; border-left: 3px solid #7f8c8d; font-style: italic; font-size: 13px;">
+                                    <strong>Strategy Description:</strong> <span t-field="goal.strategy_description"/>
+                                </div>
+
+                                <!-- Sub-Objectives List -->
+                                <h5 class="mt-3" style="text-decoration: underline; color: #34495e;">Strategic Objectives:</h5>
+                                <ul style="list-style-type: none; padding-left: 0;">
+                                    <t t-foreach="goal.objective_ids" t-as="obj">
+                                        <li style="margin-bottom: 15px; padding-left: 15px; border-left: 4px solid #2980b9;">
+                                            <div style="font-size: 15px; font-weight: bold; color: #2980b9;">
+                                                <span t-field="obj.name"/>
+                                            </div>
+                                            <div style="text-align: justify; margin-top: 3px; font-size: 13px;">
+                                                <span t-field="obj.description"/>
+                                            </div>
+                                            <h4 style="margin-top: 8px; font-size: 14px; color: #27ae60;">Key Initiatives:</h4>
+                                            <div style="text-align: justify; margin-top: 3px; font-size: 13px;">
+                                                <span t-field="obj.key_initiatives"/>
+                                            </div>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 5: BSC IMPLEMENTATION MATRIX          -->
+                    <!-- ========================================== -->
+                    <div class="page" style="font-size: 11px;">
+                        <div class="text-center mb-4">
+                            <h2>Balanced Scorecard Implementation Plan</h2>
+                            <p class="text-muted"><span t-field="o.start_year"/> - <span t-field="o.end_year"/></p>
+                        </div>
+                        <hr/>
+
+                        <!-- LOOP 1: Iterate through Unique Perspectives found in this document -->
+                        <!-- We use .sorted() to ensure they appear in a logical order if you have sequences on perspectives -->
+                        <t t-foreach="o.bsc_impl_ids.mapped('bsc_perspective').sorted(lambda p: p.name)" t-as="persp">
+                            
+                            <div style="margin-top: 25px; page-break-inside: avoid;">
+                                <!-- 1. Perspective Header (Dedicated Table Title) -->
+                                <div style="background-color: #2c3e50; color: white; padding: 8px; font-size: 14px; font-weight: bold; border-radius: 5px 5px 0 0;">
+                                    Perspective: <span t-field="persp.name"/>
+                                </div>
+
+                                <table class="table table-bordered table-sm">
+                                    <thead style="background-color: #f8f9fa;">
+                                        <tr>
+                                            <th style="width: 10%">Strategic Goal</th>
+                                            <th style="width: 25%;">Key Activities</th>
+                                            <th style="width: 15%;">KPI</th>
+                                            <th style="width: 5%;">Base</th>
+                                            <th style="width: 5%;">Target</th>
+                                            <th style="width: 8%;">Y1</th>
+                                            <th style="width: 8%;">Y2</th>
+                                            <th style="width: 8%;">Y3</th>
+                                            <th style="width: 8%;">Y4</th>
+                                            <th style="width: 8%;">Y5</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- LOOP 2: Filter lines belonging to THIS perspective -->
+                                        <!-- CRITICAL: Sort by 'sequence' to maintain the Goal -> Data hierarchy -->
+                                        <t t-foreach="o.bsc_impl_ids.filtered(lambda l: l.bsc_perspective.id == persp.id).sorted(key=lambda r: r.sequence)" t-as="line">
+                                            
+                                            <!-- A. STRATEGIC GOAL (Sub-Header) -->
+                                            <!-- <tr t-if="line.row_type == 'goal'" style="background-color: #e9ecef;">
+                                                <td colspan="9" style="font-weight: bold; padding-left: 15px; color: #495057;">
+                                                    <i class="fa fa-bullseye"/> Strategic Goal: <span t-field="line.name"/>
+                                                </td>
+                                            </tr> -->
+
+                                            <!-- B. DATA LINE -->
+                                            <tr t-if="line.row_type == 'data'">
+                                                <!-- We don't print Perspective/Goal columns because the headers above explain them -->
+                                                <td style="padding-left: 20px;"><span t-field="line.name"/></td>
+                                                <td style="padding-left: 20px;"><span t-field="line.key_activities"/></td>
+                                                <td><span t-field="line.kpi_id.name"/></td>
+                                                <td class="text-right"><span t-field="line.baseline"/></td>
+                                                <td class="text-right" style="font-weight: bold;"><span t-field="line.target_long_term"/></td>
+                                                
+                                                <td class="text-right"><span t-field="line.y1_target"/></td>
+                                                <td class="text-right"><span t-field="line.y2_target"/></td>
+                                                <td class="text-right"><span t-field="line.y3_target"/></td>
+                                                <td class="text-right"><span t-field="line.y4_target"/></td>
+                                                <td class="text-right"><span t-field="line.y5_target"/></td>
+                                            </tr>
+                                            
+                                            <!-- C. IGNORE PERSPECTIVE ROWS IN BODY -->
+                                            <!-- (Since we used the perspective as the main table header, we skip the row type 'perspective' inside the table) -->
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        
+                        <!-- Fallback: If no perspective is assigned (Data entered but not synced) -->
+                        <t t-if="o.bsc_impl_ids.filtered(lambda l: not l.bsc_perspective)">
+                            <div class="mt-4 text-danger">
+                                <strong>Warning:</strong> Some lines do not have a perspective assigned. Please save the document to sync sections.
+                            </div>
+                        </t>
+                    </div>
+                    <!-- BREAK -->
+                    <div style="page-break-before: always;"></div>
+
+                    <!-- ========================================== -->
+                    <!-- PAGE 6: FINANCIAL FORECASTS                -->
+                    <!-- ========================================== -->
+                    <div class="page">
+                        <h2>Financial Forecasts</h2>
+                        <hr/>
+
+                        <!-- Revenue -->
+                        <div style="margin-top: 30px; page-break-inside: avoid;">
+                            <h4 style="color: #27ae60; font-weight: bold;">1. Revenue Forecast</h4>
+                            <table class="table table-sm table-striped table-bordered" style="font-size: 11px;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 20%;">Business Unit</th>
+                                        <th style="width: 15%;">Source</th>
+                                        <th style="width: 15%;">Metric</th>
+                                        <th style="width: 10%;">Y1</th>
+                                        <th style="width: 10%;">Y2</th>
+                                        <th style="width: 10%;">Y3</th>
+                                        <th style="width: 10%;">Y4</th>
+                                        <th style="width: 10%;">Y5</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.revenue_forecast_ids" t-as="rev">
+                                        <td><span t-field="rev.business_unit_id.name"/></td>
+                                        <td><span t-field="rev.source_of_fund"/></td>
+                                        <td><span t-field="rev.kpi_id.name"/></td>
+                                        <td class="text-right"><span t-field="rev.y1_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="rev.y2_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="rev.y3_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="rev.y4_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="rev.y5_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Expense -->
+                        <div style="margin-top: 40px; page-break-inside: avoid;">
+                            <h4 style="color: #c0392b; font-weight: bold;">2. Expense Forecast</h4>
+                            <table class="table table-sm table-striped table-bordered" style="font-size: 11px;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 20%;">Business Unit</th>
+                                        <th style="width: 15%;">Source</th>
+                                        <th style="width: 15%;">Metric</th>
+                                        <th style="width: 10%;">Y1</th>
+                                        <th style="width: 10%;">Y2</th>
+                                        <th style="width: 10%;">Y3</th>
+                                        <th style="width: 10%;">Y4</th>
+                                        <th style="width: 10%;">Y5</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.expense_forecast_ids" t-as="exp">
+                                        <td><span t-field="exp.business_unit_id.name"/></td>
+                                        <td><span t-field="exp.source_of_fund"/></td>
+                                        <td><span t-field="exp.kpi_id.name"/></td>
+                                        <td class="text-right"><span t-field="exp.y1_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="exp.y2_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="exp.y3_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="exp.y4_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td class="text-right"><span t-field="exp.y5_value" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- SIGNATURES -->
+                        <div class="row mt-5" style="page-break-inside: avoid;">
+                            <div class="col-6">
+                                <p><strong>Prepared By:</strong></p>
+                                <br/><br/>
+                                <p>_________________________</p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p><strong>Approved By (CEO):</strong></p>
+                                <br/><br/>
+                                <p>_________________________</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,108 @@
+<odoo>
+    <data>
+        <record id="view_mrp_production_template_search" model="ir.ui.view">
+            <field name="name">mrp.production.template.search</field>
+            <field name="model">mrp.production.template</field>
+            <field name="arch" type="xml">
+                <search string="Search Manufacturing Templates">
+                    <field name="name" />
+                    <field name="production_type" />
+                    <group expand="1" string="Group By">
+                        <filter string="Production Type" name="group_type"
+                            context="{'group_by':'production_type'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_mrp_production_template_tree" model="ir.ui.view">
+            <field name="name">mrp.production.template.tree</field>
+            <field name="model">mrp.production.template</field>
+            <field name="arch" type="xml">
+                <list string="Manufacturing Templates">
+                    <field name="name" />
+                    <field name="production_type" widget="badge"
+                        decoration-info="production_type == 'manufacturing'"
+                        decoration-warning="production_type == 'maintenance'"
+                        decoration-success="production_type == 'test'" />
+                </list>
+            </field>
+        </record>
+
+        <record id="view_mrp_production_template_form" model="ir.ui.view">
+            <field name="name">mrp.production.template.form</field>
+            <field name="model">mrp.production.template</field>
+            <field name="arch" type="xml">
+                <form string="Manufacturing Template">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only" />
+                            <h1>
+                                <field name="name" placeholder="e.g. Standard Assembly V2" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="production_type" widget="radio" />
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Process Steps (Operations)" name="steps">
+                                <field name="step_ids">
+                                    <list editable="bottom">
+                                        <!-- Drag and Drop Handle -->
+                                        <field name="sequence" widget="handle" />
+
+                                        <field name="name"
+                                            placeholder="Operation Name (e.g. Cutting)" />
+                                        <field name="workcenter_id" options="{'no_create': True}" />
+
+                                        <!-- Optional: Define specific output if different from Main
+                                        Product -->
+                                        <field name="output_product_id"
+                                            placeholder="Intermediate Product" />
+
+                                        <!-- Dependency Selection -->
+                                        <field name="blocked_by_step_ids" widget="many2many_tags"
+                                            string="Depends On (Blockers)"
+                                            options="{'no_create': True}"
+                                            domain="[('template_id', '=', parent.id)]" />
+                                    </list>
+                                </field>
+
+                                <p class="text-muted"> * Define the order of operations using the
+                                    drag handle.<br /> * Use the "Depends On" field to block an
+                                    operation from starting until specific previous steps are
+                                    finished. </p>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_mrp_production_template" model="ir.actions.act_window">
+            <field name="name">Process Templates</field>
+            <field name="res_model">mrp.production.template</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new Process Template
+                </p>
+                <p>
+                    Define templates for Manufacturing, Maintenance, or Testing.
+                    These templates replace standard routings and create nested Manufacturing
+                    Orders.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_mrp_production_template"
+            name="Process Templates"
+            action="action_mrp_production_template"
+            parent="mrp.menu_mrp_configuration"
+            sequence="15" />
+
+    </data>
+</odoo>

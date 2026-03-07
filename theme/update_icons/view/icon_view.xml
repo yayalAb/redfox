@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+<!--        <menuitem id="project.menu_main_pm" name="Project"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/project.png"/>-->
+<!--        <menuitem id="contacts.menu_contacts" name="Contacts"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/contact.png"/>-->
+
+<!--        <menuitem id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" name="Dashboards"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/dashboard.png"/>-->
+
+<!--         <menuitem id="sale.sale_menu_root" name="Sales"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/sales.png"/>-->
+
+<!--        <menuitem id="account.menu_finance" name="Accounting"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/accounting.png"/>-->
+
+<!--           <menuitem id="stock.menu_stock_root" name="Inventory"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/inventory.png"/>-->
+
+<!--           <menuitem id="mrp.menu_mrp_root" name="Manufacturing"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/manufacturing.png"/>-->
+
+<!--            <menuitem id="purchase.menu_purchase_root" name="Purchase"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/purchase.png"/>-->
+
+<!--             <menuitem id="crm.crm_menu_root" name="CRM"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/crm.png"/>-->
+<!--        -->
+<!--        <menuitem id="project.menu_main_pm" name="Project"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/project.png"/>-->
+<!--        <menuitem id="contacts.menu_contacts" name="Contacts"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/contact.png"/>-->
+
+<!--        <menuitem id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" name="Dashboards"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/dashboard.png"/>-->
+
+<!--         <menuitem id="sale.sale_menu_root" name="Sales"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/sales.png"/>-->
+
+<!--        <menuitem id="account.menu_finance" name="Accounting"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/accounting.png"/>-->
+
+<!--           <menuitem id="stock.menu_stock_root" name="Inventory"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/inventory.png"/>-->
+
+<!--           <menuitem id="mrp.menu_mrp_root" name="Manufacturing"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/manufacturing.png"/>-->
+
+<!--            <menuitem id="point_of_sale.menu_point_root" name="Point of Sal"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/pos.png"/>-->
+
+<!--             <menuitem id="crm.crm_menu_root" name="CRM"-->
+<!--                  web_icon="ashewa_icons,static/src/img/icons/crm.png"/>-->
+
+
+
+
+
+    </data>
+</odoo>

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_inventory_balance_report,inventory.balance.report,model_inventory_balance_report,,1,1,1,1
+access_bin_card_report,bin.card.report,model_bin_card_report,,1,1,1,1
+access_manufacturing_balance_report,manufacturing.balance.report,model_manufacturing_balance_report,,1,1,1,1
+access_stock_balance_report_tree,stock.balance.report.tree,model_stock_balance_report_tree,,1,1,1,1
+access_manufactured_balance_report_tree,manufactured.balance.report.tree,model_manufactured_balance_report_tree,,1,1,1,1
+access_inventory_bin_card_report_tree,inventory.bin.card.report.tree,model_inventory_bin_card_report_tree,,1,1,1,1
+
+

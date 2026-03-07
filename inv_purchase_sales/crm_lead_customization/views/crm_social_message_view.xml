@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. ACTION (Moved to Top) -->
+    <record id="action_crm_social_message" model="ir.actions.act_window">
+        <field name="name">Social Messages</field>
+        <field name="res_model">crm.social.message</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click "Log Interaction" inside a Lead to create a record.
+            </p>
+        </field>
+    </record>
+
+    <!-- 2. LIST VIEW -->
+    <record id="view_crm_social_message_list" model="ir.ui.view">
+        <field name="name">crm.social.message.list</field>
+        <field name="model">crm.social.message</field>
+        <field name="arch" type="xml">
+            <list string="Interactions">
+                <field name="date" />
+                <field name="lead_id" />
+                <field name="platform" />
+                <field name="direction" widget="badge" decoration-info="direction == 'incoming'" decoration-warning="direction == 'outgoing'"/>
+                <field name="message" />
+                <field name="user_id" widget="many2one_avatar_user" />
+            </list>
+        </field>
+    </record>
+
+    <!-- 3. FORM VIEW (Simplified) -->
+    <record id="view_crm_social_message_form" model="ir.ui.view">
+        <field name="name">crm.social.message.form</field>
+        <field name="model">crm.social.message</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="platform" />
+                            <field name="direction" widget="radio"/>
+                            <field name="date" />
+                        </group>
+                        <group>
+                            <field name="lead_id" readonly="1"/>
+                            <field name="user_id" widget="many2one_avatar_user" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Interaction Details">
+                        <field name="message" placeholder="Summary of what was discussed..."/>
+                    </group>
+                    
+                    <!-- Flexible Follow Up Group -->
+                    <group string="Follow Up">
+                         <group>
+                            <field name="next_action_required"/>
+                            <field name="next_action_date" invisible="not next_action_required" required="next_action_required"/>
+                         </group>
+                         <group>
+                            <field name="next_action_note" placeholder="e.g. Send price list" invisible="not next_action_required" required="next_action_required"/>
+                         </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Save &amp; Schedule Activity" type="object" name="save_and_close" class="btn-primary" special="save"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- 4. MENUS -->
+    <!-- We keep the menu structure simple -->
+    <menuitem
+        id="menu_crm_social_root"
+        name="Social Media"
+        parent="crm.crm_menu_root"
+        sequence="10" />
+
+    <menuitem
+        id="menu_crm_social_message"
+        name="Interaction Logs"
+        parent="menu_crm_social_root"
+        action="action_crm_social_message" />
+
+</odoo>

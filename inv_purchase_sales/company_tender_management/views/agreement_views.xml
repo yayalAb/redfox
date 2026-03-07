@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit the Agreement form view to add the Tender field -->
+        <record id="view_agreement_form_inherit_tender" model="ir.ui.view">
+            <field name="name">agreement.form.inherit.tender</field>
+            <field name="model">sale.agreement</field>
+            <field name="inherit_id" ref="agreement.agreement_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="tender_id" readonly="1" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

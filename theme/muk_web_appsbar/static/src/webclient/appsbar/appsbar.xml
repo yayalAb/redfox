@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="muk_web_appsbar.AppsBar">
+        <div class="mk_apps_sidebar_panel">
+            <div class="mk_apps_sidebar">
+                <ul class="mk_apps_sidebar_menu">
+                    <t t-foreach="this.appMenuService.getAppsMenuItems()" t-as="app" t-key="app.id">
+                        <li t-attf-class="nav-item {{ app.id === this.appMenuService.getCurrentApp()?.id ? 'active' : '' }} {{ this._hasChildren(app) ? 'has-submenu' : '' }} {{ this._isSubmenuOpen(app) ? 'submenu-open' : '' }}">
+                            <a 
+                                t-att-href="app.href"
+                                t-att-data-menu-id="app.id" 
+                                t-att-data-menu-xmlid="app.xmlid" 
+                                t-att-data-action-id="app.actionID"
+                                t-on-click.prevent="(ev) => this._onAppClick(app, ev)"
+                                class="nav-link" 
+                                role="menuitem"
+                            >
+                                <img 
+                                    t-if="app.webIconData" 
+                                    class="mk_apps_sidebar_icon" 
+                                    t-att-src="app.webIconData"
+                                />
+                                <img  
+                                    t-else="" 
+                                    class="mk_apps_sidebar_icon" 
+                                    src="/base/static/description/icon.png"
+                                />
+                                <span class="mk_apps_sidebar_name">
+                                    <t t-out="app.label"/>
+                                </span>
+                                <t t-if="this._hasChildren(app)">
+                                    <span class="submenu-arrow">
+                                        <i t-attf-class="fa {{ this._isSubmenuOpen(app) ? 'fa-chevron-up' : 'fa-chevron-down' }}"/>
+                                    </span>
+                                </t>
+                            </a>
+                            <t t-if="this._hasChildren(app)">
+                                <ul class="mk_apps_submenu">
+                                    <t t-foreach="app.children" t-as="child" t-key="child.id">
+                                        <li t-attf-class="nav-item {{ child.id === this.appMenuService.getCurrentApp()?.id ? 'active' : '' }}">
+                                            <a 
+                                                t-att-href="child.href"
+                                                t-att-data-menu-id="child.id" 
+                                                t-att-data-menu-xmlid="child.xmlid" 
+                                                t-att-data-action-id="child.actionID"
+                                                t-on-click.prevent="() => this.appMenuService.selectApp(child)"
+                                                class="nav-link" 
+                                                role="menuitem"
+                                            >
+                                                <span class="mk_apps_sidebar_name">
+                                                    <t t-out="child.label"/>
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </t>
+                        </li>
+                    </t>
+                </ul>
+                <div t-if="sidebarImageUrl" class="mk_apps_sidebar_logo p-2">
+                    <img class="img-fluid mx-auto" t-att-src="sidebarImageUrl" alt="Logo"/>
+                </div>
+            </div>
+        </div>
+    </t>
+    
+</templates>

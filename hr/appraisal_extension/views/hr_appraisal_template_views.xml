@@ -1,0 +1,49 @@
+<odoo>
+  <!-- Inherit Form View -->
+  <record id="view_hr_appraisal_template_form_inherit" model="ir.ui.view">
+    <field name="name">hr.appraisal.template.form.inherit</field>
+    <field name="model">hr.appraisal.template</field>
+    <field name="inherit_id" ref="hr_appraisal.view_hr_appraisal_template_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='description']" position="after">
+        <group name="group_department_job">
+          <field name="department_id" string="Department"/>
+          <field name="job_id" string="Position"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Inherit Tree (List) View -->
+  <record id="view_hr_appraisal_template_list_inherit" model="ir.ui.view">
+    <field name="name">hr.appraisal.template.list.inherit</field>
+    <field name="model">hr.appraisal.template</field>
+    <field name="inherit_id" ref="hr_appraisal.hr_appraisal_template_view_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='description']" position="after">
+        <field name="department_id"/>
+        <field name="job_id"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Inherit Search View to Add Group By -->
+  <odoo>
+  <record id="view_hr_appraisal_template_search" model="ir.ui.view">
+    <field name="name">hr.appraisal.template.search</field>
+    <field name="model">hr.appraisal.template</field>
+    <field name="arch" type="xml">
+      <search string="Search Appraisal Templates">
+        <field name="department_id"/>
+        <field name="job_id"/>
+        
+        <group expand="1" string="Group By">
+          <filter string="Department" name="group_by_department" context="{'group_by': 'department_id'}"/>
+          <filter string="Position" name="group_by_position" context="{'group_by': 'job_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+</odoo>
+
+</odoo>

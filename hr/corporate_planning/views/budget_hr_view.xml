@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_budget_hr_list" model="ir.ui.view">
+        <field name="name">budget.hr.list</field>
+        <field name="model">corporate.planning.budget.hr</field>
+        <field name="arch" type="xml">
+            <list string="HR Budget Plans">
+                <field name="name"/>
+                <field name="department_id" optional="show"/>
+                <field name="company_id" optional="show"/>
+                <field name="fiscal_year_start" optional="show"/>
+                <field name="total_basic_salary" sum="Total Basic" optional="show"/>
+                <field name="total_transport" sum="Total Transport" optional="hide"/>
+                <field name="total_pension" sum="Total Pension" optional="hide"/>
+                <field name="total_housing" sum="Total Housing" optional="hide"/>
+                <field name="total_gym" sum="Total Gym" optional="hide"/>
+                
+                <!-- Main Totals -->
+                <field name="total_monthly_budget" sum="Total Monthly" decoration-bf="1" optional="show"/>
+                <field name="total_annual_budget" sum="Total Annual" decoration-bf="1" decoration-success="1"/>
+                
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_budget_hr_form" model="ir.ui.view">
+        <field name="name">budget.hr.form</field>
+        <field name="model">corporate.planning.budget.hr</field>
+        <field name="arch" type="xml">
+            <form string="HR Budget Plan">
+                <header>
+                    <!-- 1. WORKFLOW BUTTONS -->
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'confirmed'" groups="base.group_user"/> <!-- Restrict group later -->
+                    <button name="action_reset" string="Reset" type="object" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. HR Budget 2025 - IT Dept"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="company_id" />
+                            <field name="analytic_account_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="fiscal_year_start"/>
+                            <field name="fiscal_year_end"/>
+                            <field name="linked_budget_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    
+                    <!-- The Main Table -->
+                    <notebook>
+                        <page string="Employee Compensation">
+
+                            <div class="mb-2">
+                                <button name="action_open_employee_wizard" string="Add Multiple Employees" type="object" class="btn-secondary" icon="fa-users"/>
+                            </div>
+
+                            <field name="line_ids">
+                                <list editable="bottom" string="HR Planning Lines">
+                                    <!-- Employee Info -->
+                                    <field name="employee_id"/>
+                                    <field name="job_title"/>
+                                    
+                                    <!-- Monthly Items -->
+                                    <field name="basic_salary" sum="Total Basic"/>
+                                    <field name="position_allowance" optional="hide"/>
+                                    <field name="housing_allowance" optional="hide"/>
+                                    <field name="gym_allowance" optional="hide"/>
+                                    <field name="family_medical_allowance" optional="hide"/>
+                                    <field name="transport_allowance" optional="show"/>
+                                    <field name="overtime_estimated" optional="hide"/>
+                                    <field name="pension_11" optional="show"/>
+                                    <field name="cafeteria_allowance" optional="hide"/>
+                                    <field name="phone_allowance" optional="hide"/>
+                                    
+                                    <!-- Calculated Monthly -->
+                                    <field name="total_monthly" sum="Monthly Total" decoration-bf="1"/>
+                                    
+                                    <!-- Annual One-offs -->
+                                    <field name="annual_increment" optional="hide"/>
+                                    <field name="life_insurance" optional="hide"/>
+                                    <field name="medical_annual" optional="hide"/>
+                                    <field name="holiday_bonus" optional="show"/>
+                                    <field name="travel_allowance" optional="hide"/>
+                                    
+                                    <!-- Grand Total -->
+                                    <field name="grand_total_annual" sum="Grand Total" decoration-bf="1" decoration-success="1"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_monthly_budget"/>
+                                <field name="total_annual_budget" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Manpower Budget Plan">
+                            <field name="manpower_line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="job_position_id"/>
+                                    <field name="education_level"/>
+                                    <field name="work_experience" optional="show"/>
+                                    <field name="employment_type"/>
+                                    <field name="grade" optional="hide"/>
+                                    
+                                    <field name="quantity"/>
+                                    <field name="salary" widget="monetary"/>
+                                    
+                                    <!-- Calculated Subtotal (Invisible to user usually, or read-only) -->
+                                    <field name="subtotal_salary" string="Total Cost" sum="Total Manpower Cost" widget="monetary" decoration-bf="1"/>
+                                    
+                                    <field name="department_id" optional="show"/>
+                                    <field name="starting_date_note"/>
+                                    <field name="remark" optional="hide"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_manpower_budget"/>
+                                <div class="oe_subtotal_footer_separator oe_inline">
+                                    <label for="grand_total_combined"/>
+                                </div>
+                                <field name="grand_total_combined" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <!-- Chatter for history/tracking -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_budget_hr_planning" model="ir.actions.act_window">
+        <field name="name">Human Resource Planning</field>
+        <field name="res_model">corporate.planning.budget.hr</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new HR Budget Plan.
+            </p>
+        </field>
+    </record>
+
+</odoo>

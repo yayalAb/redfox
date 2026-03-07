@@ -1,0 +1,104 @@
+<odoo>
+    <data>
+        <!-- LIST VIEW -->
+        <record id="view_cip_request_tree" model="ir.ui.view">
+            <field name="name">cip.request.tree</field>
+            <field name="model">cip.request</field>
+            <field name="arch" type="xml">
+                <list string="CIP Requests"
+                    decoration-info="state == 'draft'"
+                    decoration-primary="state == 'submitted'"
+                    decoration-warning="state == 'review'"
+                    decoration-success="state == 'approved'"
+                    decoration-muted="state == 'rejected'">
+                    <field name="name" />
+                    <field name="requester_id" />
+                    <field name="supplier_name" />
+                    <field name="proposed_date" />
+                    <field name="contract_name" />
+                    <field name="state" widget="badge"
+                        decoration-info="state == 'draft'"
+                        decoration-primary="state == 'submitted'"
+                        decoration-warning="state == 'review'"
+                        decoration-success="state == 'approved'"
+                        decoration-danger="state == 'rejected'" />
+                </list>
+            </field>
+        </record>
+
+        <!-- FORM VIEW -->
+        <record id="view_cip_request_form" model="ir.ui.view">
+            <field name="name">cip.request.form</field>
+            <field name="model">cip.request</field>
+            <field name="arch" type="xml">
+                <form string="CIP Request">
+                    <header>
+                        <!-- Submit -->
+                        <button name="action_submit" string="Submit" type="object" 
+                                class="oe_highlight" 
+                                groups="custom_sale_agreement.group_cip_request_submit"
+                                invisible="state != 'draft'"/>
+                        
+                        <!--  Review -->
+                        <button name="action_review" string="Review" type="object" 
+                                class="oe_highlight" 
+                                groups="custom_sale_agreement.group_cip_request_review"
+                                invisible="state != 'submitted'"/>
+                        
+                        <!--  Approve -->
+                        <button name="action_approve" string="Approve" type="object" 
+                                class="oe_highlight" 
+                                groups="custom_sale_agreement.group_cip_request_approve"
+                                invisible="state != 'review'"/>
+
+                        <!--  Reject -->
+                        <button name="action_reject" string="Reject" type="object" 
+                                groups="custom_sale_agreement.group_cip_request_reject"
+                                invisible="state not in ['submitted', 'review']"/>
+
+                        <!-- Reset To Draft -->
+                        <button name="action_reset_draft" string="Reset to Draft" type="object" 
+                                groups="custom_sale_agreement.group_cip_request_reset"
+                                invisible="state == 'draft'"/>
+
+                        <field name="state" widget="statusbar"
+                            statusbar_visible="draft,submitted,review,approved" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="e.g. REQ/2023/001" readonly="state != 'draft'"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="General Information">
+                                <field name="requester_id" readonly="state != 'draft'"/>
+                                <field name="proposed_date" readonly="state != 'draft'"/>
+                                <field name="inspection_place" readonly="state != 'draft'"/>
+                            </group>
+                            <group string="Contract Details">
+                                <field name="supplier_name" readonly="state != 'draft'"/>
+                                <field name="contract_name" readonly="state != 'draft'"/>
+                                <field name="contract_date" readonly="state != 'draft'"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Products / Lines" name="lines">
+                                <field name="line_ids" readonly="state != 'draft'">
+                                    <list editable="bottom">
+                                        <field name="product_id" />
+                                        <field name="quantity_total" />
+                                        <field name="quantity_accepted" />
+                                        <field name="quantity_offered" />
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

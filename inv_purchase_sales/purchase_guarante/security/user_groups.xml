@@ -1,0 +1,11 @@
+<odoo>
+    <record model="ir.module.category" id="purchase_guarantee_groups_category">
+        <field name="name">Purchase Guarantee</field>
+        <field name="description">purchase guarantees management</field>
+    </record>
+
+    <record id="purchase_guarantee_group_expiry" model="res.groups">
+        <field name="name">Expiry</field>
+        <field name="category_id" ref="purchase_guarantee_groups_category" />
+    </record>
+</odoo>

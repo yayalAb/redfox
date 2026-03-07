@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report action for property sale -->
+    <record id="bin_card_report_action_report_custom" model="ir.actions.report">
+        <field name="name">Bin Card Report</field>
+        <field name="model">bin.card.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">inventory_report.bin_card_report_template_custom</field>
+        <field name="report_file">bin_card_report_template_custom</field>
+    </record>
+
+    <!-- Report template for Property sale -->
+    <template id="bin_card_report_template_custom">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                 <style>
+                    .print_doc_header {
+                        text-align: center;
+                        text-decoration: underline;
+                        margin-bottom: 15px;
+                    }
+                </style>
+
+                <!-- <h3 class="print_doc_header">Jerr private Limited Company</h3> -->
+                <h5 class="print_doc_header">Bin card  report</h5>
+                <div class="row">
+                   <t t-if="warehouses">
+                        <div class="col-6">
+                                <div>
+                                    <strong>Selected Warehouses</strong>
+                                    <ul>
+                                        <t t-foreach="warehouses" t-as="warehouse">
+                                            <li t-esc="warehouse"/>
+                                        </t>
+                                    </ul><br/><br/>
+                                </div>
+                        </div>
+                    </t>
+                </div>
+                <table class="table"  t-foreach="datas" t-as="line">
+                    <thead>
+                        <tr>
+                            <th>SL.no</th>
+                            <th>Item Code</th>
+                            <th>Item Name</th>
+                            <th>Beginning Balance</th>
+                            <th>Received</th>
+                            <th>Issued</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+<!--                    <t >-->
+                         <t t-set="i" t-value="0"/>
+                         <t t-set="balance" t-value="line['initial_balance']"/>
+                        <tr>
+                            <td>#</td>
+                            <td><span t-esc="line['item_code']"/></td>
+                            <td><span t-esc="line['product_name']"/></td>
+                            <td><span t-esc="line['initial_balance']"/></td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><span t-esc="balance"/></td>
+                        </tr>
+                        <tr t-foreach="line['move_details']" t-as="move">
+                            <td>
+                                <t t-set="i" t-value="i + 1"/>
+                                 <t t-set="balance" t-value="balance + move['in'] - move['out']"/>
+                                <span t-esc="i"/>
+                            </td>
+                            <td colspan="3">
+                                <span t-esc="move['date']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['in']"/>
+                            </td>
+                            <td>
+                                <span t-esc="move['out']"/>
+                            </td>
+                            <td>
+                                 <span t-esc="balance"/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td colspan="6">
+                                Total Balance
+                            </td>
+                            <td><b><span t-esc="balance"/></b></td>
+
+                        </tr>
+<!--                    </t>-->
+                    </tbody>
+                </table>
+            </t>
+        </t>
+    </template>
+</odoo>

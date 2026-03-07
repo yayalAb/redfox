@@ -1,0 +1,19 @@
+<odoo>
+    <data noupdate="1">
+        <!-- Input Types for Back Payments (These are correct and remain) -->
+        <record id="hr_payslip_input_type_bp_basic" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Basic</field><field name="code">BACKPAY_BASIC</field></record>
+        <record id="hr_payslip_input_type_bp_hra" model="hr.payslip.input.type"><field name="name">Back Pay Difference: House Rent Allowance</field><field name="code">BACKPAY_HRA</field></record>
+        <record id="hr_payslip_input_type_bp_da" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Dearness Allowance</field><field name="code">BACKPAY_DA</field></record>
+        <record id="hr_payslip_input_type_bp_ta" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Travel Allowance</field><field name="code">BACKPAY_TRA</field></record>
+        <record id="hr_payslip_input_type_bp_meal" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Meal Allowance</field><field name="code">BACKPAY_MEA</field></record>
+        <record id="hr_payslip_input_type_bp_med" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Medical Allowance</field><field name="code">BACKPAY_MEDA</field></record>
+        <record id="hr_payslip_input_type_bp_pos" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Position Allowance</field><field name="code">BACKPAY_POSA</field></record>
+        <record id="hr_payslip_input_type_bp_trh" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Transport (Home) Allowance</field><field name="code">BACKPAY_THA</field></record>
+        <record id="hr_payslip_input_type_bp_trw" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Transport (Work) Allowance</field><field name="code">BACKPAY_TWA</field></record>
+        <record id="hr_payslip_input_type_bp_fuel" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Fuel Allowance</field><field name="code">BACKPAY_FUEL</field></record>
+        <record id="hr_payslip_input_type_bp_cash" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Cash Indemnity</field><field name="code">BACKPAY_CIA</field></record>
+        <record id="hr_payslip_input_type_bp_prof" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Professional Allowance</field><field name="code">BACKPAY_PROA</field></record>
+        <record id="hr_payslip_input_type_bp_other" model="hr.payslip.input.type"><field name="name">Back Pay Difference: Other Allowance</field><field name="code">BACKPAY_OTHA</field></record>
+
+    </data>
+</odoo>

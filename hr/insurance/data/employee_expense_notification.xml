@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="insurance_request_email_template_id" model="mail.template">
+           <field name="name">Insurance Utilization Request Request</field>
+           <field name="model_id" ref="insurance.model_employee_insurance"/>
+           <field name="email_from">{{object.employee_id.work_email}}</field>
+           <field name="email_to">{{object.employee_id.parent_id.work_email}}</field>
+           <field name="subject">Insurance Utilization Request</field>
+           <field name="body_html" type="html">
+               <p> <span>Dear <t t-esc="object.employee_id.parent_id.name"/> </span></p>
+               <p> <b>I hope you are well!</b></p>
+               <p>I would like to formally request reimbursement for insurance expenses for <t t-esc="object.utilization_type"/>. Attached on
+                   the system are the relevant receipts and documentation required for processing the reimbursement</p>
+               <p>Best regards</p>
+           </field>
+       </record>
+
+        <record id="insurance_approval_email_template_id" model="mail.template">
+           <field name="name">Insurance Utilization Request Approve</field>
+           <field name="model_id" ref="insurance.model_employee_insurance"/>
+           <field name="email_from">{{object.employee_id.parent_id.work_email}}</field>
+           <field name="email_to">{{object.employee_id.work_email}}</field>
+           <field name="subject">Insurance Utilization Request Approval</field>
+           <field name="body_html" type="html">
+               <p> <span>Dear <t t-esc="object.employee_id.name"/> </span></p>
+               <p>I wanted to follow up on your recent insurance reimbursement request. Unfortunately, we cannot
+                    process it at this time due to the absence of the necessary document <t t-esc="object.rejection_reason"/>
+                    in the attached file.</p>
+               <p>Please attach the completed documents so we can proceed with your reimbursement request.</p>
+                 <p>Best regards, </p>
+           </field>
+       </record>
+
+    <record id="insurance_rejected_email_template_id" model="mail.template">
+           <field name="model_id" ref="insurance.model_employee_insurance"/>
+           <field name="email_from">{{object.employee_id.parent_id.work_email}}</field>
+           <field name="email_to">{{object.employee_id.work_email}}</field>
+           <field name="subject">Insurance Utilization Request Rejection</field>
+           <field name="body_html" type="html">
+               <p> <span>Dear <t t-esc="object.employee_id.name"/> </span></p>
+               <p>Thank you for your recent expense reimbursement request. After careful review, I regret to inform you
+                    that we are unable to approve this request at this time due to <t t-esc="object.rejection_reason"/> </p>
+               <p>Thank you for your understanding.</p>
+               <p>Best regards, </p>
+           </field>
+       </record>
+    </data>
+</odoo>

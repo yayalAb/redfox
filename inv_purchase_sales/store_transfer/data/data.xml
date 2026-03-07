@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+        <record id="seq_store_transfer_request_id" model="ir.sequence">
+            <field name="name">Store Transfer Request Sequence</field>
+            <field name="code">store.transfer.request</field>
+            <field name="prefix">STR/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"></field>
+        </record>
+
+
+    </data>
+</odoo>

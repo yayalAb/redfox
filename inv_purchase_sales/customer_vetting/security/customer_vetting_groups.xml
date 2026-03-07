@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <!-- 1. Define the Security Category for grouping permissions -->
+        <record id="module_category_customer_vetting" model="ir.module.category">
+            <field name="name">Customer Vetting</field>
+            <field name="description">User access levels for the Customer Vetting process.</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <!-- 2. Define the Vetting Manager Group -->
+        <record id="group_customer_vetting_manager" model="res.groups">
+            <field name="name">Vetting Manager</field>
+            <field name="category_id" ref="module_category_customer_vetting"/>
+            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="comment">The user will be able to approve or reject customer vetting submissions.</field>
+        </record>
+    </data>
+</odoo>

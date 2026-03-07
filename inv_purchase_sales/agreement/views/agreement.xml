@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="agreement_form" model="ir.ui.view">
+        <field name="name">sale.agreement.form</field>
+        <field name="model">sale.agreement</field>
+        <field name="arch" type="xml">
+            <form string="Agreement">
+                <header>
+                    <!-- Workflow Buttons -->
+                    <button
+                        name="action_submit"
+                        type="object"
+                        string="Submit"
+                        class="oe_highlight"
+                        groups="agreement.group_agreement_submit"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_review"
+                        type="object"
+                        string="Review"
+                        class="oe_highlight"
+                        groups="agreement.group_agreement_review"
+                        invisible="state != 'submitted'"
+                    />
+                    <button
+                        name="action_approve"
+                        type="object"
+                        string="Approve"
+                        class="oe_highlight"
+                        groups="agreement.group_agreement_approve"
+                        invisible="state != 'review'"
+                    />
+                    <button
+                        name="action_refuse"
+                        type="object"
+                        string="Refuse"
+                        groups="agreement.group_agreement_refuse"
+                        invisible="state not in ['submitted', 'review']"
+                    />
+                    <button
+                        name="action_draft"
+                        type="object"
+                        string="Reset to Draft"
+                        groups="agreement.group_agreement_reset_to_draft"
+                        invisible="state not in ['refuse', 'draft', 'done']"
+                    />
+                    
+                    <!-- Operational Buttons -->
+                    <button
+                        name="action_create_sale_order"
+                        type="object"
+                        string="Create Sale Order"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart"
+                        invisible="state != 'approved'"
+                    />
+                    <button
+                        name="action_done"
+                        type="object"
+                        string="Set to Done"
+                        groups="agreement.group_agreement_done"
+                        invisible="state != 'approved'"
+                    />
+
+                    <!-- Status Bar -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,review,approved,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="view_sale_orders"
+                            type="object"
+                            string="Sale Order"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart">
+                            <field string="Sale Order" name="sale_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    
+                    <!-- Ribbons -->
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Running"
+                        bg_color="bg-success"
+                        invisible="expiration_status != 'running'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Expired"
+                        bg_color="bg-warning"
+                        invisible="expiration_status != 'expired'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Refused"
+                        bg_color="bg-danger"
+                        invisible="state != 'refuse'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Closed"
+                        bg_color="bg-secondary"
+                        invisible="expiration_status != 'closed'"
+                    />
+                    
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Agreement Name"/>
+                        <h1>
+                            <!-- Readonly unless draft -->
+                            <field name="name" readonly="state != 'draft'"/>
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <group name="left">
+                            <field name="partner_id" readonly="state != 'draft'" required="1"/>
+                            <field name="agreement_type_id" readonly="state != 'draft'"/>
+                            <field name="total_value" readonly="1"/>
+                            <field name="agreement_category" readonly="state != 'draft'"/>
+                        </group>
+                        <group name="right">
+                            <field name="signature_date" readonly="state != 'draft'"/>
+                            <field name="start_date" readonly="state != 'draft'"/>
+                            <field name="end_date" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="expiration_status" invisible="1"/>
+                            <field name="attachment" widget="binary" filename="attachment_name" readonly="state != 'draft'"/>
+                            <field name="attachment_name" invisible="1" string=""/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="lines" string="Agreement Lines">
+                            <!-- Readonly unless draft (or perhaps review if you want managers to edit) -->
+                            <field name="line_ids" widget="one2many_list" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id" domain="[('id', 'in', parent.allowed_product_ids)]"/>
+                                    <field name="description" widget="text"/>
+                                    <field name="uom_id" widget="many2one"/>
+                                    <field name="quantity"/>
+                                    <field name="ordered_qty" readonly="1"/>
+                                    <field name="unit_price"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="total_price" readonly="1" sum="Total Price"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="description" string="Terms and Condition">
+                            <field name="description" widget="text" readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="agreement_list" model="ir.ui.view">
+        <field name="name">sale.agreement.list</field>
+        <field name="model">sale.agreement</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="partner_id"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="agreement_category"/>
+                <field name="signature_date"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'" 
+                       decoration-primary="state == 'submitted'"
+                       decoration-warning="state == 'review'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'refuse'"/>
+                <field name="expiration_status"/>
+                <field name="total_value" sum="Total"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="agreement_search" model="ir.ui.view">
+        <field name="name">sale.agreement.search</field>
+        <field name="model">sale.agreement</field>
+        <field name="arch" type="xml">
+            <search string="Search Agreements">
+                <field
+                    name="name"
+                    filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
+                    string="Name or Number"
+                />
+                <field name="partner_id"/>
+                <field name="state"/>
+                <field name="expiration_status"/>
+                <separator/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                
+                <!-- Updated Filters -->
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="review" string="Under Review" domain="[('state', '=', 'review')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="refuse" string="Refused" domain="[('state', '=', 'refuse')]"/>
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
+                
+                <separator/>
+                <filter name="expired" string="Expired" domain="[('expiration_status', '=', 'expired')]"/>
+                <filter name="sale" string="Sale" domain="[('agreement_category', '=', 'product_sale')]"/>
+                <filter name="maintenance" string="Maintenance" domain="[('agreement_category', '=', 'maintenance')]"/>
+                
+                <group name="groupby">
+                    <filter name="partner_groupby" string="Partner" context="{'group_by': 'partner_id'}"/>
+                    <filter name="agreement_category_groupby" string="Agreement Category" context="{'group_by': 'agreement_category'}"/>
+                    <filter name="signature_date_groupby" string="Signature Date" context="{'group_by': 'signature_date'}"/>
+                    <filter name="state_groupby" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="expiration_status_groupby" string="Expiration Status" context="{'group_by': 'expiration_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="agreement_action" model="ir.actions.act_window">
+        <field name="name">Agreements</field>
+        <field name="res_model">sale.agreement</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+    </record>
+</odoo>

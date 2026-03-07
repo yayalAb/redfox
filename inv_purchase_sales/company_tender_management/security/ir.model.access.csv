@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tender_request_user,tender.request.user,model_tender_request,base.group_user,1,1,1,1
+access_tender_request_line_user,tender.request.line.user,model_tender_request_line,base.group_user,1,1,1,1
+access_tender_stage,access.tender.stage,model_tender_stage,base.group_user,1,1,1,1
+access_tender_lost_reason_manager,tender.lost.reason.user,model_tender_lost_reason,base.group_user,1,1,1,1
+access_tender_lost_wizard_user,tender.lost.wizard.user,model_tender_lost_wizard,base.group_user,1,1,1,1
+access_bid_power_attorney,access.bid.power.attorney,model_bid_power_attorney,base.group_user,1,1,1,1
+access_bid_warranty_letter,access.bid.warranty.letter,model_bid_warranty_letter,base.group_user,1,1,1,1
+access_tender_checklist,access.tender.checklist,model_tender_checklist,base.group_user,1,1,1,1
+access_tender_bid_bond,access.tender.bid.bond,model_tender_bid_bond,base.group_user,1,1,1,1
