@@ -42,13 +42,11 @@ services:
             - ./addons_e:/mnt/addons_e
             - ./project:/mnt/project
             - ./accounting:/mnt/accounting
-            - ./documents:/mnt/documents
             - ./fleet:/mnt/fleet
             - ./hr:/mnt/hr
             - ./inv_purchase_sales:/mnt/inv_purchase_sales
             - ./manufacturing:/mnt/manufacturing
             - ./theme:/mnt/theme
-            - ./web_enterprise:/mnt/web_enterprise
         networks:
             - odoo-network
 
