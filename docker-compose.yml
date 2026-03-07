@@ -35,7 +35,7 @@ services:
             USER: ${POSTGRES_USER:-odoo}
             PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
         command: >
-            odoo --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/addons,/mnt/addons_e,/mnt/ht,/mnt/project,/mnt/accounting,/mnt/documents,/mnt/fleet,/mnt/hr,/mnt/inv_purchase_sales,/mnt/manufacturing,/mnt/theme,/mnt/web_enterprise
+            odoo --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/addons,/mnt/addons_e,/mnt/project,/mnt/accounting,/mnt/fleet,/mnt/hr,/mnt/inv_purchase_sales,/mnt/manufacturing,/mnt/theme
         volumes:
             - odoo-web-data:/var/lib/odoo
             - ./addons:/mnt/addons
