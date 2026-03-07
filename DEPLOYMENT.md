@@ -42,7 +42,6 @@ nano .env
 
 **Important variables:**
 - `POSTGRES_PASSWORD` — Use a strong, unique password (must match for both PostgreSQL and Odoo)
-- Edit `config/odoo.conf` and set `admin_passwd` to a strong master password for Odoo database creation
 
 ## 3. Deploy with Docker Compose
 
@@ -128,14 +127,14 @@ Internet → Nginx (port 80/443) → Odoo (port 8069)
 |-------|----------|
 | Odoo won't start | Check `docker compose logs odoo` — often DB connection (wrong password or DB not ready) |
 | 502 Bad Gateway | Odoo container may still be starting; wait 1–2 min or check `docker compose ps` |
-| Can't create database | Ensure `admin_passwd` in `config/odoo.conf` is set and PostgreSQL password in `.env` is correct |
+| Can't create database | Ensure PostgreSQL password in `.env` is correct; Odoo uses default `/etc/odoo/odoo.conf` |
 | Custom addons not visible | Verify volume mount and folder structure; check Odoo logs |
 
 ## 9. Security Checklist (Production)
 
 - [ ] Change all default passwords in `.env`
 - [ ] Enable SSL (Let's Encrypt)
-- [ ] Set `proxy_mode = True` in Odoo config when behind Nginx
+- [ ] Odoo uses default `/etc/odoo/odoo.conf`; DB credentials come from `.env`
 - [ ] Restrict PostgreSQL to internal Docker network only (default)
 - [ ] Configure firewall: `sudo ufw allow 80,443/tcp && sudo ufw enable`
 - [ ] Set up automated backups
