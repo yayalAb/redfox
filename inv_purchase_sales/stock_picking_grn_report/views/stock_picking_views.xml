@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Picking form: Vehicle & Reason (operation-level) -->
+    <record id="view_picking_form_grn_fields" model="ir.ui.view">
+        <field name="name">stock.picking.form.grn.fields</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="GRN Details / የዕቃ መቀበያ ሰነድ" name="grn_details">
+                    <group>
+                        <group string="Vehicle &amp; Reason">
+                            <field name="vehicle_plate" placeholder="e.g. 65312 / 19884"/>
+                            <field name="reason_for_entry" placeholder="e.g. ለማስቆጠር"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock move list: Weight & Quality (per product line) -->
+    <record id="view_stock_picking_move_list_grn" model="ir.ui.view">
+        <field name="name">stock.picking.move.list.grn</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_picking_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="grn_gross_weight" optional="show"/>
+                <field name="grn_tare_weight" optional="show"/>
+                <field name="grn_net_weight" optional="show"/>
+                <field name="grn_bag_count" optional="show"/>
+                <field name="grn_quality_pct" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

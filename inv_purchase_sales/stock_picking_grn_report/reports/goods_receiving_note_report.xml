@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_goods_receiving_note" model="ir.actions.report">
+        <field name="name">Goods Receiving Note / የደንበኞች መረከቢያ ሰነድ</field>
+        <field name="model">stock.picking</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_grn_report"/>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.report_goods_receiving_note</field>
+        <field name="report_file">stock_picking_grn_report.report_goods_receiving_note</field>
+        <field name="print_report_name">'GRN-%s' % object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_goods_receiving_note">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.report_goods_receiving_note_document" t-lang="o.partner_id.lang or o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_goods_receiving_note_document">
+        <t t-set="company" t-value="o.company_id"/>
+        <t t-set="docs" t-value="o"/>
+        <t t-set="first_move" t-value="o.move_ids_without_package[0] if o.move_ids_without_package else None"/>
+        <article class="document" style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; color: #333; min-height: 297mm;">
+            <style>
+                body, .container { margin: 0 !important; padding: 0 !important; }
+                .grn-page { padding: 5mm 10mm 10mm 10mm; margin: 0; }
+                .grn-header-row { display: table; width: 100%; margin-bottom: 8px; }
+                .grn-logo-cell { display: table-cell; width: 60px; vertical-align: top; padding-right: 10px; }
+                .grn-logo { max-height: 55px; max-width: 55px; }
+                .grn-info-cell { display: table-cell; vertical-align: top; }
+                .grn-company { font-size: 15px; font-weight: bold; color: #1a472a; margin: 0 0 3px 0; }
+                .grn-contact { font-size: 9px; color: #2d5a3d; margin: 0; line-height: 1.3; }
+                .grn-meta { position: absolute; top: 10mm; right: 15mm; text-align: right; font-size: 10px; }
+                .grn-meta-label { font-weight: bold; margin-bottom: 2px; }
+                .grn-meta-value { border-bottom: 1px solid #333; min-width: 70px; min-height: 16px; padding: 2px 4px; display: inline-block; }
+                .grn-title { text-align: center; font-size: 13px; font-weight: bold; margin: 12px 0 15px 0; padding: 6px 0; border-bottom: 2px solid #2e7d32; border-top: 2px solid #2e7d32; }
+                .grn-form-row { margin-bottom: 4px; display: table; width: 100%; }
+                .grn-form-label { display: table-cell; width: 38%; padding: 4px 8px 4px 0; font-size: 10px; vertical-align: middle; }
+                .grn-form-value { display: table-cell; border-bottom: 1px solid #333; padding: 4px 0; vertical-align: middle; }
+                .grn-form-value span { padding: 0 4px; }
+                .grn-table { width: 100%; border-collapse: collapse; margin: 12px 0; background: #fff; }
+                .grn-table th { padding: 5px 6px; border: 1px solid #333; text-align: center; font-size: 9px; }
+                .grn-table td { padding: 4px 6px; border: 1px solid #333; font-size: 10px; }
+                .grn-sig-table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+                .grn-sig-cell { width: 50%; padding: 10px 12px; vertical-align: top; }
+                .grn-sig-label { font-weight: bold; font-size: 9px; margin-bottom: 4px; }
+                .grn-sig-line { border-bottom: 1px solid #333; min-height: 35px; padding: 4px 0; }
+                .grn-footer { font-size: 8px; color: #3d6b4f; margin-top: 15px; padding-top: 6px; border-top: 1px solid #81c784; }
+            </style>
+
+            <div class="grn-page" style="position: relative;">
+                <!-- Header: Logo left, Company info, Date/No right -->
+                <div class="grn-header-row">
+                    <div class="grn-logo-cell">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" class="grn-logo" alt="Logo"/>
+                    </div>
+                    <div class="grn-info-cell">
+                        <div class="grn-company">ሬድ ፎክስ ቢዝነስ ኃ/የተ/የግ/ማህበር</div>
+                        <div class="grn-company">RED FOX BUSINESS PLC</div>
+                        <p class="grn-contact">
+                            <span t-field="company.phone"/>
+                            <t t-if="company.partner_id and company.partner_id.street"> | <span t-field="company.partner_id.street"/></t>
+                            | <span t-field="company.email"/> | <span t-field="company.partner_id.city"/>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grn-meta">
+                    <div class="grn-meta-label">Date / ቀን</div>
+                    <div class="grn-meta-value">
+                        <t t-if="o.date_done"><span t-field="o.date_done" t-options='{"widget": "date"}'/></t>
+                        <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options='{"widget": "date"}'/></t>
+                        <t t-else="">-</t>
+                    </div>
+                    <div class="grn-meta-label" style="margin-top: 8px;">№ / ቁጥር</div>
+                    <div class="grn-meta-value"><span t-field="o.name"/></div>
+                </div>
+
+                <!-- Document Title -->
+                <div class="grn-title">የደንበኞች መረከቢያ ሰነድ / Customer Receiving Document</div>
+
+                <!-- Form Fields (horizontal lines like physical form) -->
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>የአህሉ ባለቤት ስም / Owner's Name</strong></div>
+                    <div class="grn-form-value"><span t-field="o.partner_id.name"/></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>የመኪናው ሰሌዳ ቁጥር / Vehicle Plate</strong></div>
+                    <div class="grn-form-value"><span t-field="o.vehicle_plate"/><t t-if="not o.vehicle_plate">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>የእህል ዓይነት / Type of Grain</strong></div>
+                    <div class="grn-form-value"><t t-if="o.move_ids_without_package"><span t-field="o.move_ids_without_package[0].product_id.name"/></t><t t-else="">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>ገቢ የሆነበት ምክንያት / Reason for Entry</strong></div>
+                    <div class="grn-form-value"><t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry"/></t><t t-elif="o.note"><span t-field="o.note"/></t><t t-else="">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>ጠቅላላ ክብደት / Gross Weight</strong></div>
+                    <div class="grn-form-value"><t t-if="first_move and first_move.grn_gross_weight"><span t-esc="'{0:,.2f}'.format(first_move.grn_gross_weight)"/></t><t t-else="">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>ነጠላ ክብደት / Tare Weight</strong></div>
+                    <div class="grn-form-value"><t t-if="first_move and first_move.grn_tare_weight"><span t-esc="'{0:,.2f}'.format(first_move.grn_tare_weight)"/></t><t t-else="">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>የጆንያው ብዛት / Bag Count</strong></div>
+                    <div class="grn-form-value"><t t-if="first_move and first_move.grn_bag_count"><span t-esc="first_move.grn_bag_count"/></t><t t-else=""><t t-set="total_qty" t-value="sum(o.move_ids_without_package.mapped('quantity'))"/><span t-esc="'{0:,.0f}'.format(total_qty) if total_qty else '-'"/></t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>የተጣራ ክብደት / Net Weight</strong></div>
+                    <div class="grn-form-value"><t t-if="first_move and first_move.grn_net_weight"><span t-esc="'{0:,.2f}'.format(first_move.grn_net_weight)"/></t><t t-else="">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>የሚፈለገው የማጠሪያ ጥራት % / Required Quality %</strong></div>
+                    <div class="grn-form-value"><t t-if="first_move and first_move.grn_quality_pct"><span t-esc="'{0:,.2f}'.format(first_move.grn_quality_pct)"/></t><t t-else="">-</t></div>
+                </div>
+                <div class="grn-form-row">
+                    <div class="grn-form-label"><strong>ገቢ የሆነበት ሰነድ ቁጥር / Ref. Doc. No.</strong></div>
+                    <div class="grn-form-value"><span t-field="o.origin"/><t t-if="not o.origin">-</t></div>
+                </div>
+
+                <!-- Items Table (when multiple products) -->
+                <t t-if="len(o.move_ids_without_package) > 1">
+                    <table class="grn-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">ተ.ቁ</th>
+                                <th style="width: 30%;">የዕቃው ዓይነት</th>
+                                <th style="width: 10%;">መለኪያ</th>
+                                <th style="width: 10%;">ብዛት</th>
+                                <th style="width: 11%;">ጠቅላላ</th>
+                                <th style="width: 11%;">ባዶ</th>
+                                <th style="width: 11%;">የተጣራ</th>
+                                <th style="width: 6%;">ጆንያ</th>
+                                <th style="width: 6%;">ጥራት%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="i" t-value="0"/>
+                            <t t-foreach="o.move_ids_without_package" t-as="move">
+                                <t t-set="i" t-value="i + 1"/>
+                                <tr>
+                                    <td style="text-align: center;"><span t-esc="i"/></td>
+                                    <td><span t-field="move.product_id.name"/></td>
+                                    <td style="text-align: center;"><span t-field="move.product_uom.name"/></td>
+                                    <td style="text-align: right;"><span t-esc="'{0:,.2f}'.format(move.quantity)"/></td>
+                                    <td style="text-align: right;"><span t-esc="'{0:,.2f}'.format(move.grn_gross_weight) if move.grn_gross_weight else '-'"/></td>
+                                    <td style="text-align: right;"><span t-esc="'{0:,.2f}'.format(move.grn_tare_weight) if move.grn_tare_weight else '-'"/></td>
+                                    <td style="text-align: right;"><span t-esc="'{0:,.2f}'.format(move.grn_net_weight) if move.grn_net_weight else '-'"/></td>
+                                    <td style="text-align: right;"><span t-esc="move.grn_bag_count if move.grn_bag_count else '-'"/></td>
+                                    <td style="text-align: right;"><span t-esc="'{0:,.2f}'.format(move.grn_quality_pct) if move.grn_quality_pct else '-'"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+
+                <!-- Signatures - 2x2 grid matching physical form -->
+                <table class="grn-sig-table">
+                    <tr>
+                        <td class="grn-sig-cell">
+                            <div class="grn-sig-label">የአዘጋጀው ስምና ፊርማ / Prepared by</div>
+                            <div class="grn-sig-line"><span t-field="o.create_uid.name"/></div>
+                        </td>
+                        <td class="grn-sig-cell">
+                            <div class="grn-sig-label">የኃላፊ ፊርማ / Manager</div>
+                            <div class="grn-sig-line"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="grn-sig-cell">
+                            <div class="grn-sig-label">የአስረካቢው ስምና ፊርማ / Deliverer</div>
+                            <div class="grn-sig-line"><span t-field="o.partner_id.name"/></div>
+                        </td>
+                        <td class="grn-sig-cell">
+                            <div class="grn-sig-label">የክምችት ክፍል ኃላፊ ስምና ፊርማ / Store Head</div>
+                            <div class="grn-sig-line">
+                                <t t-if="o.location_dest_id and o.location_dest_id.warehouse_id and o.location_dest_id.warehouse_id.storeman_id"><span t-field="o.location_dest_id.warehouse_id.storeman_id.name"/></t>
+                                <t t-elif="o.approved_by"><span t-field="o.approved_by.name"/></t>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Footer -->
+                <div class="grn-footer">
+                    <strong>የሰነድ ስርጭት / Doc distribution:</strong> 1ኛው ለቢሮ / 2ኛው ለደንበኛ | Eth-Cana p.plc
+                </div>
+            </div>
+        </article>
+    </template>
+</odoo>
