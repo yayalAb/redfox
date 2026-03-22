@@ -40,12 +40,10 @@ services:
             HOST: db
             USER: ${POSTGRES_USER:-odoo}
             PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-            ADMIN_PASSWD: ${ADMIN_PASSWD:?Set ADMIN_PASSWD in .env}
-        command: >
-            sh -c "python3 -c \"import os; c=open('/etc/odoo/odoo.conf').read().replace('PLACEHOLDER_ADMIN_PASSWD', os.environ.get('ADMIN_PASSWD','')); open('/tmp/odoo.conf','w').write(c)\" && exec odoo -c /tmp/odoo.conf"
+        command: odoo -c /etc/odoo/odoo.conf
         volumes:
             - odoo-web-data:/var/lib/odoo
-            - ./etc/odoo-docker.conf:/etc/odoo/odoo.conf:ro
+            - ./etc/odoo.conf:/etc/odoo/odoo.conf:ro
             - ./addons:/mnt/addons
             - ./addons_e:/mnt/addons_e
             - ./project:/mnt/project
