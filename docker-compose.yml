@@ -28,17 +28,24 @@ services:
         depends_on:
             db:
                 condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8069/web/health')\" || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 120s
         ports:
             - "8069:8069"
         environment:
             HOST: db
             USER: ${POSTGRES_USER:-odoo}
             PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+            ADMIN_PASSWD: ${ADMIN_PASSWD:?Set ADMIN_PASSWD in .env}
         command: >
-            odoo --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/addons,/mnt/addons_e,/mnt/project,/mnt/accounting,/mnt/fleet,/mnt/hr,/mnt/inv_purchase_sales,/mnt/manufacturing,/mnt/theme
-            --admin-passwd=${ADMIN_PASSWD:?Set ADMIN_PASSWD in .env}
+            sh -c "python3 -c \"import os; c=open('/etc/odoo/odoo.conf').read().replace('PLACEHOLDER_ADMIN_PASSWD', os.environ.get('ADMIN_PASSWD','')); open('/tmp/odoo.conf','w').write(c)\" && exec odoo -c /tmp/odoo.conf"
         volumes:
             - odoo-web-data:/var/lib/odoo
+            - ./etc/odoo-docker.conf:/etc/odoo/odoo.conf:ro
             - ./addons:/mnt/addons
             - ./addons_e:/mnt/addons_e
             - ./project:/mnt/project
@@ -56,7 +63,8 @@ services:
         container_name: odoo18-nginx
         restart: unless-stopped
         depends_on:
-            - odoo
+            odoo:
+                condition: service_healthy
         ports:
             - "80:80"
             - "443:443"
