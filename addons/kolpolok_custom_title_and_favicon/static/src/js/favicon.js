@@ -10,6 +10,6 @@ patch(WebClient.prototype, {
     setup() {
         super.setup()
         const titleService = useService("title")
-        titleService.setParts({ zopenerp: "Niyat ERP" })
+        titleService.setParts({ zopenerp: "LITS ERP" })
     },
 })
