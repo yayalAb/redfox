@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="niyat_login_template_override" name="Niyat Login Override" inherit_id="web.login">
+    <template id="niyat_login_template_override" name="Loyal Login Override" inherit_id="web.login">
         <xpath expr="//t[@t-call='web.login_layout']" position="replace">
             <t t-call="web.login_layout">
                 <div class="o_login_container">
                     <!-- Top-left logo -->
-                    <img src="/custom_login_page/static/src/img/NiyatERP_PrimaryLogo.png" class="niyat-logo" alt="Niyat ERP Logo"/>
+                    <img src="/custom_login_page/static/src/img/loyal_erp_image.jpg" class="niyat-logo" alt="Niyat ERP Logo"/>
 
                     <!-- THE FIX: Left Panel now contains an <img> tag -->
                     <div class="left-panel">
-                        <img src="/custom_login_page/static/src/img/POS_login_image_fixed.svg" class="left-panel-img" alt="Login page illustration"/>
+                        <img src="/custom_login_page/static/src/img/loyal_erp_image.jpg" class="left-panel-img" alt="Login page illustration"/>
                     </div>
 
                     <!-- Right Panel with the login form -->
@@ -40,7 +40,7 @@
                             <input type="hidden" name="redirect" t-att-value="redirect"/>
                             <button type="submit" class="btn btn-primary">Login →</button>
                             <div class="powered-by">
-                                Powered by <a href="https://www.niyatconsultancy.com/" target="_blank"><strong>Niyat Consultancy</strong></a>
+                                Powered by <a href="https://loyalitsolution.com/" target="_blank"><strong>Loyal IT Solution</strong></a>
                             </div>
                         </form>
                     </div>

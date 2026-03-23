@@ -1,8 +1,8 @@
 {
-    'name': 'Niyat ERP Login Page Theme',
-    'version': '1.0.3', # Incremented version
+    'name': 'Login Page Theme',
+    'version': '1.0.3',  # Incremented version
     'summary': 'A beautiful, custom login page for Niyat ERP.',
-    'author': 'Niyat Consultancy',
+    'author': 'Yayal AB',
     'depends': [
         'web',
     ],
