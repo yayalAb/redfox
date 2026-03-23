@@ -2,12 +2,12 @@
     'name': 'hr menu restructure',
     'version': '18.0',
     'sequence': 1,
-    'summary': 'Niyat ERP  Base',
+    'summary': 'Update Menus Icon',
     'description': """
         This is a base module for  Modules.
             ========================================
     """,
-    'category': 'Niyat ERP /Base',
+    'category': 'Base',
     'website': 'https://www..et/',
     'license': 'LGPL-3',
     'depends': ['base', 'purchase', 'stock', 'sale', 'hr_payroll', 'hr_appraisal',
