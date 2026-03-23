@@ -1,13 +1,13 @@
 {
-    'name': 'Niyat base Base',
+    'name': 'Update Base Icons',
     'version': '18.0',
     'sequence': 1,
-    'summary': 'Niyat ERP  Base',
+    'summary': 'Update Base Icons',
     'description': """
         This is a base module for  Modules.
             ========================================
     """,
-    'category': 'Niyat ERP /Base',
+    'category': 'Base',
     'website': 'https://www..et/',
     'license': 'LGPL-3',
     'depends': ['base', 'web', 'web_editor'],
