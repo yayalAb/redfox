@@ -18,7 +18,8 @@
         'views/res_config_setting.xml',
         'views/res_users.xml',
         'views/webclient_templates.xml',
-        'views/login_template.xml'
+        'views/login_template.xml',
+        'views/res_company_inherit_view.xml',
     ],
     "assets": {
         "web.assets_frontend": [
