@@ -3,15 +3,35 @@
     <record id="view_move_form_inherit_approver" model="ir.ui.view">
         <field name="name">account.move.form.inherit.approver</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="inherit_id" ref="account.view_move_form" />
         <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <button name="action_submit" type="object" string="Submit"
+                    invisible="state != 'draft' or move_type != 'in_invoice'" class="oe_highlight" />
+                <button name="action_verify" type="object" string="Verify"
+                    invisible="state != 'submitted' or move_type != 'in_invoice'"
+                    class="oe_highlight" />
+                <button name="action_authorize" type="object" string="Authorize"
+                    invisible="state != 'verified' or move_type != 'in_invoice'"
+                    class="oe_highlight" />
+            </xpath>
+
+            
+            <!-- <xpath expr="//button[@name='action_post'][2]" position="attributes">
+                <attribute name="invisible">hide_post_button or move_type == 'entry' or display_inactive_currency_warning or (state != 'authorized' and move_type == 'in_invoice')</attribute>
+            </xpath> -->
+
+
+
             <!-- Post/Confirm Buttons - target all action_post buttons -->
             <xpath expr="//button[@name='action_post'][@data-hotkey='q']" position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_post</attribute>
             </xpath>
 
             <!-- Send Buttons - target all action_invoice_sent buttons -->
-            <xpath expr="//button[@name='action_invoice_sent'][@data-hotkey='y']" position="attributes">
+            <xpath expr="//button[@name='action_invoice_sent'][@data-hotkey='y']"
+                position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_send</attribute>
             </xpath>
 
@@ -24,9 +44,10 @@
             <xpath expr="//button[@id='account_invoice_payment_btn']" position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_pay</attribute>
             </xpath>
-            
+
             <!-- Pay Button (secondary) -->
-            <xpath expr="//button[@id='account_invoice_payment_secondary_btn']" position="attributes">
+            <xpath expr="//button[@id='account_invoice_payment_secondary_btn']"
+                position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_pay</attribute>
             </xpath>
 
@@ -41,7 +62,8 @@
             </xpath>
 
             <!-- Credit Note Button -->
-            <xpath expr="//button[@name='action_reverse'][@data-hotkey='shift+n']" position="attributes">
+            <xpath expr="//button[@name='action_reverse'][@data-hotkey='shift+n']"
+                position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_reverse</attribute>
             </xpath>
 
@@ -56,12 +78,14 @@
             </xpath>
 
             <!-- Set as Checked Button -->
-            <xpath expr="//button[@name='button_set_checked'][@data-hotkey='k']" position="attributes">
+            <xpath expr="//button[@name='button_set_checked'][@data-hotkey='k']"
+                position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_set_checked</attribute>
             </xpath>
 
             <!-- Request Cancel Button -->
-            <xpath expr="//button[@name='button_request_cancel'][@data-hotkey='w']" position="attributes">
+            <xpath expr="//button[@name='button_request_cancel'][@data-hotkey='w']"
+                position="attributes">
                 <attribute name="groups">invoice_bill_approver.group_invoice_bill_request_cancel</attribute>
             </xpath>
 
@@ -72,7 +96,8 @@
 
             <!-- Capture Transaction Button -->
             <xpath expr="//button[@name='payment_action_capture']" position="attributes">
-                <attribute name="groups">invoice_bill_approver.group_invoice_bill_capture_transaction</attribute>
+                <attribute name="groups">
+                    invoice_bill_approver.group_invoice_bill_capture_transaction</attribute>
             </xpath>
 
             <!-- Void Transaction Button -->
@@ -92,4 +117,3 @@
         </field>
     </record>
 </odoo>
-

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- ================================================== -->
+        <!-- TENDER MANAGEMENT CATEGORY                         -->
+        <!-- ================================================== -->
+        <record id="module_category_tender_management" model="ir.module.category">
+            <field name="name">Tender Management</field>
+            <field name="description">Access rights related to Tender Participation</field>
+            <field name="sequence">35</field>
+        </record>
+
+        <!-- Tender Specific Groups -->
+        <record id="group_tender_submit" model="res.groups">
+            <field name="name">Tender Submit</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_review" model="res.groups">
+            <field name="name">Tender Review</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_doc_submit" model="res.groups">
+            <field name="name">Technical Doc Prep</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_doc_review" model="res.groups">
+            <field name="name">Technical Doc Review</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_client_submission" model="res.groups">
+            <field name="name">Tender Submission to Client</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_win" model="res.groups">
+            <field name="name">Tender Won</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_lose" model="res.groups">
+            <field name="name">Tender Lost</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+        <record id="group_tender_reject" model="res.groups">
+            <field name="name">Tender Reject (Internal)</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+
+        <record id="group_tender_reset" model="res.groups">
+            <field name="name">Tender Reset to Draft</field>
+            <field name="category_id" ref="module_category_tender_management"/>
+        </record>
+    </data>
+</odoo>

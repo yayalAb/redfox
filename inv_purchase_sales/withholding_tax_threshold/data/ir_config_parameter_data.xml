@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="withholding_tax_threshold_default" model="ir.config_parameter">
+            <field name="key">withholding_tax_threshold.amount_threshold</field>
+            <field name="value">20000</field>
+        </record>
+    </data>
+</odoo>

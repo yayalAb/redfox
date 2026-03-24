@@ -9,7 +9,7 @@
                         <div class="oe_structure" />
 
 
-                        <t t-if="doc.state in ['draft', 'sent', 'cancelled']">
+                        <t t-if="doc.state in ['draft', 'quotation_submit', 'quotation_review', 'quotation_approve', 'quotation_refuse', 'order_submit', 'order_review', 'sent', 'cancel']">
                             <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
 
                             <t t-set="doc_title" t-value="'Sales Order'" />
@@ -207,7 +207,8 @@
                                 </tbody>
                             </table>
 
-                            <div style="position: absolute; bottom: 20px; left: 30px; right: 30px;">
+                            <!-- <div style="position: absolute; bottom: 20px; left: 30px; right: 30px;"> -->
+                            <div style="margin-top: 30px; font-size: 11px; line-height: 1.4; page-break-inside: avoid;">
                                 <div style="margin-top: 15px;">
                                     <strong style="text-decoration: underline;">NOTES</strong>
                                     <ul
@@ -329,13 +330,20 @@
                                     </div>
                                 </div>
                                 <div style="margin-top: 15px;">
-                                    <ul
+                                    <!-- <ul
                                         style="list-style-type: square; padding-left: 20px; margin-top: 5px;">
                                         <t t-foreach="doc.company_id.partner_id.bank_ids"
                                             t-as="bank">
                                             <li style="margin-bottom: 10px;">
                                                 <t t-esc="bank.bank_id.name" /> Account no:- <span
                                                     t-esc="bank.acc_number" />
+                                            </li>
+                                        </t>
+                                    </ul> -->
+                                    <ul style="list-style-type: square; padding-left: 20px; margin-top: 5px;">
+                                        <t t-foreach="doc.company_id.partner_id.bank_ids" t-as="bank">
+                                            <li style="margin-bottom: 10px;">
+                                                <t t-esc="bank.bank_id.name" /> Account no:- <span t-esc="bank.acc_number" />
                                             </li>
                                         </t>
                                     </ul>
@@ -356,14 +364,15 @@
                                 </div>
                                 <div class='col-2'>
                                     <div style="border-bottom: 1px solid black; min-height: 20px;">
-                                        <span t-field="doc.date_order" t-options='{"widget": "date"}' style="padding-left: 5px;" />
+                                        <!-- <span t-field="doc.date_order" t-options='{"widget": "date"}' style="padding-left: 5px;" /> -->
+                                        <span t-field="doc.date_order" t-options='{"widget": "date"}' style="padding-left: 15px; margin-top: -2px;" />
                                     </div>
                                 </div>
                             </div>
                             <div class="row" style="margin-top: 2px;">
                                 <div class='col-9'></div>
                                 <div class="col-1" style="padding-right: 0;">
-                                    <strong>Ref No</strong>: 
+                                    <strong>የደብዳቤ ቁጥር<br />Ref No</strong>: 
                                 </div>
                                 <div class='col-2'>
                                     <div style="border-bottom: 1px solid black; min-height: 20px;">

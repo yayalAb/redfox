@@ -29,7 +29,6 @@
         'views/payment_request_views.xml',
         'views/purchase_request_views.xml',
         'views/sale_order_extension_views.xml',
-        'views/mrp_production_views.xml',
         'views/sale_agreement_document_wizard_views.xml',
         'views/sale_agreement_views.xml',
         'views/sale_order_views.xml',

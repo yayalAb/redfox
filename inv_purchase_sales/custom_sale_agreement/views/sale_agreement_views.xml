@@ -19,12 +19,12 @@
                 <!-- <button name="action_create_manufacturing_order"
                     type="object" string="Create Test Order"
                     class="oe_highlight"
-                    invisible="agreement_category != 'test' or state != 'confirmed'" />
+                    invisible="agreement_category != 'test' or state != 'approved'" />
 
                 <button name="action_create_service_request"
                     type="object" string="Create Service Request"
                     class="oe_highlight"
-                    invisible="agreement_category != 'maintenance' or state != 'confirmed'" />
+                    invisible="agreement_category != 'maintenance' or state != 'approved'" />
 
                 <button name="action_create_purchase_request"
                     type="object" string="Create Purchase Request"
@@ -39,7 +39,7 @@
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
                 <!-- <button name="action_view_manufacturing_orders"
                     type="object" class="oe_stat_button" icon="fa-cogs"
-                    invisible="agreement_category != 'product_sale' or state != 'confirmed' or mrp_count == 0">
+                    invisible="agreement_category != 'product_sale' or state != 'approved' or mrp_count == 0">
                     <field string="Manufacturing" name="mrp_count" widget="statinfo" />
                 </button> -->
 
@@ -53,7 +53,7 @@
 
                 <!-- <button name="action_view_rfps"
                     type="object" class="oe_stat_button" icon="fa_shopping-cart"
-                    invisible="state != 'confirmed' or rfp_count == 0">
+                    invisible="state != 'approved' or rfp_count == 0">
                     <field string="Purchase Requests" name="rfp_count" widget="statinfo" />
                 </button> -->
 

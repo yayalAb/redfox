@@ -454,6 +454,9 @@
                             <!-- Get unique suppliers from winning lines -->
                             <t t-set="winning_suppliers"
                                 t-value="winning_lines_by_supplier.mapped('order_id.partner_id')" />
+                            <!-- Withholding tax threshold: show withholding only when amount_untaxed > threshold -->
+                            <t t-set="withholding_threshold"
+                                t-value="float(o.env['ir.config_parameter'].sudo().get_param('withholding_tax_threshold.amount_threshold', '20000.0'))" />
 
                             <!-- NEW LAYOUT: Side-by-Side Sections -->
                             <div class="row" style="margin-top: 20px; page-break-inside: avoid;">
@@ -673,10 +676,10 @@
                                                 <t t-set="supplier_rfq_check"
                                                     t-value="supplier_winning_lines_check[0].order_id if supplier_winning_lines_check else False" />
                                                 <t t-set="supplier_withholding_check" t-value="0.0" />
+                                                <t t-set="winning_subtotal_check"
+                                                    t-value="sum(supplier_winning_lines_check.mapped('price_subtotal')) if supplier_winning_lines_check else 0.0" />
                                                 <t
                                                     t-if="supplier_rfq_check and supplier_rfq_check.tax_totals and supplier_rfq_check.amount_untaxed > 0">
-                                                    <t t-set="winning_subtotal_check"
-                                                        t-value="sum(supplier_winning_lines_check.mapped('price_subtotal'))" />
                                                     <t t-set="rfq_subtotal_check"
                                                         t-value="supplier_rfq_check.amount_untaxed" />
                                                     <t t-set="ratio_check"
@@ -705,7 +708,7 @@
                                                         </t>
                                                     </t>
                                                 </t>
-                                                <t t-if="supplier_withholding_check > 0">
+                                                <t t-if="supplier_withholding_check > 0 and winning_subtotal_check > withholding_threshold">
                                                     <t t-set="has_any_withholding" t-value="True" />
                                                 </t>
                                             </t>
@@ -716,6 +719,8 @@
                                                             t-value="winning_lines_by_supplier.filtered(lambda l: l.order_id.partner_id == supplier)" />
                                                         <t t-set="supplier_rfq"
                                                             t-value="supplier_winning_lines[0].order_id if supplier_winning_lines else False" />
+                                                        <t t-set="winning_subtotal"
+                                                            t-value="sum(supplier_winning_lines.mapped('price_subtotal')) if supplier_winning_lines else 0.0" />
                                                         <t t-set="supplier_withholding"
                                                             t-value="0.0" />
                                                         <!-- Calculate withholding proportionally
@@ -761,6 +766,10 @@
                                                                 t-value="supplier_winning_lines.filtered(lambda l: l.price_tax &lt; 0)" />
                                                             <t t-set="supplier_withholding"
                                                                 t-value="abs(sum(negative_taxes.mapped('price_tax'))) if negative_taxes else 0.0" />
+                                                        </t>
+                                                        <!-- Zero withholding if amount <= threshold -->
+                                                        <t t-if="winning_subtotal &lt;= withholding_threshold">
+                                                            <t t-set="supplier_withholding" t-value="0.0" />
                                                         </t>
                                                         <td
                                                             style="border: 1px solid black; padding: 5px;">Withholding
@@ -853,6 +862,10 @@
                                                     <!-- Calculate total: Untaxed + Sales/Purchase
                                                     Taxes
                                                 - Withholding (same as price comparison) -->
+                                                    <!-- Zero withholding if amount <= threshold -->
+                                                    <t t-if="(supplier_total or 0.0) &lt;= withholding_threshold">
+                                                        <t t-set="supplier_withholding" t-value="0.0" />
+                                                    </t>
                                                     <!-- Ensure all values are numeric and handle
                                                     edge
                                                 cases -->

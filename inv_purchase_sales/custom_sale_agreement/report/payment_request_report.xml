@@ -22,7 +22,7 @@
                     <t t-set="issue_number" t-value="'1'" />
 
                     <!--Set global font size to 14pt -->
-                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 13pt;">
+                    <div class="page" style="font-family: 'Times New Roman', serif; font-size: 14pt;">
                         
                         <!--REF NO & DATE SECTION -->
                         <div class="row">
@@ -142,9 +142,11 @@
                             </div>
                         </div>
 
-                         <div class="row mt-3">
+                    
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <p>Your immediate response is highly appreciated.</p>
+                                <p>Best regards,</p>
                             </div>
                         </div>
 

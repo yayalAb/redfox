@@ -136,12 +136,12 @@ class SuppliesRfp(models.Model):
                 vals['rfp_number'] = f"{prefix.upper()}-{sequence_number}"
         return super(SuppliesRfp, self).create(vals_list)
 
-        @api.onchange('store_request_id')
-        def _onchange_store_request_id(self):
-            if self.store_request_id:
-                self.department_id = self.store_request_id.department_id
-                self.company_id = self.store_request_id.company_id
-                self.purpose = self.store_request_id.purpose
+    @api.onchange('store_request_id')
+    def _onchange_store_request_id(self):
+        if self.store_request_id:
+            self.department_id = self.store_request_id.department_id
+            self.company_id = self.store_request_id.company_id
+            self.purpose = self.store_request_id.purpose
 
     @api.depends('store_request_id.requested_by.department_id')
     def _compute_department_id(self):

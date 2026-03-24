@@ -118,7 +118,6 @@ class SuppliesRfp(models.Model):
             po_vals = {
                 'partner_id': supplier.id,
                 'rfp_id': self.id,
-                'store_request_id': self.store_request_id.id if self.store_request_id else False,
                 'origin': self.rfp_number,
                 'order_line': [],
                 'currency_id': self.currency_id.id,
@@ -177,6 +176,7 @@ class SuppliesRfp(models.Model):
                 'domain': [('id', 'in', created_pos.ids)],
                 'target': 'current',
             }
+
 
     def _compute_comparison_table(self):
         for rec in self:
@@ -510,6 +510,13 @@ class SuppliesRfp(models.Model):
             
             # Get unique suppliers from winning lines
             winning_suppliers = winning_lines_by_supplier.mapped('order_id.partner_id')
+
+            # Withholding tax threshold: show withholding only when amount_untaxed > threshold
+            withholding_threshold = float(
+                rec.env['ir.config_parameter'].sudo().get_param(
+                    'withholding_tax_threshold.amount_threshold', '20000.0'
+                )
+            )
             
             if winning_suppliers:
                 # Calculate totals per supplier using ONLY winning lines (not entire RFQ)
@@ -586,6 +593,10 @@ class SuppliesRfp(models.Model):
                         elif total_price_tax < 0:
                             supplier_withholding = abs(total_price_tax)
                     
+                    # Zero withholding if amount <= threshold (withholding only above minimum)
+                    if supplier_total <= withholding_threshold:
+                        supplier_withholding = 0.0
+
                     # Calculate grand total: Untaxed + Sales/Purchase Taxes - Withholding
                     supplier_grand_total = supplier_total + supplier_tax - supplier_withholding
                     
@@ -593,8 +604,8 @@ class SuppliesRfp(models.Model):
                     if supplier_tax > 0:
                         has_any_positive_tax = True
                     
-                    # Only mark as having withholding if actually found in tax_totals
-                    if supplier_withholding > 0:
+                    # Only mark as having withholding if > 0 and amount > threshold
+                    if supplier_withholding > 0 and supplier_total > withholding_threshold:
                         has_any_withholding = True
                     
                     supplier_totals[supplier.id] = {

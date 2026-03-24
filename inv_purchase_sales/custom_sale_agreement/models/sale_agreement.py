@@ -8,11 +8,7 @@ class SaleAgreement(models.Model):
 
     code = fields.Char(string="Contract Number", required=True,
                        default=lambda self: _('New'), readonly=True, copy=False)
-    agreement_category = fields.Selection([
-        ('product_sale', 'Product Sale'),
-        ('maintenance', 'Maintenance'),
-        ('test', 'Test')
-    ])
+
     name = fields.Char(string='Contract Name')
     country_of_origin_id = fields.Many2one(
         'res.country', string='Country of Origin')
@@ -87,14 +83,21 @@ class SaleAgreement(models.Model):
                 vals['code'] = sequence_code
         return super().create(vals_list)
 
-    def action_confirm(self):
+    # Use action_approve instead of action_confirm for your workflow
+    def action_approve(self):
         for agreement in self:
             if not agreement.line_ids:
-                raise ValidationError(
-                    _("Please add at least one product to create a contract agreement."))
-        return super(SaleAgreement, self).action_confirm()
+                raise ValidationError(_("Please add at least one product."))
 
-    # def unlink(self):
+            # CAPTURE THE USER AND DATE
+            agreement.write({
+                'state': 'approved',
+                'approved_by_id': self.env.user.id,
+                'signature_date': fields.Date.today()  # Update signature date to approval date
+            })
+        return True
+
+    # def _compute_mrp_count(self):
     #     for agreement in self:
     #         if agreement.state != 'draft':
     #             raise ValidationError(
@@ -298,9 +301,9 @@ class SaleAgreement(models.Model):
     #     self.line_ids._compute_ordered_qty()
 
     #     return {
-    #         "type": "ir.actions.act_window", 
+    #         "type": "ir.actions.act_window",
     #         "res_model": "sale.order",
-    #         "res_id": sale_order.id, 
+    #         "res_id": sale_order.id,
     #         "view_mode": "form",
     #         "target": "current",
     #     }
@@ -464,9 +467,9 @@ class SaleAgreement(models.Model):
 
             cip_line_vals.append((0, 0, {
                 'product_id': line.product_id.id,
-                'quantity_total': line.quantity,        # Amount agreed with customer
-                'quantity_accepted': line.tested_qty,   # Amount already accepted/tested
-                'quantity_offered': qty_offered,        # Quantity to be tested now
+                'quantity_total': line.quantity,
+                'quantity_accepted': line.tested_qty,
+                'quantity_offered': qty_offered,
             }))
 
         if not cip_line_vals:
@@ -477,7 +480,7 @@ class SaleAgreement(models.Model):
             'name': _('CIP/%s/%s') % (self.code, fields.Date.today()),
             'agreement_id': self.id,
             'contract_name': self.name,
-            'contract_date': self.create_date,  # Or your specific signature field
+            'contract_date': self.create_date,
             'supplier_name': self.company_id.name,
             'state': 'draft',
             'line_ids': cip_line_vals,
@@ -515,5 +518,5 @@ class SaleAgreement(models.Model):
 #             )
 #             line.manufactured_qty = sum(related_mos.mapped('product_qty'))
 
-#             tested_mos = related_mos.filtered(lambda mo: mo.elpa_approved)
-#             line.tested_qty = sum(tested_mos.mapped('product_qty'))
+    # tested_mos = related_mos.filtered(lambda mo: mo.elpa_approved)
+    # line.tested_qty = sum(tested_mos.mapped('product_qty'))

@@ -51,7 +51,7 @@
 
                     <button
                         name="action_initial_verfied"
-                        string="Verfay"
+                        string="Verify"
                         class="oe_highlight"
                         type="object"
                         groups="VendorBid.group_rfp_verifyer"
@@ -186,6 +186,7 @@
                         groups="VendorBid.group_rfp_create_order"
                         invisible="state != 'approved' or not (purchase_origin == 'local' and purchase_type in ['petty_cash','direct'])"
                     />
+
 
                     <!-- <button
                         name="action_open_po_creation_form"

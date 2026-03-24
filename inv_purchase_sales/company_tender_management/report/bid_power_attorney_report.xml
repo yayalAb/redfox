@@ -19,6 +19,65 @@
                 <t t-call="web.external_layout">
                     <div class="page" style="font-family: 'Times New Roman', serif; font-size: 14pt; color: #000; line-height: 1.6; margin-top: 20px; margin-right: 40px; margin-left: 40px;">
                         
+                        <!-- <div class="row" style="font-size: 12pt; line-height: 1.0;">
+                            <div class="col-7"></div>
+                            <div class="col-5">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                   
+                                    <tr>
+                                        <td style="padding: 0px; vertical-align: bottom; width: 40%;">
+                                            <strong style="font-size: 12pt;">የደብዳቤ ቁጥር፡</strong><br/>
+                                            <strong style="font-size: 12pt;">Ref No</strong>
+                                        </td>
+                                        <td style="border-bottom: 1px solid black; padding: 0px; vertical-align: bottom;">
+                                            <span t-field="doc.name" style="padding-left: 5px;"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="height: 5px;">
+                                        <td colspan="2"></td>
+                                    </tr>
+                                  
+                                    <tr>
+                                        <td style="padding: 0px; vertical-align: bottom;">
+                                            <strong style="font-size: 12pt;">ቀን፡</strong><br/>
+                                            <strong style="font-size: 12pt;">Date</strong>
+                                        </td>
+                                        <td style="border-bottom: 1px solid black; padding: 0px; vertical-align: bottom;">
+                                            <span t-field="doc.date_issue" t-options='{"widget": "date"}' style="padding-left: 5px;"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div> -->
+                        <div class="row">
+                            <div class="col-5 offset-7">
+                                <table class="table table-borderless" style="margin-bottom: 0px; font-size: 12pt;">
+                                    <tr>
+                                        <td class="text-end" style="padding: 0; width: 45%; vertical-align: bottom; white-space: nowrap;">
+                                            <span>የደብዳቤ ቁጥር</span><br/>
+                                            <span>Ref No:</span>
+                                        </td>
+                                        <td style="padding: 0; padding-left: 5px; width: 55%; vertical-align: bottom;">
+                                            <div style="border-bottom: 1px solid black; width: 100%; min-height: 20px;">
+                                                <span t-field="doc.name"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-end" style="padding: 0; width: 45%; vertical-align: bottom; white-space: nowrap;">
+                                            <span>ቀን</span><br/>
+                                            <span>Date:</span>
+                                        </td>
+                                        <td style="padding: 0; padding-left: 5px; width: 55%; vertical-align: bottom;">
+                                            <div style="border-bottom: 1px solid black; width: 100%; min-height: 20px;">
+                                                <span t-field="doc.date_issue" t-options='{"widget": "date"}'/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
                         <!-- Title -->
                         <div class="text-left mb-4">
                             <h3 style="font-weight: bold; text-decoration: underline; font-size: 16pt;">Power of Attorney</h3>

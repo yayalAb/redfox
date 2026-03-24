@@ -5,6 +5,7 @@ class BidPowerAttorney(models.Model):
     _description = 'Bid Power of Attorney'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+
     name = fields.Char(
         string='Reference', 
         required=True, 
