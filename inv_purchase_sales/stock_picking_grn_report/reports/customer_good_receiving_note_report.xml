@@ -39,8 +39,17 @@
                     .cgrn-reason-label { font-weight: bold; margin-top: 8px; }
                     .cgrn-reason-line { border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px; }
                     .cgrn-approval-title { font-weight: bold; margin: 14px 0 8px 0; font-size: 11px; }
-                    .cgrn-approval-row { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 6px 0; }
-                    .cgrn-approval-cell { display: table-cell; width: 25%; vertical-align: top; font-size: 9px; border: 1px solid #ccc; padding: 6px; }
+                    .gpa-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
+                    .gpa-lbl { font-weight: bold; float: left; margin-right: 6px; padding-bottom: 3px; line-height: 1.35; }
+                    .gpa-und { display: block; overflow: hidden; border-bottom: 1px solid #000; min-height: 18px; padding: 0 0 5px 2px; margin-bottom: 2px; vertical-align: bottom; }
+                    .gpa-appr { margin-top: 6px; font-size: 10px; }
+                    .gpa-appr-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dotted #aaa; }
+                    .gpa-appr-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+                    .gpa-appr-title { display: table-cell; vertical-align: bottom; font-weight: bold; width: 20%; padding: 0 10px 4px 0; line-height: 1.3; }
+                    .gpa-appr-slot { display: table-cell; vertical-align: bottom; width: 26.67%; padding: 0 12px 0 0; }
+                    .gpa-appr-slot .gpa-field { margin-bottom: 0; }
+                    .gpa-appr-slot .gpa-lbl { font-weight: normal; }
+                    .gpa-appr-slot .gpa-und { min-height: 16px; padding-bottom: 4px; }
                     .cgrn-copy-dist { margin-top: 16px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
                 </style>
 
@@ -109,26 +118,95 @@
                 <div class="cgrn-reason-line">&#160;</div>
 
                 <div class="cgrn-approval-title">Approval Flow</div>
-                <div class="cgrn-approval-row">
-                    <div class="cgrn-approval-cell">
-                        <div><strong>Prepared By:</strong></div>
-                        <div style="margin-top:8px;">Sig: ____________________</div>
-                        <div style="margin-top:4px;">Date: ____________________</div>
+                <div class="gpa-appr">
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Prepared By:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und"><span t-field="o.create_uid.name"/></div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="cgrn-approval-cell">
-                        <div><strong>የክትትል ኃላፊ / Supervisor:</strong></div>
-                        <div style="margin-top:8px;">Sig: ____________________</div>
-                        <div style="margin-top:4px;">Date: ____________________</div>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Received By:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und"><span t-field="o.partner_id.name"/></div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="cgrn-approval-cell">
-                        <div><strong>የክትትል ኃላፊ / Supervisor:</strong></div>
-                        <div style="margin-top:8px;">Sig: ____________________</div>
-                        <div style="margin-top:4px;">Date: ____________________</div>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Store Keeper Name:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und">
+                                    <t t-if="o.location_dest_id and o.location_dest_id.warehouse_id and o.location_dest_id.warehouse_id.storeman_id">
+                                        <span t-field="o.location_dest_id.warehouse_id.storeman_id.name"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="cgrn-approval-cell">
-                        <div><strong>የክትትል ኃላፊ / Supervisor:</strong></div>
-                        <div style="margin-top:8px;">Sig: ____________________</div>
-                        <div style="margin-top:4px;">Date: ____________________</div>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Warehouse Manager Name:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t><t t-else="">&#160;</t></div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

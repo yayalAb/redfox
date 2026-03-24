@@ -2,7 +2,7 @@
     'name': 'Stock Picking GRN Report',
     'summary': 'GRN, delivery note, good receiving note, and get pass attachment PDFs for stock pickings',
     'category': 'Inventory',
-    'version': '18.0.1.0.5',
+    'version': '18.0.1.0.7',
     'depends': [
         'stock',
         'sale_stock',
