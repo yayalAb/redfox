@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_get_pass_attachment" model="ir.actions.report">
+        <field name="name">Get Pass Attachment</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.gpa</field>
+        <field name="report_file">stock_picking_grn_report.gpa</field>
+        <field name="print_report_name">'GPA-%s' % object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_get_pass_attachment"/>
+    </record>
+
+    <template id="gpa">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.gpa_document" t-lang="o.partner_id.lang or o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="gpa_document">
+        <t t-call="web.external_layout">
+            <div class="page" style="font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #000;">
+                <style type="text/css">
+                    .gpa-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .gpa-row { display: table; width: 100%; margin-bottom: 8px; font-size: 10px; table-layout: fixed; }
+                    .gpa-cell { display: table-cell; vertical-align: bottom; padding-right: 8px; }
+                    .gpa-label { font-weight: bold; display: block; margin-bottom: 2px; }
+                    .gpa-line { border-bottom: 1px solid #000; min-height: 18px; padding: 0 4px 2px 4px; }
+                    .gpa-section { font-weight: bold; margin: 12px 0 6px 0; font-size: 11px; }
+                    .gpa-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 10px; }
+                    .gpa-table th, .gpa-table td { border: 1px solid #000; padding: 4px 3px; vertical-align: top; }
+                    .gpa-table th { background: #f0f0f0; font-weight: bold; text-align: center; }
+                    .gpa-num { text-align: right; }
+                    .gpa-center { text-align: center; }
+                    .gpa-approval { margin-top: 14px; font-size: 10px; }
+                    .gpa-approval-block { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted #ccc; }
+                    .gpa-copy { margin-top: 16px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
+                </style>
+
+                <div class="gpa-title">Get Pass Attachment</div>
+
+                <div class="gpa-row">
+                    <div class="gpa-cell" style="width:34%;">
+                        <span class="gpa-label">Invoice Ref No:</span>
+                        <div class="gpa-line"><span t-esc="gpa_invoice_ref(o)"/></div>
+                    </div>
+                    <div class="gpa-cell" style="width:33%;">
+                        <span class="gpa-label">DO Ref No:</span>
+                        <div class="gpa-line"><span t-field="o.name"/></div>
+                    </div>
+                    <div class="gpa-cell" style="width:33%;">
+                        <span class="gpa-label">Date:</span>
+                        <div class="gpa-line">
+                            <t t-if="o.date_done"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></t>
+                            <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/></t>
+                            <t t-else="">&#160;</t>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gpa-row">
+                    <div class="gpa-cell" style="width:40%;">
+                        <span class="gpa-label">Customer Name:</span>
+                        <div class="gpa-line"><span t-field="o.partner_id.commercial_partner_id.name"/></div>
+                    </div>
+                    <div class="gpa-cell" style="width:30%;">
+                        <span class="gpa-label">Tin No:</span>
+                        <div class="gpa-line"><span t-field="o.partner_id.commercial_partner_id.vat"/></div>
+                    </div>
+                    <div class="gpa-cell" style="width:30%;">
+                        <span class="gpa-label">Phone No:</span>
+                        <div class="gpa-line">
+                            <t t-set="ph" t-value="o.partner_id.commercial_partner_id.phone or o.partner_id.commercial_partner_id.mobile"/>
+                            <span t-esc="ph or ''"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gpa-row">
+                    <div class="gpa-cell" style="width:22%;">
+                        <span class="gpa-label">Driver Name:</span>
+                        <div class="gpa-line"><span t-field="o.carrier"/></div>
+                    </div>
+                    <div class="gpa-cell" style="width:38%;">
+                        <span class="gpa-label">Address:</span>
+                        <div class="gpa-line">
+                            <span t-field="o.partner_id.street"/>
+                            <t t-if="o.partner_id.street and o.partner_id.city">, </t>
+                            <span t-field="o.partner_id.city"/>
+                            <t t-if="o.partner_id.country_id"> (<span t-field="o.partner_id.country_id.code"/>)</t>
+                        </div>
+                    </div>
+                    <div class="gpa-cell" style="width:20%;">
+                        <span class="gpa-label">Phone No:</span>
+                        <div class="gpa-line">
+                            <t t-set="dph" t-value="(o.carrier.partner_id.phone or o.carrier.partner_id.mobile) if o.carrier else ''"/>
+                            <span t-esc="dph or ''"/>
+                        </div>
+                    </div>
+                    <div class="gpa-cell" style="width:20%;">
+                        <span class="gpa-label">Truck No:</span>
+                        <div class="gpa-line"><span t-field="o.vehicle_plate"/></div>
+                    </div>
+                </div>
+
+                <div class="gpa-section">Item Details</div>
+                <table class="gpa-table">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">S.N</th>
+                            <th style="width:11%;">Item Code</th>
+                            <th style="width:26%;">Item Description</th>
+                            <th style="width:10%;">Unit of Measure</th>
+                            <th style="width:10%;">Quantity</th>
+                            <th style="width:12%;">Unit Price</th>
+                            <th style="width:12%;">Total Unit Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="row" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package.filtered(lambda m: m.state != 'cancel')" t-as="move">
+                            <t t-set="row" t-value="row + 1"/>
+                            <t t-set="pu" t-value="move.sale_line_id.price_unit if move.sale_line_id else 0.0"/>
+                            <t t-set="qty" t-value="move.quantity or 0.0"/>
+                            <t t-set="lt" t-value="qty * pu"/>
+                            <tr>
+                                <td class="gpa-center"><span t-esc="row"/></td>
+                                <td><span t-field="move.product_id.default_code"/></td>
+                                <td><span t-field="move.product_id.name"/></td>
+                                <td class="gpa-center"><span t-field="move.product_uom"/></td>
+                                <td class="gpa-num"><span t-esc="'{:,.2f}'.format(qty)"/></td>
+                                <td class="gpa-num">
+                                    <t t-if="move.sale_line_id"><span t-esc="'{:,.2f}'.format(pu)"/></t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td class="gpa-num">
+                                    <t t-if="move.sale_line_id"><span t-esc="'{:,.2f}'.format(lt)"/></t>
+                                    <t t-else="">-</t>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="gpa-section">Justification / Purpose</div>
+                <div class="gpa-line" style="min-height: 22px; margin-bottom: 6px;"><span t-field="o.reason_for_entry"/></div>
+                <div class="gpa-line" style="min-height: 22px;">&#160;</div>
+
+                <div class="gpa-section">Approval Flow</div>
+                <div class="gpa-approval">
+                    <div class="gpa-approval-block">
+                        <strong>Prepared By:</strong>
+                        <span style="margin-left: 12px;">Name: ____________________</span>
+                        <span style="margin-left: 16px;">Sig: ____________________</span>
+                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    </div>
+                    <div class="gpa-approval-block">
+                        <strong>Received By:</strong>
+                        <span style="margin-left: 12px;">Name: ____________________</span>
+                        <span style="margin-left: 16px;">Sig: ____________________</span>
+                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    </div>
+                    <div class="gpa-approval-block">
+                        <strong>Store Keeper Name:</strong>
+                        <span style="margin-left: 12px;">Name: ____________________</span>
+                        <span style="margin-left: 16px;">Sig: ____________________</span>
+                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    </div>
+                    <div class="gpa-approval-block" style="border-bottom: none;">
+                        <strong>Warehouse Manager Name:</strong>
+                        <span style="margin-left: 12px;">Name: ____________________</span>
+                        <span style="margin-left: 16px;">Sig: ____________________</span>
+                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    </div>
+                </div>
+
+                <div class="gpa-copy">
+                    <strong>Copy Distribution:</strong>
+                    Original-Guards Manager &#160;|&#160; 1st Copy Store Keeper &#160;|&#160; 2nd Copy- Pad
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
