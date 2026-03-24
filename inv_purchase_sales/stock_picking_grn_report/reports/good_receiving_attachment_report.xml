@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_good_receiving_attachment" model="ir.actions.report">
+        <field name="name">Good Receiving Attachment</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.gra</field>
+        <field name="report_file">stock_picking_grn_report.gra</field>
+        <field name="print_report_name">'GRA-%s' % object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_good_receiving_attachment"/>
+    </record>
+
+    <template id="gra">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.gra_document" t-lang="o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="gra_document">
+        <t t-call="web.external_layout">
+            <div class="page" style="font-family: 'DejaVu Sans', 'Times New Roman', serif; font-size: 11px; color: #000;">
+                <style type="text/css">
+                    .gra-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .gra-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
+                    .gra-lbl { font-weight: bold; float: left; margin-right: 6px; padding-bottom: 3px; line-height: 1.35; }
+                    .gra-und { display: block; overflow: hidden; border-bottom: 1px solid #000; min-height: 18px; padding: 0 0 5px 2px; margin-bottom: 2px; vertical-align: bottom; }
+                    .gra-section { font-weight: bold; margin: 12px 0 6px 0; font-size: 11px; }
+                    .gra-table { width: 100%; border-collapse: collapse; font-size: 6.5px; margin-bottom: 10px; }
+                    .gra-table th, .gra-table td { border: 1px solid #000; padding: 3px 2px; vertical-align: top; }
+                    .gra-table th { background: #f0f0f0; font-weight: bold; text-align: center; line-height: 1.2; }
+                    .gra-num { text-align: right; }
+                    .gra-center { text-align: center; }
+                    .gra-line { border-bottom: 1px solid #000; min-height: 22px; padding: 0 2px 5px 2px; margin-bottom: 6px; }
+                    .gra-cols { display: table; width: 100%; table-layout: fixed; margin-bottom: 10px; font-size: 10px; }
+                    .gra-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 14px; }
+                    .gra-col-right { display: table-cell; width: 50%; vertical-align: top; padding-left: 20px; }
+                    .gra-appr { margin-top: 6px; font-size: 10px; }
+                    .gra-appr-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dotted #aaa; }
+                    .gra-appr-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+                    .gra-appr-title { display: table-cell; vertical-align: bottom; font-weight: bold; width: 18%; padding: 0 8px 4px 0; line-height: 1.3; }
+                    .gra-appr-slot { display: table-cell; vertical-align: bottom; width: 27.33%; padding: 0 10px 0 0; }
+                    .gra-appr-slot .gra-field { margin-bottom: 0; }
+                    .gra-appr-slot .gra-lbl { font-weight: normal; }
+                    .gra-appr-slot .gra-und { min-height: 16px; padding-bottom: 4px; }
+                    .gra-copy { margin-top: 14px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
+                </style>
+
+                <div class="gra-title">Good Receiving Attachment</div>
+
+                <div class="gra-cols">
+                    <div class="gra-col">
+                        <div class="gra-field">
+                            <span class="gra-lbl">Source Doc Ref No:</span>
+                            <div class="gra-und"><span t-field="o.origin"/><t t-if="not o.origin"><span t-field="o.name"/></t></div>
+                        </div>
+                        <div class="gra-field">
+                            <span class="gra-lbl">Receive From (Vendor Name):</span>
+                            <div class="gra-und"><span t-field="o.partner_id"/></div>
+                        </div>
+                    </div>
+                    <div class="gra-col-right">
+                        <div class="gra-field">
+                            <span class="gra-lbl">GRN Date:</span>
+                            <div class="gra-und">
+                                <t t-if="o.date_done"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></t>
+                                <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/></t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                        <div class="gra-field">
+                            <span class="gra-lbl">Destination Location:</span>
+                            <div class="gra-und"><span t-field="o.location_dest_id"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gra-section">Item Details</div>
+                <table class="gra-table">
+                    <thead>
+                        <tr>
+                            <th style="width:3%;">S.N</th>
+                            <th style="width:8%;">Item Code</th>
+                            <th style="width:14%;">Item Description</th>
+                            <th style="width:7%;">Unit of<br/>Measure</th>
+                            <th style="width:7%;">Demand</th>
+                            <th style="width:8%;">ጠቅላላ<br/>ክብደት</th>
+                            <th style="width:8%;">ነጠላ<br/>ክብደት</th>
+                            <th style="width:11%;">የተረከበው ክብደት<br/>Received Qty</th>
+                            <th style="width:8%;">Unit<br/>Price</th>
+                            <th style="width:8%;">Total Unit<br/>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="row" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package.filtered(lambda m: m.state != 'cancel')" t-as="move">
+                            <t t-set="row" t-value="row + 1"/>
+                            <t t-set="pu" t-value="move.purchase_line_id.price_unit if move.purchase_line_id else 0.0"/>
+                            <t t-set="rqty" t-value="move.quantity or 0.0"/>
+                            <t t-set="lt" t-value="rqty * pu"/>
+                            <tr>
+                                <td class="gra-center"><span t-esc="row"/></td>
+                                <td><span t-field="move.product_id.default_code"/></td>
+                                <td><span t-field="move.product_id.name"/></td>
+                                <td class="gra-center"><span t-field="move.product_uom"/></td>
+                                <td class="gra-num"><span t-esc="'{:,.2f}'.format(move.product_uom_qty or 0.0)"/></td>
+                                <td class="gra-num"><span t-esc="'{:,.2f}'.format(move.grn_gross_weight) if move.grn_gross_weight else '-'"/></td>
+                                <td class="gra-num"><span t-esc="'{:,.2f}'.format(move.grn_tare_weight) if move.grn_tare_weight else '-'"/></td>
+                                <td class="gra-num"><span t-esc="'{:,.2f}'.format(rqty)"/></td>
+                                <td class="gra-num">
+                                    <t t-if="move.purchase_line_id"><span t-esc="'{:,.2f}'.format(pu)"/></t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td class="gra-num">
+                                    <t t-if="move.purchase_line_id"><span t-esc="'{:,.2f}'.format(lt)"/></t>
+                                    <t t-else="">-</t>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="gra-field" style="margin-bottom: 8px;">
+                    <span class="gra-lbl">Birr in Word:</span>
+                    <div class="gra-und">&#160;</div>
+                </div>
+                <div class="gra-field" style="margin-bottom: 12px; font-size: 9px;">
+                    <span class="gra-lbl">Total (figures):</span>
+                    <div class="gra-und">
+                        <t t-set="gtot" t-value="gra_picking_total(o)"/>
+                        <t t-if="gtot"><span t-esc="'{:,.2f}'.format(gtot)"/> <span t-field="o.company_id.currency_id.symbol"/></t>
+                        <t t-else="">&#160;</t>
+                    </div>
+                </div>
+
+                <div class="gra-section">Justification / Purpose</div>
+                <div class="gra-line"><span t-field="o.reason_for_entry"/></div>
+                <div class="gra-line" style="margin-bottom: 0;">&#160;</div>
+
+                <div class="gra-section">Approval Flow</div>
+                <div class="gra-appr">
+                    <div class="gra-appr-row">
+                        <div class="gra-appr-title">Prepared By:</div>
+                        <div class="gra-appr-slot">
+                            <div class="gra-field">
+                                <span class="gra-lbl">Name:</span>
+                                <div class="gra-und"><span t-field="o.create_uid.name"/></div>
+                            </div>
+                        </div>
+                        <div class="gra-appr-slot">
+                            <div class="gra-field">
+                                <span class="gra-lbl">Sig:</span>
+                                <div class="gra-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gra-appr-slot">
+                            <div class="gra-field">
+                                <span class="gra-lbl">Date:</span>
+                                <div class="gra-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gra-appr-row">
+                        <div class="gra-appr-title">Approved By:</div>
+                        <div class="gra-appr-slot">
+                            <div class="gra-field">
+                                <span class="gra-lbl">Name:</span>
+                                <div class="gra-und"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t><t t-else="">&#160;</t></div>
+                            </div>
+                        </div>
+                        <div class="gra-appr-slot">
+                            <div class="gra-field">
+                                <span class="gra-lbl">Sig:</span>
+                                <div class="gra-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gra-appr-slot">
+                            <div class="gra-field">
+                                <span class="gra-lbl">Date:</span>
+                                <div class="gra-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gra-copy">
+                    <strong>Copy Distribution:</strong>
+                    Original-Store &#160;|&#160; 1st Copy Finance &#160;|&#160; 2nd Copy-Pad
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
