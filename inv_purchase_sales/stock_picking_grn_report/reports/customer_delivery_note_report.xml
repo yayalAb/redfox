@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_customer_delivery_note" model="ir.actions.report">
+        <field name="name">Customer Delivery Note / ለደንበኛ ማስረከቢያ ሰነድ</field>
+        <field name="model">stock.picking</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_customer_delivery_note"/>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.report_customer_delivery_note</field>
+        <field name="report_file">stock_picking_grn_report.report_customer_delivery_note</field>
+        <field name="print_report_name">'CDN-%s' % object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_customer_delivery_note">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.report_customer_delivery_note_document" t-lang="o.partner_id.lang or o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_customer_delivery_note_document">
+        <t t-set="company" t-value="o.company_id"/>
+        <t t-set="first_move" t-value="o.move_ids_without_package[:1]"/>
+        <t t-set="fm" t-value="first_move[0] if first_move else None"/>
+        <t t-call="web.external_layout">
+            <div class="page" style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; padding: 0 30px; position: relative; min-height: 850px; color: #111;">
+
+                <div style="text-align: center; font-size: 15px; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #c62828; color: #c62828;">
+                    ለደንበኛ ማስረከቢያ ሰነድ/ CUSTOMER DELIVERY NOTE
+                </div>
+
+                <div class="row mb-2" style="font-size: 10px;">
+                    <div class="col-4">
+                        <strong>Doc Ref No:</strong> <span style="font-size: 9px;">(ወጪ የሆነበት ሰነድ ቁጥር)</span>
+                        <div style="border-bottom: 1px dotted #333; min-height: 18px; margin-top: 2px;">
+                            <span t-field="o.origin"/><t t-if="not o.origin"><span t-field="o.name"/></t>
+                        </div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <strong>GRN Date:</strong>
+                        <div style="border-bottom: 1px dotted #333; min-height: 18px; margin-top: 2px;">
+                            <t t-if="o.date_done"><span t-field="o.date_done" t-options='{"widget": "date"}'/></t>
+                            <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options='{"widget": "date"}'/></t>
+                            <t t-else="">-</t>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <strong>የእቃው ባለቤት</strong>
+                        <div style="border-bottom: 1px dotted #333; min-height: 18px; margin-top: 2px; text-align: left;">
+                            <span t-field="o.partner_id.name"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2" style="font-size: 10px;">
+                    <div class="col-12">
+                        <strong>Vendor Name:</strong> <span style="font-size: 9px;">(ስም)</span>
+                        <div style="border-bottom: 1px solid #000; min-height: 20px; margin-top: 2px;">
+                            <span t-field="o.partner_id.name"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3" style="font-size: 10px;">
+                    <div class="col-6">
+                        <strong>Truck No</strong> <span style="font-size: 9px;">(የመኪናው ሰሌዳ ቁጥር)</span>
+                        <div style="border-bottom: 1px dotted #333; min-height: 18px; margin-top: 2px;">
+                            <span t-field="o.vehicle_plate"/><t t-if="not o.vehicle_plate">&#160;</t>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <strong>Store / Destination Location:</strong>
+                        <div style="border-bottom: 1px dotted #333; min-height: 18px; margin-top: 2px;">
+                            <span t-field="o.location_dest_id.display_name"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-weight: 700; font-size: 11px; margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 4px;">
+                    የእህል አይነት / Item Details
+                </div>
+
+                <table class="table table-sm table-bordered" style="width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 8.5px;">
+                    <thead style="background-color: #f0f0f0;">
+                        <tr>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 4%;">S.N</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 9%;">Item Code</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 24%;">Item Description</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 8%;">Unit of<br/>Measure</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 9%;">Quantity<br/><span style="font-weight: normal;">የደንብ ብዛት</span></th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 11%;">Total Weight<br/><span style="font-weight: normal;">ጠቅላላ ክብደት</span></th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 11%;">Net Weight<br/><span style="font-weight: normal;">ነጠላ ክብደት</span></th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 11%;">P. Net Weight<br/><span style="font-weight: normal;">የተጣራ ክብደት</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="i" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package" t-as="move">
+                            <t t-set="i" t-value="i + 1"/>
+                            <tr>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: center;"><span t-esc="i"/></td>
+                                <td style="border: 1px solid #000; padding: 3px;"><span t-field="move.product_id.default_code"/></td>
+                                <td style="border: 1px solid #000; padding: 3px;"><span t-field="move.product_id.name"/></td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: center;"><span t-field="move.product_uom.name"/></td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.quantity)"/>
+                                </td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.grn_gross_weight) if move.grn_gross_weight else '-'"/>
+                                </td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.grn_tare_weight) if move.grn_tare_weight else '-'"/>
+                                </td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.grn_net_weight) if move.grn_net_weight else '-'"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="mt-3 mb-2" style="font-size: 10px;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>የሚፈለገው የማጣሪያ ጥራት</strong>
+                        <span style="letter-spacing: 2px;">&#160;________________</span>
+                        <strong>%</strong>
+                        <t t-if="fm and fm.grn_quality_pct"><span style="margin-left: 6px;">(<span t-esc="'{0:,.2f}'.format(fm.grn_quality_pct)"/>)</span></t>
+                    </div>
+                    <div>
+                        <strong>ወጪ የሆነበት ምክንያት/ Reason</strong>
+                        <div style="border-bottom: 1px solid #000; min-height: 22px; margin-top: 6px;">
+                            <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry"/></t>
+                            <t t-elif="o.note"><span t-field="o.note"/></t>
+                        </div>
+                        <div style="border-bottom: 1px solid #000; min-height: 22px; margin-top: 12px;">&#160;</div>
+                    </div>
+                </div>
+
+                <div style="font-weight: 700; font-size: 11px; margin-top: 18px; margin-bottom: 8px;">Approval Flow</div>
+
+                <div style="display: table; width: 100%; table-layout: fixed; font-size: 7.5px;">
+                    <div style="display: table-row;">
+                        <div style="display: table-cell; width: 25%; vertical-align: top; padding: 4px 5px 4px 0; border-right: 1px solid #ccc;">
+                            <strong>Prepared By</strong><br/>
+                            <span style="font-size: 7px;">ያዘጋጀው ስም እና ፊርማ</span>
+                            <div style="border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px;"><span t-field="o.create_uid.name"/></div>
+                            <div style="margin-top: 6px;"><strong>Sig:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                            <div style="margin-top: 4px;"><strong>Date:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                        </div>
+                        <div style="display: table-cell; width: 25%; vertical-align: top; padding: 4px 5px; border-right: 1px solid #ccc;">
+                            <strong>Manager</strong><br/>
+                            <span style="font-size: 7px;">የሃላፊ ፊርማ</span>
+                            <div style="border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px;"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t></div>
+                            <div style="margin-top: 6px;"><strong>Sig:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                            <div style="margin-top: 4px;"><strong>Date:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                        </div>
+                        <div style="display: table-cell; width: 25%; vertical-align: top; padding: 4px 5px; border-right: 1px solid #ccc;">
+                            <strong>Deliverer</strong><br/>
+                            <span style="font-size: 7px;">የአስረካቢው ስም እና ፊርማ</span>
+                            <div style="border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px;"><span t-field="o.partner_id.name"/></div>
+                            <div style="margin-top: 6px;"><strong>Sig:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                            <div style="margin-top: 4px;"><strong>Date:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                        </div>
+                        <div style="display: table-cell; width: 25%; vertical-align: top; padding: 4px 0 4px 5px;">
+                            <strong>Store Head</strong><br/>
+                            <span style="font-size: 7px;">የክምችት ክፍል ኃላፊ ስም እና ፊርማ</span>
+                            <div style="border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px;">
+                                <t t-if="o.location_dest_id and o.location_dest_id.warehouse_id and o.location_dest_id.warehouse_id.storeman_id">
+                                    <span t-field="o.location_dest_id.warehouse_id.storeman_id.name"/>
+                                </t>
+                            </div>
+                            <div style="margin-top: 6px;"><strong>Sig:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                            <div style="margin-top: 4px;"><strong>Date:</strong></div>
+                            <div style="border-bottom: 1px solid #000; min-height: 14px;">&#160;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; font-size: 8.5px; text-align: center; line-height: 1.45;">
+                    <strong>Original</strong> – አስረካቢው (Deliverer) &#160;|&#160;
+                    <strong>1st Copy</strong> – Finance &#160;|&#160;
+                    <strong>2nd Copy</strong> – ክምችት ክፍል (Store Section) &#160;|&#160;
+                    <strong>3rd Copy</strong> – Pad
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
+

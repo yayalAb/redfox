@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_grn_cdn_fields" model="ir.ui.view">
+        <field name="name">stock.picking.form.grn.cdn.fields</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='other_infos']" position="inside">
+                <field name="vehicle_plate"/>
+                <field name="reason_for_entry"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_picking_move_list_grn" model="ir.ui.view">
+        <field name="name">stock.picking.move.list.grn.weights</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_picking_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="grn_gross_weight" optional="hide"/>
+                <field name="grn_tare_weight" optional="hide"/>
+                <field name="grn_net_weight" optional="hide"/>
+                <field name="grn_bag_count" optional="hide"/>
+                <field name="grn_quality_pct" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
