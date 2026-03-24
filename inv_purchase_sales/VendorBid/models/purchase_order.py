@@ -12,7 +12,7 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     rfp_id = fields.Many2one(
-        'supplies.rfp', string='RFP', index=True, copy=False)
+        'supplies.rfp', string='RP', index=True, copy=False)
     purchase_origin = fields.Selection([
         ('local', 'Local'), ('foreign', 'Foreign')],
         string='Purchase Type')
@@ -67,6 +67,14 @@ class PurchaseOrder(models.Model):
         'purchase_order_id',
         string='Foreign Purchase Documents'
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('purchase_origin') == 'foreign' and vals.get('name', _('New')) == _('New'):
+                vals['name'] = self.env['ir.sequence'].next_by_code(
+                    'purchase.order.foreign') or _('New')
+        return super().create(vals_list)
 
     def _approval_allowed(self):
         """Returns whether the order qualifies to be approved by the current user"""

@@ -4,23 +4,19 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
-            
-            <!-- SMART BUTTONS -->
+            <!-- Add payment request counter and button in the header -->
             <xpath expr="//div[@name='button_box']" position="inside">
-                <!-- Payment Request Counter -->
                 <button name="action_view_payment_requests"
                         type="object"
                         class="oe_stat_button"
                         icon="fa-money"
                         invisible="payment_request_count == 0">
-                    <field name="payment_request_count" widget="statinfo" string="Pay Requests"/>
+                    <field name="payment_request_count" widget="statinfo" string="Payment Requests"/>
                 </button>
             </xpath>
 
-            <!-- HEADER BUTTONS AND STATUS -->
             <xpath expr="//header" position="inside">
                 <field name="order_type" invisible="1" />
-                
                 <button name="action_quotation_submit" string="Submit Quotation" type="object"
                     class="oe_highlight" invisible="state != 'draft'" 
                     groups="custom_sale_agreement.group_sales_quotation_submit" />
@@ -48,21 +44,13 @@
                 <button name="action_review_order" string="Review Order" type="object"
                     class="oe_highlight" groups="custom_sale_agreement.group_sales_order_review" 
                     invisible="state != 'order_submit'" />
-                
-                <!-- NEW: Request Payment Button (Merged from extension) -->
-                <button name="action_create_payment_request" 
-                        string="Request Payment" 
-                        type="object" 
-                        class="btn-primary"
-                        invisible="state != 'sale'"/>
-
+                    
                 <field name="state" widget="statusbar" invisible="order_type != 'quotation'"
                     statusbar_visible="draft,quotation_submit,quotation_review,quotation_approve,sent" />
                 <field name="state" widget="statusbar" invisible="order_type != 'order'"
                     statusbar_visible="order_draft,order_submit,order_review,sent" />
             </xpath>
 
-            <!-- FIELD ATTRIBUTE MODIFICATIONS -->
             <xpath expr="//header/button[@name='action_draft']" position="attributes">
                 <attribute name="groups">custom_sale_agreement.group_sales_order_reset_to_draft</attribute>
                 <attribute name="invisible">state != 'cancel'</attribute>
@@ -80,6 +68,21 @@
             <xpath expr="//header/field[@name='state']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <!-- # Additional fields for Agreement/Contract details -->
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <field name="agreement_id" 
+                       options="{'no_create': True}" 
+                       domain="[]"
+                       placeholder="Select Agreement to Auto-fill Contract No..."/>
+                <field name="contract_ref" placeholder="Contract No."/>
+                <field name="partner_tin" placeholder="Tax ID / TIN"/>
+            </xpath>
+
+            <xpath expr="//field[@name='note']" position="before">
+                <group>
+                    <field name="report_remark" placeholder="Write remarks here to appear on the printed Sales Order..."/>
+                </group>
+            </xpath>
 
             <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
                 <attribute name="invisible">state != 'order_review'</attribute>
@@ -90,28 +93,6 @@
             <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-
-            <!-- Hide VAT/TIN from the Partner Dropdown/Display -->
-            <xpath expr="//field[@name='partner_id']" position="attributes">
-                <attribute name="context">{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': False}</attribute>
-            </xpath>
-
-            <!-- ADD CUSTOM FIELDS TO FORM BODY -->
-            <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                <field name="agreement_id" 
-                       options="{'no_create': True}" 
-                       domain="[]"
-                       placeholder="Select Agreement to Auto-fill Contract No..."/>
-                <field name="contract_ref" placeholder="Contract No."/>
-                <field name="partner_tin" placeholder="Tax ID / TIN"/>
-                <field name="client_order_ref" string="Purchase Order Number" placeholder="e.g. PO-2024-001"/>
-            </xpath>
-
-            <xpath expr="//field[@name='note']" position="before">
-                <group>
-                    <field name="report_remark" placeholder="Write remarks here to appear on the printed Sales Order..."/>
-                </group>
-            </xpath>
             
             <xpath expr="//field[@name='payment_term_id']" position="after">
                 <field name="sale_category" readonly="state == 'cancel' or locked"/>
@@ -120,7 +101,6 @@
             <xpath expr="//field[@name='payment_term_id']" position="attributes">
                 <attribute name="readonly">state == 'cancel' or locked</attribute>
             </xpath>
-
         </field>
     </record>
 </odoo>

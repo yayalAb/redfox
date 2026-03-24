@@ -178,28 +178,10 @@
                         <div class="row" style="margin-top: 60px; font-size: 14px;">
                             <div class="col-6">
                                 <strong><u>Seller</u></strong><br/>
-                                <strong>Name:</strong> 
-                                <span t-if="doc.approved_by_id" t-field="doc.approved_by_id.name"/>
-                                <span t-else="" t-field="doc.company_id.partner_id.name"/>
-                                <br/>
-                                
+                                <strong>Name:</strong> <span t-field="doc.company_id.partner_id.name"/><br/>
                                 <span style="padding-left:45px;">Marketing Director</span><br/>
-                                
                                 <strong>Date:</strong> <span t-esc="doc.signature_date.strftime('%d/%m/%Y')"/><br/>
-                                
-                                <!-- SIGNATURE ON SAME LINE -->
-                                <div style="margin-top: 5px;">
-                                    <strong>Signature:</strong> 
-                                    
-                                    <t t-if="doc.approved_by_id and doc.approved_by_id.sign_signature">
-                                        <!-- Image with vertical-align: bottom aligns it with text -->
-                                        <img t-att-src="image_data_uri(doc.approved_by_id.sign_signature)" 
-                                             style="max-height: 45px; max-width: 150px; vertical-align: bottom; margin-left: 10px;"/>
-                                    </t>
-                                    <t t-else="">
-                                        ______________________
-                                    </t>
-                                </div>
+                                <strong>Signature:</strong> ______________________
                             </div>
                             <div class="col-6">
                                 <strong><u>Buyer</u></strong><br/>

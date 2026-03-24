@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sequence_lc_letter" model="ir.sequence">
+        <field name="name">Letter of Credit</field>
+        <field name="code">lc.letter</field>
+        <field name="prefix">LC</field>
+        <field name="padding">5</field>
+    </record>
+    <record id="sequence_lc_payment_request_doc" model="ir.sequence">
+        <field name="name">Payment Request Doc No</field>
+        <field name="code">lc.payment.request.doc</field>
+        <field name="prefix">PR</field>
+        <field name="padding">5</field>
+    </record>
+    <record id="sequence_lc_payment_order_no" model="ir.sequence">
+        <field name="name">Payment Request Order No</field>
+        <field name="code">lc.payment.request.order</field>
+        <field name="prefix">ORD</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

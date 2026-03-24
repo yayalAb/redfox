@@ -128,7 +128,7 @@
                 </xpath>
 
                 <!-- Add Out of Stock field to purchase order lines -->
-                <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
+                <!-- <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"
                     position="before">
                     <field name="out_of_stock" />
                 </xpath>
@@ -137,7 +137,7 @@
                     position="attributes">
                     <attribute name="readonly">out_of_stock</attribute>
                     <attribute name="column_invisible">parent.price_tax_included</attribute>
-                </xpath>
+                </xpath> -->
 
                 <!-- Add Tax Included Price field - visible only when price_tax_included is checked -->
                 <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']"

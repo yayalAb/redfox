@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_lc_letter" model="ir.module.category">
+            <field name="name">LC Letter of Credit</field>
+            <field name="description">Access rights related to LC Letter management</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- <record id="group_lc_letter_submit" model="res.groups">
+            <field name="name">LC Letter: Submit</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_letter_open" model="res.groups">
+            <field name="name">LC Letter: Open</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_letter_expire" model="res.groups">
+            <field name="name">LC Letter: Expire</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_letter_cancel" model="res.groups">
+            <field name="name">LC Letter: Cancel</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_letter_reset_draft" model="res.groups">
+            <field name="name">LC Letter: Reset to Draft</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record> -->
+
+        <record id="group_lc_payment_submit" model="res.groups">
+            <field name="name">Payment Line: Submit</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_payment_verify" model="res.groups">
+            <field name="name">Payment Line: Verify</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_payment_authorize" model="res.groups">
+            <field name="name">Payment Line: Authorize</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_payment_approve" model="res.groups">
+            <field name="name">Payment Line: Approve</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_payment_reject" model="res.groups">
+            <field name="name">Payment Line: Reject</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_payment_cancel" model="res.groups">
+            <field name="name">Payment Line: Cancel</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="group_lc_payment_reset_draft" model="res.groups">
+            <field name="name">Payment Line: Reset to Draft</field>
+            <field name="category_id" ref="module_category_lc_letter"/>
+        </record>
+
+        <record id="lc_letter_multi_company_rule" model="ir.rule">
+            <field name="name">LC Letter Multi-Company</field>
+            <field name="model_id" ref="lc_letter.model_lc_letter"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

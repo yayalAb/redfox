@@ -51,12 +51,6 @@ class Agreement(models.Model):
         tracking=True,
     )
 
-    agreement_category = fields.Selection([
-        ('product_sale', 'New Product'),
-        ('maintenance', 'Maintenance'),
-        ('test', 'Test')
-    ])
-
     expiration_status = fields.Selection(
         [
             ("draft", "Draft"),

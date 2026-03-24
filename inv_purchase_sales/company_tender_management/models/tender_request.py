@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-from odoo import models, fields, api, SUPERUSER_ID, _
+from odoo import models, fields, api, SUPERUSER_ID
 from odoo.exceptions import ValidationError
 
 class TenderStage(models.Model):
     _name = 'tender.stage'
     _description = 'Tender Stages'
-    _order = 'name desc'
+    _order = 'sequence, id'
 
     name = fields.Char(string='Stage Name', required=True, translate=True)
     sequence = fields.Integer(string='Sequence', default=10)
@@ -14,14 +13,12 @@ class TenderStage(models.Model):
     is_submission = fields.Boolean(string="Is Submission Stage")
     fold = fields.Boolean(string='Folded in Kanban',
                           help='This stage is folded in the kanban view when there are no records in it.')
-                        
 
 class TenderRequest(models.Model):
     _name = 'tender.request'
     _description = 'Tender Participation Request'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    # Kanban Stage
     stage_id = fields.Many2one(
         'tender.stage', string='Stage', index=True, tracking=True,
         readonly=False, store=True, copy=False,
@@ -29,39 +26,25 @@ class TenderRequest(models.Model):
         group_expand='_read_group_stage_ids',
         default=lambda self: self._default_stage_id())
 
-    # Strict Workflow State
+    # Kept state for backward compatibility and status tracking
     state = fields.Selection([
         ('draft', 'Draft'),
-        ('review', 'Under Review'),             
-        ('tech_prep', 'Tech Doc Prep'),        
-        ('tech_review', 'Tech Doc Review'),     
-        ('submission', 'Submitted to Client'),  
-        ('won', 'Won'),                        
-        ('lost', 'Lost'),                      
-        ('rejected', 'Rejected (Internal)'),    
+        ('standard', 'Standard'),
+        ('submmission', 'Submission'),
+        ('won', 'Won'),
+        ('lost', 'Lost'),
         ('cancelled', 'Cancelled'),
     ], string='Status', default='draft', required=True, tracking=True, readonly=True)
 
-    name = fields.Char(string='Tender Reference No', required=True, copy=False,
-                       readonly=False, index=True, default=lambda self: ('New')) 
+    name = fields.Char(string='Tender Reference', required=True, copy=False,
+                       readonly=True, index=True, default=lambda self: ('New'))
     customer_id = fields.Many2one(
-        'res.partner', string='Purchaser Name', required=True, tracking=True)
+        'res.partner', string='Customer', required=True, tracking=True)
     title = fields.Char(string='Tender Title', required=True, tracking=True)
-
-    responsible_id = fields.Many2one(
-        'res.users', string='Responsible Salesperson', tracking=True, 
-        help="Person assigned to prepare the technical documents."
-    )
-
-    rejection_reason = fields.Text(string="Reason for Rejection", tracking=True)
-    tech_refuse_comments = fields.Text(string="Tech Doc Review Comments", tracking=True)
-
-    technical_document_ids = fields.Many2many('ir.attachment', 'tender_tech_doc_rel', 'tender_id', 'attachment_id', string="Technical Documents")
     
     submission_deadline = fields.Datetime(
-        string=' Deadline', required=True, tracking=True)
+        string='Submission Deadline', required=True, tracking=True)
     decision_date = fields.Date(string='Expected Decision Date', tracking=True)
-    
     currency_id = fields.Many2one(
         'res.currency', related='company_id.currency_id', string='Currency')
     company_id = fields.Many2one(
@@ -73,22 +56,13 @@ class TenderRequest(models.Model):
         'tender.request.line', 'tender_id', string='Tender Lines')
     goods_description = fields.Char(string='Goods Description')
     supplier_id = fields.Many2one('res.partner', string="Preferred Supplier")
-    
-    # Corrected naming convention (was check_list_id)
-    checklist_ids = fields.One2many(
-        'tender.checklist', 'tender_id', string="Tender Requirements")
-    
-    # NEW FIELD: Text alternative for Bid Requirements
-    requirements_text = fields.Html(
-        string='Requirements Details', 
-        help="Use this to paste requirements directly."
-    )
+    check_list_id = fields.One2many('tender.checklist', 'tender_id',string="Tender Checklist")
     winning_price = fields.Monetary(string='Winning Price')
 
     # Attachments
     tender_document = fields.Binary(string='Tender Document', attachment=True)
-    tender_document_ids = fields.Many2many('ir.attachment', 'tender_req_doc_rel', 'tender_id', 'attachment_id', string='Tender Request Documents')
-    bid_doc_cost = fields.Float(string='Bid Doc Cost')
+    tender_document_filename = fields.Char(string='Tender Document Filename')
+    tender_doc_cost = fields.Float(string='Tender Doc Cost')
 
     # Related Company Documents
     co_business_license = fields.Binary(related='company_id.business_license', string="Business License", readonly=True)
@@ -99,7 +73,7 @@ class TenderRequest(models.Model):
     co_egp_reg = fields.Binary(related='company_id.egp_registration', string="EGP Registration", readonly=True)
     co_experience_letters = fields.Many2many(
         related='company_id.experience_letters',
-        string="Previous Experience & Testimonials",
+        string="Previous Exprience & Testimonials",
     )
     co_audit_report = fields.Binary(related='company_id.audit_report', string="Audit Report", readonly=True)
     co_financial_standing = fields.Binary(related='company_id.financial_standing', string="Financial Standing", readonly=True)
@@ -108,8 +82,6 @@ class TenderRequest(models.Model):
     won_date = fields.Date(string="Date Won", readonly=True)
     lost_reason_id = fields.Many2one('tender.lost.reason', string='Reason for Loss', tracking=True)
     lost_reason_notes = fields.Text(string="Loss Details")
-    
-    # Smart Button Links
     agreement_id = fields.Many2one('sale.agreement', string='Related Agreement', readonly=True, copy=False)
     agreement_count = fields.Integer(compute='_compute_agreement_count', string="Agreement Count")
     warranty_count = fields.Integer(compute='_compute_warranty_count', string="Warranty Letter Count")
@@ -125,91 +97,62 @@ class TenderRequest(models.Model):
     def _read_group_stage_ids(self, stages, domain, order=None):
         return stages.search([], order=order)
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get('name', 'New') == 'New':
-                vals['name'] = self.env['ir.sequence'].next_by_code('tender.request') or 'New'
-        return super(TenderRequest, self).create(vals_list)
+    @api.model
+    def create(self, vals):
+        if vals.get('name', 'New') == 'New':
+            vals['name'] = self.env['ir.sequence'].next_by_code('tender.request') or 'New'
+        return super(TenderRequest, self).create(vals)
 
     def write(self, vals):
-        """ Keeps the Kanban stage synced with the strict state """
-        res = super(TenderRequest, self).write(vals)
         if 'stage_id' in vals:
             stage = self.env['tender.stage'].browse(vals['stage_id'])
-            if stage.is_won and self.state != 'won':
-                self.state = 'won'
-                self.won_date = fields.Date.context_today(self)
-            elif stage.is_lost and self.state != 'lost':
-                self.state = 'lost'
-            elif stage.is_submission and self.state != 'submission':
-                self.state = 'submission'
-        return res
-    
+            
+            if stage.is_won:
+                vals['state'] = 'won'
+                vals['won_date'] = fields.Date.context_today(self)
+            
+            # Logic: If moving to a 'Lost' stage
+            elif stage.is_lost:
+                vals['state'] = 'lost'
+            
+            # logic: if moving to a 'submission' stage
+            elif stage.is_submission:
+                vals['state'] = 'submission'
+            
+
+        return super(TenderRequest, self).write(vals)
+
 
     @api.depends('tender_line_ids.subtotal')
     def _compute_tender_value(self):
         for tender in self:
             tender.tender_value = sum(tender.tender_line_ids.mapped('subtotal'))
 
-    # --- STRICT WORKFLOW ACTIONS ---
+    def _compute_agreement_count(self):
+        for tender in self:
+            tender.agreement_count = self.env['sale.agreement'].search_count([('tender_id', '=', tender.id)])
 
-    def action_submit_internal(self):
-        """ Send for internal management review """
+    # --- ACTIONS ---
+
+    def action_submit(self):
         for tender in self:
             if not tender.customer_id:
-                raise ValidationError("You must select a customer.")
-            tender.state = 'review'
-            # Auto-move Kanban stage if applicable
-            next_stage = self.env['tender.stage'].search([('sequence', '>', self.stage_id.sequence)], order='sequence asc', limit=1)
-            if next_stage:
-                tender.stage_id = next_stage.id
-    def action_bid_fit(self):
-        """ STEP 2a: Review -> Tech Prep (Bid Fits) """
-        for tender in self:
-            if not tender.responsible_id:
-                raise ValidationError(_("Please assign a Responsible Salesperson before marking the bid as fit."))
-            tender.state = 'tech_prep'
-
-    def action_bid_reject(self):
-        """ STEP 2b: Review -> Rejected (Internal) """
-        self.ensure_one()
-        return self._open_refuse_wizard('bid')
-    
-    def action_submit_tech_docs(self):
-        """ STEP 3: Tech Prep -> Tech Review """
-        for tender in self:
-            tender.state = 'tech_review'
-
-    def action_approve_tech_docs(self):
-        """ STEP 4a: Tech Review -> Submitted to Client """
-        for tender in self:
-            tender.state = 'submission'
-            # Move Kanban column automatically if configured
-            sub_stage = self.env['tender.stage'].search([('is_submission', '=', True)], limit=1)
-            if sub_stage:
-                tender.stage_id = sub_stage.id
-
-    def action_refuse_tech_docs(self):
-        """ STEP 4b: Tech Review -> Tech Prep (Returned for revision) """
-        self.ensure_one()
-        return self._open_refuse_wizard('tech')
-
-    def action_submit_to_client(self):
-        """ Mark as officially submitted to the client """
-        for tender in self:
-            # tender.state = 'submission'
-            sub_stage = self.env['tender.stage'].search([('is_submission', '=', True)], limit=1)
-            if sub_stage:
-                tender.stage_id = sub_stage.id
+                raise ValidationError("Submission Failed: You must select a customer.")
+        
+        # Find next stage
+        next_stage = self.env['tender.stage'].search([('sequence', '>', self.stage_id.sequence)], order='sequence asc', limit=1)
+        if next_stage:
+            self.write({'stage_id': next_stage.id, 'state': 'standard'})
+        else:
+            self.write({'state': 'standard'})
 
     def action_win(self):
-        for tender in self:
-            tender.state = 'won'
-            tender.won_date = fields.Date.context_today(self)
-            won_stage = self.env['tender.stage'].search([('is_won', '=', True)], limit=1)
-            if won_stage:
-                tender.stage_id = won_stage.id
+        # Find the first stage marked as is_won
+        won_stage = self.env['tender.stage'].search([('is_won', '=', True)], limit=1)
+        if won_stage:
+            self.write({'stage_id': won_stage.id}) # Write method handles state update
+        else:
+            raise ValidationError("No stage is configured as 'Won'. Please check Stage configuration.")
 
     def action_lose(self):
         return {
@@ -220,32 +163,9 @@ class TenderRequest(models.Model):
             'target': 'new',
             'context': {'default_tender_id': self.id}
         }
-        
-    def action_reset_draft(self):
-        for tender in self:
-            tender.state = 'draft'
-            first_stage = self.env['tender.stage'].search([], order='sequence asc', limit=1)
-            if first_stage:
-                tender.stage_id = first_stage.id
-    def _open_refuse_wizard(self, refuse_type):
-        """ Helper to open the wizard for either Bid Rejection or Tech Doc Revision """
-        return {
-            'name': _('Provide Feedback / Rejection Reason'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'tender.refuse.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_tender_id': self.id,
-                'default_refuse_type': refuse_type
-            }
-        }
 
-    # --- DOCUMENTS & AGREEMENTS (Kept Original Logic) ---
-
-    def _compute_agreement_count(self):
-        for tender in self:
-            tender.agreement_count = self.env['sale.agreement'].search_count([('tender_id', '=', tender.id)])
+    # --- DOCUMENTS & AGREEMENTS ---
+    # (Kept as provided in your original code)
 
     def action_create_agreement(self):
         self.ensure_one()
@@ -391,7 +311,6 @@ class TenderRequest(models.Model):
             'context': {'default_tender_id': self.id}
         }
 
-
 class TenderRequestLine(models.Model):
     _name = 'tender.request.line'
     _description = 'Products offered in a Tender'
@@ -418,26 +337,27 @@ class TenderRequestLine(models.Model):
             self.description = self.product_id.name
             self.unit_price = self.product_id.list_price
 
-
 class TenderLostReason(models.Model):
     _name = 'tender.lost.reason'
     _description = 'Reason for Losing a Tender'
     name = fields.Char(string='Reason', required=True, translate=True)
     active = fields.Boolean(default=True)
 
-
 class TenderLostWizard(models.TransientModel):
     _name = 'tender.lost.wizard'
     _description = 'Wizard to select the reason for losing a tender'
-    
-    tender_id = fields.Many2one('tender.request', string="Tender", readonly=True)
-    lost_reason_id = fields.Many2one('tender.lost.reason', string='Reason for Loss', required=True)
+    tender_id = fields.Many2one(
+        'tender.request', string="Tender", readonly=True)
+    lost_reason_id = fields.Many2one(
+        'tender.lost.reason', string='Reason for Loss', required=True)
     lost_reason_notes = fields.Text(string="Loss Details")
 
     def action_confirm_lost(self):
         self.ensure_one()
         if self.tender_id:
+            # Find the stage marked as is_lost
             lost_stage = self.env['tender.stage'].search([('is_lost', '=', True)], limit=1)
+            
             vals = {
                 'lost_reason_id': self.lost_reason_id.id,
                 'lost_reason_notes': self.lost_reason_notes,
@@ -445,7 +365,9 @@ class TenderLostWizard(models.TransientModel):
             }
             if lost_stage:
                 vals['stage_id'] = lost_stage.id
+                
             self.tender_id.write(vals)
+            
         return {'type': 'ir.actions.act_window_close'}
     
 
@@ -458,31 +380,3 @@ class TenderChecklist(models.Model):
     description = fields.Text()
     is_done = fields.Boolean(string='Done')
     is_mandatory = fields.Boolean(string='Mandatory')
-
-class TenderRefuseWizard(models.TransientModel):
-    _name = 'tender.refuse.wizard'
-    _description = 'Tender Refusal/Revision Wizard'
-
-    tender_id = fields.Many2one('tender.request', string="Tender", required=True, readonly=True)
-    refuse_type = fields.Selection([
-        ('bid', 'Reject Entire Bid'),
-        ('tech', 'Return Tech Docs for Revision')
-    ], string="Refusal Type", required=True)
-    
-    refuse_reason = fields.Text(string="Comments / Reason", required=True)
-
-    def action_confirm_refuse(self):
-        self.ensure_one()
-        if self.refuse_type == 'bid':
-            # Internal rejection
-            self.tender_id.write({
-                'state': 'rejected',
-                'rejection_reason': self.refuse_reason
-            })
-        elif self.refuse_type == 'tech':
-            # Send back to prep stage
-            self.tender_id.write({
-                'state': 'tech_prep',
-                'tech_refuse_comments': self.refuse_reason
-            })
-        return {'type': 'ir.actions.act_window_close'}

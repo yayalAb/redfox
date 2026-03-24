@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_request" model="ir.actions.report">
+        <field name="name">Payment Request</field>
+        <field name="model">lc.letter.payment.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lc_letter.report_payment_request_document</field>
+        <field name="report_file">lc_letter.report_payment_request_document</field>
+        <field name="print_report_name">'Payment_Request_%s' % object.doc_no</field>
+        <field name="binding_model_id" ref="lc_letter.model_lc_letter_payment_line"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

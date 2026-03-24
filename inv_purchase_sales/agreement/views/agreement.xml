@@ -50,8 +50,9 @@
                     <button
                         name="action_create_sale_order"
                         type="object"
-                        string="Sale Order"
+                        string="Create Sale Order"
                         class="oe_stat_button"
+                        icon="fa-shopping-cart"
                         invisible="state != 'approved'"
                     />
                     <button

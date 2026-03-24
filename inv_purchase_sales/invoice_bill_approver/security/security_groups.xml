@@ -19,25 +19,6 @@
         <field name="comment">User can post or confirm invoices and bills.</field>
     </record>
 
-
-    <record id="group_invoice_bill_submit" model="res.groups">
-        <field name="name">Submit Invoice/Bill</field>
-        <field name="category_id" ref="module_category_invoice_bill_approver" />
-        <field name="comment">User can submit invoices and bills</field>
-    </record>
-
-    <record id="group_invoice_bill_verify" model="res.groups">
-        <field name="name">Verify Invoice/Bill</field>
-        <field name="category_id" ref="module_category_invoice_bill_approver" />
-        <field name="comment">User can verify invoices and bills.</field>
-    </record>
-
-    <record id="group_invoice_bill_authorize" model="res.groups">
-        <field name="name">Authorize Invoice/Bill</field>
-        <field name="category_id" ref="module_category_invoice_bill_approver" />
-        <field name="comment">User can authorize invoices and bills.</field>
-    </record>
-
     <!-- Send Button Group -->
     <record id="group_invoice_bill_send" model="res.groups">
         <field name="name">Send Invoice/Bill</field>
@@ -150,3 +131,4 @@
         <field name="comment">User can open payments view.</field>
     </record>
 </odoo>
+

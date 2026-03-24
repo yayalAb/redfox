@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lc_letter_user,lc.letter.user,model_lc_letter,base.group_user,1,1,1,1
+access_lc_letter_stage_user,lc.letter.stage.user,model_lc_letter_stage,base.group_user,1,1,1,1
+access_lc_letter_payment_line_user,lc.letter.payment.line.user,model_lc_letter_payment_line,base.group_user,1,1,1,1
+access_lc_letter_payment_request_user,lc.letter.payment.request.user,model_lc_letter_payment_request,base.group_user,1,1,1,1

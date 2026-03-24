@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lc_letter_payment_line_tree" model="ir.ui.view">
+        <field name="name">lc.letter.payment.line.tree</field>
+        <field name="model">lc.letter.payment.line</field>
+        <field name="arch" type="xml">
+            <list string="Payment Lines" create="1" delete="1">
+                <field name="lc_letter_id"/>
+                <field name="state" widget="badge"
+                    decoration-info="state == 'verified'"
+                    decoration-warning="state == 'authorized'"
+                    decoration-success="state == 'approved'"
+                    decoration-danger="state in ('rejected', 'cancelled')"/>
+                <field name="product_id"/>
+                <field name="partner_id"/>
+                <field name="amount"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lc_letter_payment_line_form" model="ir.ui.view">
+        <field name="name">lc.letter.payment.line.form</field>
+        <field name="model">lc.letter.payment.line</field>
+        <field name="arch" type="xml">
+            <form string="Payment Line">
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                        class="btn-primary" groups="lc_letter.group_lc_payment_submit" invisible="state != 'draft'"/>
+                    <button name="action_verify" string="Verify" type="object"
+                        class="btn-primary" groups="lc_letter.group_lc_payment_verify" invisible="state != 'submitted'"/>
+                    <button name="action_authorize" string="Authorize" type="object"
+                        class="btn-primary" groups="lc_letter.group_lc_payment_authorize" invisible="state != 'verified'"/>
+                    <button name="action_approve" string="Approve" type="object"
+                        class="btn-primary" groups="lc_letter.group_lc_payment_approve" invisible="state != 'authorized'"/>
+                    <button name="action_reject" string="Reject" type="object"
+                        class="btn-danger" groups="lc_letter.group_lc_payment_reject" invisible="state not in ('submitted', 'verified', 'authorized')"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                        groups="lc_letter.group_lc_payment_cancel" invisible="state not in ('submitted', 'verified', 'authorized')"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                        groups="lc_letter.group_lc_payment_reset_draft" invisible="state == 'approved'"/>
+                    <button name="action_open_vendor_bill" string="View Bill" type="object"
+                        class="btn-secondary" invisible="not vendor_bill_id"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,submitted,verified,authorized,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_purchase_orders" type="object"
+                            class="oe_stat_button" icon="fa-shopping-cart"
+                            invisible="purchase_order_count == 0">
+                            <field name="purchase_order_count" widget="statinfo" string="Purchase Orders"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="order_no" readonly="1"/>
+                            <field name="lc_letter_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="product_id" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="vendor_bill_id" readonly="1" invisible="not vendor_bill_id"/>
+                            <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Report Details">
+                            <group>
+                                <group>
+                                    <field name="doc_no" readonly="1"/>
+                                    <field name="declaration_no" readonly="state != 'draft'"/>
+                                    <field name="payment_type" readonly="state != 'draft'"/>
+                                    <field name="account_number" readonly="state != 'draft'"/>
+                                    <field name="account_type" readonly="state != 'draft'"/>
+                                </group>
+                                <group>
+                                    <field name="submitted_by" readonly="1"/>
+                                    <field name="verified_by" readonly="1"/>
+                                    <field name="authorized_by" readonly="1"/>
+                                    <field name="approved_by" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Note">
+                            <field name="note" placeholder="Purpose of payment..." readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lc_letter_payment_line" model="ir.actions.act_window">
+        <field name="name">Payment Lines</field>
+        <field name="res_model">lc.letter.payment.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No payment lines yet
+            </p>
+            <p>
+                Payment lines are created from LC Letters or via the Payment Request wizard.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_lc_letter_payment_line"
+        name="Foreign  Payment"
+        parent="purchase.menu_purchase_root"
+        action="action_lc_letter_payment_line"
+        sequence="51"/>
+</odoo>

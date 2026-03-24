@@ -6,7 +6,6 @@
     'depends': ['base', 'mail', 'agreement', 'customer_vetting', 'sale', 'custom_sale_agreement'], 
     'data': [
         'security/ir.model.access.csv',
-        'security/tender_security.xml',
         'data/ir_sequence_data.xml',
         'report/bid_power_attorney_report.xml',
         'report/warranty_form_report.xml',

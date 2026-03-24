@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payment_request_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, Helvetica, sans-serif; max-width: 800px; margin: 0 auto; font-size: 16px; line-height: 1.5;">
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-size: 16px; text-align: right;">Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d')" style="text-decoration: underline;"/></div>
+                            <div style="font-size: 16px;"><strong>ORDER NO:</strong> <span t-field="doc.order_no" style="text-decoration: underline;"/></div>
+                            <!-- <div style="font-size: 18px; font-weight: bold; margin-bottom: 16px;">Doc Title: Payment Request form</div> -->
+                            <!-- <div class="justify-content" style="font-size: 16px;">Doc No. <span t-field="doc.doc_no" style="text-decoration: underline;"/></div> -->
+                        </div>
+
+                        <div style="margin-bottom: 36px;">
+                            <div style="padding: 10px 0;"><strong>Declaration No:</strong> <span t-field="doc.declaration_no" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong>Payment type:</strong> <span t-field="doc.payment_type" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong>Birr (ብር):</strong> <span t-esc="doc.currency_id.format(doc.amount)" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong>Amount in words Birr (የክፍያ በፊደል ብር):</strong> <span t-field="doc.amount_in_words" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong>Pay to (ክፍያ ለ፡):</strong> <span t-field="doc.partner_id" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong>Account Number:</strong>
+                                <span style="text-decoration: underline;">
+                                    <t t-if="doc.account_number">
+                                        <t t-if="doc.account_type">(<t t-esc="doc.account_type"/> account <span t-field="doc.account_number"/>)</t>
+                                        <t t-else=""><span t-field="doc.account_number"/></t>
+                                    </t>
+                                    <t t-else="">-</t>
+                                </span>
+                            </div>
+                            <div style="padding: 10px 0;"><strong>Purpose of Payment (የክፍያ ምክንያት፡):</strong> <t t-if="doc.note"><span t-field="doc.note" style="text-decoration: underline;"/></t><t t-else=""><span t-field="doc.product_id.name" style="text-decoration: underline;"/></t></div>
+                            <div style="padding: 10px 0;"><strong>LC No (ኤል ሲ ቁጥር):</strong> <span t-field="doc.lc_letter_id.name" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong>Foreign Currency Amount (የውጭ ምንዛሪ መጠን):</strong> <span t-esc="doc.currency_id.format(doc.amount)" style="text-decoration: underline;"/> <span t-field="doc.currency_id.name" style="text-decoration: underline;"/></div>
+                        </div>
+
+                        <div style="margin-top: 48px; display: table; width: 100%; table-layout: fixed;">
+                            <div style="display: table-row;">
+                                <div style="display: table-cell; width: 25%; padding-right: 16px; padding-left: 0; vertical-align: top; text-align: left;">
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Prepared by:</div>
+                                    <div style="font-size: 16px; margin-bottom: 8px;">ያዘጋጀው ፡</div>
+                                    <div style="min-height: 24px; margin-bottom: 6px;"><t t-if="doc.submitted_by"><span t-field="doc.submitted_by" style="text-decoration: underline;"/></t></div>
+                                    <div> <t t-if="doc.submitted_by and doc._get_user_signature_data_uri(doc.submitted_by)"><img t-att-src="doc._get_user_signature_data_uri(doc.submitted_by)" style="max-height: 36px; max-width: 100px; vertical-align: middle;"/></t></div>
+                                </div>
+                                <div style="display: table-cell; width: 25%; padding-right: 16px; padding-left: 16px; vertical-align: top; text-align: left;">
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Verified by:</div>
+                                    <div style="font-size: 16px; margin-bottom: 8px;">ለትከከለኛነቱ ፡</div>
+                                    <div style="min-height: 24px; margin-bottom: 6px;"><t t-if="doc.verified_by"><span t-field="doc.verified_by" style="text-decoration: underline;"/></t></div>
+                                    
+                                    <div> <t t-if="doc.verified_by and doc._get_user_signature_data_uri(doc.verified_by)"><img t-att-src="doc._get_user_signature_data_uri(doc.verified_by)" style="max-height: 36px; max-width: 100px; vertical-align: middle;"/></t></div>
+                                </div>
+                                <div style="display: table-cell; width: 25%; padding-right: 16px; padding-left: 16px; vertical-align: top; text-align: left;">
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Authorized by:</div>
+                                    <div style="font-size: 16px; margin-bottom: 8px;">የፈቀደው ፡</div>
+                                    <div style="min-height: 24px; margin-bottom: 6px;"><t t-if="doc.authorized_by"><span t-field="doc.authorized_by" style="text-decoration: underline;"/></t></div>
+                                    
+                                    <div> <t t-if="doc.authorized_by and doc._get_user_signature_data_uri(doc.authorized_by)"><img t-att-src="doc._get_user_signature_data_uri(doc.authorized_by)" style="max-height: 36px; max-width: 100px; vertical-align: middle;"/></t></div>
+                                </div>
+                                <div style="display: table-cell; width: 25%; padding-left: 16px; padding-right: 0; vertical-align: top; text-align: left;">
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Approved by:</div>
+                                    <div style="font-size: 16px; margin-bottom: 8px;">ያፀደቀው ፡</div>
+                                    <div style="min-height: 24px; margin-bottom: 6px;"><t t-if="doc.approved_by"><span t-field="doc.approved_by" style="text-decoration: underline;"/></t></div>
+                                    
+                                    <div> <t t-if="doc.approved_by and doc._get_user_signature_data_uri(doc.approved_by)"><img t-att-src="doc._get_user_signature_data_uri(doc.approved_by)" style="max-height: 36px; max-width: 100px; vertical-align: middle;"/></t></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #333; font-size: 10px; color: #333; text-align: center; letter-spacing: 0.5px;">
+                            PLEASE MAKE SURE THAT THIS IS THE CORRECT ISSUE BEFORE USE
+                        </div> -->
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

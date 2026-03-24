@@ -1,8 +1,8 @@
 from odoo import models, fields, api, _
 
+
 class SuppliesRfpLocal(models.Model):
     _inherit = 'supplies.rfp'
-
 
     def _prepare_po_values(self, partner, lines_data):
         po_lines = []
@@ -22,7 +22,7 @@ class SuppliesRfpLocal(models.Model):
             'company_id': self.company_id.id,
             'user_id': self.env.user.id,
             'order_line': po_lines,
-            'state': 'sent', 
+            'state': 'sent',
         }
 
         if partner:
@@ -38,10 +38,10 @@ class SuppliesRfpLocal(models.Model):
 
         return vals
 
-
     def action_open_po_creation_form(self):
         self.ensure_one()
-        
+        if self.purchase_type in ['petty_cash', 'direct']:
+            self.state = "ordered"
         lines_data = []
         for line in self.product_line_ids:
             lines_data.append({

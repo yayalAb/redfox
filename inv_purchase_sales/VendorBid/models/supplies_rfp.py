@@ -3,6 +3,47 @@ from odoo.exceptions import UserError, ValidationError
 from collections import defaultdict
 
 
+class IrModelFields(models.Model):
+    _inherit = 'ir.model.fields'
+
+    _rec_name = 'rec_name_field'
+    rec_name_field = fields.Char(
+        string='Record Name Field', compute='_compute_rec_name_field')
+
+    @api.depends('name', 'model_id')
+    def _compute_rec_name_field(self):
+        for field in self:
+            name = field.name or ""
+            model_name = field.model_id.name or ""
+            field.rec_name_field = f"{name} {model_name}"
+
+
+class mailTrackingValue(models.Model):
+    _inherit = "mail.tracking.value"
+    field_id = fields.Many2one(
+        'ir.model.fields', required=False, readonly=False,
+        index=True, ondelete='set null')
+    field_info = fields.Json('Removed field information')
+
+    old_value_integer = fields.Integer('Old Value Integer', readonly=False)
+    old_value_float = fields.Float('Old Value Float', readonly=False)
+    old_value_char = fields.Char('Old Value Char', readonly=False)
+    old_value_text = fields.Text('Old Value Text', readonly=False)
+    old_value_datetime = fields.Datetime('Old Value DateTime', readonly=False)
+
+    new_value_integer = fields.Integer('New Value Integer', readonly=False)
+    new_value_float = fields.Float('New Value Float', readonly=False)
+    new_value_char = fields.Char('New Value Char', readonly=False)
+    new_value_text = fields.Text('New Value Text', readonly=False)
+    new_value_datetime = fields.Datetime('New Value Datetime', readonly=False)
+
+    currency_id = fields.Many2one('res.currency', 'Currency', readonly=False, ondelete='set null',
+                                  help="Used to display the currency when tracking monetary values")
+
+    mail_message_id = fields.Many2one(
+        'mail.message', 'Message ID', required=False, index=True, ondelete='cascade')
+
+
 class SuppliesRfp(models.Model):
 
     _name = 'supplies.rfp'
@@ -27,6 +68,7 @@ class SuppliesRfp(models.Model):
         ('ordered', 'Ordered'),
         ('re_evaluated', 'Re-Evaluated'),
         ('cancelled', 'Cancelled'),
+        ('merged', 'Merged'),
         ('rejected', 'Rejected'),
     ], string='Status', index=True, tracking=True, default='draft')
     purchase_origin = fields.Selection([
@@ -339,7 +381,7 @@ class SuppliesRfp(models.Model):
             'name': 'Orders',
             'view_mode': 'list,form',
             'res_model': 'purchase.order',
-            'domain': [('rfp_id', '=', self.id), ('final_po', '=', True), ('state', '=', 'purchase')],
+            'domain': [('rfp_id', '=', self.id), ('final_po', '=', True)],
             'type': 'ir.actions.act_window',
         }
 
@@ -511,31 +553,34 @@ class SuppliesRfp(models.Model):
             #         "RFP %s is currently in state '%s'.", rfp.rfp_number, rfp.state
             #     ))
 
-            if rfp.rfq_count > 0:
-                raise UserError(_(
-                    "Cannot merge requests that already have Quotations attached.\n"
-                    "RFP %s has %s RFQs.", rfp.rfp_number, rfp.rfq_count
-                ))
+            # if rfp.rfq_count > 0:
+            #     raise UserError(_(
+            #         "Cannot merge requests that already have Quotations attached.\n"
+            #         "RFP %s has %s RFQs.", rfp.rfp_number, rfp.rfq_count
+            #     ))
 
             source_refs.append(rfp.rfp_number)
 
-            grouped_lines = {}
-
+        grouped_lines = {}
         for rfp in self:
             for line in rfp.product_line_ids:
                 prod_id = line.product_id.id
                 if prod_id in grouped_lines:
                     grouped_lines[prod_id]['product_qty'] += line.product_qty
 
-                    if line.product_name and line.description not in grouped_lines[prod_id]['description']:
-                        grouped_lines[prod_id]['description'] += f"\n{line.product_name}"
+                    existing_desc = grouped_lines[prod_id]['description'] or ''
+                    prod_name = line.product_name or ''
+                    if prod_name and prod_name not in existing_desc:
+                        grouped_lines[prod_id]['description'] = (
+                            f"{existing_desc}\n{prod_name}" if existing_desc else prod_name
+                        )
                 else:
                     grouped_lines[prod_id] = {
                         'product_id': prod_id,
                         'product_qty': line.product_qty,
                         'product_uom': line.product_uom.id,
                         'product_name': line.product_name,
-                        'description': line.description,
+                        'description': line.description or '',
                     }
 
         line_commands = [Command.create(vals)
@@ -559,6 +604,7 @@ class SuppliesRfp(models.Model):
         new_rfp = self.create(new_rfp_vals)
 
         for rfp in self:
+            rfp.write({'state': 'merged'})
             rfp.message_post(
                 body=_(
                     "This request was included in a merge operation. "
@@ -572,4 +618,231 @@ class SuppliesRfp(models.Model):
             'view_mode': 'form',
             'res_id': new_rfp.id,
             'target': 'current',
+        }
+
+    def _restore_chatter_from_backup(self, chatter_data, filestore_path=None):
+        """
+        Restore chatter (mail.message with attachments and tracking) from extracted backup data.
+
+        chatter_data: list of dicts from rfp_chatter.json.
+        Each can include _attachments (list) and _tracking (list).
+        filestore_path: path to backup DB filestore (e.g. .../filestore/wagwago_db) for attachments.
+        """
+        self.ensure_one()
+        import base64
+        import os
+
+        MailMessage = self.env['mail.message'].sudo()
+        IrAttachment = self.env['ir.attachment'].sudo()
+        MailTracking = self.env['mail.tracking.value'].sudo()
+        created = 0
+
+        if not filestore_path:
+            filestore_path = self.env['ir.config_parameter'].sudo().get_param(
+                'vendor_bid.chatter_restore_filestore_path', ''
+            )
+
+        for msg_vals in chatter_data:
+            attachments_data = msg_vals.pop('_attachments', []) or []
+            tracking_data = msg_vals.pop('_tracking', []) or []
+
+            author_id = None
+            if msg_vals.get('author_id'):
+                try:
+                    aid = int(msg_vals['author_id'])
+                    if self.env['res.partner'].sudo().browse(aid).exists():
+                        author_id = aid
+                except (ValueError, TypeError):
+                    pass
+            if not author_id:
+                author_id = self.env.company.partner_id.id
+
+            subtype_id = False
+            if msg_vals.get('subtype_id'):
+                try:
+                    sid = int(msg_vals['subtype_id'])
+                    if self.env['mail.message.subtype'].sudo().browse(sid).exists():
+                        subtype_id = sid
+                except (ValueError, TypeError):
+                    pass
+
+            body = msg_vals.get('body') or ''
+            if not body and msg_vals.get('message_type') == 'notification':
+                body = '<p></p>'
+            vals = {
+                'model': 'supplies.rfp',
+                'res_id': self.id,
+                'body': body,
+                'subject': msg_vals.get('subject') or '',
+                'message_type': msg_vals.get('message_type') or 'comment',
+                'author_id': author_id,
+                'subtype_id': subtype_id,
+                'email_from': msg_vals.get('email_from'),
+                'date': msg_vals.get('date') or msg_vals.get('create_date') or fields.Datetime.now(),
+                'record_company_id': self.company_id.id if self.company_id else False,
+            }
+            new_msg = MailMessage.create(vals)
+            created += 1
+
+            attachment_ids = []
+            for att in attachments_data:
+                if not att or not att.get('name'):
+                    continue
+                datas_b64 = att.get('db_datas_b64')
+                if not datas_b64 and att.get('store_fname') and filestore_path:
+                    fpath = os.path.join(filestore_path, att['store_fname'])
+                    if os.path.isfile(fpath):
+                        try:
+                            with open(fpath, 'rb') as f:
+                                datas_b64 = base64.b64encode(
+                                    f.read()).decode('ascii')
+                        except Exception:
+                            pass
+                if not datas_b64 and not att.get('url'):
+                    continue
+                att_vals = {
+                    'name': att.get('name', 'attachment'),
+                    'res_model': 'mail.message',
+                    'res_id': new_msg.id,
+                    'mimetype': att.get('mimetype') or 'application/octet-stream',
+                    'company_id': self.company_id.id if self.company_id else False,
+                }
+                if datas_b64:
+                    att_vals['datas'] = datas_b64
+                if att.get('description'):
+                    att_vals['description'] = att['description']
+                try:
+                    new_att = IrAttachment.create(att_vals)
+                    attachment_ids.append(new_att.id)
+                except Exception:
+                    pass
+            if attachment_ids:
+                new_msg.write(
+                    {'attachment_ids': [(4, aid) for aid in attachment_ids]})
+
+            for tv in tracking_data:
+                field_name = tv.get('field_name')
+                if not field_name:
+                    continue
+                field = self.env['ir.model.fields'].sudo().search([
+                    ('model', '=', 'supplies.rfp'),
+                    ('name', '=', field_name),
+                ], limit=1)
+                if not field:
+                    continue
+
+                def _safe_int(v):
+                    try:
+                        return int(v) if v not in (None, '', '\\N') else None
+                    except (ValueError, TypeError):
+                        return None
+
+                def _safe_float(v):
+                    try:
+                        return float(v) if v not in (None, '', '\\N') else None
+                    except (ValueError, TypeError):
+                        return None
+
+                tv_vals = {
+                    'mail_message_id': new_msg.id,
+                    'field_id': field.id,
+                    'old_value_char': tv.get('old_value_char'),
+                    'new_value_char': tv.get('new_value_char'),
+                    'old_value_text': tv.get('old_value_text'),
+                    'new_value_text': tv.get('new_value_text'),
+                    'old_value_integer': _safe_int(tv.get('old_value_integer')),
+                    'new_value_integer': _safe_int(tv.get('new_value_integer')),
+                    'old_value_float': _safe_float(tv.get('old_value_float')),
+                    'new_value_float': _safe_float(tv.get('new_value_float')),
+                    'old_value_datetime': tv.get('old_value_datetime'),
+                    'new_value_datetime': tv.get('new_value_datetime'),
+                }
+                try:
+                    MailTracking.create(tv_vals)
+                except Exception:
+                    pass
+
+        self.invalidate_recordset(fnames=['message_ids'])
+        return created
+
+    @api.model
+    def _find_rfp_by_number(self, rfp_number):
+        """Find RFP by rfp_number, trying exact match and format variants (PR- vs P-R-)."""
+        rfp = self.search([('rfp_number', '=', rfp_number)], limit=1)
+        if rfp:
+            return rfp
+        alt = rfp_number.replace(
+            'P-R-', 'PR-') if 'P-R-' in rfp_number else rfp_number.replace('PR-', 'P-R-')
+        return self.search([('rfp_number', '=', alt)], limit=1)
+
+    @api.model
+    def restore_chatter_from_json(self, json_path=None, rfp_numbers=None, filestore_path=None):
+        """
+        Restore supplies.rfp chatter from extracted JSON file.
+        Matches records by rfp_number (IDs differ between backup and current DB).
+
+        :param json_path: Path to rfp_chatter.json (default: inv_purchase_sales/rfp_chatter.json)
+        :param rfp_numbers: Optional list of RFP numbers to restore; if None, restore all
+        :param filestore_path: Path to backup DB filestore for attachments (e.g. .../filestore/wagwago_db)
+        :return: dict with counts {restored: int, skipped: int, not_found: list}
+        """
+        import json
+        import os
+
+        if not json_path:
+            module_path = os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__)))
+            json_path = os.path.join(module_path, '..', 'rfp_chatter.json')
+        json_path = os.path.abspath(json_path)
+
+        if not os.path.exists(json_path):
+            raise FileNotFoundError(
+                _('Chatter JSON file not found: %s. Run extract_rfp_chatter.py first.') % json_path
+            )
+
+        with open(json_path, 'r', encoding='utf-8') as f:
+            chatter_by_rfp = json.load(f)
+
+        if rfp_numbers is not None:
+            chatter_by_rfp = {k: v for k,
+                              v in chatter_by_rfp.items() if k in rfp_numbers}
+
+        restored = 0
+        skipped = 0
+        not_found = []
+
+        for rfp_number, messages in chatter_by_rfp.items():
+            rfp = self._find_rfp_by_number(rfp_number)
+            if not rfp:
+                not_found.append(rfp_number)
+                continue
+            if not messages:
+                skipped += 1
+                continue
+            count = rfp._restore_chatter_from_backup(
+                messages, filestore_path=filestore_path)
+            restored += count
+
+        return {'restored': restored, 'skipped': skipped, 'not_found': not_found}
+
+    def action_restore_chatter(self):
+        """Button action: run restore_chatter_from_json and show result."""
+        result = self.env['supplies.rfp'].restore_chatter_from_json()
+        not_found_str = (
+            ', '.join(result['not_found'][:10]) +
+            ('...' if len(result['not_found']) > 10 else '')
+            if result['not_found'] else _('none')
+        )
+        msg = _('Restored %s messages. RFPs not found (%s): %s. Refresh the page to see chatter.') % (
+            result['restored'], len(result['not_found']), not_found_str
+        )
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Chatter Restore Complete'),
+                'message': msg,
+                'type': 'success',
+                'sticky': False,
+            },
         }

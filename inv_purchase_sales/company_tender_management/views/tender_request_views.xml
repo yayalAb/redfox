@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- WIZARD VIEW FOR REJECTION --> 
-    <record id="view_tender_refuse_wizard_form" model="ir.ui.view">
-        <field name="name">tender.refuse.wizard.form</field>
-        <field name="model">tender.refuse.wizard</field>
-        <field name="arch" type="xml">
-            <form string="Provide Feedback">
-                <group>
-                    <field name="tender_id" invisible="1"/>
-                    <field name="refuse_type" invisible="1"/>
-                    <field name="refuse_reason" placeholder="Explain why..."/>
-                </group>
-                <footer>
-                    <button name="action_confirm_refuse" string="Confirm" type="object" class="btn-danger"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
     <record id="view_tender_request_kanban" model="ir.ui.view">
         <field name="name">tender.request.kanban</field>
         <field name="model">tender.request</field>
@@ -27,6 +9,7 @@
                 sample="1"
                 quick_create="false">
 
+                <!-- Fields needed for logic and display -->
                 <field name="stage_id" />
                 <field name="id" />
                 <field name="name" />
@@ -40,12 +23,14 @@
                 <field name="activity_ids" />
                 <field name="activity_state" />
 
+                <!-- Progress Bar similar to CRM (Success/Warning/Danger based on activity) -->
                 <progressbar field="activity_state"
                     colors='{"planned": "success", "today": "warning", "overdue": "danger"}'
                     sum_field="tender_value"
                     help="This bar allows to filter the tenders based on scheduled activities." />
 
                 <templates>
+                    <!-- Gear Icon Menu -->
                     <t t-name="menu">
                         <t t-if="widget.editable">
                             <a role="menuitem" type="open" class="dropdown-item">Edit</a>
@@ -55,10 +40,15 @@
                         </t>
                     </t>
 
+                    <!-- Card Body -->
                     <t t-name="card">
-                        <widget name="web_ribbon" title="Lost" bg_color="text-bg-danger" invisible="state != 'lost'" />
-                        <widget name="web_ribbon" title="Won" bg_color="text-bg-success" invisible="state != 'won'" />
+                        <!-- Ribbons for Status -->
+                        <widget name="web_ribbon" title="Lost" bg_color="text-bg-danger"
+                            invisible="state != 'lost'" />
+                        <widget name="web_ribbon" title="Won" bg_color="text-bg-success"
+                            invisible="state != 'won'" />
 
+                        <!-- Title Section -->
                         <div class="fw-bold fs-5">
                             <field name="title" />
                         </div>
@@ -66,10 +56,13 @@
                             <field name="name" />
                         </div>
 
+                        <!-- Monetary Value -->
                         <div t-if="record.tender_value.raw_value">
-                            <field name="tender_value" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                            <field name="tender_value" widget="monetary"
+                                options="{'currency_field': 'currency_id'}" />
                         </div>
 
+                        <!-- Customer -->
                         <div class="text-truncate">
                             <span t-if="record.customer_id.value">
                                 <i class="fa fa-building-o me-1" title="Customer" />
@@ -77,15 +70,19 @@
                             </span>
                         </div>
 
-                        <div class="text-muted small mt-1" t-if="record.submission_deadline.raw_value">
+                        <!-- Submission Deadline (Crucial for Tenders) -->
+                        <div class="text-muted small mt-1"
+                            t-if="record.submission_deadline.raw_value">
                             <i class="fa fa-clock-o me-1" title="Submission Deadline" />
                             <field name="submission_deadline" widget="remaining_days" />
                         </div>
 
+                        <!-- Footer: Activities and User -->
                         <footer class="pt-1">
                             <div class="d-flex mt-auto align-items-center">
                                 <field name="activity_ids" widget="kanban_activity" />
                             </div>
+                            <!-- Using create_uid because user_id isn't in your model definition -->
                             <field name="create_uid" widget="many2one_avatar_user" class="ms-auto" />
                         </footer>
                     </t>
@@ -100,83 +97,62 @@
         <field name="arch" type="xml">
             <form string="Tender Request">
                 <header>
-                    
-                    <!-- 1. User submits for manager review -->
-                    <button name="action_submit_internal" string="Submit for Review" type="object" class="oe_highlight"
-                        invisible="state != 'draft'" groups="company_tender_management.group_tender_submit"/>
-                        
-                    
-                    <!-- 2. Manager reviews: Bid Fits OR Reject -->
-                    <button name="action_bid_fit" string="Bid Fits" type="object" class="oe_highlight"
-                        invisible="state != 'review'" groups="company_tender_management.group_tender_review"/>
-                        
-                    <button name="action_bid_reject" string="Reject Bid" type="object" class="btn-danger"
-                        invisible="state != 'review'" groups="company_tender_management.group_tender_review"/>
-
-                    <!-- STEP 3: Tech Prep -> Tech Review -->
-                    <button name="action_submit_tech_docs" string="Submit Tech Docs" type="object" class="oe_highlight"
-                        invisible="state != 'tech_prep'" groups="company_tender_management.group_tender_doc_submit"/>
-
-                    <!-- STEP 4: Tech Review -> Submit to Client / Return -->
-                    <button name="action_approve_tech_docs" string="Submit to Client" type="object" class="btn-success"
-                        invisible="state != 'tech_review'" groups="company_tender_management.group_tender_client_submission"/>
-                    <button name="action_refuse_tech_docs" string="Return for Revision" type="object" class="btn-warning"
-                        invisible="state != 'tech_review'" groups="company_tender_management.group_tender_doc_review"/>
-
-                    <!-- 5. Mark as Submitted to Client (Optional visual step) -->
-                    <button name="action_submit_to_client" string="Mark as Submitted to Client" type="object"
-                        invisible="state != 'submission'" groups="company_tender_management.group_tender_client_submission"/>
-
-                    <!-- 6. Final Outcomes -->
-                    <button name="action_win" type="object" string="Mark as Won" class="btn-success"
-                        invisible="state != 'submission'" groups="company_tender_management.group_tender_win"/>
-                        
-                    <button name="action_lose" type="object" string="Mark as Lost" class="btn-danger"
-                        invisible="state != 'submission'" groups="company_tender_management.group_tender_lose"/>
-
-                    <!-- 7. Reset -->
-                    <button name="action_reset_draft" string="Reset to Draft" type="object"
-                        invisible="state not in ['cancelled', 'lost', 'rejected']" 
-                        groups="company_tender_management.group_tender_reset"/>
-
-                    <!-- Document Generation Buttons -->
+                    <field name="state" invisible="1" />
+                    <button name="action_submit" type="object" string="Submit" class="btn-primary"
+                        invisible="state != 'draft'" />
+                    <button name="action_win" type="object" string="Mark as Won" class="btn-primary"
+                        invisible="state not in ['submitted', 'under_review']" />
+                    <button name="action_lose" type="object" string="Mark as Lost"
+                        invisible="state not in ['submitted', 'under_review']" />
                     <button name="action_create_agreement" type="object" string="Create Agreement"
                         class="oe_highlight" invisible="state != 'won'" />
-                    <button name="action_create_warranty_letter" type="object" string="Create Warranty Letter"
-                        class="oe_highlight" invisible="state != 'won'" />
-                    <button name="action_create_power_of_attorney" type="object" string="Create Power of Attorney"
-                        class="oe_highlight" invisible="state not in ['review', 'submission']" />
-                    <button name="action_create_bid_bond" type="object" string="Create Bid Bond"
-                        class="oe_highlight" invisible="state not in ['review', 'submission']" />
 
-                    <!-- Strict Statusbar replacing Clickable Stage -->
-                    <field name="state" widget="statusbar" statusbar_visible="draft,review,tech_prep,tech_review,submission,won"/>
+                    <button name="action_create_warranty_letter" type="object"
+                        string="Create Warranty Letter"
+                        class="oe_highlight" invisible="state != 'submission'" />
+
+                    <button name="action_create_power_of_attorney" type="object"
+                        string="Create Power of Attorney"
+                        class="oe_highlight" invisible="state != 'submission'" />
+
+                    <button name="action_create_bid_bond" type="object"
+                        string="Create Bid Bond"
+                        class="oe_highlight" invisible="state != 'submission'" />
+
+                    <field name="stage_id" widget="statusbar"
+                        options="{'clickable': '1', 'fold_field': 'fold'}" />
                 </header>
                 <sheet>
-                    <!-- Ribbons -->
-                    <widget name="web_ribbon" title="Lost" bg_color="text-bg-danger" invisible="state != 'lost'" />
-                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-secondary" invisible="state != 'rejected'" />
-                    <widget name="web_ribbon" title="Won" bg_color="text-bg-success" invisible="state != 'won'" />
-
+                    <field name="state" invisible="1" />
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_agreements" type="object" class="oe_stat_button"
                             icon="fa-file-text-o" invisible="agreement_count == 0">
                             <field name="agreement_count" widget="statinfo" string="Agreements" />
                         </button>
 
-                        <button name="action_view_bid_bonds" type="object" class="oe_stat_button"
-                            icon="fa-money" invisible="bid_bond_count == 0">
+                        <button name="action_view_bid_bonds"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            invisible="bid_bond_count == 0">
                             <field name="bid_bond_count" widget="statinfo" string="Bid Bonds" />
                         </button>
 
-                        <button name="action_view_warranty_letters" type="object" class="oe_stat_button"
-                            icon="fa-shield" invisible="warranty_count == 0">
+                        <button name="action_view_warranty_letters"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shield"
+                            invisible="warranty_count == 0">
                             <field name="warranty_count" widget="statinfo" string="Warranty Letters" />
                         </button>
 
-                        <button name="action_view_power_of_attorneys" type="object" class="oe_stat_button"
-                            icon="fa-file-signature" invisible="power_attorney_count == 0">
-                            <field name="power_attorney_count" widget="statinfo" string="Power of Attorneys" />
+                        <button name="action_view_power_of_attorneys"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-signature"
+                            invisible="power_attorney_count == 0">
+                            <field name="power_attorney_count" widget="statinfo"
+                                string="Power of Attorneys" />
                         </button>
                     </div>
                     <div class="oe_title">
@@ -186,55 +162,48 @@
                     </div>
                     <group>
                         <group>
-                            <!-- Fields locked down after finishing -->
-                             <field name="title" readonly="state in ['won', 'lost']"/>
-                            <field name="name" readonly="0"/>
-                            <field name="customer_id" readonly="state in ['won', 'lost']"/>
-                            <field name="responsible_id" widget="many2one_avatar_user" 
-                                   readonly="state in ['won', 'lost', 'rejected']"
-                                   required="state == 'review'"/>
-                            <field name="goods_description" readonly="state in ['won', 'lost']"/>
+                            <field name="title" />
+                            <field name="customer_id" />
+                            <field name="goods_description" />
+                            <field name="tender_doc_cost" />
                             <field name="winning_price" invisible="state != 'lost'" />
-                            
-                            <!-- Kept stage_id invisible to sync kanban but hide from user -->
-                            <field name="stage_id" invisible="1"/>
+
                         </group>
                         <group>
-                            <field name="submission_deadline" readonly="state in ['won', 'lost']"/>
-                            <field name="bid_doc_cost" readonly="state in ['won', 'lost']"/>
-                            <field name="supplier_id" readonly="state in ['won', 'lost']"/>
-                            <field name="company_id" groups="base.group_multi_company" /> 
-                        </group>
-
-                         <group invisible="state != 'rejected'">
-                            <field name="rejection_reason" readonly="1"/>
+                            <field name="submission_deadline" />
+                            <field name="decision_date" />
+                            <field name="supplier_id" />
+                            <field name="company_id" groups="base.group_multi_company" />
                         </group>
                     </group>
                     <notebook>
-                        <page string="Bill of Quantity" name="tender_lines">
-                            <field name="tender_line_ids" readonly="state in ['won', 'lost']">
+                        <page string="Products" name="tender_lines">
+                            <field name="tender_line_ids">
                                 <list editable="bottom">
                                     <field name="product_id" />
                                     <field name="description" />
                                     <field name="quantity" />
-                                    <field name="unit_price" invisible="parent.state not in ['submission', 'won', 'lost']" />
-                                    <field name="subtotal" sum="Total" invisible="parent.state not in ['submission', 'won', 'lost']" />
+                                    <field name="unit_price"
+                                        invisible="parent.state not in ['submission', 'won', 'lost']" />
+                                    <field name="subtotal" sum="Total"
+                                        invisible="parent.state not in ['submission', 'won', 'lost']" />
                                 </list>
                             </field>
                             <group class="oe_subtotal_footer oe_right">
                                 <field name="tender_value" class="oe_subtotal_footer_separator" />
                             </group>
                         </page>
-                        <page string="LegalDocuments" name="documents">
+                        <page string="Documents &amp; Legal" name="documents">
                             <group string="Submission Files">
-                                <!-- <field name="tender_document_filename" invisible="1" /> -->
-                                <field name="tender_document_ids" widget="many2many_binary" 
-                                       string="Tender Request Documents " />
+                                <field name="tender_document_filename" invisible="1" />
+                                <field name="tender_document" filename="tender_document_filename"
+                                    widget="binary" string="Tender Request Document" />
                             </group>
 
                             <group string="Company Legal Documents">
                                 <p class="text-muted" colspan="2">
-                                    The documents below are automatically linked from your Company Profile.
+                                    The documents below are automatically linked from your Company
+                                    Profile for the submission package.
                                 </p>
                                 <group>
                                     <field name="co_business_license" widget="binary" />
@@ -251,21 +220,8 @@
                                 </group>
                             </group>
                         </page>
-                        <!--  Technical Documents -->
-                        <page string="Technical Documents" name="technical_docs">
-                            <field name="technical_document_ids" widget="many2many_binary" 
-                                       readonly="state in ['won', 'lost', 'rejected']"
-                                       string="Upload Technical Documents"/>
-                        </page>
-
-                        <page string="Bid Requirements" name="checklists">
-                            <separator string="Requirements (Text Description)"/>
-                            <field name="requirements_text" 
-                                   placeholder="Type or paste the bid requirements here..." 
-                                   readonly="state in ['won', 'lost']"/>
-                            
-                            <separator string="Requirements (Checklist)"/>
-                            <field name="checklist_ids" readonly="state in ['won', 'lost']">
+                        <page string="Checklists" name="checklists">
+                            <field name="check_list_id">
                                 <list editable="bottom">
                                     <field name="name" />
                                     <field name="description" />
@@ -277,8 +233,8 @@
                         <page string="Outcome Details" name="outcome_details"
                             invisible="state not in ['lost']">
                             <group>
-                                <field name="lost_reason_id" readonly="1"/>
-                                <field name="lost_reason_notes" readonly="1"/>
+                                <field name="lost_reason_id" />
+                                <field name="lost_reason_notes" />
                             </group>
                         </page>
                     </notebook>
@@ -319,7 +275,8 @@
                     domain="[('state', 'not in', ['won', 'lost', 'cancelled'])]" />
                 <group expand="0" string="Group By">
                     <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}" />
-                    <filter string="Customer" name="group_customer" context="{'group_by': 'customer_id'}" />
+                    <filter string="Customer" name="group_customer"
+                        context="{'group_by': 'customer_id'}" />
                 </group>
             </search>
         </field>

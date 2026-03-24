@@ -10,16 +10,8 @@ class PurchaseRequest(models.Model):
 
     name = fields.Char(string='Ref No', required=True, copy=False, readonly=False, 
                        default=lambda self: _('New'))
-    # 1. Add the Company Field
-    company_id = fields.Many2one(
-        'res.company', 
-        string='Company', 
-        required=True, 
-        default=lambda self: self.env.company
-    )
 
     payment_request_id = fields.Many2one('payment.request', string="Source Payment Request", readonly=True)
-
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     
     #  Department & Address

@@ -51,7 +51,7 @@
 
                     <button
                         name="action_initial_verfied"
-                        string="Verify"
+                        string="Verfay"
                         class="oe_highlight"
                         type="object"
                         groups="VendorBid.group_rfp_verifyer"
@@ -223,6 +223,14 @@
                         groups="VendorBid.group_rfp_reject"
                         invisible="state  in ('ordered')"
                     />
+                    <!-- Restore chatter from backup JSON (data migration tool) -->
+                    <!-- <button
+                        name="action_restore_chatter"
+                        string="Restore Chatter"
+                        type="object"
+                        class="btn-secondary"
+                        groups="base.group_system"
+                    /> -->
                     <!-- <button
                         name="action_return"
                         string="Return"
@@ -255,7 +263,8 @@
                     </div>
                     <div class="oe_title">
                         <h1>
-                            <field name="rfp_number" />
+                            <field name="rfp_number" readonly="True"
+                        />
                         </h1>
                     </div>
                     <div class="alert alert-warning" role="alert"

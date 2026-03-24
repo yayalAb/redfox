@@ -24,9 +24,10 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                    <label for="name" string="Reference Number"/>
-                    <h1><field name="name"/></h1>
-                </div>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
                     <group>
                         <group string="Bidder Info">
                             <field name="company_id" readonly="1"/>

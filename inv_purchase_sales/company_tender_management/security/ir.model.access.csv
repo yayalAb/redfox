@@ -8,5 +8,3 @@ access_bid_power_attorney,access.bid.power.attorney,model_bid_power_attorney,bas
 access_bid_warranty_letter,access.bid.warranty.letter,model_bid_warranty_letter,base.group_user,1,1,1,1
 access_tender_checklist,access.tender.checklist,model_tender_checklist,base.group_user,1,1,1,1
 access_tender_bid_bond,access.tender.bid.bond,model_tender_bid_bond,base.group_user,1,1,1,1
-access_tender_refuse_wizard,tender.refuse.wizard,model_tender_refuse_wizard,base.group_user,1,1,1,1
-
