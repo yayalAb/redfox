@@ -25,84 +25,91 @@
             <div class="page" style="font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #000;">
                 <style type="text/css">
                     .gpa-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-                    .gpa-row { display: table; width: 100%; margin-bottom: 8px; font-size: 10px; table-layout: fixed; }
-                    .gpa-cell { display: table-cell; vertical-align: bottom; padding-right: 8px; }
-                    .gpa-label { font-weight: bold; display: block; margin-bottom: 2px; }
-                    .gpa-line { border-bottom: 1px solid #000; min-height: 18px; padding: 0 4px 2px 4px; }
+                    .gpa-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
+                    .gpa-lbl { font-weight: bold; float: left; margin-right: 6px; padding-bottom: 3px; line-height: 1.35; }
+                    .gpa-und { display: block; overflow: hidden; border-bottom: 1px solid #000; min-height: 18px; padding: 0 0 5px 2px; margin-bottom: 2px; vertical-align: bottom; }
                     .gpa-section { font-weight: bold; margin: 12px 0 6px 0; font-size: 11px; }
                     .gpa-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 10px; }
                     .gpa-table th, .gpa-table td { border: 1px solid #000; padding: 4px 3px; vertical-align: top; }
                     .gpa-table th { background: #f0f0f0; font-weight: bold; text-align: center; }
                     .gpa-num { text-align: right; }
                     .gpa-center { text-align: center; }
-                    .gpa-approval { margin-top: 14px; font-size: 10px; }
-                    .gpa-approval-block { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted #ccc; }
+                    .gpa-line { border-bottom: 1px solid #000; min-height: 22px; padding: 0 2px 5px 2px; margin-bottom: 6px; }
+                    .gpa-appr { margin-top: 6px; font-size: 10px; }
+                    .gpa-appr-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dotted #aaa; }
+                    .gpa-appr-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+                    .gpa-appr-title { display: table-cell; vertical-align: bottom; font-weight: bold; width: 20%; padding: 0 10px 4px 0; line-height: 1.3; }
+                    .gpa-appr-slot { display: table-cell; vertical-align: bottom; width: 26.67%; padding: 0 12px 0 0; }
+                    .gpa-appr-slot .gpa-field { margin-bottom: 0; }
+                    .gpa-appr-slot .gpa-lbl { font-weight: normal; }
+                    .gpa-appr-slot .gpa-und { min-height: 16px; padding-bottom: 4px; }
                     .gpa-copy { margin-top: 16px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
+                    .gpa-cols { display: table; width: 100%; table-layout: fixed; margin-bottom: 10px; font-size: 10px; }
+                    .gpa-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 14px; }
+                    .gpa-col-right { display: table-cell; width: 50%; vertical-align: top; padding-left: 20px; }
                 </style>
 
                 <div class="gpa-title">Get Pass Attachment</div>
 
-                <div class="gpa-row">
-                    <div class="gpa-cell" style="width:34%;">
-                        <span class="gpa-label">Invoice Ref No:</span>
-                        <div class="gpa-line"><span t-esc="gpa_invoice_ref(o)"/></div>
-                    </div>
-                    <div class="gpa-cell" style="width:33%;">
-                        <span class="gpa-label">DO Ref No:</span>
-                        <div class="gpa-line"><span t-field="o.name"/></div>
-                    </div>
-                    <div class="gpa-cell" style="width:33%;">
-                        <span class="gpa-label">Date:</span>
-                        <div class="gpa-line">
-                            <t t-if="o.date_done"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></t>
-                            <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/></t>
-                            <t t-else="">&#160;</t>
+                <div class="gpa-cols">
+                    <div class="gpa-col">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Invoice Ref No:</span>
+                            <div class="gpa-und"><span t-esc="gpa_invoice_ref(o)"/></div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">DO Ref No:</span>
+                            <div class="gpa-und"><span t-field="o.name"/></div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Date:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.date_done"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></t>
+                                <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/></t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Customer Name:</span>
+                            <div class="gpa-und"><span t-field="o.partner_id.commercial_partner_id.name"/></div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Tin No:</span>
+                            <div class="gpa-und"><span t-field="o.partner_id.commercial_partner_id.vat"/></div>
                         </div>
                     </div>
-                </div>
-
-                <div class="gpa-row">
-                    <div class="gpa-cell" style="width:40%;">
-                        <span class="gpa-label">Customer Name:</span>
-                        <div class="gpa-line"><span t-field="o.partner_id.commercial_partner_id.name"/></div>
-                    </div>
-                    <div class="gpa-cell" style="width:30%;">
-                        <span class="gpa-label">Tin No:</span>
-                        <div class="gpa-line"><span t-field="o.partner_id.commercial_partner_id.vat"/></div>
-                    </div>
-                    <div class="gpa-cell" style="width:30%;">
-                        <span class="gpa-label">Phone No:</span>
-                        <div class="gpa-line">
-                            <t t-set="ph" t-value="o.partner_id.commercial_partner_id.phone or o.partner_id.commercial_partner_id.mobile"/>
-                            <span t-esc="ph or ''"/>
+                    <div class="gpa-col-right">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Phone No:</span>
+                            <div class="gpa-und">
+                                <t t-set="ph" t-value="o.partner_id.commercial_partner_id.phone or o.partner_id.commercial_partner_id.mobile"/>
+                                <span t-esc="ph or ''"/>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="gpa-row">
-                    <div class="gpa-cell" style="width:22%;">
-                        <span class="gpa-label">Driver Name:</span>
-                        <div class="gpa-line"><span t-field="o.carrier"/></div>
-                    </div>
-                    <div class="gpa-cell" style="width:38%;">
-                        <span class="gpa-label">Address:</span>
-                        <div class="gpa-line">
-                            <span t-field="o.partner_id.street"/>
-                            <t t-if="o.partner_id.street and o.partner_id.city">, </t>
-                            <span t-field="o.partner_id.city"/>
-                            <t t-if="o.partner_id.country_id"> (<span t-field="o.partner_id.country_id.code"/>)</t>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Driver Name:</span>
+                            <div class="gpa-und"><span t-field="o.carrier"/></div>
                         </div>
-                    </div>
-                    <div class="gpa-cell" style="width:20%;">
-                        <span class="gpa-label">Phone No:</span>
-                        <div class="gpa-line">
-                            <t t-set="dph" t-value="(o.carrier.partner_id.phone or o.carrier.partner_id.mobile) if o.carrier else ''"/>
-                            <span t-esc="dph or ''"/>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Address:</span>
+                            <div class="gpa-und">
+                                <span t-field="o.partner_id.street"/>
+                                <t t-if="o.partner_id.street and o.partner_id.city">, </t>
+                                <span t-field="o.partner_id.city"/>
+                                <t t-if="o.partner_id.country_id"> (<span t-field="o.partner_id.country_id.code"/>)</t>
+                            </div>
                         </div>
-                    </div>
-                    <div class="gpa-cell" style="width:20%;">
-                        <span class="gpa-label">Truck No:</span>
-                        <div class="gpa-line"><span t-field="o.vehicle_plate"/></div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Phone No:</span>
+                            <div class="gpa-und">
+                                <t t-set="dph" t-value="(o.carrier.partner_id.phone or o.carrier.partner_id.mobile) if o.carrier else ''"/>
+                                <span t-esc="dph or ''"/>
+                            </div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Truck No:</span>
+                            <div class="gpa-und"><span t-field="o.vehicle_plate"/></div>
+                        </div>
                     </div>
                 </div>
 
@@ -146,34 +153,94 @@
                 </table>
 
                 <div class="gpa-section">Justification / Purpose</div>
-                <div class="gpa-line" style="min-height: 22px; margin-bottom: 6px;"><span t-field="o.reason_for_entry"/></div>
-                <div class="gpa-line" style="min-height: 22px;">&#160;</div>
+                <div class="gpa-line"><span t-field="o.reason_for_entry"/></div>
+                <div class="gpa-line" style="margin-bottom: 0;">&#160;</div>
 
                 <div class="gpa-section">Approval Flow</div>
-                <div class="gpa-approval">
-                    <div class="gpa-approval-block">
-                        <strong>Prepared By:</strong>
-                        <span style="margin-left: 12px;">Name: ____________________</span>
-                        <span style="margin-left: 16px;">Sig: ____________________</span>
-                        <span style="margin-left: 16px;">Date: ____________________</span>
+                <div class="gpa-appr">
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Prepared By:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="gpa-approval-block">
-                        <strong>Received By:</strong>
-                        <span style="margin-left: 12px;">Name: ____________________</span>
-                        <span style="margin-left: 16px;">Sig: ____________________</span>
-                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Received By:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="gpa-approval-block">
-                        <strong>Store Keeper Name:</strong>
-                        <span style="margin-left: 12px;">Name: ____________________</span>
-                        <span style="margin-left: 16px;">Sig: ____________________</span>
-                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Store Keeper Name:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="gpa-approval-block" style="border-bottom: none;">
-                        <strong>Warehouse Manager Name:</strong>
-                        <span style="margin-left: 12px;">Name: ____________________</span>
-                        <span style="margin-left: 16px;">Sig: ____________________</span>
-                        <span style="margin-left: 16px;">Date: ____________________</span>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Warehouse Manager Name:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
