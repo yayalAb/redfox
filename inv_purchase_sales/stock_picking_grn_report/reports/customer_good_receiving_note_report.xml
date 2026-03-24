@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_customer_good_receiving_note" model="ir.actions.report">
+        <field name="name">Customer Good Receiving Note</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.cgrn</field>
+        <field name="report_file">stock_picking_grn_report.cgrn</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_customer_good_receiving_note"/>
+    </record>
+
+    <template id="cgrn">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.cgrn_document" t-lang="o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="cgrn_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o"/>
+            <div class="page" style="font-family: 'DejaVu Sans', 'Noto Sans Ethiopic', sans-serif; font-size: 11px; color: #000;">
+                <style type="text/css">
+                    .cgrn-title { text-align: center; font-size: 15px; font-weight: bold; color: #c00000; margin: 0 0 12px 0; line-height: 1.35; }
+                    .cgrn-meta { width: 100%; margin-bottom: 10px; font-size: 11px; }
+                    .cgrn-meta-row { margin-bottom: 5px; }
+                    .cgrn-meta-label { display: inline-block; min-width: 200px; font-weight: bold; }
+                    .cgrn-meta-val { border-bottom: 1px solid #000; display: inline-block; min-width: 320px; padding: 0 4px 1px 4px; }
+                    .cgrn-section { font-weight: bold; margin: 12px 0 6px 0; font-size: 11px; }
+                    .cgrn-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 10px; }
+                    .cgrn-table th, .cgrn-table td { border: 1px solid #000; padding: 4px 3px; vertical-align: top; }
+                    .cgrn-table th { background: #f0f0f0; font-weight: bold; text-align: center; }
+                    .cgrn-num { text-align: right; }
+                    .cgrn-center { text-align: center; }
+                    .cgrn-quality { margin: 10px 0; font-size: 11px; }
+                    .cgrn-reason-label { font-weight: bold; margin-top: 8px; }
+                    .cgrn-reason-line { border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px; }
+                    .cgrn-approval-title { font-weight: bold; margin: 14px 0 8px 0; font-size: 11px; }
+                    .cgrn-approval-row { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 6px 0; }
+                    .cgrn-approval-cell { display: table-cell; width: 25%; vertical-align: top; font-size: 9px; border: 1px solid #ccc; padding: 6px; }
+                    .cgrn-copy-dist { margin-top: 16px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
+                </style>
+
+                <div class="cgrn-title">የደንበኞች መረከቢያ ሰነድ / CUSTOMER GOOD RECEIVING NOTE</div>
+
+                <div class="cgrn-meta">
+                    <div class="cgrn-meta-row">
+                        <span class="cgrn-meta-label">Doc Ref No:</span>
+                        <span class="cgrn-meta-val"><span t-field="o.name"/></span>
+                    </div>
+                    <div class="cgrn-meta-row">
+                        <span class="cgrn-meta-label">GRN Date:</span>
+                        <span class="cgrn-meta-val"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></span>
+                    </div>
+                    <div class="cgrn-meta-row">
+                        <span class="cgrn-meta-label">Vendor Name:</span>
+                        <span class="cgrn-meta-val"><span t-field="o.partner_id"/></span>
+                    </div>
+                    <div class="cgrn-meta-row">
+                        <span class="cgrn-meta-label">Truck No:</span>
+                        <span class="cgrn-meta-val"><span t-field="o.vehicle_plate"/></span>
+                    </div>
+                    <div class="cgrn-meta-row">
+                        <span class="cgrn-meta-label">Store / Destination Location:</span>
+                        <span class="cgrn-meta-val"><span t-field="o.location_dest_id"/></span>
+                    </div>
+                </div>
+
+                <div class="cgrn-section">የእህሉ አይነት / Item Details</div>
+                <table class="cgrn-table">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">S.N</th>
+                            <th style="width:12%;">Item Code</th>
+                            <th style="width:22%;">Item Description</th>
+                            <th style="width:10%;">Unit of Measure</th>
+                            <th style="width:8%;">ብዛት<br/>Quantity</th>
+                            <th style="width:11%;">ጠቅላላ ክብደት</th>
+                            <th style="width:11%;">ነጠላ ክብደት</th>
+                            <th style="width:11%;">የተጣራ ክብደት</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="row" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package.filtered(lambda m: m.state != 'cancel')" t-as="move">
+                            <t t-set="row" t-value="row + 1"/>
+                            <tr>
+                                <td class="cgrn-center"><span t-esc="row"/></td>
+                                <td><span t-field="move.product_id.default_code"/></td>
+                                <td><span t-field="move.product_id.name"/></td>
+                                <td class="cgrn-center"><span t-field="move.product_uom"/></td>
+                                <td class="cgrn-num"><span t-field="move.quantity"/></td>
+                                <td class="cgrn-num"><span t-field="move.grn_gross_weight"/></td>
+                                <td class="cgrn-num"><span t-field="move.grn_tare_weight"/></td>
+                                <td class="cgrn-num"><span t-field="move.grn_net_weight"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="cgrn-quality">
+                    ጥራት / Quality: ........................................................ %
+                </div>
+                <div class="cgrn-reason-label">ገቢ የሆነበት ምክንያት / Reason</div>
+                <div class="cgrn-reason-line"><span t-field="o.reason_for_entry"/></div>
+                <div class="cgrn-reason-line">&#160;</div>
+
+                <div class="cgrn-approval-title">Approval Flow</div>
+                <div class="cgrn-approval-row">
+                    <div class="cgrn-approval-cell">
+                        <div><strong>Prepared By:</strong></div>
+                        <div style="margin-top:8px;">Sig: ____________________</div>
+                        <div style="margin-top:4px;">Date: ____________________</div>
+                    </div>
+                    <div class="cgrn-approval-cell">
+                        <div><strong>የክትትል ኃላፊ / Supervisor:</strong></div>
+                        <div style="margin-top:8px;">Sig: ____________________</div>
+                        <div style="margin-top:4px;">Date: ____________________</div>
+                    </div>
+                    <div class="cgrn-approval-cell">
+                        <div><strong>የክትትል ኃላፊ / Supervisor:</strong></div>
+                        <div style="margin-top:8px;">Sig: ____________________</div>
+                        <div style="margin-top:4px;">Date: ____________________</div>
+                    </div>
+                    <div class="cgrn-approval-cell">
+                        <div><strong>የክትትል ኃላፊ / Supervisor:</strong></div>
+                        <div style="margin-top:8px;">Sig: ____________________</div>
+                        <div style="margin-top:4px;">Date: ____________________</div>
+                    </div>
+                </div>
+
+                <div class="cgrn-copy-dist">
+                    <strong>Copy Distribution:</strong>
+                    Original-አስረካቢው &#160;|&#160; 1st Copy Finance &#160;|&#160; 2nd Copy-ከምርት ክፍል &#160;|&#160; 3rd Copy-Pad
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
