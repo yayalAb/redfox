@@ -1,6 +1,6 @@
 {
     'name': 'Stock Picking GRN Report',
-    'summary': 'GRN, delivery, receiving notes, get pass, and good receiving attachment PDFs for stock pickings',
+    'summary': 'GRN, delivery notes, attachments, and related picking PDFs',
     'category': 'Inventory',
     'version': '18.0.1.0.8',
     'depends': [
@@ -16,6 +16,7 @@
         'reports/customer_good_receiving_note_report.xml',
         'reports/get_pass_attachment_report.xml',
         'reports/good_receiving_attachment_report.xml',
+        'reports/delivery_note_attachment_report.xml',
         'views/stock_picking_views.xml',
     ],
     'installable': True,

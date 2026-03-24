@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_delivery_note_attachment" model="ir.actions.report">
+        <field name="name">Delivery Note Attachment</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.dna</field>
+        <field name="report_file">stock_picking_grn_report.dna</field>
+        <field name="print_report_name">'DNA-%s' % object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_delivery_note_attachment"/>
+    </record>
+
+    <template id="dna">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.dna_document" t-lang="o.partner_id.lang or o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="dna_document">
+        <t t-call="web.external_layout">
+            <div class="page" style="font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #000;">
+                <style type="text/css">
+                    .dna-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .dna-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
+                    .dna-lbl { font-weight: bold; float: left; margin-right: 6px; padding-bottom: 3px; line-height: 1.35; }
+                    .dna-und { display: block; overflow: hidden; border-bottom: 1px solid #000; min-height: 18px; padding: 0 0 5px 2px; margin-bottom: 2px; vertical-align: bottom; }
+                    .dna-section { font-weight: bold; margin: 12px 0 6px 0; font-size: 11px; }
+                    .dna-section-sub { font-weight: normal; font-size: 9px; }
+                    .dna-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 10px; }
+                    .dna-table th, .dna-table td { border: 1px solid #000; padding: 4px 3px; vertical-align: top; }
+                    .dna-table th { background: #f0f0f0; font-weight: bold; text-align: center; }
+                    .dna-num { text-align: right; }
+                    .dna-center { text-align: center; }
+                    .dna-line { border-bottom: 1px solid #000; min-height: 22px; padding: 0 2px 5px 2px; margin-bottom: 6px; }
+                    .dna-terms { min-height: 56px; margin-bottom: 10px; font-size: 10px; }
+                    .dna-appr { margin-top: 6px; font-size: 10px; }
+                    .dna-appr-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dotted #aaa; }
+                    .dna-appr-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+                    .dna-appr-title { display: table-cell; vertical-align: bottom; font-weight: bold; width: 22%; padding: 0 8px 4px 0; line-height: 1.25; font-size: 9px; }
+                    .dna-appr-slot { display: table-cell; vertical-align: bottom; width: 26%; padding: 0 10px 0 0; }
+                    .dna-appr-slot .dna-field { margin-bottom: 0; }
+                    .dna-appr-slot .dna-lbl { font-weight: normal; }
+                    .dna-appr-slot .dna-und { min-height: 16px; padding-bottom: 4px; }
+                    .dna-copy { margin-top: 14px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
+                    .dna-cols { display: table; width: 100%; table-layout: fixed; margin-bottom: 10px; font-size: 10px; }
+                    .dna-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 14px; }
+                    .dna-col-right { display: table-cell; width: 50%; vertical-align: top; padding-left: 20px; }
+                </style>
+
+                <div class="dna-title">Delivery Note Attachment</div>
+
+                <div class="dna-cols">
+                    <div class="dna-col">
+                        <div class="dna-field">
+                            <span class="dna-lbl">Invoice Ref No:</span>
+                            <div class="dna-und"><span t-esc="dna_invoice_ref(o)"/></div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">DO Ref No:</span>
+                            <div class="dna-und"><span t-field="o.name"/></div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Date:</span>
+                            <div class="dna-und">
+                                <t t-if="o.date_done"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></t>
+                                <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/></t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Customer Name:</span>
+                            <div class="dna-und"><span t-field="o.partner_id.commercial_partner_id.name"/></div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Tin No:</span>
+                            <div class="dna-und"><span t-field="o.partner_id.commercial_partner_id.vat"/></div>
+                        </div>
+                    </div>
+                    <div class="dna-col-right">
+                        <div class="dna-field">
+                            <span class="dna-lbl">Phone No:</span>
+                            <div class="dna-und">
+                                <t t-set="ph" t-value="o.partner_id.commercial_partner_id.phone or o.partner_id.commercial_partner_id.mobile"/>
+                                <span t-esc="ph or ''"/>
+                            </div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Driver Name:</span>
+                            <div class="dna-und"><span t-field="o.carrier"/></div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Address:</span>
+                            <div class="dna-und">
+                                <span t-field="o.partner_id.street"/>
+                                <t t-if="o.partner_id.street and o.partner_id.city">, </t>
+                                <span t-field="o.partner_id.city"/>
+                                <t t-if="o.partner_id.country_id"> (<span t-field="o.partner_id.country_id.code"/>)</t>
+                            </div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Phone No:</span>
+                            <div class="dna-und">
+                                <t t-set="dph" t-value="(o.carrier.partner_id.phone or o.carrier.partner_id.mobile) if o.carrier else ''"/>
+                                <span t-esc="dph or ''"/>
+                            </div>
+                        </div>
+                        <div class="dna-field">
+                            <span class="dna-lbl">Truck No:</span>
+                            <div class="dna-und"><span t-field="o.vehicle_plate"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dna-section">Item Details</div>
+                <table class="dna-table">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">S.N</th>
+                            <th style="width:11%;">Item Code</th>
+                            <th style="width:26%;">Item Description</th>
+                            <th style="width:10%;">Unit of Measure</th>
+                            <th style="width:10%;">Quantity</th>
+                            <th style="width:12%;">Unit Price</th>
+                            <th style="width:12%;">Total Unit Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="row" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package.filtered(lambda m: m.state != 'cancel')" t-as="move">
+                            <t t-set="row" t-value="row + 1"/>
+                            <t t-set="pu" t-value="move.sale_line_id.price_unit if move.sale_line_id else 0.0"/>
+                            <t t-set="qty" t-value="move.quantity or 0.0"/>
+                            <t t-set="lt" t-value="qty * pu"/>
+                            <tr>
+                                <td class="dna-center"><span t-esc="row"/></td>
+                                <td><span t-field="move.product_id.default_code"/></td>
+                                <td><span t-field="move.product_id.name"/></td>
+                                <td class="dna-center"><span t-field="move.product_uom"/></td>
+                                <td class="dna-num"><span t-esc="'{:,.2f}'.format(qty)"/></td>
+                                <td class="dna-num">
+                                    <t t-if="move.sale_line_id"><span t-esc="'{:,.2f}'.format(pu)"/></t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td class="dna-num">
+                                    <t t-if="move.sale_line_id"><span t-esc="'{:,.2f}'.format(lt)"/></t>
+                                    <t t-else="">-</t>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="dna-section">
+                    Justification / Purpose
+                    <span class="dna-section-sub"> (Explain why the items are delivered)</span>
+                </div>
+                <div class="dna-line"><span t-field="o.reason_for_entry"/></div>
+                <div class="dna-line" style="margin-bottom: 0;">&#160;</div>
+
+                <div class="dna-section">Term and Conditions</div>
+                <div class="dna-terms">&#160;</div>
+
+                <div class="dna-section">Approval Flow</div>
+                <div class="dna-appr">
+                    <div class="dna-appr-row">
+                        <div class="dna-appr-title">Prepared By:</div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Name:</span>
+                                <div class="dna-und"><span t-field="o.create_uid.name"/></div>
+                            </div>
+                        </div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Sig:</span>
+                                <div class="dna-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Date:</span>
+                                <div class="dna-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dna-appr-row">
+                        <div class="dna-appr-title">Approved By:</div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Name:</span>
+                                <div class="dna-und"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t><t t-else="">&#160;</t></div>
+                            </div>
+                        </div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Sig:</span>
+                                <div class="dna-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Date:</span>
+                                <div class="dna-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dna-appr-row">
+                        <div class="dna-appr-title">The Above Goods Received By:</div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Name:</span>
+                                <div class="dna-und"><span t-field="o.partner_id.commercial_partner_id.name"/></div>
+                            </div>
+                        </div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Sig:</span>
+                                <div class="dna-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="dna-appr-slot">
+                            <div class="dna-field">
+                                <span class="dna-lbl">Date:</span>
+                                <div class="dna-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dna-copy">
+                    <strong>Copy Distribution:</strong>
+                    Original-Driver &#160;|&#160; 1st Copy Store Keeper &#160;|&#160; 2nd Copy-Pad
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
