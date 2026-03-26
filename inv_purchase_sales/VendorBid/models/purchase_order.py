@@ -74,7 +74,11 @@ class PurchaseOrder(models.Model):
             if vals.get('purchase_origin') == 'foreign' and vals.get('name', _('New')) == _('New'):
                 vals['name'] = self.env['ir.sequence'].next_by_code(
                     'purchase.order.foreign') or _('New')
-        return super().create(vals_list)
+
+        record = super().create(vals_list)
+        if record.rfp_id and record.rfp_id.purchase_type in ['petty_cash', 'direct']:
+            record.rfp_id.write({'state': 'ordered'})
+        return record
 
     def _approval_allowed(self):
         """Returns whether the order qualifies to be approved by the current user"""
@@ -119,29 +123,38 @@ class PurchaseOrder(models.Model):
         for rec in self:
             rec.write({'state': 'submit', 'submitted_by': self.env.user.id})
 
+    # def button_approve(self, force=False):
+    #     result = super(PurchaseOrder, self).button_approve(force=force)
+    #     self._create_picking()
+    #     return result
+
     def button_approve(self, force=False):
+        result = super(PurchaseOrder, self).button_approve(force=force)
+        self._create_picking()
+
         self = self.filtered(lambda order: order._approval_allowed())
         self.write({'state': 'purchase', 'date_approve': fields.Datetime.now(
         ), 'approved_by': self.env.user.id})
         self.filtered(lambda p: p.company_id.po_lock ==
                       'lock').write({'state': 'done'})
-        return {}
+        return result
 
     def button_confirm(self):
+        res = super(PurchaseOrder, self).button_confirm()
         for order in self:
             if order.state not in ['draft', 'sent', 'submit']:
-                continue
+                return res  # Skip orders that are not in the expected states
+                # continue
             order.order_line._validate_analytic_distribution()
             order._add_supplier_to_product()
-            # Deal with double validation process
-            # if order._approval_allowed():
-            #     order.button_approve()
-            # else:
-            order.write(
-                {'state': 'to approve', 'verified_by': self.env.user.id})
+            if order._approval_allowed():
+                order.button_approve()
+            else:
+                order.write(
+                    {'state': 'to approve', 'verified_by': self.env.user.id})
             if order.partner_id not in order.message_partner_ids:
                 order.message_subscribe([order.partner_id.id])
-        return True
+        return res
 
     @api.model
     def format_amount_to_text(self, amount, currency):

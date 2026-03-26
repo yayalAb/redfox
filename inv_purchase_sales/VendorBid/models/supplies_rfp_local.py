@@ -40,8 +40,6 @@ class SuppliesRfpLocal(models.Model):
 
     def action_open_po_creation_form(self):
         self.ensure_one()
-        if self.purchase_type in ['petty_cash', 'direct']:
-            self.state = "ordered"
         lines_data = []
         for line in self.product_line_ids:
             lines_data.append({
@@ -54,7 +52,6 @@ class SuppliesRfpLocal(models.Model):
 
         vals = self._prepare_po_values(partner=None, lines_data=lines_data)
         ctx = {f'default_{k}': v for k, v in vals.items()}
-
         return {
             'name': _('Create Purchase Order'),
             'type': 'ir.actions.act_window',

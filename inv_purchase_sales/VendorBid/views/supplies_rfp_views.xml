@@ -51,7 +51,7 @@
 
                     <button
                         name="action_initial_verfied"
-                        string="Verfay"
+                        string="Verify"
                         class="oe_highlight"
                         type="object"
                         groups="VendorBid.group_rfp_verifyer"
@@ -211,7 +211,7 @@
                         type="object"
                         class="btn-secondary"
                         groups="VendorBid.group_rfp_split"
-                        invisible="state not in ('initial_verfayed','approved','evaluation') or not product_line_ids"
+                        invisible="state not in ('initial_verfayed','approved','evaluation','accepted','committee_approving') or not product_line_ids"
                     />
                     <!-- Return: visible in all states except draft and ordered -->
                     <!-- Reject: visible in submitted and committee_approving (early states) -->
