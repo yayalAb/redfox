@@ -28,17 +28,18 @@ class LcLetterPaymentRequest(models.TransientModel):
         required=True,
         currency_field='currency_id',
     )
+
+    def _default_currency_id(self):
+        if self.lc_letter_id:
+            return self.lc_letter_id.currency_id.id
+        return False
+
     currency_id = fields.Many2one(
-        related='lc_letter_id.currency_id',
+        'res.currency',
+        default=_default_currency_id,
+        required=True,
     )
     note = fields.Html(string='Note')
-    attachment_ids = fields.Many2many(
-        'ir.attachment',
-        'lc_letter_payment_request_ir_attachment_rel',
-        'payment_request_id',
-        'attachment_id',
-        string='Attachments',
-    )
 
     def _get_product_domain(self):
         domain = [('type', '=', 'service')]
@@ -52,16 +53,15 @@ class LcLetterPaymentRequest(models.TransientModel):
             'product_id': self.product_id.id,
             'partner_id': self.partner_id.id,
             'amount': self.amount,
+            'currency_id': self.currency_id.id,
             'note': self.note or '',
             'state': 'submitted',
             'submitted_by': self.env.user.id,
         }
-        new_line = self.env['lc.letter.payment.line'].create({
+        self.env['lc.letter.payment.line'].create({
             **line_vals,
             'lc_letter_id': self.lc_letter_id.id,
         })
-        if self.attachment_ids:
-            new_line.attachment_ids = self.attachment_ids
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'lc.letter',

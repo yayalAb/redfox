@@ -13,6 +13,11 @@
     'license': 'LGPL-3',
     'application': True,
     # 'post_init_hook': 'lc_letter.hooks:post_init_hook',
+    'assets': {
+        'web.assets_backend': [
+            'lc_letter/static/src/js/router_attachment_link_fix.js',
+        ],
+    },
     'data': [
         'security/lc_letter_security.xml',
         'security/ir.model.access.csv',

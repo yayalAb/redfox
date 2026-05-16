@@ -58,13 +58,12 @@
                             <field name="order_no" readonly="1"/>
                             <field name="lc_letter_id" options="{'no_create': True}" readonly="state != 'draft'"/>
                             <field name="product_id" readonly="state != 'draft'"/>
-                            <field name="amount" readonly="state != 'draft'"/>
-                            <field name="currency_id" invisible="1"/>
                         </group>
                         <group>
                             <field name="partner_id" readonly="state != 'draft'"/>
-                            <field name="vendor_bill_id" readonly="1" invisible="not vendor_bill_id"/>
-                            <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="currency_id" readonly="state != 'draft'"/>
+                            <field name="vendor_bill_id" invisible="1"/>
                         </group>
                     </group>
                     <notebook>

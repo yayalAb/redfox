@@ -126,7 +126,6 @@
                                         class="btn-link" groups="lc_letter.group_lc_payment_cancel" invisible="state not in ('submitted', 'verified', 'authorized')"/>
                                     <button name="action_reset_draft" string="Reset" type="object"
                                         class="btn-link" groups="lc_letter.group_lc_payment_reset_draft" invisible="state == 'approved'"/>
-                                    <field name="attachment_ids" widget="many2many_binary" nolabel="1" optional="hide"/>
                                 </list>
                                 <form>
                                     <group>
@@ -137,9 +136,6 @@
                                             <field name="amount" readonly="state != 'draft'"/>
                                             <field name="currency_id" invisible="1"/>
                                             <field name="state"/>
-                                        </group>
-                                        <group>
-                                            <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
                                         </group>
                                     </group>
                                 </form>

@@ -123,9 +123,13 @@ class LcLetterPaymentLine(models.Model):
             'raw': pdf_content,
             'res_model': self._name,
             'res_id': self.id,
+            'company_id': company.id,
         }
         payment_att = self.env['ir.attachment'].create(att_vals)
-        self.attachment_ids = [(4, payment_att.id)]
+        self.message_post(
+            body=_('Payment Request PDF generated on approval.'),
+            attachment_ids=[payment_att.id],
+        )
 
         # 3. Attach the same PDF to the bill chatter
         bill_att_vals = {
@@ -134,6 +138,7 @@ class LcLetterPaymentLine(models.Model):
             'raw': pdf_content,
             'res_model': bill._name,
             'res_id': bill.id,
+            'company_id': company.id,
         }
         bill_att = self.env['ir.attachment'].create(bill_att_vals)
         bill.message_post(
@@ -213,20 +218,20 @@ class LcLetterPaymentLine(models.Model):
         string='Partner',
         required=True,
     )
-    attachment_ids = fields.Many2many(
-        'ir.attachment',
-        'lc_letter_payment_line_ir_attachment_rel',
-        'payment_line_id',
-        'attachment_id',
-        string='Attachments',
-    )
     amount = fields.Monetary(
         string='Amount',
         required=True,
         currency_field='currency_id',
     )
+
+    def _default_currency_id(self):
+        if self.lc_letter_id:
+            return self.lc_letter_id.currency_id.id
+        return False
+
     currency_id = fields.Many2one(
-        related='lc_letter_id.currency_id',
+        'res.currency',
+        default=_default_currency_id,
         store=True,
     )
     note = fields.Html(string='Note')
@@ -306,4 +311,5 @@ class LcLetterPaymentLine(models.Model):
             if vals.get('order_no', '/') == '/':
                 vals['order_no'] = self.env['ir.sequence'].next_by_code(
                     'lc.payment.request.order') or '/'
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        return records
