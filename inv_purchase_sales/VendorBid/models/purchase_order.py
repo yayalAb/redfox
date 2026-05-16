@@ -87,7 +87,8 @@ class PurchaseOrder(models.Model):
         if vals.get('date_approve') and 'lc_open_date' not in vals:
             for order in self:
                 if order.date_approve and not order.lc_open_date:
-                    order.lc_open_date = fields.Date.to_date(order.date_approve)
+                    order.lc_open_date = fields.Date.to_date(
+                        order.date_approve)
         return res
 
     @api.depends('currency_id', 'date_order', 'company_id', 'lc_open_date', 'exchange_rate_bank_id')
@@ -191,6 +192,7 @@ class PurchaseOrder(models.Model):
         ), 'approved_by': self.env.user.id})
         self.filtered(lambda p: p.company_id.po_lock ==
                       'lock').write({'state': 'done'})
+        self._create_picking()
         return {}
 
     def button_confirm(self):
