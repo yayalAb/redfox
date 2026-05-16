@@ -166,6 +166,8 @@ class SuppliesRfp(models.Model):
     direct_purchase_id = fields.Many2one(
         'purchase.order', string="Direct Purchase Order")
 
+    submitted_date = fields.Datetime(string='Submitted Date')
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -307,7 +309,8 @@ class SuppliesRfp(models.Model):
         if not all(self.product_line_ids.mapped('product_qty')):
             raise UserError('Product quantity must be greater than 0')
 
-        self.write({'state': 'submitted', 'submitted_by': self.env.user.id})
+        self.write({'state': 'submitted', 'submitted_by': self.env.user.id,
+                   'submitted_date': fields.Datetime.now()})
 
     def action_approve(self):
         self.write({'state': 'approved', 'date_approve': fields.Date.today(

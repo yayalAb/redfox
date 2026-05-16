@@ -68,6 +68,12 @@
                         options="{'no_create': True, 'no_create_edit': True}" />
                     <field name="price_tax_included" invisible="purchase_origin != 'local'" />
                     <field name="good_description" invisible="purchase_origin != 'foreign'" />
+                    <field name="lc_open_date" invisible="purchase_origin != 'foreign'" />
+                    <field name="exchange_rate_bank_id" invisible="purchase_origin != 'foreign'" />
+                </xpath>
+                 <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="lc_open_date" invisible="purchase_origin != 'foreign'" />
+                    <field name="exchange_rate_bank_id" invisible="purchase_origin != 'foreign'" />
                 </xpath>
 
                 <xpath expr="//header/field[@name='state']" position="replace">

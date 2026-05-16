@@ -5,6 +5,10 @@ from odoo.exceptions import UserError, ValidationError
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
+    @api.depends('product_qty', 'price_unit', 'taxes_id', 'discount', 'order_id.currency_rate')
+    def _compute_amount(self):
+        super()._compute_amount()
+
     rfp_id = fields.Many2one('supplies.rfp', string='RFP', index=True, copy=False)
 
     recommended = fields.Boolean(string='Recommended', default=False)

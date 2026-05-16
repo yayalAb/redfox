@@ -12,7 +12,7 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     rfp_id = fields.Many2one(
-        'supplies.rfp', string='RP', index=True, copy=False)
+        'supplies.rfp', string='RFP', index=True, copy=False)
     purchase_origin = fields.Selection([
         ('local', 'Local'), ('foreign', 'Foreign')],
         string='Purchase Type')
@@ -67,18 +67,46 @@ class PurchaseOrder(models.Model):
         'purchase_order_id',
         string='Foreign Purchase Documents'
     )
+    lc_open_date = fields.Date(string='LC Open Date')
+    exchange_rate_bank_id = fields.Many2one(
+        'res.bank',
+        string='Exchange Rate Bank',
+        help='Bank used for the exchange rate on this purchase order.'
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('purchase_origin') == 'foreign' and vals.get('name', _('New')) == _('New'):
-                vals['name'] = self.env['ir.sequence'].next_by_code(
-                    'purchase.order.foreign') or _('New')
+            if vals.get('date_approve') and not vals.get('lc_open_date'):
+                dt = fields.Datetime.to_datetime(vals['date_approve'])
+                vals['lc_open_date'] = fields.Date.to_date(dt) if dt else False
+        return super().create(vals_list)
 
-        record = super().create(vals_list)
-        if record.rfp_id and record.rfp_id.purchase_type in ['petty_cash', 'direct']:
-            record.rfp_id.write({'state': 'ordered'})
-        return record
+    def write(self, vals):
+        res = super().write(vals)
+        if vals.get('date_approve') and 'lc_open_date' not in vals:
+            for order in self:
+                if order.date_approve and not order.lc_open_date:
+                    order.lc_open_date = fields.Date.to_date(order.date_approve)
+        return res
+
+    @api.depends('currency_id', 'date_order', 'company_id', 'lc_open_date', 'exchange_rate_bank_id')
+    def _compute_currency_rate(self):
+        for order in self:
+            rate_date = (
+                order.lc_open_date
+                or (order.date_order and fields.Date.to_date(order.date_order))
+                or fields.Date.context_today(order)
+            )
+            ctx = {}
+            if order.exchange_rate_bank_id:
+                ctx['exchange_rate_bank_id'] = order.exchange_rate_bank_id.id
+            order.currency_rate = self.env['res.currency'].with_context(**ctx)._get_conversion_rate(
+                from_currency=order.company_id.currency_id,
+                to_currency=order.currency_id,
+                company=order.company_id,
+                date=rate_date,
+            )
 
     def _approval_allowed(self):
         """Returns whether the order qualifies to be approved by the current user"""
@@ -98,63 +126,88 @@ class PurchaseOrder(models.Model):
             for line in self.order_line:
                 line.taxes_id = self.applied_tax_ids
 
-    def _compute_amount_all(self):
-        """Override to exclude out of stock/out of specification lines from price comparison"""
-        super()._compute_amount_all()
+    @api.depends(
+        'order_line.price_subtotal',
+        'order_line.price_tax',
+        'order_line.price_total',
+        'company_id',
+        'currency_id',
+        'currency_rate',
+        'lc_open_date',
+        'exchange_rate_bank_id',
+    )
+    def _amount_all(self):
+        """Exclude out-of-stock lines from totals; keep company total in sync with LC/bank rate."""
+        super()._amount_all()
         for order in self:
-            # Recalculate amounts excluding out of stock/out of specification lines
             lines_without_out_of_stock = order.order_line.filtered(
-                lambda l: not l.out_of_stock
+                lambda l: not l.display_type and not l.out_of_stock
             )
             if lines_without_out_of_stock:
                 order.amount_untaxed = sum(
                     lines_without_out_of_stock.mapped('price_subtotal'))
-                # Recalculate tax for lines without out of stock
                 order.amount_tax = sum(
                     lines_without_out_of_stock.mapped('price_tax'))
                 order.amount_total = order.amount_untaxed + order.amount_tax
             else:
-                # If all lines are out of stock, set amounts to 0
                 order.amount_untaxed = 0.0
                 order.amount_tax = 0.0
                 order.amount_total = 0.0
+            order._apply_amount_total_cc_from_po_rate()
+
+    def _apply_amount_total_cc_from_po_rate(self):
+        """Company currency total using order currency_rate (LC open date + bank)."""
+        for order in self:
+            if (
+                order.currency_id
+                and order.company_currency_id
+                and order.currency_id != order.company_currency_id
+                and order.currency_rate
+            ):
+                order.amount_total_cc = order.amount_total / order.currency_rate
+            else:
+                order.amount_total_cc = order.amount_total
+
+    @api.depends_context('lang')
+    @api.depends(
+        'order_line.price_subtotal',
+        'currency_id',
+        'company_id',
+        'currency_rate',
+        'lc_open_date',
+        'exchange_rate_bank_id',
+        'amount_total_cc',
+    )
+    def _compute_tax_totals(self):
+        super()._compute_tax_totals()
 
     def action_submit(self):
         for rec in self:
             rec.write({'state': 'submit', 'submitted_by': self.env.user.id})
 
-    # def button_approve(self, force=False):
-    #     result = super(PurchaseOrder, self).button_approve(force=force)
-    #     self._create_picking()
-    #     return result
-
     def button_approve(self, force=False):
-        result = super(PurchaseOrder, self).button_approve(force=force)
-        self._create_picking()
-
         self = self.filtered(lambda order: order._approval_allowed())
         self.write({'state': 'purchase', 'date_approve': fields.Datetime.now(
         ), 'approved_by': self.env.user.id})
         self.filtered(lambda p: p.company_id.po_lock ==
                       'lock').write({'state': 'done'})
-        return result
+        return {}
 
     def button_confirm(self):
-        res = super(PurchaseOrder, self).button_confirm()
         for order in self:
             if order.state not in ['draft', 'sent', 'submit']:
-                return res  # Skip orders that are not in the expected states
-                # continue
+                continue
             order.order_line._validate_analytic_distribution()
             order._add_supplier_to_product()
-            if order._approval_allowed():
-                order.button_approve()
-            else:
-                order.write(
-                    {'state': 'to approve', 'verified_by': self.env.user.id})
+            # Deal with double validation process
+            # if order._approval_allowed():
+            #     order.button_approve()
+            # else:
+            order.write(
+                {'state': 'to approve', 'verified_by': self.env.user.id})
             if order.partner_id not in order.message_partner_ids:
                 order.message_subscribe([order.partner_id.id])
-        return res
+        return True
 
     @api.model
     def format_amount_to_text(self, amount, currency):
