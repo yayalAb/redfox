@@ -12,7 +12,7 @@
     'license': 'LGPL-3',
     'depends': ['base', 'web', 'web_editor'],
     'data': [
-        'data/company_logo.xml',
+        # 'data/company_logo.xml',
         'view/icons_view.xml'
     ],
 
