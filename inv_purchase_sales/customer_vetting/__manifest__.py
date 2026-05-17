@@ -7,12 +7,17 @@
     'depends': [
         'base',
         'contacts',
+        'mail',
+        'product',
         'sale_management',
     ],
     'data': [
         'security/customer_vetting_groups.xml',
         'security/ir.model.access.csv',
-        'views/res_partner_view.xml',
+        'data/service_request_sequence.xml',
+        'views/service_request_views.xml',
+        'views/sale_order_views.xml',
+        'views/product_template_views.xml',
     ],
     'installable': True,
     'application': True,
