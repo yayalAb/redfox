@@ -1,0 +1,9 @@
+.DS_Store
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.db-shm
+*.db-wal
+mdocker
+venv/
