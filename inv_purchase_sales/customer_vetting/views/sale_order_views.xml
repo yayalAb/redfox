@@ -5,10 +5,24 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_product_detail_receipts"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-truck"
+                        groups="stock.group_stock_user"
+                        invisible="product_detail_receipt_count == 0">
+                    <field name="product_detail_receipt_count" widget="statinfo" string="Receipts"/>
+                </button>
+            </xpath>
             <xpath expr="//group[@name='sale_header']/group[@name='partner_details']/field[@name='partner_id']" position="after">
                 <field name="service_request_id"
                        readonly="1"
                        invisible="not service_request_id"
+                       options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="grain_cleaning_process_id"
+                       readonly="1"
+                       invisible="not grain_cleaning_process_id"
                        options="{'no_create': True, 'no_create_edit': True}"/>
             </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">

@@ -106,10 +106,11 @@ class SaleOrderServiceDetailLine(models.Model):
         tmpl = sol.product_id.product_tmpl_id
 
         if self.detail_type == 'other':
-            if {'product_uom_qty', 'product_uom'} & changed_keys:
+            # Detail uses the *other* product UoM; the service order line must keep
+            # the *service* product UoM (same category as product_id on the SOL).
+            if 'product_uom_qty' in changed_keys:
                 sol.with_context(customer_vetting_skip_detail_reconcile=True).write({
                     'product_uom_qty': self.product_uom_qty,
-                    'product_uom': self.product_uom.id,
                 })
             if 'product_id' in changed_keys:
                 tmpl.with_context(customer_vetting_skip_propagate_detail=True).write({

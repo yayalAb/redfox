@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="grain_cleaning_stage_draft" model="grain.cleaning.stage">
+        <field name="name">Draft</field>
+        <field name="sequence">10</field>
+        <field name="technical_key">draft</field>
+    </record>
+    <record id="grain_cleaning_stage_submitted" model="grain.cleaning.stage">
+        <field name="name">Submitted</field>
+        <field name="sequence">20</field>
+        <field name="technical_key">submitted</field>
+    </record>
+    <record id="grain_cleaning_stage_reviewed" model="grain.cleaning.stage">
+        <field name="name">Reviewed</field>
+        <field name="sequence">30</field>
+        <field name="technical_key">reviewed</field>
+    </record>
+    <record id="grain_cleaning_stage_approved" model="grain.cleaning.stage">
+        <field name="name">Approved</field>
+        <field name="sequence">40</field>
+        <field name="technical_key">approved</field>
+    </record>
+    <record id="grain_cleaning_stage_rejected" model="grain.cleaning.stage">
+        <field name="name">Rejected</field>
+        <field name="sequence">50</field>
+        <field name="fold" eval="True"/>
+        <field name="technical_key">rejected</field>
+    </record>
+    <record id="grain_cleaning_stage_cancelled" model="grain.cleaning.stage">
+        <field name="name">Cancelled</field>
+        <field name="sequence">60</field>
+        <field name="fold" eval="True"/>
+        <field name="technical_key">cancel</field>
+    </record>
+</odoo>
