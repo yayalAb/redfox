@@ -11,6 +11,23 @@
                        invisible="not service_request_id"
                        options="{'no_create': True, 'no_create_edit': True}"/>
             </xpath>
+            <xpath expr="//page[@name='order_lines']" position="after">
+                <page string="Product detail" name="product_detail_vetting"
+                      invisible="not service_request_id">
+                    <field name="vetting_detail_line_ids" nolabel="1" mode="list">
+                        <list editable="bottom">
+                            <field name="source_sale_line_id"
+                                   domain="[('order_id', '=', parent.id), ('display_type', '=', False), ('product_id.type', '=', 'service')]"
+                                  options="{'no_create': True}" />
+                            <field name="detail_type"/>
+                            <field name="product_id"/>
+                            <field name="name" string="Description"/>
+                            <field name="product_uom" groups="uom.group_uom"/>
+                            <field name="product_uom_qty" string="Quantity"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
         </field>
     </record>
 </odoo>

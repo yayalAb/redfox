@@ -13,6 +13,31 @@ class SaleOrderLine(models.Model):
 
     translated_product_name = fields.Text(compute='_compute_translated_product_name')
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super().create(vals_list)
+        lines._customer_vetting_sync_order_details()
+        return lines
+
+    def write(self, vals):
+        orders_before = self.mapped('order_id')
+        res = super().write(vals)
+        if self.env.context.get('customer_vetting_skip_detail_reconcile'):
+            return res
+        orders_after = self.mapped('order_id')
+        (orders_before | orders_after)._customer_vetting_sync_order_details()
+        return res
+
+    def unlink(self):
+        orders = self.mapped('order_id')
+        res = super().unlink()
+        if not self.env.context.get('customer_vetting_skip_detail_reconcile'):
+            orders._customer_vetting_sync_order_details()
+        return res
+
+    def _customer_vetting_sync_order_details(self):
+        self.mapped('order_id').filtered('service_request_id')._sync_service_vetting_detail_lines()
+
     @api.depends('product_id', 'order_id.partner_id')
     def _compute_translated_product_name(self):
         for line in self:
