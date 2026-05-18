@@ -30,13 +30,6 @@ class ProductTemplate(models.Model):
         domain=[('type', '!=', 'service')],
         help='Packaging product (bag). Only goods or combo products (not services).',
     )
-    service_request_quality_id = fields.Many2one(
-        'service.request.quality',
-        string='Service request quality',
-        domain=[('active', '=', True)],
-        help='Limits this service to service requests of the same quality '
-        '(leave empty to allow any request quality).',
-    )
 
     @api.constrains(
         'vetting_other_product_id',

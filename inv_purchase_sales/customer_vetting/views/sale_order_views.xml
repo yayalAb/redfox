@@ -26,7 +26,10 @@
             <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="Product detail" name="product_detail_vetting"
                       invisible="not service_request_id">
-                    <field name="vetting_detail_line_ids" nolabel="1" mode="list">
+                    <field name="vetting_detail_line_ids"
+                           nolabel="1"
+                           mode="list"
+                           domain="[('detail_type', '!=', 'finished')]">
                         <list editable="bottom">
                             <field name="source_sale_line_id"
                                    domain="[('order_id', '=', parent.id), ('display_type', '=', False), ('product_id.type', '=', 'service')]"

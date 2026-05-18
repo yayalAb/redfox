@@ -60,6 +60,21 @@ class SaleOrder(models.Model):
             return template.product_variant_id
         return template.product_variant_ids[:1]
 
+    def _customer_vetting_receipt_excluded_finished_variants(self):
+        """Product variants that are the configured *finished* output of a service on this order.
+
+        They must not appear on the product-detail incoming receipt (raw / bag only).
+        """
+        self.ensure_one()
+        variants = self.env['product.product']
+        for sol in self.order_line.filtered(
+            lambda l: not l.display_type and l.product_id and l.product_id.type == 'service'
+        ):
+            ftmpl = sol.product_id.product_tmpl_id.vetting_finished_product_id
+            if ftmpl:
+                variants |= self._primary_template_variant(ftmpl)
+        return variants
+
     def _sync_service_vetting_detail_lines(self):
         Detail = self.env['sale.order.service.detail.line']
         for order in self:
@@ -78,7 +93,6 @@ class SaleOrder(models.Model):
 
                 for dtype, sub_tmpl in (
                     ('other', tmpl.vetting_other_product_id),
-                    ('finished', tmpl.vetting_finished_product_id),
                     ('bag', tmpl.bag_id),
                 ):
                     if not sub_tmpl:
@@ -99,7 +113,7 @@ class SaleOrder(models.Model):
                         limit=1,
                     )
 
-                    if dtype in ('other', 'finished'):
+                    if dtype == 'other':
                         vals = {
                             'sequence': sequence,
                             'product_id': variant.id,
@@ -182,9 +196,11 @@ class SaleOrder(models.Model):
         for order in self:
             if not order.service_request_id or not order.vetting_detail_line_ids:
                 continue
+            excluded_finished = order._customer_vetting_receipt_excluded_finished_variants()
             storable_lines = order.vetting_detail_line_ids.filtered(
-                lambda l: l.detail_type != 'finished'
+                lambda l: l.detail_type in ('other', 'bag')
                 and l.product_id
+                and l.product_id not in excluded_finished
                 and l.product_id.is_storable
                 and l.product_uom
                 and l.product_uom_qty > 0
