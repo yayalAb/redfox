@@ -110,7 +110,7 @@
                                 <td class="cgrn-num"><span t-esc="'{0:,.4f}'.format(move.quantity or 0.0)"/></td>
                                 <td class="cgrn-num">
                                     <t t-if="move.customer_vetting_is_raw_receipt_line">
-                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_line_total_weight or 0.0)"/>
+                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_gross_weight or 0.0)"/>
                                     </t>
                                     <t t-elif="move.grn_gross_weight">
                                         <span t-esc="'{0:,.4f}'.format(move.grn_gross_weight)"/>
@@ -131,7 +131,7 @@
                                 </td>
                                 <td class="cgrn-num">
                                     <t t-if="move.customer_vetting_is_raw_receipt_line">
-                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_line_p_net_weight or 0.0)"/>
+                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_line_net_weight or 0.0)"/>
                                     </t>
                                     <t t-else="">-</t>
                                 </td>

@@ -16,24 +16,12 @@ class StockMove(models.Model):
         digits='Stock Weight',
         copy=False,
     )
-    customer_vetting_line_total_weight = fields.Float(
-        string='Total Weight',
-        compute='_compute_customer_vetting_line_weight_display',
-        digits='Stock Weight',
-    )
     customer_vetting_line_net_weight = fields.Float(
         string='Net Weight',
         compute='_compute_customer_vetting_line_weight_display',
         inverse='_inverse_customer_vetting_line_net_weight',
         store=True,
         digits='Stock Weight',
-    )
-    customer_vetting_line_p_net_weight = fields.Float(
-        string='P. Net Weight',
-        compute='_compute_customer_vetting_line_weight_display',
-        digits='Stock Weight',
-        help='Same as net weight when gross/tare are entered per line; '
-        'editing net adjusts tare (gross unchanged).',
     )
     customer_vetting_is_raw_receipt_line = fields.Boolean(
         compute='_compute_customer_vetting_is_raw_receipt_line',
@@ -176,21 +164,14 @@ class StockMove(models.Model):
         for move in self:
             picking = move.picking_id
             if not picking or picking.picking_type_id.code != 'incoming':
-                move.customer_vetting_line_total_weight = 0.0
                 move.customer_vetting_line_net_weight = 0.0
-                move.customer_vetting_line_p_net_weight = 0.0
                 continue
             gross = move.customer_vetting_gross_weight or 0.0
             tare = move.customer_vetting_tare_weight or 0.0
             net = gross - tare
             if net < 0:
                 net = 0.0
-            move.customer_vetting_line_total_weight = gross
             move.customer_vetting_line_net_weight = net
-            prec = self.env['decimal.precision'].precision_get('Stock Weight')
-            move.customer_vetting_line_p_net_weight = float_round(
-                net, precision_digits=prec
-            )
 
     def _get_in_move_lines(self):
         self.ensure_one()

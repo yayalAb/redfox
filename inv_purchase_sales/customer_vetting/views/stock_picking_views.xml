@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Load weight columns first: full form validation uses DB arch of sibling inherits;
+         if this runs after other records, upgrade can still see old fields removed from Python. -->
+    <record id="view_picking_form_customer_vetting_move_weights" model="ir.ui.view">
+        <field name="name">stock.picking.form.customer.vetting.move.weights</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_uom_qty']" position="after">
+                <field name="customer_vetting_gross_weight" string="Gross weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                <field name="customer_vetting_tare_weight" string="Tare weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                <field name="customer_vetting_line_net_weight" string="Net Weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_picking_form_customer_vetting_operations_readonly" model="ir.ui.view">
+        <field name="name">stock.picking.form.customer.vetting.operations.editable</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
+                <attribute name="readonly">state == 'cancel' or (state == 'done' and is_locked and picking_type_code != 'incoming')</attribute>
+            </xpath>
+        </field>
+    </record>
     <record id="view_picking_form_customer_vetting_mrp" model="ir.ui.view">
         <field name="name">stock.picking.form.customer.vetting.mrp</field>
         <field name="model">stock.picking</field>
@@ -14,35 +41,6 @@
                         invisible="customer_vetting_mrp_production_count == 0">
                     <field name="customer_vetting_mrp_production_count" widget="statinfo" string="Manufacturing"/>
                 </button>
-            </xpath>
-        </field>
-    </record>
-    <record id="view_picking_form_customer_vetting_operations_readonly" model="ir.ui.view">
-        <field name="name">stock.picking.form.customer.vetting.operations.editable</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='move_ids_without_package']" position="attributes">
-                <attribute name="readonly">state == 'cancel' or (state == 'done' and is_locked and picking_type_code != 'incoming')</attribute>
-            </xpath>
-        </field>
-    </record>
-    <record id="view_picking_form_customer_vetting_move_weights" model="ir.ui.view">
-        <field name="name">stock.picking.form.customer.vetting.move.weights</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_uom_qty']" position="after">
-                <field name="customer_vetting_gross_weight" string="Gross weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
-                <field name="customer_vetting_tare_weight" string="Tare weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
-                <field name="customer_vetting_line_total_weight" string="Total Weight" optional="hide"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
-                <field name="customer_vetting_line_net_weight" string="Net Weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
-                <field name="customer_vetting_line_p_net_weight" string="P. Net Weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
             </xpath>
         </field>
     </record>
