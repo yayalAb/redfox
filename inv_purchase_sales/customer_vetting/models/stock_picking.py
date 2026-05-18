@@ -90,6 +90,27 @@ class StockPicking(models.Model):
             limit=1,
         )
 
+    def _customer_vetting_good_receiving_report_moves(self):
+        """Moves to print on Customer Good Receiving Note.
+
+        Product-detail vetting receipts: only raw + bag lines (not finished output).
+        Other receipts: all non-cancelled operations lines.
+        """
+        self.ensure_one()
+        moves = self.move_ids_without_package.filtered(lambda m: m.state != 'cancel')
+        if not self._customer_vetting_is_product_detail_so_receipt():
+            return moves
+        order = self._customer_vetting_product_detail_receipt_sale_order()
+        if not order:
+            return moves
+        excluded = order._customer_vetting_receipt_excluded_finished_variants()
+        detail_products = order.vetting_detail_line_ids.filtered(
+            lambda l: l.detail_type in ('other', 'bag') and l.product_id
+        ).mapped('product_id')
+        if detail_products:
+            return moves.filtered(lambda m: m.product_id in detail_products)
+        return moves.filtered(lambda m: m.product_id not in excluded)
+
     def _action_done(self):
         res = super()._action_done()
         self._customer_vetting_create_mrp_from_done_receipt()
