@@ -21,6 +21,8 @@
                             <field name="bag_id"
                                    domain="[('type', '!=', 'service')]"
                                    options="{'no_create': True}"/>
+                            <field name="service_request_quality_id"
+                                   options="{'no_create': True}"/>
                         </group>
                     </group>
                 </page>

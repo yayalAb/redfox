@@ -10,6 +10,7 @@
                   decoration-success="state == 'approved'">
                 <field name="name"/>
                 <field name="partner_id"/>
+                <field name="required_filtering_quality" optional="show"/>
                 <field name="date"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'approved'"
@@ -62,6 +63,7 @@
                             <field name="partner_id" context="{'default_customer_rank': 1}"
                                    readonly="state != 'draft'"/>
                             <field name="date" readonly="state != 'draft'"/>
+                            <field name="required_filtering_quality" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <field name="company_id" groups="base.group_multi_company"
@@ -72,7 +74,7 @@
                         <page string="Services" name="lines">
                             <field name="line_ids" nolabel="1" readonly="state != 'draft'">
                                 <list editable="bottom">
-                                    <field name="product_id"/>
+                                    <field name="product_id" options="{'no_create': True}"/>
                                     <field name="name"/>
                                     <field name="product_uom_qty"/>
                                     <field name="product_uom_id"/>
@@ -94,6 +96,7 @@
             <search>
                 <field name="name"/>
                 <field name="partner_id"/>
+                <field name="required_filtering_quality"/>
                 <field name="date"/>
                 <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>

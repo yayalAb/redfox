@@ -16,7 +16,9 @@
     'data': [
         'security/customer_vetting_groups.xml',
         'security/ir.model.access.csv',
+        'data/service_request_quality_data.xml',
         'data/service_request_sequence.xml',
+        'views/service_request_quality_views.xml',
         'views/service_request_views.xml',
         'views/sale_order_views.xml',
         'views/stock_picking_views.xml',

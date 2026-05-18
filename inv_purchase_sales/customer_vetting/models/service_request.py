@@ -62,6 +62,11 @@ class ServiceRequest(models.Model):
         copy=False,
         index=True,
     )
+    required_filtering_quality = fields.Float(
+        string='Required filtering quality',
+        tracking=True,
+        digits=(16, 4),
+    )
 
     def _require_lines_for_submit(self):
         self.ensure_one()
@@ -121,6 +126,7 @@ class ServiceRequest(models.Model):
                     'company_id': rec.company_id.id,
                     'origin': rec.name,
                     'service_request_id': rec.id,
+                    'required_filtering_quality': rec.required_filtering_quality,
                     'order_line': order_line_cmds,
                 }
             )

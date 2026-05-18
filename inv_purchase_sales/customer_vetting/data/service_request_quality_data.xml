@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="service_request_quality_standard" model="service.request.quality">
+        <field name="name">Standard</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="service_request_quality_premium" model="service.request.quality">
+        <field name="name">Premium</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="service_request_quality_export" model="service.request.quality">
+        <field name="name">Export</field>
+        <field name="sequence">30</field>
+    </record>
+</odoo>

@@ -22,8 +22,6 @@
 
     <template id="report_customer_delivery_note_document">
         <t t-set="company" t-value="o.company_id"/>
-        <t t-set="first_move" t-value="o.move_ids_without_package[:1]"/>
-        <t t-set="fm" t-value="first_move[0] if first_move else None"/>
         <t t-call="web.external_layout">
             <div class="page" style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; padding: 0 30px; position: relative; min-height: 850px; color: #111;">
                 <style type="text/css">
@@ -73,9 +71,9 @@
                             <div class="gpa-und"><span t-field="o.partner_id.name"/></div>
                         </div>
                         <div class="gpa-field">
-                            <span class="gpa-lbl">Truck No <span class="cdn-hint">(የመኪናው ሰሌዳ ቁጥር)</span>:</span>
+                            <span class="gpa-lbl">Truck / Plate No. <span class="cdn-hint">(የመኪናው ሰሌዳ ቁጥር)</span>:</span>
                             <div class="gpa-und">
-                                <t t-set="cdn_truck" t-value="o.customer_vetting_plate_no or o.vehicle_plate"/>
+                                <t t-set="cdn_truck" t-value="o.vehicle_plate"/>
                                 <span t-esc="cdn_truck or ''"/>
                                 <t t-if="not cdn_truck">&#160;</t>
                             </div>
@@ -149,12 +147,6 @@
                 </table>
 
                 <div class="mt-3 mb-2" style="font-size: 10px;">
-                    <div style="margin-bottom: 10px;">
-                        <strong>የሚፈለገው የማጣሪያ ጥራት</strong>
-                        <span style="letter-spacing: 2px;">&#160;________________</span>
-                        <strong>%</strong>
-                        <t t-if="fm and fm.grn_quality_pct"><span style="margin-left: 6px;">(<span t-esc="'{0:,.2f}'.format(fm.grn_quality_pct)"/>)</span></t>
-                    </div>
                     <div>
                         <strong>ወጪ የሆነበት ምክንያት/ Reason</strong>
                         <div style="border-bottom: 1px solid #000; min-height: 22px; margin-top: 6px;">
@@ -268,4 +260,3 @@
         </t>
     </template>
 </odoo>
-

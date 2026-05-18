@@ -20,6 +20,8 @@
                        readonly="1"
                        invisible="not service_request_id"
                        options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="required_filtering_quality"
+                       readonly="state in ('sale', 'cancel')"/>
             </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="Product detail" name="product_detail_vetting"

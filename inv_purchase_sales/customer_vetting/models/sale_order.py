@@ -13,6 +13,12 @@ class SaleOrder(models.Model):
         copy=False,
         index=True,
     )
+    required_filtering_quality = fields.Float(
+        string='Required filtering quality',
+        tracking=True,
+        digits=(16, 4),
+        help='Mirrors service request value.',
+    )
     vetting_detail_line_ids = fields.One2many(
         comodel_name='sale.order.service.detail.line',
         inverse_name='order_id',
@@ -139,7 +145,15 @@ class SaleOrder(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        orders = super().create(vals_list)
+        prepared = []
+        for vals in vals_list:
+            v = dict(vals)
+            if v.get('service_request_id'):
+                req = self.env['service.request'].browse(v['service_request_id'])
+                if 'required_filtering_quality' not in v:
+                    v['required_filtering_quality'] = req.required_filtering_quality
+            prepared.append(v)
+        orders = super().create(prepared)
         orders._sync_service_vetting_detail_lines()
         return orders
 
