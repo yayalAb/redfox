@@ -12,6 +12,9 @@
                             <field name="vetting_other_product_id"
                                    domain="[('type', '!=', 'service')]"
                                    options="{'no_create': True}"/>
+                            <field name="vetting_finished_product_id"
+                                   domain="[('type', '!=', 'service')]"
+                                   options="{'no_create': True}"/>
                             <field name="vetting_residue_product_id"
                                    domain="[('type', '!=', 'service')]"
                                    options="{'no_create': True}"/>

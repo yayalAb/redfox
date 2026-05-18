@@ -1,6 +1,4 @@
 from . import service_request
-from . import grain_cleaning_stage
-from . import grain_cleaning_process
 from . import product_template
 from . import sale_order_service_detail_line
 from . import stock_picking

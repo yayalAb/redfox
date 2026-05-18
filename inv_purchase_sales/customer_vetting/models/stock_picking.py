@@ -1,10 +1,25 @@
 # -*- coding: utf-8 -*-
-from odoo import _, fields, models
+from odoo import api, fields, models
+from odoo.tools import float_round
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    customer_vetting_gross_weight = fields.Float(
+        string='Gross weight',
+        digits='Stock Weight',
+        copy=False,
+    )
+    customer_vetting_tare_weight = fields.Float(
+        string='Tare weight',
+        digits='Stock Weight',
+        copy=False,
+    )
+    customer_vetting_plate_no = fields.Char(
+        string='Plate No.',
+        copy=False,
+    )
     customer_vetting_sale_id = fields.Many2one(
         'sale.order',
         string='Sales order (product detail receipt)',
@@ -39,63 +54,70 @@ class StockPicking(models.Model):
             limit=1,
         )
 
-    def _customer_vetting_create_grain_cleaning_from_receipt(self):
-        """Create a draft grain cleaning process when the product-detail receipt is validated."""
+    def _customer_vetting_net_weight_quantity(self):
+        """Net weight (gross - tare), non-negative, for raw-line sync."""
         self.ensure_one()
-        if self.state != 'done':
-            return
-        order = self._customer_vetting_product_detail_receipt_sale_order()
-        if not order:
-            return
-        order_sudo = order.sudo()
-        if order_sudo.grain_cleaning_process_id:
-            return
+        gross = self.customer_vetting_gross_weight or 0.0
+        tare = self.customer_vetting_tare_weight or 0.0
+        net = gross - tare
+        return net if net > 0 else 0.0
 
-        Process = self.env['grain.cleaning.process']
-        line_cmds = []
-        for sol in order_sudo.order_line.filtered(
-            lambda l: not l.display_type and l.product_id and l.product_id.type == 'service'
-        ):
-            p_uom = sol.product_id.uom_id
-            req_uom = sol.product_uom
-            uom = req_uom if req_uom and req_uom.category_id == p_uom.category_id else p_uom
-            line_cmds.append(
-                (
-                    0,
-                    0,
-                    {
-                        'product_id': sol.product_id.id,
-                        'product_uom_qty': sol.product_uom_qty,
-                        'product_uom_id': uom.id,
-                        'name': sol.name,
-                    },
-                )
-            )
+    def _customer_vetting_sync_raw_move_qty_from_weights(self):
+        """Set demand (and move line qty) for raw-product moves to gross - tare.
 
-        process = Process.create(
-            {
-                'partner_id': order_sudo.partner_id.id,
-                'company_id': order_sudo.company_id.id,
-                'line_ids': line_cmds,
-                'receipt_source_sale_order_id': order_sudo.id,
-            }
-        )
-        order_sudo.write({'grain_cleaning_process_id': process.id})
-        process.message_post(
-            body=_('Created when product detail receipt %s was validated.')
-            % (self.display_name,)
-        )
-        order_sudo.message_post(
-            body=_('Grain cleaning %s was opened from receipt %s.')
-            % (process._get_html_link(), self.display_name)
-        )
-
-    def _action_done(self):
-        res = super()._action_done()
+        Only call this after DB rows exist (picking write/create). Do not use from
+        @api.onchange: stock.move.write posts chatter using real ids and breaks on NewId.
+        """
         for picking in self:
-            if (
-                picking.state == 'done'
-                and picking._customer_vetting_is_product_detail_so_receipt()
-            ):
-                picking._customer_vetting_create_grain_cleaning_from_receipt()
+            if picking.state in ('done', 'cancel'):
+                continue
+            if picking.picking_type_id.code != 'incoming':
+                continue
+            if not picking._customer_vetting_is_product_detail_so_receipt():
+                continue
+            order = picking._customer_vetting_product_detail_receipt_sale_order()
+            if not order:
+                continue
+            raw_products = order.vetting_detail_line_ids.filtered(
+                lambda l: l.detail_type == 'other'
+                and l.product_id
+                and l.product_id.is_storable
+            ).mapped('product_id')
+            if not raw_products:
+                continue
+            net = picking._customer_vetting_net_weight_quantity()
+            moves = picking.move_ids.filtered(
+                lambda m: m.product_id in raw_products
+                and m.state not in ('done', 'cancel')
+            )
+            for move in moves:
+                rounded = float_round(
+                    net,
+                    precision_rounding=move.product_uom.rounding,
+                )
+                move.write({'product_uom_qty': rounded})
+                for ml in move.move_line_ids.filtered(
+                    lambda line: line.state not in ('done', 'cancel')
+                ):
+                    qty_ml = move.product_uom._compute_quantity(
+                        rounded,
+                        ml.product_uom_id,
+                        rounding_method='HALF-UP',
+                    )
+                    ml.write({'quantity': qty_ml})
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        keys = ('customer_vetting_gross_weight', 'customer_vetting_tare_weight')
+        for picking, vals in zip(records, vals_list):
+            if any(k in vals for k in keys):
+                picking._customer_vetting_sync_raw_move_qty_from_weights()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        keys = ('customer_vetting_gross_weight', 'customer_vetting_tare_weight')
+        if any(k in vals for k in keys):
+            self._customer_vetting_sync_raw_move_qty_from_weights()
         return res

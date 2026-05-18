@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 
 class SaleOrderServiceDetailLine(models.Model):
     _name = 'sale.order.service.detail.line'
-    _description = 'Vetting detail (other product / bag) per service order line'
+    _description = 'Vetting detail (raw / finished / bag) per service order line'
     _order = 'order_id, sequence, id'
 
     sequence = fields.Integer(default=10)
@@ -25,7 +25,11 @@ class SaleOrderServiceDetailLine(models.Model):
         domain="[]",
     )
     detail_type = fields.Selection(
-        [('other', 'Other product'), ('bag', 'Bag')],
+        [
+            ('other', 'Raw product'),
+            ('finished', 'Finished product'),
+            ('bag', 'Bag'),
+        ],
         string='Type',
         required=True,
     )
@@ -47,7 +51,7 @@ class SaleOrderServiceDetailLine(models.Model):
         (
             'uniq_order_source_detail_type',
             'unique(order_id, source_sale_line_id, detail_type)',
-            'Only one row of each type (Other / Bag) is allowed per service line on an order.',
+            'Only one row of each type (Raw / Finished / Bag) is allowed per service line on an order.',
         ),
     ]
 
@@ -106,7 +110,7 @@ class SaleOrderServiceDetailLine(models.Model):
         tmpl = sol.product_id.product_tmpl_id
 
         if self.detail_type == 'other':
-            # Detail uses the *other* product UoM; the service order line must keep
+            # Detail uses the *raw* product UoM; the service order line must keep
             # the *service* product UoM (same category as product_id on the SOL).
             if 'product_uom_qty' in changed_keys:
                 sol.with_context(customer_vetting_skip_detail_reconcile=True).write({
@@ -115,6 +119,17 @@ class SaleOrderServiceDetailLine(models.Model):
             if 'product_id' in changed_keys:
                 tmpl.with_context(customer_vetting_skip_propagate_detail=True).write({
                     'vetting_other_product_id': self.product_id.product_tmpl_id.id,
+                })
+                self.order_id._sync_service_vetting_detail_lines()
+
+        elif self.detail_type == 'finished':
+            if 'product_uom_qty' in changed_keys:
+                sol.with_context(customer_vetting_skip_detail_reconcile=True).write({
+                    'product_uom_qty': self.product_uom_qty,
+                })
+            if 'product_id' in changed_keys:
+                tmpl.with_context(customer_vetting_skip_propagate_detail=True).write({
+                    'vetting_finished_product_id': self.product_id.product_tmpl_id.id,
                 })
                 self.order_id._sync_service_vetting_detail_lines()
 

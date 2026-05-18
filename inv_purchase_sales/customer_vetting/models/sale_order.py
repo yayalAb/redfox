@@ -13,13 +13,6 @@ class SaleOrder(models.Model):
         copy=False,
         index=True,
     )
-    grain_cleaning_process_id = fields.Many2one(
-        'grain.cleaning.process',
-        string='Grain cleaning process',
-        ondelete='set null',
-        copy=False,
-        index=True,
-    )
     vetting_detail_line_ids = fields.One2many(
         comodel_name='sale.order.service.detail.line',
         inverse_name='order_id',
@@ -79,6 +72,7 @@ class SaleOrder(models.Model):
 
                 for dtype, sub_tmpl in (
                     ('other', tmpl.vetting_other_product_id),
+                    ('finished', tmpl.vetting_finished_product_id),
                     ('bag', tmpl.bag_id),
                 ):
                     if not sub_tmpl:
@@ -99,7 +93,7 @@ class SaleOrder(models.Model):
                         limit=1,
                     )
 
-                    if dtype == 'other':
+                    if dtype in ('other', 'finished'):
                         vals = {
                             'sequence': sequence,
                             'product_id': variant.id,
@@ -175,7 +169,8 @@ class SaleOrder(models.Model):
             if not order.service_request_id or not order.vetting_detail_line_ids:
                 continue
             storable_lines = order.vetting_detail_line_ids.filtered(
-                lambda l: l.product_id
+                lambda l: l.detail_type != 'finished'
+                and l.product_id
                 and l.product_id.is_storable
                 and l.product_uom
                 and l.product_uom_qty > 0
@@ -298,10 +293,5 @@ class SaleOrder(models.Model):
             'customer_vetting_service_request_unique',
             'unique(service_request_id)',
             'Each service request can only be linked to one sales order.',
-        ),
-        (
-            'customer_vetting_grain_cleaning_process_unique',
-            'unique(grain_cleaning_process_id)',
-            'Each grain cleaning process can only be linked to one sales order.',
         ),
     ]

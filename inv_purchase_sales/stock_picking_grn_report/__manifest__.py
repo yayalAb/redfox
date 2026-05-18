@@ -9,6 +9,7 @@
         'purchase_stock',
         'stock_picking_custom',
         'store_request',
+        'customer_vetting',
     ],
     'data': [
         'report/paper_format.xml',

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_customer_vetting_receipt" model="ir.ui.view">
+        <field name="name">stock.picking.form.customer.vetting.receipt</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='backorder_id']" position="after">
+                <field name="customer_vetting_gross_weight"
+                       invisible="picking_type_code != 'incoming'"
+                       readonly="state in ('cancel', 'done')"/>
+                <field name="customer_vetting_tare_weight"
+                       invisible="picking_type_code != 'incoming'"
+                       readonly="state in ('cancel', 'done')"/>
+                <field name="customer_vetting_plate_no"
+                       invisible="picking_type_code != 'incoming'"
+                       readonly="state in ('cancel', 'done')"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_picking_form_customer_vetting_move_weights" model="ir.ui.view">
+        <field name="name">stock.picking.form.customer.vetting.move.weights</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_uom_qty']" position="after">
+                <field name="customer_vetting_is_raw_receipt_line" column_invisible="1"/>
+                <field name="customer_vetting_line_total_weight" string="Total Weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"
+                       invisible="not customer_vetting_is_raw_receipt_line"/>
+                <field name="customer_vetting_line_net_weight" string="Net Weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"
+                       invisible="not customer_vetting_is_raw_receipt_line"/>
+                <field name="customer_vetting_line_p_net_weight" string="P. Net Weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"
+                       invisible="not customer_vetting_is_raw_receipt_line"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
