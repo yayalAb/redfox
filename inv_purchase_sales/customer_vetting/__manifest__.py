@@ -12,6 +12,8 @@
         'sale_management',
         'sale_stock',
         'stock_account',
+        'mrp',
+        'sale_mrp',
     ],
     'data': [
         'security/customer_vetting_groups.xml',
@@ -20,6 +22,7 @@
         'views/service_request_views.xml',
         'views/sale_order_views.xml',
         'views/stock_picking_views.xml',
+        'views/mrp_production_views.xml',
         'views/product_template_views.xml',
     ],
     'installable': True,

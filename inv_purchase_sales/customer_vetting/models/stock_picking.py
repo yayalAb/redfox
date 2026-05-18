@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.tools.float_utils import float_round
 
 
 class StockPicking(models.Model):
@@ -24,6 +25,22 @@ class StockPicking(models.Model):
         digits=(16, 4),
         help='Sale order required filtering quality for delivery note printout.',
     )
+    customer_vetting_mrp_production_ids = fields.One2many(
+        'mrp.production',
+        'customer_vetting_receipt_picking_id',
+        string='Manufacturing orders',
+    )
+    customer_vetting_mrp_production_count = fields.Integer(
+        compute='_compute_customer_vetting_mrp_production_count',
+        string='Manufacturing orders',
+    )
+
+    @api.depends('customer_vetting_mrp_production_ids')
+    def _compute_customer_vetting_mrp_production_count(self):
+        for picking in self:
+            picking.customer_vetting_mrp_production_count = len(
+                picking.customer_vetting_mrp_production_ids
+            )
 
     @api.depends(
         'customer_vetting_sale_id',
@@ -72,3 +89,131 @@ class StockPicking(models.Model):
             ],
             limit=1,
         )
+
+    def _action_done(self):
+        res = super()._action_done()
+        self._customer_vetting_create_mrp_from_done_receipt()
+        return res
+
+    def action_view_customer_vetting_mrp_productions(self):
+        self.ensure_one()
+        action = self.env['ir.actions.actions']._for_xml_id('mrp.mrp_production_action')
+        action = dict(action)
+        productions = self.customer_vetting_mrp_production_ids
+        if len(productions) == 1:
+            action['view_mode'] = 'form'
+            action['res_id'] = productions.id
+            action['views'] = [(False, 'form')]
+        else:
+            action['domain'] = [('id', 'in', productions.ids)]
+        action['context'] = dict(self.env.context, create=False)
+        return action
+
+    def _customer_vetting_mo_qty_for_service_receipt(
+        self, sale_line, raw_detail, finished_product
+    ):
+        """Quantity to manufacture: prefer done raw qty on this receipt (converted), else service line qty."""
+        self.ensure_one()
+        if raw_detail and raw_detail.product_id:
+            moves = self.move_ids.filtered(
+                lambda m: m.product_id == raw_detail.product_id and m.state == 'done'
+            )
+            if moves:
+                total = 0.0
+                for move in moves:
+                    if move.quantity <= 0:
+                        continue
+                    total += move.product_uom._compute_quantity(
+                        move.quantity,
+                        finished_product.uom_id,
+                        rounding_method='HALF-UP',
+                    )
+                if total > 0:
+                    return float_round(
+                        total,
+                        precision_rounding=finished_product.uom_id.rounding,
+                    )
+        qty = sale_line.product_uom_qty
+        if sale_line.product_uom and sale_line.product_uom.category_id == finished_product.uom_id.category_id:
+            qty = sale_line.product_uom._compute_quantity(
+                qty,
+                finished_product.uom_id,
+                rounding_method='HALF-UP',
+            )
+        return float_round(qty, precision_rounding=finished_product.uom_id.rounding)
+
+    def _customer_vetting_create_mrp_from_done_receipt(self):
+        """After validating a product-detail incoming receipt, draft MOs for finished goods (service template)."""
+        MrpProduction = self.env['mrp.production']
+        Bom = self.env['mrp.bom']
+        if self.env.context.get('customer_vetting_skip_mrp_from_receipt'):
+            return
+        for picking in self:
+            if picking.picking_type_id.code != 'incoming':
+                continue
+            if not picking._customer_vetting_is_product_detail_so_receipt():
+                continue
+            order = picking._customer_vetting_product_detail_receipt_sale_order()
+            if not order or not order.service_request_id:
+                continue
+            for sol in order.order_line.filtered(
+                lambda l: not l.display_type and l.product_id and l.product_id.type == 'service'
+            ):
+                ftmpl = sol.product_id.product_tmpl_id.vetting_finished_product_id
+                if not ftmpl:
+                    continue
+                finished = order._primary_template_variant(ftmpl)
+                if not finished:
+                    continue
+                dup_domain = [
+                    ('customer_vetting_receipt_picking_id', '=', picking.id),
+                    ('product_id', '=', finished.id),
+                    ('state', '!=', 'cancel'),
+                ]
+                if 'sale_line_id' in MrpProduction._fields:
+                    dup_domain.append(('sale_line_id', '=', sol.id))
+                if MrpProduction.search(dup_domain, limit=1):
+                    continue
+                bom_map = Bom.with_context(active_test=True)._bom_find(
+                    finished,
+                    company_id=order.company_id.id,
+                    bom_type='normal',
+                )
+                bom = bom_map[finished]
+                if not bom:
+                    picking.message_post(
+                        body=_(
+                            'No bill of materials found for %(product)s. '
+                            'No manufacturing order was created from this receipt.',
+                            product=finished.display_name,
+                        )
+                    )
+                    continue
+                raw_detail = order.vetting_detail_line_ids.filtered(
+                    lambda l: l.source_sale_line_id == sol and l.detail_type == 'other'
+                )[:1]
+                mo_qty = picking._customer_vetting_mo_qty_for_service_receipt(
+                    sol, raw_detail, finished
+                )
+                if mo_qty <= 0:
+                    continue
+                vals = {
+                    'bom_id': bom.id,
+                    'product_id': finished.id,
+                    'product_qty': mo_qty,
+                    'product_uom_id': finished.uom_id.id,
+                    'origin': '%s | %s' % (order.name, picking.name),
+                    'company_id': order.company_id.id,
+                    'customer_vetting_receipt_picking_id': picking.id,
+                }
+                if 'sale_line_id' in MrpProduction._fields:
+                    vals['sale_line_id'] = sol.id
+                mo = MrpProduction.create(vals)
+                mo.action_confirm()
+                picking.message_post(
+                    body=_(
+                        'Manufacturing order %(name)s created for %(product)s.',
+                        name=mo.display_name,
+                        product=finished.display_name,
+                    )
+                )

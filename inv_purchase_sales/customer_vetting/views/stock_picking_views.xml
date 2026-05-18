@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="view_picking_form_customer_vetting_mrp" model="ir.ui.view">
+        <field name="name">stock.picking.form.customer.vetting.mrp</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_customer_vetting_mrp_productions"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-wrench"
+                        groups="mrp.group_mrp_user"
+                        invisible="customer_vetting_mrp_production_count == 0">
+                    <field name="customer_vetting_mrp_production_count" widget="statinfo" string="Manufacturing"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
     <record id="view_picking_form_customer_vetting_operations_readonly" model="ir.ui.view">
         <field name="name">stock.picking.form.customer.vetting.operations.editable</field>
         <field name="model">stock.picking</field>

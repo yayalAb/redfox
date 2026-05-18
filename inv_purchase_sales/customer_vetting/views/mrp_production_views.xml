@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_production_form_customer_vetting_receipt" model="ir.ui.view">
+        <field name="name">mrp.production.form.customer.vetting.receipt</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='miscellaneous']//field[@name='origin']" position="after">
+                <field name="customer_vetting_receipt_picking_id"
+                       readonly="1"
+                       groups="stock.group_stock_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
