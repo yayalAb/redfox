@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mfg_financial_dashboard.MainDashboard" owl="1">
+        <div class="container-fluid mfg-dashboard-scroll-root mfg-dashboard-page pb-2" t-ref="dashboardRoot">
+            <div class="mfg-dashboard-scroll-pane" t-ref="dashboardInner">
+                <div class="row m-0">
+                    <div class="col-12">
+                        <div class="mfg-dashboard-filter-bar">
+                            <div class="mfg-dashboard-filter-bar__inner">
+                                <div class="mfg-dashboard-filter-group mfg-dashboard-filter-group--dates">
+                                    <div class="mfg-dashboard-filter-input">
+                                        <i class="fa fa-calendar-o mfg-dashboard-filter-input__icon"/>
+                                        <input type="date" class="mfg-dashboard-filter-input__control"
+                                               t-att-value="state.start_date"
+                                               t-on-change="onStartDateChange"/>
+                                    </div>
+                                    <span class="mfg-dashboard-filter-sep">to</span>
+                                    <div class="mfg-dashboard-filter-input">
+                                        <i class="fa fa-calendar-o mfg-dashboard-filter-input__icon"/>
+                                        <input type="date" class="mfg-dashboard-filter-input__control"
+                                               t-att-value="state.end_date"
+                                               t-on-change="onEndDateChange"/>
+                                    </div>
+                                </div>
+                                <div class="mfg-dashboard-filter-input mfg-dashboard-filter-input--select">
+                                    <select class="mfg-dashboard-filter-input__control mfg-dashboard-filter-input__control--select"
+                                            t-model="state.fiscal_year"
+                                            t-on-change="onFiscalYearChange">
+                                        <option value="">Fiscal year (optional)</option>
+                                        <t t-foreach="fiscalYears" t-as="fy" t-key="fy">
+                                            <option t-att-value="fy" t-esc="fy"/>
+                                        </t>
+                                    </select>
+                                    <i class="fa fa-chevron-down mfg-dashboard-filter-input__chev"/>
+                                </div>
+                                <label class="mfg-dashboard-toggle">
+                                    <input type="checkbox" class="mfg-dashboard-toggle__input"
+                                           t-att-checked="state.year_over_year"
+                                           t-on-change="onYearOverYearChange"/>
+                                    <span class="mfg-dashboard-toggle__track">
+                                        <span class="mfg-dashboard-toggle__thumb"/>
+                                    </span>
+                                    <span class="mfg-dashboard-toggle__label">Year-over-Year</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div t-if="state.loading" class="text-center py-5 text-muted">
+                            <i class="fa fa-spinner fa-spin fa-2x"/>
+                            <p class="mt-2">Loading dashboard…</p>
+                        </div>
+
+                        <t t-else="">
+                            <div class="mfg-dashboard-overview">
+                                <h2 class="mfg-dashboard-overview__title">Financial Overview</h2>
+                                <p class="mfg-dashboard-overview__subtitle">
+                                    <t t-esc="state.company_name"/>
+                                    <t t-if="state.period_label"> · <t t-esc="state.period_label"/></t>
+                                </p>
+                                <div class="mfg-dashboard-metrics-row">
+                                    <DashboardCard name="'Total Purchase Value'" iconClass="'fa-money'"
+                                        displayValue="formatCompactMoney(state.kpis.total_purchase_value)"
+                                        trendPercent="kpiTrend('total_purchase_value')" trendCaption="'vs last month'" onClick="openPurchaseOrders"/>
+                                    <DashboardCard name="'Total Production Cost'" iconClass="'fa-industry'"
+                                        displayValue="formatCompactMoney(state.kpis.total_production_cost)"
+                                        trendPercent="kpiTrend('total_production_cost')" trendCaption="'vs last month'" onClick="openManufacturing"/>
+                                    <DashboardCard name="'Total Sales Revenue'" iconClass="'fa-line-chart'"
+                                        displayValue="formatCompactMoney(state.kpis.total_sales_revenue)"
+                                        trendPercent="kpiTrend('total_sales_revenue')" trendCaption="'vs last month'" onClick="openSales"/>
+                                    <DashboardCard name="'Finished Goods Stock'" iconClass="'fa-cubes'"
+                                        displayValue="formatCompactMoney(state.kpis.finished_goods_stock_value)"
+                                        trendPercent="0" trendCaption="'Point-in-time balance'" onClick="openStock"/>
+                                    <DashboardCard name="'Raw Material Stock'" iconClass="'fa-leaf'"
+                                        displayValue="formatCompactMoney(state.kpis.raw_material_stock_value)"
+                                        trendPercent="0" trendCaption="'Point-in-time balance'" onClick="openStock"/>
+                                    <DashboardCard name="'Packaging Material Stock'" iconClass="'fa-archive'"
+                                        displayValue="formatCompactMoney(state.kpis.packaging_stock_value)"
+                                        trendPercent="0" trendCaption="'Point-in-time balance'" onClick="openStock"/>
+                                    <DashboardCard name="'Spare Part Inventory'" iconClass="'fa-wrench'"
+                                        displayValue="formatCompactMoney(state.kpis.spare_part_stock_value)"
+                                        trendPercent="0" trendCaption="'Point-in-time balance'" onClick="openStock"/>
+                                </div>
+                            </div>
+
+                            <!-- Charts row -->
+                            <div class="row mfg-dashboard-charts-row">
+                                <div class="col-lg-4 col-md-12 m-0 p-0 d-flex">
+                                    <div class="mfg-dashboard-section mfg-dashboard-chart-card">
+                                        <h3 class="mfg-dashboard-section__title mb-0">Executive KPI Overview</h3>
+                                        <div class="mfg-dashboard-chart-body">
+                                            <ChartRenderer type="'bar'" title="'Executive KPIs (ETB)'"
+                                                y_title="'Amount (ETB)'" x_title="'Metric'"
+                                                data="state.charts.kpi_overview"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-12 m-0 p-0 d-flex">
+                                    <div class="mfg-dashboard-section mfg-dashboard-chart-card">
+                                        <h3 class="mfg-dashboard-section__title mb-0">Customer Outstanding</h3>
+                                        <div class="mfg-dashboard-chart-body">
+                                            <ChartRenderer type="'doughnut'" title="'Collection Balance'"
+                                                data="state.charts.collection_outstanding"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-12 m-0 p-0 d-flex">
+                                    <div class="mfg-dashboard-section mfg-dashboard-chart-card">
+                                        <h3 class="mfg-dashboard-section__title mb-0">Gross Profit by Product</h3>
+                                        <div class="mfg-dashboard-chart-body">
+                                            <ChartRenderer type="'bar'" title="'Profitability'"
+                                                y_title="'Gross Profit (ETB)'" x_title="'Product'"
+                                                data="state.charts.profitability"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 1. Procurement -->
+                            <div class="mfg-dashboard-section">
+                                <h3 class="mfg-dashboard-section__title">1. Procurement &amp; Vendor Liability Dashboard</h3>
+                                <p class="mfg-dashboard-section__subtitle">Purchase Order vs GRN vs Supplier Payment</p>
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>PO No</th><th>Supplier</th><th>PO Amount</th>
+                                                <th>GRN Amount</th><th>Bill Amount</th><th>Paid</th>
+                                                <th>Remaining</th><th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('procurement')" t-as="row" t-key="row.po_no">
+                                                <td t-esc="row.po_no"/>
+                                                <td t-esc="row.supplier"/>
+                                                <td t-esc="formatMoney(row.po_amount)"/>
+                                                <td t-esc="formatMoney(row.grn_amount)"/>
+                                                <td t-esc="formatMoney(row.bill_amount)"/>
+                                                <td t-esc="formatMoney(row.paid_amount)"/>
+                                                <td t-esc="formatMoney(row.remaining)"/>
+                                                <td><span t-att-class="statusBadgeClass(row.payment_status)" t-esc="row.payment_status"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <PaginationControls
+                                    page="currentPage('procurement')"
+                                    totalPages="totalPages('procurement')"
+                                    totalItems="totalItems('procurement')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('procurement', page)"/>
+                            </div>
+
+                            <!-- 2. Manufacturing -->
+                            <div class="row">
+                                <div class="col-lg-6 p-0">
+                                    <div class="mfg-dashboard-section">
+                                        <h3 class="mfg-dashboard-section__title">2. Production Efficiency Report</h3>
+                                        <div class="mfg-dashboard-table-wrap">
+                                            <table class="table mfg-dashboard-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>MO No</th><th>Product</th><th>MO Qty</th>
+                                                        <th>Actual Qty</th><th>Efficiency %</th><th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="paginatedRows('production_efficiency')" t-as="row" t-key="row.mo_no">
+                                                        <td t-esc="row.mo_no"/>
+                                                        <td t-esc="row.product"/>
+                                                        <td t-esc="row.mo_qty"/>
+                                                        <td t-esc="row.actual_qty"/>
+                                                        <td t-esc="row.efficiency_pct + '%'"/>
+                                                        <td t-esc="row.status"/>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PaginationControls
+                                            page="currentPage('production_efficiency')"
+                                            totalPages="totalPages('production_efficiency')"
+                                            totalItems="totalItems('production_efficiency')"
+                                            pageSize="10"
+                                            onPageChange="(page) => this.onTablePageChange('production_efficiency', page)"/>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 p-0">
+                                    <div class="mfg-dashboard-section">
+                                        <h3 class="mfg-dashboard-section__title">RM &amp; PM Consumption Analysis</h3>
+                                        <div class="mfg-dashboard-table-wrap">
+                                            <table class="table mfg-dashboard-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product</th><th>Planned</th><th>Actual</th>
+                                                        <th>Variance</th><th>Cost Impact</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="paginatedRows('rm_pm_consumption')" t-as="row" t-key="row.product">
+                                                        <td t-esc="row.product"/>
+                                                        <td t-esc="row.planned"/>
+                                                        <td t-esc="row.actual"/>
+                                                        <td t-esc="row.variance"/>
+                                                        <td t-esc="formatMoney(row.cost_impact)"/>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PaginationControls
+                                            page="currentPage('rm_pm_consumption')"
+                                            totalPages="totalPages('rm_pm_consumption')"
+                                            totalItems="totalItems('rm_pm_consumption')"
+                                            pageSize="10"
+                                            onPageChange="(page) => this.onTablePageChange('rm_pm_consumption', page)"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mfg-dashboard-section">
+                                <h3 class="mfg-dashboard-section__title">By-Product Recovery Report</h3>
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th><th>By-product</th><th>Qty</th><th>Estimated Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('byproduct_recovery')" t-as="row" t-key="row_index">
+                                                <td t-esc="row.product"/>
+                                                <td t-esc="row.byproduct"/>
+                                                <td t-esc="row.qty"/>
+                                                <td t-esc="formatMoney(row.estimated_value)"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <PaginationControls
+                                    page="currentPage('byproduct_recovery')"
+                                    totalPages="totalPages('byproduct_recovery')"
+                                    totalItems="totalItems('byproduct_recovery')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('byproduct_recovery', page)"/>
+                            </div>
+
+                            <!-- 3. FG Stock -->
+                            <div class="mfg-dashboard-section">
+                                <h3 class="mfg-dashboard-section__title">3. Finished Goods (FG) Stock Dashboard</h3>
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th><th>Opening</th><th>Produced</th>
+                                                <th>Sold</th><th>Ending</th><th>Stock Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('fg_inventory')" t-as="row" t-key="row.product">
+                                                <td t-esc="row.product"/>
+                                                <td t-esc="row.opening"/>
+                                                <td t-esc="row.produced"/>
+                                                <td t-esc="row.sold"/>
+                                                <td t-esc="row.ending"/>
+                                                <td t-esc="formatMoney(row.stock_value)"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <PaginationControls
+                                    page="currentPage('fg_inventory')"
+                                    totalPages="totalPages('fg_inventory')"
+                                    totalItems="totalItems('fg_inventory')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('fg_inventory', page)"/>
+                            </div>
+
+                            <!-- 4 & 5 Raw + Packaging -->
+                            <div class="row">
+                                <div class="col-lg-6 p-0">
+                                    <div class="mfg-dashboard-section">
+                                        <h3 class="mfg-dashboard-section__title">4. Raw Material Stock Report</h3>
+                                        <div class="mfg-dashboard-table-wrap">
+                                            <table class="table mfg-dashboard-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Material</th><th>Available</th><th>Reserved</th>
+                                                        <th>Free Stock</th><th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="paginatedRows('raw_material_stock')" t-as="row" t-key="row.material">
+                                                        <td t-esc="row.material"/>
+                                                        <td t-esc="row.available"/>
+                                                        <td t-esc="row.reserved"/>
+                                                        <td t-esc="row.free_stock"/>
+                                                        <td t-esc="formatMoney(row.stock_value)"/>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PaginationControls
+                                            page="currentPage('raw_material_stock')"
+                                            totalPages="totalPages('raw_material_stock')"
+                                            totalItems="totalItems('raw_material_stock')"
+                                            pageSize="10"
+                                            onPageChange="(page) => this.onTablePageChange('raw_material_stock', page)"/>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 p-0">
+                                    <div class="mfg-dashboard-section">
+                                        <h3 class="mfg-dashboard-section__title">5. Packaging Material Stock Report</h3>
+                                        <div class="mfg-dashboard-table-wrap">
+                                            <table class="table mfg-dashboard-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Material</th><th>Available</th><th>Consumption</th>
+                                                        <th>Remaining</th><th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="paginatedRows('packaging_stock')" t-as="row" t-key="row.material">
+                                                        <td t-esc="row.material"/>
+                                                        <td t-esc="row.available"/>
+                                                        <td t-esc="row.consumption"/>
+                                                        <td t-esc="row.remaining"/>
+                                                        <td t-esc="formatMoney(row.stock_value)"/>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PaginationControls
+                                            page="currentPage('packaging_stock')"
+                                            totalPages="totalPages('packaging_stock')"
+                                            totalItems="totalItems('packaging_stock')"
+                                            pageSize="10"
+                                            onPageChange="(page) => this.onTablePageChange('packaging_stock', page)"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 6 Spare parts -->
+                            <div class="mfg-dashboard-section">
+                                <h3 class="mfg-dashboard-section__title">6. Spare Part Inventory Dashboard</h3>
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Spare Part</th><th>Machine</th><th>Available</th>
+                                                <th>Minimum</th><th>Status</th><th>Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('spare_parts')" t-as="row" t-key="row.part">
+                                                <td t-esc="row.part"/>
+                                                <td t-esc="row.machine"/>
+                                                <td t-esc="row.available"/>
+                                                <td t-esc="row.minimum"/>
+                                                <td><span t-att-class="statusBadgeClass(row.status)" t-esc="row.status"/></td>
+                                                <td t-esc="formatMoney(row.stock_value)"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <PaginationControls
+                                    page="currentPage('spare_parts')"
+                                    totalPages="totalPages('spare_parts')"
+                                    totalItems="totalItems('spare_parts')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('spare_parts', page)"/>
+                            </div>
+
+                            <!-- 7 & 8 Delivery + Collections -->
+                            <div class="row">
+                                <div class="col-lg-7 p-0">
+                                    <div class="mfg-dashboard-section">
+                                        <h3 class="mfg-dashboard-section__title">7. Delivery &amp; Sales Dashboard</h3>
+                                        <p class="mfg-dashboard-section__subtitle">Delivery Order vs Sales Invoice</p>
+                                        <div class="mfg-dashboard-table-wrap">
+                                            <table class="table mfg-dashboard-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>DO No</th><th>Customer</th><th>Product</th>
+                                                        <th>Delivered</th><th>Invoiced</th><th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="paginatedRows('delivery_sales')" t-as="row" t-key="row.do_no">
+                                                        <td t-esc="row.do_no"/>
+                                                        <td t-esc="row.customer"/>
+                                                        <td t-esc="row.product"/>
+                                                        <td t-esc="row.delivered_qty"/>
+                                                        <td t-esc="row.invoiced_qty"/>
+                                                        <td t-esc="row.delivery_status"/>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PaginationControls
+                                            page="currentPage('delivery_sales')"
+                                            totalPages="totalPages('delivery_sales')"
+                                            totalItems="totalItems('delivery_sales')"
+                                            pageSize="10"
+                                            onPageChange="(page) => this.onTablePageChange('delivery_sales', page)"/>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 p-0">
+                                    <div class="mfg-dashboard-section">
+                                        <h3 class="mfg-dashboard-section__title">8. Customer Payment Collection</h3>
+                                        <div class="mfg-dashboard-table-wrap">
+                                            <table class="table mfg-dashboard-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Customer</th><th>Invoice</th><th>Collected</th>
+                                                        <th>Balance</th><th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="paginatedRows('customer_collections')" t-as="row" t-key="row.customer">
+                                                        <td t-esc="row.customer"/>
+                                                        <td t-esc="formatMoney(row.invoice_amount)"/>
+                                                        <td t-esc="formatMoney(row.collected_amount)"/>
+                                                        <td t-esc="formatMoney(row.remaining)"/>
+                                                        <td><span t-att-class="statusBadgeClass(row.collection_status)" t-esc="row.collection_status"/></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PaginationControls
+                                            page="currentPage('customer_collections')"
+                                            totalPages="totalPages('customer_collections')"
+                                            totalItems="totalItems('customer_collections')"
+                                            pageSize="10"
+                                            onPageChange="(page) => this.onTablePageChange('customer_collections', page)"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 9 Profitability -->
+                            <div class="mfg-dashboard-section">
+                                <h3 class="mfg-dashboard-section__title">9. Profitability Dashboard</h3>
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th><th>Revenue</th><th>Production Cost</th>
+                                                <th>Gross Profit</th><th>Margin %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('profitability')" t-as="row" t-key="row.product">
+                                                <td t-esc="row.product"/>
+                                                <td t-esc="formatMoney(row.revenue)"/>
+                                                <td t-esc="formatMoney(row.production_cost)"/>
+                                                <td t-esc="formatMoney(row.gross_profit)"/>
+                                                <td t-esc="row.profit_margin + '%'"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <PaginationControls
+                                    page="currentPage('profitability')"
+                                    totalPages="totalPages('profitability')"
+                                    totalItems="totalItems('profitability')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('profitability', page)"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

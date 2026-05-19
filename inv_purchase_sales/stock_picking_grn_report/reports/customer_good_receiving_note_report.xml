@@ -35,6 +35,7 @@
                     .cgrn-table th { background: #f0f0f0; font-weight: bold; text-align: center; }
                     .cgrn-num { text-align: right; }
                     .cgrn-center { text-align: center; }
+                    .cgrn-quality { margin: 10px 0; font-size: 11px; }
                     .cgrn-reason-label { font-weight: bold; margin-top: 8px; }
                     .cgrn-reason-line { border-bottom: 1px solid #000; min-height: 18px; margin-top: 4px; }
                     .cgrn-approval-title { font-weight: bold; margin: 14px 0 8px 0; font-size: 11px; }
@@ -61,22 +62,15 @@
                     </div>
                     <div class="cgrn-meta-row">
                         <span class="cgrn-meta-label">GRN Date:</span>
-                        <span class="cgrn-meta-val">
-                            <t t-if="o.date_done"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></t>
-                            <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/></t>
-                            <t t-else="">-</t>
-                        </span>
+                        <span class="cgrn-meta-val"><span t-field="o.date_done" t-options="{'widget': 'date'}"/></span>
                     </div>
                     <div class="cgrn-meta-row">
                         <span class="cgrn-meta-label">Vendor Name:</span>
                         <span class="cgrn-meta-val"><span t-field="o.partner_id"/></span>
                     </div>
                     <div class="cgrn-meta-row">
-                        <span class="cgrn-meta-label">Truck / Plate No.:</span>
-                        <span class="cgrn-meta-val">
-                            <t t-set="cgrn_truck" t-value="o.vehicle_plate"/>
-                            <span t-esc="cgrn_truck or ''"/><t t-if="not cgrn_truck">&#160;</t>
-                        </span>
+                        <span class="cgrn-meta-label">Truck No:</span>
+                        <span class="cgrn-meta-val"><span t-field="o.vehicle_plate"/></span>
                     </div>
                     <div class="cgrn-meta-row">
                         <span class="cgrn-meta-label">Store / Destination Location:</span>
@@ -100,46 +94,25 @@
                     </thead>
                     <tbody>
                         <t t-set="row" t-value="0"/>
-                        <t t-foreach="o._customer_vetting_good_receiving_report_moves()" t-as="move">
+                        <t t-foreach="o.move_ids_without_package.filtered(lambda m: m.state != 'cancel')" t-as="move">
                             <t t-set="row" t-value="row + 1"/>
                             <tr>
                                 <td class="cgrn-center"><span t-esc="row"/></td>
                                 <td><span t-field="move.product_id.default_code"/></td>
                                 <td><span t-field="move.product_id.name"/></td>
                                 <td class="cgrn-center"><span t-field="move.product_uom"/></td>
-                                <td class="cgrn-num"><span t-esc="'{0:,.4f}'.format(move.quantity or 0.0)"/></td>
-                                <td class="cgrn-num">
-                                    <t t-if="move.customer_vetting_is_raw_receipt_line">
-                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_gross_weight or 0.0)"/>
-                                    </t>
-                                    <t t-elif="move.grn_gross_weight">
-                                        <span t-esc="'{0:,.4f}'.format(move.grn_gross_weight)"/>
-                                    </t>
-                                    <t t-else="">-</t>
-                                </td>
-                                <td class="cgrn-num">
-                                    <t t-if="move.customer_vetting_is_raw_receipt_line">
-                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_line_net_weight or 0.0)"/>
-                                    </t>
-                                    <t t-elif="move.grn_net_weight and move.grn_net_weight != 0">
-                                        <span t-esc="'{0:,.4f}'.format(move.grn_net_weight)"/>
-                                    </t>
-                                    <t t-elif="move.grn_gross_weight or move.grn_tare_weight">
-                                        <span t-esc="'{0:,.4f}'.format((move.grn_gross_weight or 0.0) - (move.grn_tare_weight or 0.0))"/>
-                                    </t>
-                                    <t t-else="">-</t>
-                                </td>
-                                <td class="cgrn-num">
-                                    <t t-if="move.customer_vetting_is_raw_receipt_line">
-                                        <span t-esc="'{0:,.4f}'.format(move.customer_vetting_line_net_weight or 0.0)"/>
-                                    </t>
-                                    <t t-else="">-</t>
-                                </td>
+                                <td class="cgrn-num"><span t-field="move.quantity"/></td>
+                                <td class="cgrn-num"><span t-field="move.customer_vetting_gross_weight"/></td>
+                                <td class="cgrn-num"><span t-field="move.customer_vetting_tare_weight"/></td>
+                                <td class="cgrn-num"><span t-field="move.customer_vetting_line_net_weight"/></td>
                             </tr>
                         </t>
                     </tbody>
                 </table>
 
+                <!-- <div class="cgrn-quality">
+                    ጥራት / Quality: ........................................................ %
+                </div> -->
                 <div class="cgrn-reason-label">ገቢ የሆነበት ምክንያት / Reason</div>
                 <div class="cgrn-reason-line"><span t-field="o.reason_for_entry"/></div>
                 <div class="cgrn-reason-line">&#160;</div>

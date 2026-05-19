@@ -9,7 +9,7 @@
     ],
     'data': [
         'reports/picking_operations_template.xml',
-        'reports/report_deliveryslip.xml',
+        # 'reports/report_deliveryslip.xml',
         'views/stock_picking_view.xml',
         'views/maintenance_equipment_view.xml',
         'views/store_request_view.xml',

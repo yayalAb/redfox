@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Load first among picking form inherits: avoids upgrade validating sibling views
+         that still reference removed fields (same pattern as customer_vetting). -->
+    <record id="view_picking_form_custom_picking_operation_weights" model="ir.ui.view">
+        <field name="name">stock.picking.form.custom.picking.operation.weights</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_uom_qty']" position="after">
+                <field name="customer_vetting_gross_weight" string="Gross weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                <field name="customer_vetting_tare_weight" string="Tare weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                <field name="customer_vetting_line_net_weight" string="Net Weight" optional="show"
+                       column_invisible="parent.picking_type_code != 'incoming'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_picking_form_grn_cdn_fields" model="ir.ui.view">
+        <field name="name">stock.picking.form.grn.cdn.fields</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='backorder_id']" position="after">
+                <field name="vehicle_plate" readonly="state in ('cancel', 'done')"/>
+            </xpath>
+            <xpath expr="//group[@name='other_infos']" position="inside">
+                <field name="reason_for_entry"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

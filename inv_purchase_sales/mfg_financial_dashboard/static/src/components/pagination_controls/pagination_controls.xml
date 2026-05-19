@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="mfg_financial_dashboard.PaginationControls" owl="1">
+        <div class="mfg-dashboard-pagination" t-if="props.totalItems > props.pageSize">
+            <span class="mfg-dashboard-pagination__info">
+                Showing <t t-esc="showingFrom"/>–<t t-esc="showingTo"/> of <t t-esc="props.totalItems"/>
+            </span>
+            <div class="mfg-dashboard-pagination__actions">
+                <button type="button" class="btn btn-sm btn-light"
+                        t-att-disabled="props.page &lt;= 1"
+                        t-on-click="onPrev">
+                    <i class="fa fa-chevron-left"/>
+                </button>
+                <span class="mfg-dashboard-pagination__page">
+                    Page <t t-esc="props.page"/> / <t t-esc="props.totalPages"/>
+                </span>
+                <button type="button" class="btn btn-sm btn-light"
+                        t-att-disabled="props.page >= props.totalPages"
+                        t-on-click="onNext">
+                    <i class="fa fa-chevron-right"/>
+                </button>
+            </div>
+        </div>
+    </t>
+</templates>

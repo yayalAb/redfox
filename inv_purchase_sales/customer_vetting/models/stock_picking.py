@@ -111,6 +111,10 @@ class StockPicking(models.Model):
             return moves.filtered(lambda m: m.product_id in detail_products)
         return moves.filtered(lambda m: m.product_id not in excluded)
 
+    def _grn_good_receiving_report_moves(self):
+        """Delegate to vetting filtering when this module is installed."""
+        return self._customer_vetting_good_receiving_report_moves()
+
     def _action_done(self):
         res = super()._action_done()
         self._customer_vetting_create_mrp_from_done_receipt()

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mfg_financial_dashboard.ChartRenderer" owl="1">
+        <div class="mfg-dashboard-chart-canvas">
+            <canvas t-ref="chart"/>
+        </div>
+    </t>
+</templates>
