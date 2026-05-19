@@ -23,6 +23,11 @@ class StockMove(models.Model):
         store=True,
         digits='Stock Weight',
     )
+    customer_vetting_line_total_weight = fields.Float(
+        string='Total weight',
+    )
+    customer_vetting_line_p_net_weight = fields.Float(
+        string='Net weight',)
 
     def _customer_vetting_net_weight_quantity(self):
         """Net weight (gross - tare) for this line, non-negative."""
