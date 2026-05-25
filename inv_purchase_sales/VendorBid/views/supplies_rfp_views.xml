@@ -310,6 +310,8 @@
                                     <field name="remaining_qty" string="Remaining Quantity" />
                                     <field name="ordered_qty" string="Ordered Quantity" />
                                     <field name="product_uom" string="UoM" />
+                                    <field name="unit_price" string="Unit Price" optional="hide" />
+                                    <field name="subtotal_price" string="Subtotal" optional="hide"/>
                                 </list>
                             </field>
                         </page>

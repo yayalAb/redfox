@@ -293,7 +293,7 @@
                                         <td class="text-end"><span t-field="line.product_qty" /></td>
                                         <td class="text-end"><span t-field="line.unit_price" /></td>
                                         <td class="text-end"><span t-field="line.subtotal_price" /></td>
-                                        <td><span t-field="line.product_id.description_picking" /></td>
+                                        <td><span t-field="line.description" /></td>
                                     </tr>
                                 </t>
                                 <t t-set="min_rows" t-value="3" />
