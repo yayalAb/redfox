@@ -219,7 +219,7 @@
                                 <div class="pr-form-group">
                                     <span class="pr-label">PR Ref No:</span>
                                     <span class="pr-field-wrap">
-                                        <span class="pr-field-line-dashed">
+                                        <span class="pr-field-line">
                                             <span t-field="o.rfp_number" />
                                         </span>
                                     </span>
