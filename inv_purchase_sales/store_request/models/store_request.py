@@ -30,7 +30,7 @@ class StoreRequest(models.Model):
     )
     company_id = fields.Many2one(
         'res.company',
-        string='Company', 
+        string='Company',
         default=lambda self: self.env.company.id
     )
     factory_id = fields.Char(
@@ -38,7 +38,7 @@ class StoreRequest(models.Model):
         tracking=True
     )
     purpose = fields.Text(
-    string='Purpose of Request',
+        string='Purpose of Request',
     )
     project_id = fields.Many2one(
         'project.project',
@@ -83,7 +83,7 @@ class StoreRequest(models.Model):
         tracking=True,
     )
     approved_by = fields.Many2one(
-        'res.users',   
+        'res.users',
         string='Approved By',
         tracking=True
     )
@@ -104,7 +104,10 @@ class StoreRequest(models.Model):
     )
     no_of_returns = fields.Integer(
         string='Number of Returns')
-
+    date_approved = fields.Datetime(
+        string='Date Approved',
+        tracking=True
+    )
 
     @api.constrains('warehouse_id', 'state')
     def _check_warehouse_required_after_approval(self):
@@ -121,10 +124,10 @@ class StoreRequest(models.Model):
     @api.depends("department_id", "department_id.manager_id", "department_id.parent_id")
     def _check_department_head(self):
         user_employee = self.env.user.employee_id
-        
+
         for rec in self:
             rec.is_department_head = False
-            
+
             if not user_employee or not rec.department_id:
                 continue
 
@@ -135,11 +138,10 @@ class StoreRequest(models.Model):
                 if current_dept.manager_id == user_employee:
                     is_manager_of_hierarchy = True
                     break  # Found a match, no need to check higher up
-                
-                current_dept = current_dept.parent_id
-            
-            rec.is_department_head = is_manager_of_hierarchy
 
+                current_dept = current_dept.parent_id
+
+            rec.is_department_head = is_manager_of_hierarchy
 
     @api.depends("warehouse_id")
     def _check_is_storeman(self):
@@ -159,16 +161,17 @@ class StoreRequest(models.Model):
 
     def action_submit(self):
         if not self.request_line_ids:
-            raise UserError("You must add at least one item before submitting.")
+            raise UserError(
+                "You must add at least one item before submitting.")
         self.state = 'submitted'
-
 
     def action_approve(self):
         self.write({
             'state': 'approved',
-            'approved_by': self.env.user.id
+            'approved_by': self.env.user.id,
+            'date_approved': fields.Datetime.now()
         })
-    
+
     def action_verify(self):
         self.write({
             'state': 'verify',
@@ -181,7 +184,6 @@ class StoreRequest(models.Model):
 
     def action_reject(self):
         self.write({'state': 'rejected'})
-
 
 
 class StoreRequestLine(models.Model):
@@ -257,16 +259,16 @@ class StoreRequestLine(models.Model):
 
             if line.request_id.warehouse_id:
                 # Only this warehouse’s stock location
-                domain.append(('location_id', '=', line.request_id.warehouse_id.lot_stock_id.id))
+                domain.append(
+                    ('location_id', '=', line.request_id.warehouse_id.lot_stock_id.id))
             else:
                 # All internal locations across all warehouses
-                internal_locations = self.env['stock.location'].search([('usage', '=', 'internal')]).ids
+                internal_locations = self.env['stock.location'].search(
+                    [('usage', '=', 'internal')]).ids
                 domain.append(('location_id', 'in', internal_locations))
 
             quants = self.env['stock.quant'].search(domain)
             line.stock_available_qty = sum(quants.mapped('available_quantity'))
-
-
 
     @api.onchange('product_id')
     def _onchange_product_id(self):

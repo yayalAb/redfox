@@ -261,7 +261,12 @@
                         <div class="sra-appr-slot">
                             <div class="sra-field">
                                 <span class="sra-lbl">Date:</span>
-                                <div class="sra-und">&#160;</div>
+                                  <div class="sra-und">
+                                    <t t-if="o.date_approved">
+                                        <span t-field="o.date_approved" t-options="{'widget': 'date'}"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </div>
                             </div>
                         </div>
                     </div>

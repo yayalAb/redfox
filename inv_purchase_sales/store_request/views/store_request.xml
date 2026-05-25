@@ -35,10 +35,10 @@
 
                     <button name="action_verify" string="Verify" type="object"
                         invisible="state != 'submitted' or is_department_head != True"
-                        groups="store_request.group_store_request_verify" />
+                        groups="store_request.store_request_verify" />
                     <button name="action_approve" string="Approve" type="object"
                         class="oe_highlight" groups="store_request.group_store_request_approve"
-                        invisible="state != 'verify' or  is_department_head != True" />
+                        invisible="state != 'verify'" />
                     <button name="action_reset_to_draft" string="Return to Draft" type="object"
                         invisible="state not in ['submitted', 'verify', 'approved']" />
                     <button name="action_reject" string="Reject" type="object"
@@ -66,6 +66,8 @@
                             <field name="warehouse_id" invisible="state in ['draft', 'submitted']" />
                             <!-- <field name="storeman_id" invisible="not warehouse_id"/> -->
                             <field name="approved_by" readonly="1"
+                                invisible="state in ['draft', 'submitted']" />
+                            <field name="required_date"
                                 invisible="state in ['draft', 'submitted']" />
                         </group>
                     </group>
