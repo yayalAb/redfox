@@ -26,9 +26,9 @@
             <xpath expr="//field[@name='backorder_id']" position="after">
                 <field name="vehicle_plate" readonly="state in ('cancel', 'done')"/>
             </xpath>
-            <xpath expr="//group[@name='other_infos']" position="inside">
+            <!-- <xpath expr="//group[@name='other_infos']" position="inside">
                 <field name="reason_for_entry"/>
-            </xpath>
+            </xpath> -->
         </field>
     </record>
 </odoo>

@@ -1,3 +1,4 @@
+from . import ir_actions
 from . import stock_picking
 from . import maintenance_equipment
 from . import store_request

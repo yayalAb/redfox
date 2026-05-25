@@ -6,8 +6,11 @@
     'depends': [
         'stock',
         'store_request',
+        'purchase_stock',
+        'sale_stock',
     ],
     'data': [
+        'data/stock_report_actions.xml',
         'reports/picking_operations_template.xml',
         # 'reports/report_deliveryslip.xml',
         'views/stock_picking_view.xml',

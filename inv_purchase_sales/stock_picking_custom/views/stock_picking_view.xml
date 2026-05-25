@@ -13,6 +13,12 @@
                 <field name='carrier' invisible="picking_type_code != 'internal'"
                     options="{'no_create': True}" />
             </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']//field[@name='quantity']"
+                position="after">
+                <field name="company_currency_id" column_invisible="True" />
+                <field name="line_unit_price" optional="hide" readonly="1" />
+                <field name="line_subtotal" optional="hide" readonly="1" />
+            </xpath>
         </field>
     </record>
 
