@@ -10,7 +10,7 @@
 
     'author': 'Redfox',
 
-    'depends': ['stock', 'stock_picking_grn_report'],
+    'depends': ['stock'],
 
     'data': [
 

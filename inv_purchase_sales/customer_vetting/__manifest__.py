@@ -12,7 +12,6 @@
         'sale_management',
         'sale_stock',
         'stock_account',
-        'stock_picking_grn_report',
         'custom_picking_operation',
         'mrp',
         'sale_mrp',
