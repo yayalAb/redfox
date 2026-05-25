@@ -1,215 +1,277 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <record id="action_report_store_request" model="ir.actions.report">
-    <field name="name">Store Requisition Note</field>
-    <field name="model">store.request</field>
-    <field name="report_type">qweb-pdf</field>
-    <field name="report_name">store_request.report_store_request_document</field>
-    <field name="report_file">store_request.report_store_request_document</field>
-    <field name="print_report_name">'Store Requisition Note - %s' % (object.name)</field>
-    <field name="binding_model_id" ref="model_store_request" />
-    <field name="binding_type">report</field>
-  </record>
+    <record id="action_report_store_request" model="ir.actions.report">
+        <field name="name">Store Request Attachment</field>
+        <field name="model">store.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">store_request.report_store_request_document</field>
+        <field name="report_file">store_request.report_store_request_document</field>
+        <field name="print_report_name">'SRA-%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_store_request"/>
+        <field name="binding_type">report</field>
+    </record>
 
-  <template id="report_store_request_document">
-    <t t-call="web.html_container">
-      <t t-foreach="docs" t-as="o">
-        <t t-call="web.external_layout">
-          <div class="page"
-            style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
-
-            <div class="oe_structure" />
-
-            <t t-set="doc_title" t-value="'Store REQUISITION FORM'" />
-            <t t-set="doc_number" t-value="o.name" />
-            <t t-set="issue_number" t-value="'1'" />
-
-            <div
-              style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
-              <div style="margin: 20px;">
-                <div style="text-align: right; margin-bottom: 20px;">
-                  <div style="margin-bottom: 10px;">
-                    <strong>IMRN Date</strong>
-                    <span
-                      style="border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
-                      <span t-field="o.requested_date" t-options='{"format": "MM/dd/yyyy"}' />
-                    </span>
-                  </div>
-                  <div>
-                    <strong>IMRN No</strong>
-                    <span
-                      style="border-bottom: 1px solid black; width: 150px; display: inline-block; margin-left: 10px;">
-                      <span t-field="o.name" />
-                    </span>
-                  </div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                  <strong>Department/section/Division</strong>
-                  <span
-                    style="border-bottom: 1px solid black; width: 400px; display: inline-block; margin-left: 10px;">
-                    <span t-field="o.department_id.name" style="padding-left: 5px;" />
-                  </span>
-                </div>
-                <div style="margin-bottom: 20px;">
-                  <strong>Purpose</strong>
-                  <span
-                    style="border-bottom: 1px solid black; width: 400px; display: inline-block; margin-left: 10px;">
-                    <span t-field="o.purpose" style="padding-left: 5px;" />
-                  </span>
-                </div>
-                <div style="margin-bottom: 20px;">
-                  <strong>Contract/Project Reference</strong>
-                  <span
-                    style="border-bottom: 1px solid black; width: 400px; display: inline-block; margin-left: 10px;">
-                    <span t-field="o.project_id" style="padding-left: 5px;" />
-                  </span>
-                </div>
-              </div>
-
-              <table class="table table-bordered"
-                style="border: 1px solid black; page-break-inside: auto;">
-                <!-- STYLE CHANGE: Added background color to thead and font-weight to header row -->
-                <thead style="background-color: #f2f2f2; display: table-header-group;">
-                  <tr style="font-weight: bold;">
-                    <!-- STYLE CHANGE: Changed padding from 4px to 2px and removed inline font-size -->
-                    <th class="text-center"
-                      style="width: 5%; border: 1px solid black; padding: 2px;">
-                      S.No
-                    </th>
-                    <th class="text-center"
-                      style="width: 15%; border: 1px solid black; padding: 2px;">
-                      Item No
-                    </th>
-                    <th class="text-center"
-                      style="width: 15%; border: 1px solid black; padding: 2px;">
-                      Name
-                    </th>
-                    <th class="text-center"
-                      style="width: 40%; border: 1px solid black; padding: 2px;">
-                      Description
-                    </th>
-                    <th class="text-center"
-                      style="width: 10%; border: 1px solid black; padding: 2px;">
-                      UOM
-                    </th>
-                    <th class="text-center"
-                      style="width: 15%; border: 1px solid black; padding: 2px;">
-                      Qty. Requested
-                    </th>
-                    <th class="text-center"
-                      style="width: 15%; border: 1px solid black; padding: 2px;">
-                      Remarks
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <t t-set="row_count" t-value="0" />
-                  <t t-foreach="o.request_line_ids" t-as="line">
-                    <t t-set="row_count" t-value="row_count + 1" />
-                    <tr style="page-break-inside: avoid;">
-                      <!-- STYLE CHANGE: Changed padding from 4px to 2px and removed inline
-                      font-size -->
-                      <td class="text-center"
-                        style="border: 1px solid black; padding: 2px; height: 35px;">
-                        <span t-esc="row_count" />
-                      </td>
-                      <td style="border: 1px solid black; padding: 2px;">
-                        <span t-field="line.product_id.default_code" />
-                      </td>
-                      <td style="border: 1px solid black; padding: 2px;">
-                        <span t-field="line.product_id.name" />
-                      </td>
-                      <td style="border: 1px solid black; padding: 2px;">
-                        <span t-field="line.description" />
-                      </td>
-                      <td class="text-center"
-                        style="border: 1px solid black; padding: 2px;">
-                        <span t-field="line.product_uom.name" />
-                      </td>
-                      <td class="text-end"
-                        style="border: 1px solid black; padding: 2px;">
-                        <span t-field="line.product_uom_qty" />
-                      </td>
-                      <td style="border: 1px solid black; padding: 2px;">
-                        <span t-field="line.description" />
-                      </td>
-                    </tr>
-                  </t>
-                </tbody>
-              </table>
-
-              <div class="footer-block"
-                style="margin-top: 40px; padding-top: 10px; font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px;">
-
-                <div style="width: 100%; overflow: hidden; margin-bottom: 30px;">
-
-                  <div style="float: left; width: 60%;">
-                    <!-- Label -->
-                    <span style="font-weight: bold; display: inline-block; width: 120px;">Requested
-                      by Name</span>
-                    <div
-                      style="border-bottom: 1px solid black; display: inline-block; padding-left: 10px;">
-                      <span t-field="o.requested_by.name" />
-                    </div>
-                  </div>
-
-
-                  <div style="float: right; width: 40%;">
-                    <!-- Label -->
-                    <span style="font-weight: bold; display: inline-block; width: 30px;">Sig.</span>
-                    <!-- The Underline Line -->
-                    <div
-                      style="border-bottom: 1px solid black; display: inline-block; width: 200px; height: 25px; vertical-align: bottom;">
-                      <!-- Signature Image -->
-                      <t t-if="o.requested_by.user_id.sign_signature">
-                        <img
-                          t-att-src="'data:image/png;base64,%s' % (o.requested_by.user_id.sign_signature.decode())"
-                          style="max-height: 40px; max-width: 150px; position: relative; top: -10px;" />
-                      </t>
-                    </div>
-                  </div>
-                </div>
-
-                <div style="clear: both;"></div>
-                <div style="width: 100%; overflow: hidden; margin-bottom: 30px;">
-
-                  <div style="float: left; width: 60%;">
-                    <span style="font-weight: bold; display: inline-block; width: 120px;">Approved
-                      by Name</span>
-                    <div
-                      style="border-bottom: 1px solid black; display: inline-block;  padding-left: 10px;">
-                      <span t-field="o.approved_by.name" />
-                    </div>
-                  </div>
-                  <div style="float: right; width: 40%;">
-                    <span style="font-weight: bold; display: inline-block; width: 30px;">Sig.</span>
-                    <div
-                      style="border-bottom: 1px solid black; display: inline-block; width: 200px; height: 25px; vertical-align: bottom;">
-                      <!-- APPROVED SIGNATURE -->
-                      <t t-if="o.approved_by.sign_signature">
-                        <img
-                          t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
-                          style="max-height: 40px; max-width: 150px; position: relative; top: -10px;" />
-                      </t>
-                    </div>
-                  </div>
-                </div>
-
-                <div style="clear: both;"></div>
-
-                <!-- DISTRIBUTION FOOTER -->
-                <div style="text-align: center; margin-top: 30px; font-size: 11px;">
-                  <strong>Distribution:-</strong>
-                  <span style="margin-left: 20px;">Original - Store</span>
-                  <span style="margin-left: 20px;">1st Copy - Finance</span>
-                  <span style="margin-left: 20px;">2nd Copy - Production</span>
-                </div>
-
-              </div>
-            </div>
-          </div>
+    <template id="report_store_request_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="store_request.report_store_request_attachment_document" t-lang="o.company_id.partner_id.lang"/>
+            </t>
         </t>
-      </t>
-    </t>
-  </template>
+    </template>
+
+    <template id="report_store_request_attachment_document">
+        <t t-call="web.external_layout">
+            <div class="page" style="font-family: 'DejaVu Sans', 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; color: #000;">
+                <style type="text/css">
+                    .sra-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .sra-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
+                    .sra-lbl { font-weight: bold; float: left; margin-right: 6px; padding-bottom: 3px; line-height: 1.35; }
+                    .sra-und { display: block; overflow: hidden; border-bottom: 1px solid #000; min-height: 18px; padding: 0 0 5px 2px; margin-bottom: 2px; vertical-align: bottom; }
+                    .sra-section { font-weight: bold; margin: 12px 0 6px 0; font-size: 11px; }
+                    .sra-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 10px; }
+                    .sra-table th, .sra-table td { border: 1px solid #000; padding: 4px 3px; vertical-align: top; }
+                    .sra-table th { background: #f0f0f0; font-weight: bold; text-align: center; line-height: 1.25; }
+                    .sra-num { text-align: right; }
+                    .sra-center { text-align: center; }
+                    .sra-line { border-bottom: 1px solid #000; min-height: 22px; padding: 0 2px 5px 2px; margin-bottom: 6px; }
+                    .sra-cols { display: table; width: 100%; table-layout: fixed; margin-bottom: 10px; font-size: 10px; }
+                    .sra-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 14px; }
+                    .sra-col-right { display: table-cell; width: 50%; vertical-align: top; padding-left: 20px; }
+                    .sra-appr { margin-top: 6px; font-size: 10px; }
+                    .sra-appr-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dotted #aaa; }
+                    .sra-appr-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+                    .sra-appr-title { display: table-cell; vertical-align: bottom; font-weight: bold; width: 18%; padding: 0 8px 4px 0; line-height: 1.3; }
+                    .sra-appr-slot { display: table-cell; vertical-align: bottom; width: 27.33%; padding: 0 10px 0 0; }
+                    .sra-appr-slot .sra-field { margin-bottom: 0; }
+                    .sra-appr-slot .sra-lbl { font-weight: normal; }
+                    .sra-appr-slot .sra-und { min-height: 16px; padding-bottom: 4px; }
+                    .sra-copy { margin-top: 14px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px;      justify-content: center; text-align: center; }
+                </style>
+                   <div class="oe_structure" />
+
+                <t t-set="doc_title" t-value="'Store REQUISITION FORM'" />
+                <t t-set="doc_number" t-value="o.name" />
+                <t t-set="issue_number" t-value="'1'" />
+
+                <div class="sra-title">Store Request Attachment</div>
+
+                <div class="sra-cols">
+                    <div class="sra-col">
+                        <div class="sra-field">
+                            <span class="sra-lbl">Request Ref No:</span>
+                            <div class="sra-und"><span t-field="o.name"/></div>
+                        </div>
+                        <div class="sra-field">
+                            <span class="sra-lbl">Requested By:</span>
+                            <div class="sra-und">
+                                <t t-if="o.requested_by"><span t-field="o.requested_by.name"/></t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                        <div class="sra-field">
+                            <span class="sra-lbl">From Source Location:</span>
+                            <div class="sra-und">
+                                <t t-if="o.warehouse_id and o.warehouse_id.lot_stock_id">
+                                    <span t-field="o.warehouse_id.lot_stock_id.display_name"/>
+                                </t>
+                                <t t-elif="o.warehouse_id">
+                                    <span t-field="o.warehouse_id.name"/>
+                                </t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sra-col-right">
+                        <div class="sra-field">
+                            <span class="sra-lbl">Requested Date:</span>
+                            <div class="sra-und">
+                                <t t-if="o.requested_date">
+                                    <span t-field="o.requested_date" t-options="{'widget': 'date'}"/>
+                                </t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                        <div class="sra-field">
+                            <span class="sra-lbl">Department:</span>
+                            <div class="sra-und">
+                                <t t-if="o.department_id"><span t-field="o.department_id.name"/></t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                        <div class="sra-field">
+                            <span class="sra-lbl">TO: Destination Location:</span>
+                            <div class="sra-und">
+                                <t t-if="o.factory_id"><span t-esc="o.factory_id"/></t>
+                                <t t-elif="o.department_id"><span t-field="o.department_id.name"/></t>
+                                <t t-else="">&#160;</t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sra-section">የእቃ/የአገልግሎት አይነት / Item Details</div>
+                <table class="sra-table">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">S.N</th>
+                            <th style="width:12%;">Item Code</th>
+                            <th style="width:28%;">Item Description</th>
+                            <th style="width:10%;">Unit of<br/>Measure</th>
+                            <th style="width:12%;">Quantity<br/>Requested</th>
+                            <th style="width:18%;">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="row" t-value="0"/>
+                        <t t-foreach="o.request_line_ids" t-as="line">
+                            <t t-set="row" t-value="row + 1"/>
+                            <tr>
+                                <td class="sra-center"><span t-esc="row"/></td>
+                                <td>
+                                    <t t-if="line.product_id.default_code">
+                                        <span t-field="line.product_id.default_code"/>
+                                    </t>
+                                    <t t-elif="line.stock_number">
+                                        <span t-esc="line.stock_number"/>
+                                    </t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td>
+                                    <span t-field="line.product_id.name"/>
+                                    <t t-if="line.description">
+                                        <br/><span t-field="line.description"/>
+                                    </t>
+                                </td>
+                                <td class="sra-center"><span t-field="line.product_uom.name"/></td>
+                                <td class="sra-num"><span t-field="line.product_uom_qty"/></td>
+                                <td>
+                                    <t t-if="line.serial_number">
+                                        <span t-esc="line.serial_number"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </td>
+                            </tr>
+                        </t>
+                        <t t-if="not o.request_line_ids">
+                            <tr>
+                                <td class="sra-center">1</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                            </tr>
+                            <tr>
+                                <td class="sra-center">2</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                            </tr>
+                            <tr>
+                                <td class="sra-center">3</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                                <td>&#160;</td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="sra-section">ለእቃ/ለአገልግሎት የተጠየቀበት ምክንያት Justification / Purpose/Reason</div>
+                <div class="sra-line">
+                    <t t-if="o.purpose"><span t-field="o.purpose"/></t>
+                    <t t-else="">&#160;</t>
+                </div>
+                <div class="sra-line">&#160;</div>
+
+                <div class="sra-field" style="margin-top: 8px;">
+                    <span class="sra-lbl">የተፈለገበት ቀን/ Required Date:</span>
+                    <div class="sra-und" style="max-width: 280px;">
+                        <t t-if="o.required_date">
+                            <span t-field="o.required_date" t-options="{'widget': 'date'}"/>
+                        </t>
+                        <t t-else="">&#160;</t>
+                    </div>
+                </div>
+
+                <div class="sra-section">Approval Flow</div>
+                <div class="sra-appr">
+                    <div class="sra-appr-row">
+                        <div class="sra-appr-title">Prepared By:</div>
+                        <div class="sra-appr-slot">
+                            <div class="sra-field">
+                                <span class="sra-lbl">Name:</span>
+                                <div class="sra-und">
+                                    <t t-if="o.requested_by"><span t-field="o.requested_by.name"/></t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sra-appr-slot">
+                            <div class="sra-field">
+                                <span class="sra-lbl">Sig:</span>
+                                <div class="sra-und">
+                                    <t t-if="o.requested_by and o.requested_by.user_id.sign_signature">
+                                        <img t-att-src="'data:image/png;base64,%s' % (o.requested_by.user_id.sign_signature.decode())"
+                                             style="max-height: 36px; max-width: 120px;"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sra-appr-slot">
+                            <div class="sra-field">
+                                <span class="sra-lbl">Date:</span>
+                                <div class="sra-und">
+                                    <t t-if="o.requested_date">
+                                        <span t-field="o.requested_date" t-options="{'widget': 'date'}"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sra-appr-row">
+                        <div class="sra-appr-title">Approved By:</div>
+                        <div class="sra-appr-slot">
+                            <div class="sra-field">
+                                <span class="sra-lbl">Name:</span>
+                                <div class="sra-und">
+                                    <t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sra-appr-slot">
+                            <div class="sra-field">
+                                <span class="sra-lbl">Sig:</span>
+                                <div class="sra-und">
+                                    <t t-if="o.approved_by and o.approved_by.sign_signature">
+                                        <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                             style="max-height: 36px; max-width: 120px;"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sra-appr-slot">
+                            <div class="sra-field">
+                                <span class="sra-lbl">Date:</span>
+                                <div class="sra-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sra-copy">
+                    <strong>Copy Distribution:</strong>
+                    Original-Store &#160;|&#160; 1st Copy Requesting Unit &#160;|&#160; 2nd Copy-Pad
+                </div>
+            </div>
+        </t>
+    </template>
 </odoo>
