@@ -342,7 +342,7 @@
                         </div>
 
                         <!-- Approval Flow (no table borders) -->
-                        <div class="pr-section-title">Approval Flow</div>
+                        <!-- <div class="pr-section-title">Approval Flow</div> -->
 
                         <div class="pr-approval-row">
                             <div class="pr-approval-role">Requested By:</div>
