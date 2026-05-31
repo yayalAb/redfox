@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_picking_body_inherit" inherit_id="stock.report_picking">
         <xpath expr="//div[hasclass('page')]" position="replace">
@@ -6,1230 +6,1923 @@
                 style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
                 <div class="oe_structure" />
 
-                <t
-                    t-if="(o.picking_type_id.code == 'incoming' and o.picking_type_id.name == 'Delivery Return') or (o.picking_type_id.code == 'outgoing' and o.picking_type_id.name == 'Receipt Return')">
-                    <!-- Set the 'o' variable for the layout's context -->
-                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
-
-                    <!-- Pass data to the custom header -->
-                    <t t-set="doc_title" t-value="'Material Return Note'" />
-                    <t t-set="doc_number" t-value="o.name" />
-                    <t t-set="issue_number" t-value="'1'" />
-
-                    <div
-                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
-
-                        <!-- Information Section -->
-                        <div>
-                            <div class="row mb-1">
-
-                                <div class="col-1">
-                                    <strong>ከ:<br />From:</strong>
-                                </div>
-
-                                <div class="col-5">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <t t-if="o.picking_type_id.code == 'incoming'">
-                                            <span t-field="o.partner_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                        <t t-else="o.picking_type_id.code == 'outgoing'">
-                                            <span
-                                                t-field="o.location_id.warehouse_id.storeman_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                    </div>
-                                </div>
-
-                                <div class="col-2">
-                                    <strong>የስራ ክፍል:<br />Work Unit:</strong>
-                                </div>
-
-                                <div class="col-3">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.origin"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-1">
-
-                                <div class="col-1">
-                                    <strong>ለ:<br />To:</strong>
-                                </div>
-
-                                <div class="col-5">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <t t-if="o.picking_type_id.code == 'incoming'">
-                                            <span
-                                                t-field="o.location_dest_id.warehouse_id.storeman_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                        <t t-else="o.picking_type_id.code == 'outgoing'">
-                                            <span t-field="o.partner_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                    </div>
-                                </div>
-
-                                <div class="col-2">
-                                    <strong>የዕቃ ማውጫ ሰነድ ቁጥር:<br />SIV Reference No:</strong>
-                                </div>
-
-                                <div class="col-3">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.origin"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-2">
-                                    <strong>የተመለሰበት ምክንያት:<br />Reason for Return:</strong>
-                                </div>
-
-                                <div class="col-5">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.note"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lines Table -->
-                        <table class="table table-sm table-bordered mt-3"
-                            style="border: 1px solid black; border-collapse: collapse; width: 100%;">
-                            <thead
-                                style="background-color: #f2f2f2; display: table-header-group;">
-                                <tr style="font-weight: bold;">
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ተ.ቁ<br />S.No</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center; width: 40%;">የዕቃው
-                                        ስም<br />Item Description</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        መለኪያ<br />UOM</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ብዛት<br />Quantity</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ዕቃው ያለበት ሁኔታ<br />Existing condition of the goods</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="i" t-value="0" />
-                                <t t-foreach="o.move_ids_without_package" t-as="move">
-                                    <t t-set="i" t-value="i + 1" />
-                                    <tr>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:center;">
-                                            <span t-esc="i" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px;">
-                                            <span t-field="move.product_id.name" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:center;">
-                                            <span t-field="move.product_uom.name" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:right;">
-                                            <span t-esc="'{0:,.2f}'.format(move.quantity)" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:right;">
-                                            <span t-esc="'{0:,.2f}'.format(move.quantity)" />
-                                        </td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-
-
-                        <!-- Signature Section -->
-                        <div
-                            style="margin-top: 20px; padding-top: 5px;">
-                            <div class="row text-center mt-5">
-                                <div class="col-3"></div>
-                                <div class="col-3">
-                                    <strong>ስም</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>ፊርማ</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>ቀን</strong>
-                                </div>
-                            </div>
-                            <div class="row mt-4 align-items-center">
-                                <div class="col-3">
-                                    <strong>ያስረከበው<br />Returned By</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <t t-if="o.picking_type_id.code == 'incoming'">
-                                            <span t-field="o.partner_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                        <t t-else="o.picking_type_id.code == 'outgoing'">
-                                            <span
-                                                t-field="o.location_id.warehouse_id.storeman_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.picking_type_id.code == 'incoming' and o.partner_id.user_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.partner_id.user_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                    <t
-                                        t-if="o.picking_type_id.code == 'outgoing' and o.location_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mt-4 align-items-center">
-                                <div class="col-3">
-                                    <strong>የተረከበው<br />Received By</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <t t-if="o.picking_type_id.code == 'incoming'">
-                                            <span
-                                                t-field="o.location_dest_id.warehouse_id.storeman_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                        <t t-else="o.picking_type_id.code == 'outgoing'">
-                                            <span t-field="o.partner_id.name"
-                                                style="padding-left: 15px;" />
-                                        </t>
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.picking_type_id.code == 'incoming' and o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                    <t
-                                        t-else="o.picking_type_id.code == 'outgoing' and o.partner_id.user_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.partner_id.user_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mt-4 align-items-center">
-                                <div class="col-3">
-                                    <strong>የፈቀደው<br />Approved by</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.approved_by.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.approved_by.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div
-                                style="font-size: 11px; margin-top: 40px; border-top: 1px solid black; padding-top: 5px;">
-                                <strong>የሰነድ ክፍፍል:- Doc distribution:-</strong>
-                                <span style="margin-left: 10px;">የመጀመሪያው ግምጃቤት / Original Issuing
-                                    Store</span>
-                                <span style="margin-left: 10px;">1ኛ ኮፒ ለአስረካቢው / 1st Copy Deliverer</span>
-                                <span style="margin-left: 10px;">2ኛ ኮፒ ለፋይናንስ / 2nd Copy Finance</span>
-                                <span style="margin-left: 10px;">3ኛ ኮፒ ጥራዝ / 3rd Copy Pad</span>
-                            </div>
-                        </div>
-                    </div>
-                </t>
-
-                <t t-if="o.picking_type_id.code == 'internal'">
-                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
-                    <t t-set="doc_title" t-value="'Store Issue Attachment'" />
-                    <t t-set="doc_number" t-value="o.name" />
-                    <t t-set="issue_number" t-value="'1'" />
-
-                    <style type="text/css">
-                        .sia-page { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; color: #000; padding: 8px 24px 16px; }
-                        .sia-title { text-align: center; font-size: 18px; font-weight: bold; color: #c00000; margin: 0 0 20px 0; }
-                        .sia-form-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 12px; }
-                        .sia-form-half { display: table-cell; width: 50%; vertical-align: bottom; padding-right: 24px; }
-                        .sia-form-half:last-child { padding-right: 0; padding-left: 8px; }
-                        .sia-form-wide { display: table; width: 100%; table-layout: fixed; margin-bottom: 12px; }
-                        .sia-form-group { display: table; width: 100%; table-layout: fixed; }
-                        .sia-label { font-weight: bold; white-space: nowrap; display: table-cell; width: 148px; vertical-align: bottom; padding-right: 8px; padding-bottom: 4px; }
-                        .sia-field-wrap { display: table-cell; width: auto; vertical-align: bottom; }
-                        .sia-field-line { display: block; width: 100%; min-height: 24px; border-bottom: 1px solid #000; padding: 3px 0 2px 10px; box-sizing: border-box; }
-                        .sia-label-wide { width: 200px; }
-                        .sia-section-title { font-weight: bold; margin: 14px 0 8px 0; }
-                        .sia-field-full { display: block; width: 100%; margin-bottom: 8px; }
-                        .sia-items-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-                        .sia-items-table th, .sia-items-table td { border: 1px solid #000; padding: 5px 6px; vertical-align: middle; }
-                        .sia-items-table th { font-weight: bold; text-align: center; font-size: 11px; background-color: #e8e0f0; }
-                        .sia-items-table tbody td { min-height: 28px; height: 28px; }
-                        .sia-approval-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 16px; }
-                        .sia-approval-role { display: table-cell; font-weight: bold; width: 14%; vertical-align: bottom; padding-bottom: 4px; padding-right: 6px; }
-                        .sia-approval-name-wrap { display: table-cell; width: 26%; vertical-align: bottom; padding-right: 14px; }
-                        .sia-approval-sig-label { display: table-cell; font-weight: bold; width: 4%; text-align: center; vertical-align: bottom; padding-bottom: 4px; }
-                        .sia-approval-sig-wrap { display: table-cell; width: 36%; vertical-align: bottom; padding-right: 14px; }
-                        .sia-approval-date-label { display: table-cell; font-weight: bold; width: 5%; text-align: center; vertical-align: bottom; padding-bottom: 4px; }
-                        .sia-approval-date-wrap { display: table-cell; width: 15%; vertical-align: bottom; }
-                        .sia-sig-box { width: 100%; min-height: 50px; border-bottom: 1px solid #000; text-align: center; padding-bottom: 2px; box-sizing: border-box; }
-                        .sia-copy-dist { margin-top: 28px; font-size: 11px; text-align: center; }
-                    </style>
-
-                    <div class="sia-page">
-                        <div class="sia-title">Store Issue Attachment</div>
-
-                        <div class="sia-form-row">
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label">Requisition Ref No:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <t t-if="o.store_request_id">
-                                                <span t-field="o.store_request_id.name" />
-                                            </t>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label">Issue Ref No:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <span t-field="o.name" />
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sia-form-row">
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label">Issued Date:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <t t-if="o.date_done">
-                                                <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                            </t>
-                                            <t t-elif="o.scheduled_date">
-                                                <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
-                                            </t>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="sia-form-half" />
-                        </div>
-
-                        <div class="sia-form-row">
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label">Requested By:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <t t-if="o.store_request_id and o.store_request_id.requested_by">
-                                                <span t-field="o.store_request_id.requested_by.name" />
-                                            </t>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label">Department/Section:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <t t-if="o.store_request_id and o.store_request_id.department_id">
-                                                <span t-field="o.store_request_id.department_id.name" />
-                                            </t>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sia-form-row">
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label sia-label-wide">From Source Location:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <span t-field="o.location_id.complete_name" />
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="sia-form-half">
-                                <div class="sia-form-group">
-                                    <span class="sia-label sia-label-wide">TO: Destination Location:</span>
-                                    <span class="sia-field-wrap">
-                                        <span class="sia-field-line">
-                                            <span t-field="o.location_dest_id.complete_name" />
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sia-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
-                        <table class="sia-items-table">
-                            <thead style="display: table-header-group;">
-                                <tr>
-                                    <th style="width: 4%;">S.N</th>
-                                    <th style="width: 10%;">Item Code</th>
-                                    <th style="width: 22%;">Item Description</th>
-                                    <th style="width: 10%;">Unit of Measure</th>
-                                    <th style="width: 11%;">Quantity Requested</th>
-                                    <th style="width: 11%;">Issued Quantity</th>
-                                    <th style="width: 10%;">Unit Price</th>
-                                    <th style="width: 12%;">Total Unit Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="row_count" t-value="0" />
-                                <t t-foreach="o.move_ids_without_package" t-as="move">
-                                    <t t-set="row_count" t-value="row_count + 1" />
-                                    <tr style="page-break-inside: avoid;">
-                                        <td class="text-center"><span t-esc="row_count" /></td>
-                                        <td><span t-field="move.product_id.default_code" /></td>
-                                        <td><span t-field="move.product_id.name" /></td>
-                                        <td class="text-center"><span t-field="move.product_uom.name" /></td>
-                                        <td class="text-end">
-                                            <span t-esc="'{0:,.2f}'.format(move.product_uom_qty)" />
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="'{0:,.2f}'.format(move.quantity)" />
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="'{0:,.2f}'.format(move.line_unit_price or 0.0)" />
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="'{0:,.2f}'.format(move.line_subtotal or 0.0)" />
-                                        </td>
-                                    </tr>
-                                </t>
-                                <t t-set="min_rows" t-value="3" />
-                                <t t-set="pad_rows" t-value="min_rows - row_count if row_count &lt; min_rows else 0" />
-                                <t t-foreach="range(pad_rows)" t-as="pad">
-                                    <tr>
-                                        <td class="text-center"><span t-esc="row_count + pad + 1" /></td>
-                                        <td>&#160;</td>
-                                        <td>&#160;</td>
-                                        <td>&#160;</td>
-                                        <td>&#160;</td>
-                                        <td>&#160;</td>
-                                        <td>&#160;</td>
-                                        <td>&#160;</td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-
-                        <div class="sia-section-title">
-                            የእህሉ/የእቃው የተላከበት ምክንያት Justification / Purpose/Reason
-                        </div>
-                        <div class="sia-field-full">
-                            <span class="sia-field-line" style="min-height: 28px;">
-                                <span t-field="o.note" />
-                            </span>
-                        </div>
-                        <div class="sia-field-full">
-                            <span class="sia-field-line" style="min-height: 28px;" />
-                        </div>
-
-                        <div class="sia-section-title">Approval Flow</div>
-
-                        <t t-set="storeman_user" t-value="o.location_id.warehouse_id.storeman_id" />
-
-                        <div class="sia-approval-row">
-                            <div class="sia-approval-role">Issued By:</div>
-                            <div class="sia-approval-name-wrap">
-                                <span class="sia-field-line">
-                                    <t t-if="storeman_user">
-                                        <span t-field="storeman_user.name" />
-                                    </t>
-                                </span>
-                            </div>
-                            <div class="sia-approval-sig-label">Sig:</div>
-                            <div class="sia-approval-sig-wrap">
-                                <div class="sia-sig-box">
-                                    <t t-if="storeman_user and storeman_user.sign_signature">
-                                        <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
-                                            style="max-height: 46px; max-width: 140px;" />
-                                    </t>
-                                    <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
-                                        <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
-                                            style="max-height: 46px; max-width: 140px;" />
-                                    </t>
-                                </div>
-                            </div>
-                            <div class="sia-approval-date-label">Date:</div>
-                            <div class="sia-approval-date-wrap">
-                                <span class="sia-field-line">
-                                    <t t-if="o.date_done">
-                                        <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                    </t>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="sia-approval-row">
-                            <div class="sia-approval-role">Approved By:</div>
-                            <div class="sia-approval-name-wrap">
-                                <span class="sia-field-line">
-                                    <span t-field="o.approved_by.name" />
-                                </span>
-                            </div>
-                            <div class="sia-approval-sig-label">Sig:</div>
-                            <div class="sia-approval-sig-wrap">
-                                <div class="sia-sig-box">
-                                    <t t-if="o.approved_by and o.approved_by.sign_signature">
-                                        <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
-                                            style="max-height: 46px; max-width: 140px;" />
-                                    </t>
-                                    <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
-                                        <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                            style="max-height: 46px; max-width: 140px;" />
-                                    </t>
-                                </div>
-                            </div>
-                            <div class="sia-approval-date-label">Date:</div>
-                            <div class="sia-approval-date-wrap">
-                                <span class="sia-field-line">
-                                    <t t-if="o.date_done">
-                                        <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                    </t>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="sia-copy-dist">
-                            <strong>Copy Distribution:</strong>
-                            <span style="margin-left: 10px;">Original-Accounts</span>
-                            <span style="margin-left: 16px;">1st Requisitioning</span>
-                            <span style="margin-left: 16px;">3rd Store Keeper</span>
-                            <span style="margin-left: 16px;">4th Pad</span>
-                        </div>
-                    </div>
-                </t>
-
-
-                <t
-                    t-if="o.picking_type_id.code == 'incoming' and o.picking_type_id.name != 'Delivery Return'">
-                    <!-- Set the 'o' variable for the layout's context -->
-                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
-
-                    <!-- Pass data to the custom header -->
-                    <t t-set="doc_title" t-value="'GOODS RECEIVING NOTE'" />
-                    <t t-set="doc_number" t-value="o.name" />
-                    <t t-set="issue_number" t-value="'1'" />
-
-                    <div
-                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
-                        <!-- Information Section -->
-                        <div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <strong>የግዥ ማዘዣ ቁ.<br />Purchase Order No.</strong>
-                                </div>
-                                <div class="col-4">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.origin"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-
-                                <div class="col-2 text-end">
-                                    <strong>Date:</strong>
-                                </div>
-                                <div class="col-3">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.date_done"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-3">
-                                    <strong>የክፍያ መጠየቂያ ደረሰኝ ቁ.<br />Invoice No.</strong>
-                                </div>
-                                <div class="col-4">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.purchase_id.invoice_ids.display_name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-3">
-                                    <strong>የአከፋፈል ሁኔታ<br />Mode of Payment</strong>
-                                </div>
-                                <div class="col-4">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.purchase_id.invoice_status"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-3">
-                                <strong class='mt-4'>የአቅራቢው ዝርዝር Supplier's Detail</strong>
-                            </div>
-
-                            <div class="row mt-2">
-                                <div class="col-1">
-                                    <strong>ስም Name: </strong>
-                                </div>
-                                <div class="col-2">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.partner_id.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-1">
-                                    <strong>አድራሻ Address: </strong>
-                                </div>
-                                <div class="col-2">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.partner_id.contact_address"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                               
-                                <div class="col-1">
-                                    <strong>ቲን Tin: </strong>
-                                </div>
-                                <div class="col-2">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.partner_id.vat"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                            </div>
-                               <div class="mt-2 row">
-                            <span class="col-2">Truck No:</span>
-                            <span class="col-4"><span t-field="o.vehicle_plate"/></span>
-                        </div>
-
-                            <div class="mt-2 row">
-                                <div class="col-1">
-                                    <strong>ለ: </strong>
-                                </div>
-                                <div class="col-5">
-                                    _______________________________________________________________
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lines Table -->
-                        <table class="table table-sm table-bordered mt-3 mb-8"
-                            style="border: 1px solid black; border-collapse: collapse; width: 100%;">
-                            <thead
-                                style="background-color: #f2f2f2; display: table-header-group;">
-                                <tr style="font-weight: bold;">
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ተ.ቁ<br />S.No</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">የዕቃው
-                                        ቁ.<br />Item No</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center; width: 30%;">የዕቃው
-                                        ስም<br />Description</td>
-                                    <th style="width:11%;">ጠቅላላ ክብደት/<br />Gross Weight</th>
-                                    <!-- <th style="width:11%;">ነጠላ ክብደት/<br />Tare Weight</th> -->
-                                    <th style="width:11%;">የተጣራ ክብደት/<br />Net Weight</th>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        መለኪያ<br />UOM</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ብዛት<br />Qty.</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">የአንዱ
-                                        ዋጋ<br />Unit Price</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">ጠቅላላ
-                                        ዋጋ<br />Total Price</td>
-                                </tr>
-
-
-                            </thead>
-                            <tbody>
-                                <t t-set="i" t-value="0" />
-                                <t t-set="total" t-value="0" />
-                                <t t-set="subtotal" t-value="0" />
-                                <t t-foreach="o.move_ids_without_package" t-as="move">
-                                    <t t-set="i" t-value="i + 1" />
-                                    <t t-set="total"
-                                        t-value="move.line_subtotal" />
-                                    <t t-set="subtotal"
-                                        t-value="subtotal + total" />
-                                    <tr>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:center;">
-                                            <span t-esc="i" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px;">
-                                            <span t-field="move.product_id.default_code" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px;">
-                                            <span t-field="move.product_id.name" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px; text-align:center;"><span t-field="move.customer_vetting_gross_weight"/></td>
-                                        <!-- <td style="border: 1px solid black; padding: 2px; text-align:center;"><span t-field="move.customer_vetting_tare_weight"/></td> -->
-                                        <td style="border: 1px solid black; padding: 2px; text-align:center;"><span t-field="move.customer_vetting_line_net_weight"/></td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:center;">
-                                            <span t-field="move.product_uom.name" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:right;">
-                                            <span t-esc="'{0:,.2f}'.format(move.quantity)" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:right;">
-                                            <span t-esc="'{0:,.2f}'.format(move.line_unit_price)" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:right;">
-                                            <span t-esc="'{0:,.2f}'.format(total)" />
-                                        </td>
-                                    </tr>
-                                </t>
-
-                                <tr>
-                                    <td colspan="7" style="border-top: 1px solid black;"></td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:right;">
-                                        <strong>ጠቅላላ ዋጋ<br />Sub Total</strong>
-                                    </td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:right;">
-                                        <span t-esc="'{0:,.2f}'.format(subtotal)" />
-                                    </td>
-                                </tr>
-                                <t t-if="o.purchase_id.tax_totals">
-                                    <t t-foreach="o.purchase_id.tax_totals.get('subtotals', [])"
-                                        t-as="subtotal_item">
-                                        <t t-if="subtotal_item.get('name') == 'Untaxed Amount'">
-                                            <t t-foreach="subtotal_item.get('tax_groups', [])"
-                                                t-as="tax_group">
-                                                <tr>
-                                                    <td colspan="7"></td>
-                                                    <td
-                                                        style="border: 1px solid black; padding: 2px; text-align:right;">
-                                                        <span t-esc="tax_group['group_name']" />
-                                                    </td>
-                                                    <td
-                                                        style="border: 1px solid black; padding: 2px; text-align:right;">
-                                                        <span
-                                                            t-esc="'{0:,.2f}'.format(tax_group['tax_amount_currency'])" />
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                        </t>
-                                    </t>
-                                </t>
-                                <tr>
-                                    <td colspan="5"></td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:right;">
-                                        <strong>ጠቅላላ ድምር<br />Grand Total</strong>
-                                    </td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:right;">
-                                        <span
-                                            t-esc="'{0:,.2f}'.format(o.purchase_id.amount_total)" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Signature Section -->
-                        <div
-                            style="margin-top: 20px; padding-top: 5px;">
-                            <div class="row text-center mt-5">
-                                <div class="col-3"></div>
-                                <div class="col-3">
-                                    <strong>ስም</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>ፊርማ</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>ቀን</strong>
-                                </div>
-                            </div>
-                            <div class="row mt-4 align-items-center">
-                                <div class="col-3">
-                                    <strong>የግምጃ ቤት ተቀባይ<br />Store Keeper</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
-                                        <span
-                                            t-field="o.location_dest_id.warehouse_id.storeman_id.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mt-4 align-items-center">
-                                <div class="col-3">
-                                    <strong>የግምጃ ቤት ኃላፊ<br />Warehouse Head</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
-                                        <span
-                                            t-field="o.location_dest_id.warehouse_id.storeman_id.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mt-4 align-items-center">
-                                <div class="col-3">
-                                    <strong>ያጸደቀው አካል<br />Approved by</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-left: 8px; min-height: 20px;">
-                                        <span t-field="o.approved_by.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.approved_by.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div
-                                style="font-size: 11px; margin-top: 40px; border-top: 1px solid black; padding-top: 5px;">
-                                <strong>የሰነድ ክፍፍል:- Doc distribution:-</strong>
-                                <span style="margin-left: 10px;">የመጀመሪያው ለፋይናንስ / Original Finance</span>
-                                <span style="margin-left: 10px;">1ኛ ኮፒ ለግዥ ክፍል / 1st Copy
-                                    Procurement</span>
-                                <span style="margin-left: 10px;">2ኛ ኮፒ በመጋዘን / 2nd Copy Store</span>
-                                <span style="margin-left: 10px;">3ኛ ኮፒ በፓድ / 3rd Copy Pad</span>
-                            </div>
-                        </div>
-                    </div>
-                </t>
-
-
-                <t
-                    t-if="o.picking_type_id.code == 'outgoing' and o.picking_type_id.name != 'Receipt Return'">
-                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
-                    <t t-set="doc_title" t-value="'DELIVERY ORDER NOTE'" />
-                    <t t-set="doc_number" t-value="o.name" />
-
-                    <div
-                        style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; padding: 0 30px;">
-
-                    
-                        <div class="row mb-4">
-                            <div class='col-8'></div>
-                            <div class="col-1">
-                                <strong>Date</strong>: </div>
-                            <div class='col-3'>
-                                <span style="text-decoration: underline; padding: 0 5px;"
-                                    t-field="o.date_done"
-                                    t-options='{"widget": "date"}' />
-                            </div>
-                        </div>
-                        <div class="row mb-1">
-
-                            <div class="col-3">
-                                <strong>የላኪ ዕቃ ግምጃ ቤት ሥም<br />Issuing Warehouse Name</strong>: </div>
-
-                            <div class="col-4">
-                                <div
-                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                    <span t-field="o.location_id.complete_name"
-                                        style="padding-left: 15px;" />
-                                </div>
-                            </div>
-
-                            <div class="col-1">
-                                <strong>ቁጥር<br />No</strong>: </div>
-
-                            <div class="col-3">
-                                <div
-                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                    <span t-field="o.location_id.display_name"
-                                        style="padding-left: 15px;" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-1">
-
-                            <div class="col-3">
-                                <strong>የተቀባይ ዕቃ ግምጃ ቤት ሥም<br />Receiving Warehouse Name</strong> : </div>
-
-                            <div class="col-4">
-                                <div
-                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                    <span t-field="o.location_dest_id.complete_name"
-                                        style="padding-left: 15px;" />
-                                </div>
-                            </div>
-
-                            <div class="col-1">
-                                <strong>ቁጥር<br />No</strong>: </div>
-
-                            <div class="col-3">
-                                <div
-                                    style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                    <span t-field="o.location_dest_id.display_name"
-                                        style="padding-left: 15px;" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-2">
-
-                            <div class="col-3">
-                                <strong>የዕቃ መጠየቂያ ቁጥር<br />Store Requisition No</strong>: </div>
-
-                            <div class="col-4">
-                                <span style="text-decoration: underline; padding: 0 5px;"
-                                    t-field="o.origin" />
-                            </div>
-
-                            <div class="col-2">
-                                <strong>የተጠየቀበት ቀን<br />S.R Date</strong>: </div>
-                            <div class="col-3">
-                                <span style="text-decoration: underline; padding: 0 5px;"
-                                    t-field="o.scheduled_date"
-                                    t-options='{"widget": "date"}' />
-                            </div>
-
-                        </div>
-
-                       
-                        <table class="table table-sm table-bordered mt-3"
-                            style="border: 1px solid black; border-collapse: collapse; width: 100%;">
-                            <thead
-                                style="background-color: #f2f2f2; display: table-header-group;">
-                                <tr style="font-weight: bold;">
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ተ.ቁ<br />S.No</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">የእቃ
-                                        ኮድ<br />Stock No</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center; width: 40%;">የእቃው
-                                        ስም<br />Description</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        መለኪያ<br />UOM</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">የተላከው
-                                        ዕቃ ብዛት<br />Quantity Issued</td>
-                                    <td
-                                        style="border: 1px solid black; padding: 2px; text-align:center;">
-                                        ምርመራ<br />Remark</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="i" t-value="0" />
-                                <t t-foreach="o.move_ids_without_package" t-as="move">
-                                    <t t-set="i" t-value="i + 1" />
-                                    <tr>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:center;">
-                                            <span t-esc="i" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px;">
-                                            <span t-field="move.product_id.default_code" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px;">
-                                            <span t-field="move.product_id.name" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:center;">
-                                            <span t-field="move.product_uom.name" />
-                                        </td>
-                                        <td
-                                            style="border: 1px solid black; padding: 2px; text-align:right;">
-                                            <span t-esc="'{0:,.2f}'.format(move.quantity)" />
-                                        </td>
-                                        <td style="border: 1px solid black; padding: 2px;">
-                                            
-                                        </td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-
-
-                        <div
-                            style="margin-top: 20px; padding-top: 5px;">
-                       
-                            <div class="row">
-                                <div class="col-4" />
-                                <div class="col-3">
-                                    <strong>Name<br />ስም</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>Signature<br />ፊርማ</strong>
-                                </div>
-                                <div class="col-2">
-                                    <strong>Date<br />ቀን</strong>
-                                </div>
-                            </div>
-                            <div class="row mt-2 align-items-center">
-                                <div class="col-3">
-                                    <strong>ዕቃውን የላከው<br />Issuing Store Clerk</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.location_id.warehouse_id.storeman_id.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                            
-                                    <t
-                                        t-if="o.location_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mt-2 align-items-center">
-                                <div class="col-3">
-                                    <strong>የግምጃ ቤት ኃላፊ<br />Warehouse Head</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.location_id.warehouse_id.storeman_id.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.location_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mt-2 align-items-center">
-                                <div class="col-3">
-                                    <strong>የፈቀደው<br />Approved by</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.approved_by.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.approved_by.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-
-
-                            <div class="row mb-2">
-                                <div class="col-12">
-                                    <small>
-                                        <strong>ከላይ የተዘረዘሩት ዕቃዎች ወደ ሚላክበት ቦታ ለማድረስ ተስማምቼ እንደሚታየው
-                                            በደህና ሁኔታ ተረክብያለሁ።<br />The above materials have been
-                                            received and found in good order for dispatch. </strong>
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-4" />
-                                <div class="col-3">
-                                    <strong>Name<br />ስም</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>Signature<br />ፊርማ</strong>
-                                </div>
-                                <div class="col-2">
-                                    <strong>Date<br />ቀን</strong>
-                                </div>
-                            </div>
-                            <div class="row mt-2 align-items-center">
-                                <div class="col-3">
-                                    <strong>ለማድረስ የተረከበው<br />Carrier's Name</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span t-field="o.carrier.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.carrier.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.carrier.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-12">
-                                    <small>
-                                        <strong>ከላይ የተዘረዘሩት ዕቃዎች ደርሰውናል ከሚከተለው አስተያየትና ሁኔታ ጋር
-                                            ተረክብያለሁ<br />The above materials have been received and
-                                            found in order with the exception of</strong>
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="row align-items-end mb-3">
-                                <div class="col-2">
-                                    <strong>አስተያየት<br />Remark</strong>
-                                </div>
-                                <div class="col-10"
-                                    style="border-bottom: 1px solid black; min-height: 1em;"></div>
-                            </div>
-
-
-                            <div class="row">
-                                <div class="col-4" />
-                                <div class="col-3">
-                                    <strong>Name<br />ስም</strong>
-                                </div>
-                                <div class="col-3">
-                                    <strong>Signature<br />ፊርማ</strong>
-                                </div>
-                                <div class="col-2">
-                                    <strong>Date<br />ቀን</strong>
-                                </div>
-                            </div>
-                            <div class="row mt-2 align-items-center">
-                                <div class="col-3">
-                                    <strong>የተረከበው ግምጃቤት<br />Receiving Store</strong>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <div
-                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
-                                        <span
-                                            t-field="o.location_dest_id.warehouse_id.storeman_id.name"
-                                            style="padding-left: 15px;" />
-                                    </div>
-                                </div>
-                                <div class="col-3 text-center">
-                                    <t
-                                        t-if="o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature">
-                                        <img
-                                            t-att-src="'data:image/png;base64,%s' % (o.location_dest_id.warehouse_id.storeman_id.employee_id.emp_signature.decode())"
-                                            style="max-height:50px; max-width:150px;" />
-                                    </t>
-                                </div>
-                                <div class="col-3 text-center">___________________</div>
-                            </div>
-
-                            <div
-                                style="font-size: 11px; margin-top: 40px; border-top: 1px solid black; padding-top: 5px;">
-                                <strong>የሰነድ ክፍፍል:- Doc distribution:-</strong>
-                                <span style="margin-left: 10px;">ዋናው - ላኪ ግምጃቤት / Original - Issuing
-                                    Store</span>
-                                <span style="margin-left: 10px;">1ኛ ኮፒ - ፋይናንስ / 1<sup>st</sup> Copy
-                                    - Finance</span>
-                                <span style="margin-left: 10px;">2ኛ ኮፒ - ተቀባይ ግምጃ ቤት / 2<sup>nd</sup>
-                                    Copy - Receiving Store</span>
-                                <span style="margin-left: 10px;">3ኛ ኮፒ - አጓጓዥ / 3<sup>rd</sup> Copy
-                                    - Carrier</span>
-                                <span style="margin-left: 10px;">4ኛ ኮፒ - ጥራዝ / 4<sup>th</sup> Copy -
-                                    Pad</span>
-                            </div>
-                        </div>
-                    </div>
-                </t>
-
-
             </div>
         </xpath>
     </template>
+
+    <template id="cgrn_body">
+        <style>
+            .cgrn-page {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-size: 12px;
+                color: #000;
+                padding: 4px 20px 12px;
+            }
+            .cgrn-title {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                color: #c00000;
+                font-weight: bold;
+                font-size: 18px;
+                text-align: center;
+                margin: 0 0 20px 0;
+                letter-spacing: 0.3px;
+            }
+            .cgrn-section-title {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                margin: 16px 0 6px 0;
+                font-size: 12px;
+            }
+            .cgrn-form-row {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 10px;
+            }
+            .cgrn-form-third {
+                display: table-cell;
+                width: 33.33%;
+                vertical-align: top;
+                padding-right: 14px;
+            }
+            .cgrn-form-third:last-child {
+                padding-right: 0;
+            }
+            .cgrn-form-half {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 20px;
+            }
+            .cgrn-form-half:last-child {
+                padding-right: 0;
+                padding-left: 12px;
+            }
+            .cgrn-form-group {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+            .cgrn-label {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                white-space: nowrap;
+                display: table-cell;
+                vertical-align: bottom;
+                padding-right: 8px;
+                padding-bottom: 4px;
+                font-size: 11px;
+            }
+            .cgrn-label-sm { width: 88px; }
+            .cgrn-label-md { width: 118px; }
+            .cgrn-label-lg { width: 155px; }
+            .cgrn-field-wrap {
+                display: table-cell;
+                width: auto;
+                vertical-align: bottom;
+            }
+            .cgrn-field-line {
+                display: block;
+                width: 100%;
+                min-height: 22px;
+                border-bottom: 1px solid #000;
+                padding: 2px 0 3px 8px;
+                line-height: 1.35;
+                box-sizing: border-box;
+            }
+            .cgrn-field-line-dashed {
+                border-bottom: 1px dashed #000;
+                min-height: 24px;
+                padding: 3px 0 2px 10px;
+            }
+            .cgrn-field-line-tall { min-height: 28px; }
+            .cgrn-field-full {
+                display: block;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            .cgrn-items-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 4px;
+            }
+            .cgrn-items-table th,
+            .cgrn-items-table td {
+                border: 1px solid #000;
+                padding: 5px 6px;
+                vertical-align: middle;
+            }
+            .cgrn-items-table th {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                text-align: center;
+                font-size: 9px;
+                line-height: 1.2;
+                background-color: #e8e8f0;
+            }
+            .cgrn-items-table tbody td {
+                min-height: 26px;
+                font-size: 11px;
+            }
+            .cgrn-td-desc { text-align: left; word-wrap: break-word; }
+            .cgrn-td-num { text-align: right; white-space: nowrap; }
+            .cgrn-td-center { text-align: center; white-space: nowrap; }
+            .cgrn-totals-wrap { margin-top: 10px; width: 100%; }
+            .cgrn-totals-row {
+                display: table;
+                width: 58%;
+                margin-left: auto;
+                margin-bottom: 6px;
+                table-layout: fixed;
+            }
+            .cgrn-totals-label {
+                display: table-cell;
+                font-weight: bold;
+                width: 120px;
+                vertical-align: bottom;
+                padding-right: 8px;
+                padding-bottom: 4px;
+            }
+            .cgrn-totals-value {
+                display: table-cell;
+                vertical-align: bottom;
+            }
+            .cgrn-quality-row {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                margin-top: 10px;
+                font-weight: bold;
+                font-size: 11px;
+            }
+            .cgrn-approval-row {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 16px;
+            }
+            .cgrn-approval-role {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                display: table-cell;
+                font-weight: bold;
+                width: 22%;
+                vertical-align: bottom;
+                padding-bottom: 4px;
+                padding-right: 6px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+            .cgrn-approval-name-wrap {
+                display: table-cell;
+                width: 24%;
+                vertical-align: bottom;
+                padding-right: 14px;
+            }
+            .cgrn-approval-sig-label {
+                display: table-cell;
+                font-weight: bold;
+                width: 4%;
+                text-align: center;
+                vertical-align: bottom;
+                padding-bottom: 4px;
+            }
+            .cgrn-approval-sig-wrap {
+                display: table-cell;
+                width: 34%;
+                vertical-align: bottom;
+                padding-right: 14px;
+            }
+            .cgrn-approval-date-label {
+                display: table-cell;
+                font-weight: bold;
+                width: 5%;
+                text-align: center;
+                vertical-align: bottom;
+                padding-bottom: 4px;
+            }
+            .cgrn-approval-date-wrap {
+                display: table-cell;
+                width: 13%;
+                vertical-align: bottom;
+            }
+            .cgrn-sig-box {
+                width: 100%;
+                min-height: 50px;
+                border-bottom: 1px solid #000;
+                text-align: center;
+                padding-bottom: 2px;
+                box-sizing: border-box;
+            }
+            .cgrn-copy-dist {
+                margin-top: 28px;
+                font-size: 11px;
+                text-align: left;
+            }
+        </style>
+
+        <t t-set="storeman_user"
+            t-value="o.location_dest_id.warehouse_id.storeman_id if o.location_dest_id and o.location_dest_id.warehouse_id else False" />
+        <t t-set="vendor_phone" t-value="o.partner_id.phone or o.partner_id.mobile or ''" />
+        <t t-set="driver_name" t-value="o.carrier.name if o.carrier else ''" />
+        <t t-set="driver_phone"
+            t-value="(o.carrier.phone or o.carrier.mobile or '') if o.carrier else ''" />
+        <t t-set="driver_address"
+            t-value="o.carrier.partner_id.contact_address if o.carrier and o.carrier.partner_id else (o.partner_id.contact_address or '')" />
+
+        <div class="page cgrn-page">
+
+            <div class="oe_structure" />
+
+            <h3 class="cgrn-title">መረከቢያ ሰነድ/Customer Good Receiving Note</h3>
+
+            <div class="cgrn-form-row">
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">SO/PO Doc Ref No:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line cgrn-field-line-dashed">
+                                <span t-esc="o.get_grn_so_po_ref()" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">GRN No:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line cgrn-field-line-dashed">
+                                <span t-field="o.name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">GRN Date:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                                </t>
+                                <t t-elif="o.scheduled_date">
+                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
+                                </t>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cgrn-form-row">
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-lg">አቅራቢው ስም<br />(Vendor Name):</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-esc="o.partner_id.display_name or ''" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">Tin No:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-esc="o.partner_id.vat or ''" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">Phone No:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-esc="vendor_phone" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cgrn-form-row">
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-md">Driver Name:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-esc="driver_name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">Address:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-esc="driver_address" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-third">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-sm">Phone No:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-esc="driver_phone" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cgrn-form-row">
+                <div class="cgrn-form-half">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-lg">የመኪናው ሰሌዳ ቁጥር/<br />Truck No:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-field="o.vehicle_plate" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cgrn-form-half">
+                    <div class="cgrn-form-group">
+                        <span class="cgrn-label cgrn-label-md">Destination Location:</span>
+                        <span class="cgrn-field-wrap">
+                            <span class="cgrn-field-line">
+                                <span t-field="o.location_dest_id.complete_name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cgrn-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
+
+            <table id="cgrn_item_table" class="cgrn-items-table">
+                <thead style="display: table-header-group;">
+                    <tr>
+                        <th style="width:4%;">S.N</th>
+                        <th style="width:9%;">Item Code</th>
+                        <th style="width:18%;">Item Description</th>
+                        <th style="width:8%;">UOM</th>
+                        <th style="width:10%;">Demand/<br />ጠቅላላ ክብደት</th>
+                        <th style="width:9%;">ነጠላ<br />ክብደት</th>
+                        <th style="width:10%;">የተጠራ ክብደት/<br />Quantity</th>
+                        <th style="width:9%;">Unit Price</th>
+                        <th style="width:10%;">Total Unit Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="row_count" t-value="0" />
+                    <t t-foreach="o.move_ids_without_package" t-as="move">
+                        <t t-if="move.state != 'cancel'">
+                            <t t-set="row_count" t-value="row_count + 1" />
+                            <t t-set="line_total" t-value="o.get_grn_line_total(move)" />
+                            <tr style="page-break-inside: avoid;">
+                                <td class="cgrn-td-center"><span t-esc="row_count" /></td>
+                                <td class="cgrn-td-center">
+                                    <span t-esc="move.product_id.default_code or ''" />
+                                </td>
+                                <td class="cgrn-td-desc">
+                                    <span t-esc="move.product_id.display_name or move.name or ''" />
+                                </td>
+                                <td class="cgrn-td-center">
+                                    <span t-esc="move.product_uom.name or ''" />
+                                </td>
+                                <td class="cgrn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_gross_weight(move))" />
+                                </td>
+                                <td class="cgrn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_tare_weight(move))" />
+                                </td>
+                                <td class="cgrn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(move.quantity or 0.0)" />
+                                </td>
+                                <td class="cgrn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(move.line_unit_price or 0.0)" />
+                                </td>
+                                <td class="cgrn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(line_total)" />
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 8 else 8" />
+                    <t t-set="pad_rows" t-value="min_rows - row_count" />
+                    <t t-foreach="range(pad_rows)" t-as="pad">
+                        <tr>
+                            <td class="cgrn-td-center"><span t-esc="row_count + pad + 1" /></td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div class="cgrn-totals-wrap">
+                <div class="cgrn-totals-row">
+                    <span class="cgrn-totals-label">Total Birr</span>
+                    <span class="cgrn-totals-value">
+                        <span class="cgrn-field-line cgrn-field-line-dashed">
+                            <span t-esc="'{0:,.2f}'.format(o.get_grn_grand_total())" />
+                        </span>
+                    </span>
+                </div>
+                <div class="cgrn-totals-row">
+                    <span class="cgrn-totals-label">Birr in Word</span>
+                    <span class="cgrn-totals-value">
+                        <span class="cgrn-field-line cgrn-field-line-dashed">
+                            <span t-esc="o.get_grn_amount_in_words()" />
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cgrn-section-title">የእህሉ/የእቃው ገቢ የሆነበት ምክንያት/ Reason/Justification / Purpose</div>
+            <div class="cgrn-field-full">
+                <span class="cgrn-field-line cgrn-field-line-tall">
+                    <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry" /></t>
+                    <t t-elif="o.note"><span t-field="o.note" /></t>
+                </span>
+            </div>
+            <div class="cgrn-field-full">
+                <span class="cgrn-field-line cgrn-field-line-tall" />
+            </div>
+
+            <div class="cgrn-quality-row">
+                የሚፈለገው የማጣራት ጥራት
+                <span class="cgrn-field-line cgrn-field-line-dashed"
+                    style="display:inline-block; width:80px; margin:0 8px; vertical-align:bottom;">
+                    <t t-if="o.get_grn_cleaning_quality()">
+                        <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
+                    </t>
+                </span>%
+            </div>
+
+            <!-- <div class="cgrn-section-title">Approval Flow</div> -->
+
+            <div class="cgrn-approval-row">
+                <div class="cgrn-approval-role">ያዘጋጀው ስም እና ፊርማ/<br />Prepared By:</div>
+                <div class="cgrn-approval-name-wrap">
+                    <span class="cgrn-field-line">
+                        <span t-esc="o.create_uid.name or ''" />
+                    </span>
+                </div>
+                <div class="cgrn-approval-sig-label">Sig:</div>
+                <div class="cgrn-approval-sig-wrap">
+                    <div class="cgrn-sig-box">
+                        <t t-if="o.create_uid.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (o.create_uid.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="cgrn-approval-date-label">Date:</div>
+                <div class="cgrn-approval-date-wrap">
+                    <span class="cgrn-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cgrn-approval-row">
+                <div class="cgrn-approval-role">የአስረካቢው ስም እና ፊርማ:</div>
+                <div class="cgrn-approval-name-wrap">
+                    <span class="cgrn-field-line">
+                        <span t-esc="o.partner_id.display_name or ''" />
+                    </span>
+                </div>
+                <div class="cgrn-approval-sig-label">Sig:</div>
+                <div class="cgrn-approval-sig-wrap">
+                    <div class="cgrn-sig-box">&#160;</div>
+                </div>
+                <div class="cgrn-approval-date-label">Date:</div>
+                <div class="cgrn-approval-date-wrap">
+                    <span class="cgrn-field-line">&#160;</span>
+                </div>
+            </div>
+
+            <div class="cgrn-approval-row">
+                <div class="cgrn-approval-role">የክምችት ክፍል ሐላፊ ስም እና ፊርማ:</div>
+                <div class="cgrn-approval-name-wrap">
+                    <span class="cgrn-field-line">
+                        <t t-if="storeman_user"><span t-field="storeman_user.name" /></t>
+                    </span>
+                </div>
+                <div class="cgrn-approval-sig-label">Sig:</div>
+                <div class="cgrn-approval-sig-wrap">
+                    <div class="cgrn-sig-box">
+                        <t t-if="storeman_user and storeman_user.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                        <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="cgrn-approval-date-label">Date:</div>
+                <div class="cgrn-approval-date-wrap">
+                    <span class="cgrn-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cgrn-copy-dist">
+                <strong>Copy Distribution:</strong>
+                Original-Store
+                <span style="margin-left: 16px;">1st Copy Finance</span>
+            </div>
+
+        </div>
+    </template>
+
+    <template id="cdn_body">
+        <style>
+            .cdn-page {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-size: 12px;
+                color: #000;
+                padding: 4px 20px 12px;
+            }
+            .cdn-title {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                color: #c00000;
+                font-weight: bold;
+                font-size: 18px;
+                text-align: center;
+                margin: 0 0 20px 0;
+                letter-spacing: 0.3px;
+            }
+            .cdn-section-title {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                margin: 16px 0 6px 0;
+                font-size: 12px;
+            }
+            .cdn-form-row {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 10px;
+            }
+            .cdn-form-third {
+                display: table-cell;
+                width: 33.33%;
+                vertical-align: top;
+                padding-right: 14px;
+            }
+            .cdn-form-third:last-child {
+                padding-right: 0;
+            }
+            .cdn-form-half {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 20px;
+            }
+            .cdn-form-half:last-child {
+                padding-right: 0;
+                padding-left: 12px;
+            }
+            .cdn-form-group {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+            .cdn-label {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                white-space: nowrap;
+                display: table-cell;
+                vertical-align: bottom;
+                padding-right: 8px;
+                padding-bottom: 4px;
+                font-size: 11px;
+            }
+            .cdn-label-sm { width: 88px; }
+            .cdn-label-md { width: 118px; }
+            .cdn-label-lg { width: 155px; }
+            .cdn-field-wrap {
+                display: table-cell;
+                width: auto;
+                vertical-align: bottom;
+            }
+            .cdn-field-line {
+                display: block;
+                width: 100%;
+                min-height: 22px;
+                border-bottom: 1px solid #000;
+                padding: 2px 0 3px 8px;
+                line-height: 1.35;
+                box-sizing: border-box;
+            }
+            .cdn-field-line-dashed {
+                border-bottom: 1px dashed #000;
+                min-height: 24px;
+                padding: 3px 0 2px 10px;
+            }
+            .cdn-field-line-tall { min-height: 28px; }
+            .cdn-field-full {
+                display: block;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            .cdn-items-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 4px;
+            }
+            .cdn-items-table th,
+            .cdn-items-table td {
+                border: 1px solid #000;
+                padding: 5px 6px;
+                vertical-align: middle;
+            }
+            .cdn-items-table th {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                text-align: center;
+                font-size: 9px;
+                line-height: 1.2;
+                background-color: #e8e8f0;
+            }
+            .cdn-items-table tbody td {
+                min-height: 26px;
+                font-size: 11px;
+            }
+            .cdn-td-desc { text-align: left; word-wrap: break-word; }
+            .cdn-td-num { text-align: right; white-space: nowrap; }
+            .cdn-td-center { text-align: center; white-space: nowrap; }
+            .cdn-totals-wrap { margin-top: 10px; width: 100%; }
+            .cdn-totals-row {
+                display: table;
+                width: 58%;
+                margin-left: auto;
+                margin-bottom: 6px;
+                table-layout: fixed;
+            }
+            .cdn-totals-label {
+                display: table-cell;
+                font-weight: bold;
+                width: 120px;
+                vertical-align: bottom;
+                padding-right: 8px;
+                padding-bottom: 4px;
+            }
+            .cdn-totals-value {
+                display: table-cell;
+                vertical-align: bottom;
+            }
+            .cdn-quality-row {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                margin-top: 10px;
+                font-weight: bold;
+                font-size: 11px;
+            }
+            .cdn-approval-row {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 16px;
+            }
+            .cdn-approval-role {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                display: table-cell;
+                font-weight: bold;
+                width: 22%;
+                vertical-align: bottom;
+                padding-bottom: 4px;
+                padding-right: 6px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+            .cdn-approval-name-wrap {
+                display: table-cell;
+                width: 24%;
+                vertical-align: bottom;
+                padding-right: 14px;
+            }
+            .cdn-approval-sig-label {
+                display: table-cell;
+                font-weight: bold;
+                width: 4%;
+                text-align: center;
+                vertical-align: bottom;
+                padding-bottom: 4px;
+            }
+            .cdn-approval-sig-wrap {
+                display: table-cell;
+                width: 34%;
+                vertical-align: bottom;
+                padding-right: 14px;
+            }
+            .cdn-approval-date-label {
+                display: table-cell;
+                font-weight: bold;
+                width: 5%;
+                text-align: center;
+                vertical-align: bottom;
+                padding-bottom: 4px;
+            }
+            .cdn-approval-date-wrap {
+                display: table-cell;
+                width: 13%;
+                vertical-align: bottom;
+            }
+            .cdn-sig-box {
+                width: 100%;
+                min-height: 50px;
+                border-bottom: 1px solid #000;
+                text-align: center;
+                padding-bottom: 2px;
+                box-sizing: border-box;
+            }
+            .cdn-copy-dist {
+                margin-top: 28px;
+                font-size: 11px;
+                text-align: left;
+            }
+        </style>
+
+        <t t-set="storeman_user"
+            t-value="o.location_id.warehouse_id.storeman_id if o.location_id and o.location_id.warehouse_id else False" />
+        <t t-set="customer_phone" t-value="o.partner_id.phone or o.partner_id.mobile or ''" />
+        <t t-set="driver_name" t-value="o.carrier.name if o.carrier else ''" />
+        <t t-set="driver_phone"
+            t-value="(o.carrier.phone or o.carrier.mobile or '') if o.carrier else ''" />
+        <t t-set="driver_address"
+            t-value="o.carrier.partner_id.contact_address if o.carrier and o.carrier.partner_id else (o.partner_id.contact_address or '')" />
+
+        <div class="page cdn-page">
+
+            <div class="oe_structure" />
+
+            <h3 class="cdn-title">ለደንበኛ ማስረከቢያ ሰነድ/ Customer Delivery Note</h3>
+
+            <div class="cdn-form-row">
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-lg">Invoice / የተመረትበት ሰነድ<br />Doc Ref No:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line cdn-field-line-dashed">
+                                <span t-esc="o.get_cdn_invoice_ref()" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-sm">DO Ref No:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line cdn-field-line-dashed">
+                                <span t-field="o.name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-sm">Date:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                                </t>
+                                <t t-elif="o.scheduled_date">
+                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
+                                </t>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cdn-form-row">
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-lg">የተረካቢው ስም<br />(Customer Name):</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-esc="o.partner_id.display_name or ''" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-sm">Tin No:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-esc="o.partner_id.vat or ''" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-sm">Phone No:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-esc="customer_phone" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cdn-form-row">
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-md">Driver Name:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-esc="driver_name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-sm">Address:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-esc="driver_address" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-third">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-sm">Phone No:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-esc="driver_phone" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cdn-form-row">
+                <div class="cdn-form-half">
+                    <div class="cdn-form-group">
+                        <span class="cdn-label cdn-label-lg">የመኪናው ሰሌዳ ቁጥር/<br />Truck No:</span>
+                        <span class="cdn-field-wrap">
+                            <span class="cdn-field-line">
+                                <span t-field="o.vehicle_plate" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cdn-form-half" />
+            </div>
+
+            <div class="cdn-section-title">የአሁኑ/የእቃው አይነት /Item Details</div>
+
+            <table id="cdn_item_table" class="cdn-items-table">
+                <thead style="display: table-header-group;">
+                    <tr>
+                        <th style="width:4%;">S.N</th>
+                        <th style="width:9%;">Item Code</th>
+                        <th style="width:18%;">Item Description</th>
+                        <th style="width:8%;">UOM</th>
+                        <th style="width:10%;">Demand/<br />ጠቅላላ ክብደት</th>
+                        <th style="width:9%;">ነጠላ<br />ክብደት</th>
+                        <th style="width:10%;">የተጠራ ክብደት/<br />Quantity</th>
+                        <th style="width:9%;">Unit Price</th>
+                        <th style="width:10%;">Total Unit Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="row_count" t-value="0" />
+                    <t t-foreach="o.move_ids_without_package" t-as="move">
+                        <t t-if="move.state != 'cancel'">
+                            <t t-set="row_count" t-value="row_count + 1" />
+                            <t t-set="line_total" t-value="o.get_grn_line_total(move)" />
+                            <tr style="page-break-inside: avoid;">
+                                <td class="cdn-td-center"><span t-esc="row_count" /></td>
+                                <td class="cdn-td-center">
+                                    <span t-esc="move.product_id.default_code or ''" />
+                                </td>
+                                <td class="cdn-td-desc">
+                                    <span t-esc="move.product_id.display_name or move.name or ''" />
+                                </td>
+                                <td class="cdn-td-center">
+                                    <span t-esc="move.product_uom.name or ''" />
+                                </td>
+                                <td class="cdn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_gross_weight(move))" />
+                                </td>
+                                <td class="cdn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_tare_weight(move))" />
+                                </td>
+                                <td class="cdn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(move.quantity or 0.0)" />
+                                </td>
+                                <td class="cdn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(move.line_unit_price or 0.0)" />
+                                </td>
+                                <td class="cdn-td-num">
+                                    <span t-esc="'{0:,.2f}'.format(line_total)" />
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 3 else 3" />
+                    <t t-set="pad_rows" t-value="min_rows - row_count" />
+                    <t t-foreach="range(pad_rows)" t-as="pad">
+                        <tr>
+                            <td class="cdn-td-center"><span t-esc="row_count + pad + 1" /></td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div class="cdn-totals-wrap">
+                <div class="cdn-totals-row">
+                    <span class="cdn-totals-label">Total Birr</span>
+                    <span class="cdn-totals-value">
+                        <span class="cdn-field-line cdn-field-line-dashed">
+                            <span t-esc="'{0:,.2f}'.format(o.get_grn_grand_total())" />
+                        </span>
+                    </span>
+                </div>
+                <div class="cdn-totals-row">
+                    <span class="cdn-totals-label">Birr in Word</span>
+                    <span class="cdn-totals-value">
+                        <span class="cdn-field-line cdn-field-line-dashed">
+                            <span t-esc="o.get_grn_amount_in_words()" />
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cdn-section-title">
+                እሁኑ/የእቃው ወጪ የሆነበት ምክንያት/ Reason
+            </div>
+            <div class="cdn-field-full">
+                <span class="cdn-field-line cdn-field-line-tall">
+                    <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry" /></t>
+                    <t t-elif="o.note"><span t-field="o.note" /></t>
+                </span>
+            </div>
+            <div class="cdn-field-full">
+                <span class="cdn-field-line cdn-field-line-tall" />
+            </div>
+
+            <div class="cdn-quality-row">
+                የተጠራበት ጥራት
+                <span class="cdn-field-line cdn-field-line-dashed"
+                    style="display:inline-block; width:80px; margin:0 8px; vertical-align:bottom;">
+                    <t t-if="o.get_grn_cleaning_quality()">
+                        <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
+                    </t>
+                </span>%
+            </div>
+
+            <div class="cdn-section-title">Approval Flow</div>
+
+            <div class="cdn-approval-row">
+                <div class="cdn-approval-role">ያዘጋጀው ስም እና ፊርማ/<br />Prepared By:</div>
+                <div class="cdn-approval-name-wrap">
+                    <span class="cdn-field-line">
+                        <span t-esc="o.create_uid.name or ''" />
+                    </span>
+                </div>
+                <div class="cdn-approval-sig-label">Sig:</div>
+                <div class="cdn-approval-sig-wrap">
+                    <div class="cdn-sig-box">
+                        <t t-if="o.create_uid.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (o.create_uid.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="cdn-approval-date-label">Date:</div>
+                <div class="cdn-approval-date-wrap">
+                    <span class="cdn-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cdn-approval-row">
+                <div class="cdn-approval-role">የሃላፊ ስም እና ፊርማ/<br />Approved By:</div>
+                <div class="cdn-approval-name-wrap">
+                    <span class="cdn-field-line">
+                        <t t-if="o.approved_by"><span t-field="o.approved_by.name" /></t>
+                    </span>
+                </div>
+                <div class="cdn-approval-sig-label">Sig:</div>
+                <div class="cdn-approval-sig-wrap">
+                    <div class="cdn-sig-box">
+                        <t t-if="o.approved_by and o.approved_by.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                        <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="cdn-approval-date-label">Date:</div>
+                <div class="cdn-approval-date-wrap">
+                    <span class="cdn-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cdn-approval-row">
+                <div class="cdn-approval-role">የተረካቢው ስም እና ፊርማ:</div>
+                <div class="cdn-approval-name-wrap">
+                    <span class="cdn-field-line">
+                        <span t-esc="o.partner_id.display_name or ''" />
+                    </span>
+                </div>
+                <div class="cdn-approval-sig-label">Sig:</div>
+                <div class="cdn-approval-sig-wrap">
+                    <div class="cdn-sig-box">&#160;</div>
+                </div>
+                <div class="cdn-approval-date-label">Date:</div>
+                <div class="cdn-approval-date-wrap">
+                    <span class="cdn-field-line">&#160;</span>
+                </div>
+            </div>
+
+            <div class="cdn-approval-row">
+                <div class="cdn-approval-role">የመጋዘን ክፍል ሃላፊ ስም እና ፊርማ:</div>
+                <div class="cdn-approval-name-wrap">
+                    <span class="cdn-field-line">
+                        <t t-if="storeman_user"><span t-field="storeman_user.name" /></t>
+                    </span>
+                </div>
+                <div class="cdn-approval-sig-label">Sig:</div>
+                <div class="cdn-approval-sig-wrap">
+                    <div class="cdn-sig-box">
+                        <t t-if="storeman_user and storeman_user.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                        <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="cdn-approval-date-label">Date:</div>
+                <div class="cdn-approval-date-wrap">
+                    <span class="cdn-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="cdn-copy-dist">
+                <strong>Copy Distribution:</strong>
+                Original-Driver
+                <span style="margin-left: 16px;">1st Copy Store Keeper</span>
+                <span style="margin-left: 16px;">2nd Copy-Pad</span>
+            </div>
+
+        </div>
+    </template>
+
+    <template id="sia_body">
+        <style type="text/css">
+            .sia-page { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 12px; color: #000; padding: 0 4px 12px; }
+            .sia-title { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; text-align: center; font-size: 18px; font-weight: bold; color: #c00000; margin: 0 0 20px 0; }
+            .sia-form-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 12px; }
+            .sia-form-half { display: table-cell; width: 50%; vertical-align: bottom; padding-right: 24px; }
+            .sia-form-half:last-child { padding-right: 0; padding-left: 8px; }
+            .sia-form-group { display: table; width: 100%; table-layout: fixed; }
+            .sia-label { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-weight: bold; white-space: nowrap; display: table-cell; width: 148px; vertical-align: bottom; padding-right: 8px; padding-bottom: 4px; }
+            .sia-field-wrap { display: table-cell; width: auto; vertical-align: bottom; }
+            .sia-field-line { display: block; width: 100%; min-height: 24px; border-bottom: 1px solid #000; padding: 3px 0 2px 10px; box-sizing: border-box; }
+            .sia-label-wide { width: 200px; }
+            .sia-section-title { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-weight: bold; margin: 14px 0 8px 0; }
+            .sia-field-full { display: block; width: 100%; margin-bottom: 8px; }
+            .sia-items-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+            .sia-items-table th, .sia-items-table td { border: 1px solid #000; padding: 5px 6px; vertical-align: middle; }
+            .sia-items-table th { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-weight: bold; text-align: center; font-size: 11px; background-color: #e8e0f0; }
+            .sia-items-table tbody td { min-height: 28px; height: 28px; }
+            .sia-approval-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 16px; }
+            .sia-approval-role { font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; display: table-cell; font-weight: bold; width: 14%; vertical-align: bottom; padding-bottom: 4px; padding-right: 6px; }
+            .sia-approval-name-wrap { display: table-cell; width: 26%; vertical-align: bottom; padding-right: 14px; }
+            .sia-approval-sig-label { display: table-cell; font-weight: bold; width: 4%; text-align: center; vertical-align: bottom; padding-bottom: 4px; }
+            .sia-approval-sig-wrap { display: table-cell; width: 36%; vertical-align: bottom; padding-right: 14px; }
+            .sia-approval-date-label { display: table-cell; font-weight: bold; width: 5%; text-align: center; vertical-align: bottom; padding-bottom: 4px; }
+            .sia-approval-date-wrap { display: table-cell; width: 15%; vertical-align: bottom; }
+            .sia-sig-box { width: 100%; min-height: 50px; border-bottom: 1px solid #000; text-align: center; padding-bottom: 2px; box-sizing: border-box; }
+            .sia-copy-dist { margin-top: 28px; font-size: 11px; text-align: center; }
+        </style>
+
+        <div class="page sia-page">
+            <div class="oe_structure" />
+            <div class="sia-title">Store Issue Attachment</div>
+
+            <div class="sia-form-row">
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label">Requisition Ref No:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <t t-if="o.store_request_id">
+                                    <span t-field="o.store_request_id.name" />
+                                </t>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label">Issue Ref No:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <span t-field="o.name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sia-form-row">
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label">Issued Date:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                                </t>
+                                <t t-elif="o.scheduled_date">
+                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
+                                </t>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="sia-form-half" />
+            </div>
+
+            <div class="sia-form-row">
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label">Requested By:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <t t-if="o.store_request_id and o.store_request_id.requested_by">
+                                    <span t-field="o.store_request_id.requested_by.name" />
+                                </t>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label">Department/Section:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <t t-if="o.store_request_id and o.store_request_id.department_id">
+                                    <span t-field="o.store_request_id.department_id.name" />
+                                </t>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sia-form-row">
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label sia-label-wide">From Source Location:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <span t-field="o.location_id.complete_name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="sia-form-half">
+                    <div class="sia-form-group">
+                        <span class="sia-label sia-label-wide">TO: Destination Location:</span>
+                        <span class="sia-field-wrap">
+                            <span class="sia-field-line">
+                                <span t-field="o.location_dest_id.complete_name" />
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sia-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
+
+            <table class="sia-items-table">
+                <thead style="display: table-header-group;">
+                    <tr>
+                        <th style="width: 4%;">S.N</th>
+                        <th style="width: 10%;">Item Code</th>
+                        <th style="width: 22%;">Item Description</th>
+                        <th style="width: 10%;">Unit of Measure</th>
+                        <th style="width: 11%;">Quantity Requested</th>
+                        <th style="width: 11%;">Issued Quantity</th>
+                        <th style="width: 10%;">Unit Price</th>
+                        <th style="width: 12%;">Total Unit Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="row_count" t-value="0" />
+                    <t t-foreach="o.move_ids_without_package" t-as="move">
+                        <t t-set="row_count" t-value="row_count + 1" />
+                        <tr style="page-break-inside: avoid;">
+                            <td class="text-center"><span t-esc="row_count" /></td>
+                            <td><span t-field="move.product_id.default_code" /></td>
+                            <td><span t-field="move.product_id.name" /></td>
+                            <td class="text-center"><span t-field="move.product_uom.name" /></td>
+                            <td class="text-end">
+                                <span t-esc="'{0:,.2f}'.format(move.product_uom_qty)" />
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="'{0:,.2f}'.format(move.quantity)" />
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="'{0:,.2f}'.format(move.line_unit_price or 0.0)" />
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="'{0:,.2f}'.format(move.line_subtotal or 0.0)" />
+                            </td>
+                        </tr>
+                    </t>
+                    <t t-set="min_rows" t-value="3" />
+                    <t t-set="pad_rows" t-value="min_rows - row_count if row_count &lt; min_rows else 0" />
+                    <t t-foreach="range(pad_rows)" t-as="pad">
+                        <tr>
+                            <td class="text-center"><span t-esc="row_count + pad + 1" /></td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div class="sia-section-title">
+                የእህሉ/የእቃው የተላከበት ምክንያት Justification / Purpose/Reason
+            </div>
+
+            <div class="sia-field-full">
+                <span class="sia-field-line" style="min-height: 28px;">
+                    <span t-field="o.note" />
+                </span>
+            </div>
+            <div class="sia-field-full">
+                <span class="sia-field-line" style="min-height: 28px;" />
+            </div>
+
+            <t t-set="storeman_user" t-value="o.location_id.warehouse_id.storeman_id" />
+
+            <div class="sia-approval-row">
+                <div class="sia-approval-role">Issued By:</div>
+                <div class="sia-approval-name-wrap">
+                    <span class="sia-field-line">
+                        <t t-if="storeman_user">
+                            <span t-field="storeman_user.name" />
+                        </t>
+                    </span>
+                </div>
+                <div class="sia-approval-sig-label">Sig:</div>
+                <div class="sia-approval-sig-wrap">
+                    <div class="sia-sig-box">
+                        <t t-if="storeman_user and storeman_user.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                        <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="sia-approval-date-label">Date:</div>
+                <div class="sia-approval-date-wrap">
+                    <span class="sia-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="sia-approval-row">
+                <div class="sia-approval-role">Approved By:</div>
+                <div class="sia-approval-name-wrap">
+                    <span class="sia-field-line">
+                        <span t-field="o.approved_by.name" />
+                    </span>
+                </div>
+                <div class="sia-approval-sig-label">Sig:</div>
+                <div class="sia-approval-sig-wrap">
+                    <div class="sia-sig-box">
+                        <t t-if="o.approved_by and o.approved_by.sign_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                        <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
+                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
+                                style="max-height: 46px; max-width: 140px;" />
+                        </t>
+                    </div>
+                </div>
+                <div class="sia-approval-date-label">Date:</div>
+                <div class="sia-approval-date-wrap">
+                    <span class="sia-field-line">
+                        <t t-if="o.date_done">
+                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                        </t>
+                    </span>
+                </div>
+            </div>
+
+            <div class="sia-copy-dist">
+                <strong>Copy Distribution:</strong>
+                <span style="margin-left: 10px;">Original-Accounts</span>
+                <span style="margin-left: 16px;">1st Requisitioning</span>
+                <span style="margin-left: 16px;">3rd Store Keeper</span>
+                <span style="margin-left: 16px;">4th Pad</span>
+            </div>
+        </div>
+    </template>
+
+
+    <template id="report_gate_pass_attachment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_custom.report_gate_pass_attachment_document"
+                    t-lang="o.partner_id.lang or o.company_id.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_gate_pass_attachment_document">
+        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
+        <t t-set="doc_title" t-value="'Gate Pass Attachment'" />
+        <t t-set="doc_number" t-value="o.name" />
+        <t t-set="issue_number" t-value="'1'" />
+        <t t-call="web.external_layout">
+            <t t-call="stock_picking_custom.gpa_body" />
+        </t>
+    </template>
+
+    <template id="gpa_body">
+        <style type="text/css">
+            .gpa-page {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-size: 11px;
+                color: #000;
+                padding: 0 4px 12px;
+            }
+            .gpa-title {
+                text-align: center;
+                font-size: 16px;
+                font-weight: bold;
+                color: #c00000;
+                margin: 0 0 14px 0;
+                letter-spacing: 0.3px;
+            }
+            .gpa-field {
+                margin-bottom: 12px;
+                font-size: 10px;
+                overflow: hidden;
+                width: 100%;
+            }
+            .gpa-lbl {
+                font-weight: bold;
+                float: left;
+                margin-right: 6px;
+                padding-bottom: 3px;
+                line-height: 1.35;
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+            }
+            .gpa-und {
+                display: block;
+                overflow: hidden;
+                border-bottom: 1px solid #000;
+                min-height: 18px;
+                padding: 0 0 5px 2px;
+                margin-bottom: 2px;
+                vertical-align: bottom;
+            }
+            .gpa-section {
+                font-weight: bold;
+                margin: 12px 0 6px 0;
+                font-size: 11px;
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+            }
+            .gpa-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 8.5px;
+                margin-bottom: 10px;
+                table-layout: fixed;
+            }
+            .gpa-table th,
+            .gpa-table td {
+                border: 1px solid #000;
+                padding: 4px 3px;
+                vertical-align: middle;
+                word-wrap: break-word;
+            }
+            .gpa-table th {
+                background: #f0f0f0;
+                font-weight: bold;
+                text-align: center;
+                line-height: 1.25;
+            }
+            .gpa-num { text-align: right; white-space: nowrap; }
+            .gpa-center { text-align: center; }
+            .gpa-desc { text-align: left; }
+            .gpa-cols {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 10px;
+                font-size: 10px;
+            }
+            .gpa-col {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 14px;
+            }
+            .gpa-col-right {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-left: 20px;
+            }
+            .gpa-totals {
+                width: 55%;
+                margin-left: auto;
+                margin-top: 8px;
+                margin-bottom: 10px;
+                font-size: 10px;
+            }
+            .gpa-totals-row {
+                display: table;
+                width: 100%;
+                margin-bottom: 6px;
+                table-layout: fixed;
+            }
+            .gpa-totals-lbl {
+                display: table-cell;
+                font-weight: bold;
+                width: 110px;
+                vertical-align: bottom;
+                padding-right: 8px;
+                padding-bottom: 4px;
+            }
+            .gpa-totals-val {
+                display: table-cell;
+                vertical-align: bottom;
+            }
+            .gpa-line {
+                border-bottom: 1px solid #000;
+                min-height: 22px;
+                padding: 0 2px 5px 2px;
+                margin-bottom: 6px;
+            }
+            .gpa-quality {
+                margin: 10px 0;
+                font-size: 10px;
+                font-weight: bold;
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+            }
+            .gpa-appr {
+                margin-top: 6px;
+                font-size: 10px;
+            }
+            .gpa-appr-row {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 14px;
+                padding-bottom: 14px;
+                border-bottom: 1px dotted #aaa;
+            }
+            .gpa-appr-row:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+            .gpa-appr-title {
+                display: table-cell;
+                vertical-align: bottom;
+                font-weight: bold;
+                width: 20%;
+                padding: 0 10px 4px 0;
+                line-height: 1.3;
+            }
+            .gpa-appr-slot {
+                display: table-cell;
+                vertical-align: bottom;
+                width: 26.67%;
+                padding: 0 12px 0 0;
+            }
+            .gpa-appr-slot .gpa-field { margin-bottom: 0; }
+            .gpa-appr-slot .gpa-lbl { font-weight: normal; }
+            .gpa-appr-slot .gpa-und { min-height: 16px; padding-bottom: 4px; }
+            .gpa-copy {
+                margin-top: 16px;
+                font-size: 10px;
+                border-top: 1px solid #ccc;
+                padding-top: 8px;
+                text-align: center;
+            }
+        </style>
+
+        <t t-set="gpa_customer" t-value="o.get_gpa_customer()" />
+        <t t-set="storeman_user"
+            t-value="o.location_id.warehouse_id.storeman_id if o.location_id and o.location_id.warehouse_id else False" />
+        <t t-set="customer_phone" t-value="gpa_customer.phone or gpa_customer.mobile or ''" />
+        <t t-set="driver_name" t-value="o.carrier.name if o.carrier else ''" />
+        <t t-set="driver_address"
+            t-value="o.carrier.partner_id.contact_address if o.carrier and o.carrier.partner_id else (gpa_customer.contact_address or '')" />
+
+        <div class="page gpa-page">
+            <div class="oe_structure" />
+
+            <div class="gpa-title">Gate Pass Attachment</div>
+
+            <div class="gpa-cols">
+                <div class="gpa-col">
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">DO Ref No:</span>
+                        <div class="gpa-und"><span t-field="o.name" /></div>
+                    </div>
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Customer Name:<br />የተረካቢው ስም</span>
+                        <div class="gpa-und">
+                            <t t-if="gpa_customer">
+                                <span t-esc="gpa_customer.display_name or ''" />
+                            </t>
+                            <t t-elif="o.store_request_id and o.store_request_id.requested_by">
+                                <span t-field="o.store_request_id.requested_by.name" />
+                            </t>
+                        </div>
+                    </div>
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Driver Name:</span>
+                        <div class="gpa-und"><span t-esc="driver_name" /></div>
+                    </div>
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Truck No:<br />የመኪናው ሰሌዳ ቁጥር</span>
+                        <div class="gpa-und"><span t-field="o.vehicle_plate" /></div>
+                    </div>
+                </div>
+                <div class="gpa-col-right">
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Date:</span>
+                        <div class="gpa-und">
+                            <t t-if="o.date_done">
+                                <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                            </t>
+                            <t t-elif="o.scheduled_date">
+                                <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
+                            </t>
+                        </div>
+                    </div>
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Tin No:</span>
+                        <div class="gpa-und"><span t-esc="gpa_customer.vat or ''" /></div>
+                    </div>
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Phone No:</span>
+                        <div class="gpa-und"><span t-esc="customer_phone" /></div>
+                    </div>
+                    <div class="gpa-field">
+                        <span class="gpa-lbl">Address:</span>
+                        <div class="gpa-und"><span t-esc="driver_address" /></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gpa-section">Item Details / የአሁኑ/የእቃው አይነት</div>
+
+            <table class="gpa-table">
+                <thead style="display: table-header-group;">
+                    <tr>
+                        <th style="width:4%;">S.N</th>
+                        <th style="width:10%;">Item Code</th>
+                        <th style="width:24%;">Item Description</th>
+                        <th style="width:8%;">UOM</th>
+                        <th style="width:10%;">Demand</th>
+                        <th style="width:10%;">Quantity</th>
+                        <th style="width:11%;">Unit Price</th>
+                        <th style="width:13%;">Total Unit Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="row_count" t-value="0" />
+                    <t t-foreach="o.move_ids_without_package" t-as="move">
+                        <t t-if="move.state != 'cancel'">
+                            <t t-set="row_count" t-value="row_count + 1" />
+                            <t t-set="line_total" t-value="o.get_grn_line_total(move)" />
+                            <tr style="page-break-inside: avoid;">
+                                <td class="gpa-center"><span t-esc="row_count" /></td>
+                                <td class="gpa-center"><span t-esc="move.product_id.default_code or ''" /></td>
+                                <td class="gpa-desc"><span t-esc="move.product_id.display_name or move.name or ''" /></td>
+                                <td class="gpa-center"><span t-esc="move.product_uom.name or ''" /></td>
+                                <td class="gpa-num"><span t-esc="'{0:,.2f}'.format(move.product_uom_qty or 0.0)" /></td>
+                                <td class="gpa-num"><span t-esc="'{0:,.2f}'.format(move.quantity or 0.0)" /></td>
+                                <td class="gpa-num"><span t-esc="'{0:,.2f}'.format(move.line_unit_price or 0.0)" /></td>
+                                <td class="gpa-num"><span t-esc="'{0:,.2f}'.format(line_total)" /></td>
+                            </tr>
+                        </t>
+                    </t>
+                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 3 else 3" />
+                    <t t-set="pad_rows" t-value="min_rows - row_count" />
+                    <t t-foreach="range(pad_rows)" t-as="pad">
+                        <tr>
+                            <td class="gpa-center"><span t-esc="row_count + pad + 1" /></td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div class="gpa-totals">
+                <div class="gpa-totals-row">
+                    <span class="gpa-totals-lbl">Total Birr</span>
+                    <span class="gpa-totals-val">
+                        <div class="gpa-und"><span t-esc="'{0:,.2f}'.format(o.get_grn_grand_total())" /></div>
+                    </span>
+                </div>
+                <div class="gpa-totals-row">
+                    <span class="gpa-totals-lbl">Birr in Word</span>
+                    <span class="gpa-totals-val">
+                        <div class="gpa-und"><span t-esc="o.get_grn_amount_in_words()" /></div>
+                    </span>
+                </div>
+            </div>
+
+            <div class="gpa-section">Reason / እሁኑ/የእቃው ወጪ የሆነበት ምክንያት</div>
+            <div class="gpa-line">
+                <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry" /></t>
+                <t t-elif="o.note"><span t-field="o.note" /></t>
+            </div>
+            <div class="gpa-line">&#160;</div>
+
+            <div class="gpa-quality">
+                የተጠራበት ጥራት
+                <span class="gpa-und" style="display:inline-block; width:80px; margin:0 8px;">
+                    <t t-if="o.get_grn_cleaning_quality()">
+                        <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
+                    </t>
+                </span>%
+            </div>
+
+            <div class="gpa-section">Approval Flow</div>
+            <div class="gpa-appr">
+                <div class="gpa-appr-row">
+                    <div class="gpa-appr-title">Prepared By:</div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Name:</span>
+                            <div class="gpa-und"><span t-esc="o.create_uid.name or ''" /></div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Sig:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.create_uid.sign_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (o.create_uid.sign_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Date:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gpa-appr-row">
+                    <div class="gpa-appr-title">Approved By:</div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Name:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.approved_by"><span t-field="o.approved_by.name" /></t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Sig:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.approved_by and o.approved_by.sign_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                                <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Date:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gpa-appr-row">
+                    <div class="gpa-appr-title">Received By:</div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Name:</span>
+                            <div class="gpa-und">
+                                <t t-if="gpa_customer">
+                                    <span t-esc="gpa_customer.display_name or ''" />
+                                </t>
+                                <t t-elif="o.store_request_id and o.store_request_id.requested_by">
+                                    <span t-field="o.store_request_id.requested_by.name" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Sig:</span>
+                            <div class="gpa-und">&#160;</div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Date:</span>
+                            <div class="gpa-und">&#160;</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gpa-appr-row">
+                    <div class="gpa-appr-title">Store Keeper:</div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Name:</span>
+                            <div class="gpa-und">
+                                <t t-if="storeman_user"><span t-field="storeman_user.name" /></t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Sig:</span>
+                            <div class="gpa-und">
+                                <t t-if="storeman_user and storeman_user.sign_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                                <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-slot">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Date:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.date_done">
+                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gpa-copy">
+                <strong>Copy Distribution:</strong>
+                Original-Guards Manager &#160;|&#160;
+                1st Copy Store Keeper &#160;|&#160;
+                2nd Copy Warehouse &#160;|&#160;
+                3rd Copy-Pad
+            </div>
+        </div>
+    </template>
+
+    <template id="report_picking_receipt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_custom.report_picking_receipt_document"
+                    t-lang="o.partner_id.lang or o.company_id.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_picking_receipt_document">
+        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
+        <t t-set="doc_title" t-value="'Customer Good Receiving Note'" />
+        <t t-set="doc_number" t-value="o.name" />
+        <t t-set="issue_number" t-value="'1'" />
+        <t t-call="web.external_layout">
+            <t t-call="stock_picking_custom.cgrn_body" />
+        </t>
+    </template>
+
+    <template id="report_picking_delivery">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_custom.report_picking_delivery_document"
+                    t-lang="o.partner_id.lang or o.company_id.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_picking_delivery_document">
+        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
+        <t t-set="doc_title" t-value="'Customer Delivery Note'" />
+        <t t-set="doc_number" t-value="o.name" />
+        <t t-set="issue_number" t-value="'1'" />
+        <t t-call="web.external_layout">
+            <t t-call="stock_picking_custom.cdn_body" />
+        </t>
+    </template>
+
+    <template id="report_picking_internal">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_custom.report_picking_internal_document"
+                    t-lang="o.partner_id.lang or o.company_id.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_picking_internal_document">
+        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or user.lang)" />
+        <t t-set="doc_title" t-value="'Store Issue Attachment'" />
+        <t t-set="doc_number" t-value="o.name" />
+        <t t-set="issue_number" t-value="'1'" />
+        <t t-call="web.external_layout">
+            <t t-call="stock_picking_custom.sia_body" />
+        </t>
+    </template>
+
+
 </odoo>

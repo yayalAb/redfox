@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="mfg_financial_dashboard.MainDashboard" owl="1">
-        <div class="container-fluid mfg-dashboard-scroll-root mfg-dashboard-page pb-2" t-ref="dashboardRoot">
+        <div class="container-fluid mfg-dashboard-scroll-root mfg-dashboard-page" t-ref="dashboardRoot">
             <div class="mfg-dashboard-scroll-pane" t-ref="dashboardInner">
                 <div class="row m-0">
                     <div class="col-12">
                         <div class="mfg-dashboard-filter-bar">
                             <div class="mfg-dashboard-filter-bar__inner">
+                                <div class="mfg-dashboard-header-block">
+                                    <h1 class="mfg-dashboard-header-title">Executive Dashboard</h1>
+                                    <p class="mfg-dashboard-header-period" t-if="state.period_label">
+                                        <t t-esc="state.period_label"/>
+                                    </p>
+                                </div>
                                 <div class="mfg-dashboard-filter-group mfg-dashboard-filter-group--dates">
                                     <div class="mfg-dashboard-filter-input">
                                         <i class="fa fa-calendar-o mfg-dashboard-filter-input__icon"/>
@@ -22,26 +28,6 @@
                                                t-on-change="onEndDateChange"/>
                                     </div>
                                 </div>
-                                <div class="mfg-dashboard-filter-input mfg-dashboard-filter-input--select">
-                                    <select class="mfg-dashboard-filter-input__control mfg-dashboard-filter-input__control--select"
-                                            t-model="state.fiscal_year"
-                                            t-on-change="onFiscalYearChange">
-                                        <option value="">Fiscal year (optional)</option>
-                                        <t t-foreach="fiscalYears" t-as="fy" t-key="fy">
-                                            <option t-att-value="fy" t-esc="fy"/>
-                                        </t>
-                                    </select>
-                                    <i class="fa fa-chevron-down mfg-dashboard-filter-input__chev"/>
-                                </div>
-                                <label class="mfg-dashboard-toggle">
-                                    <input type="checkbox" class="mfg-dashboard-toggle__input"
-                                           t-att-checked="state.year_over_year"
-                                           t-on-change="onYearOverYearChange"/>
-                                    <span class="mfg-dashboard-toggle__track">
-                                        <span class="mfg-dashboard-toggle__thumb"/>
-                                    </span>
-                                    <span class="mfg-dashboard-toggle__label">Year-over-Year</span>
-                                </label>
                             </div>
                         </div>
 
@@ -51,12 +37,8 @@
                         </div>
 
                         <t t-else="">
+                            <div class="mfg-dashboard-body">
                             <div class="mfg-dashboard-overview">
-                                <h2 class="mfg-dashboard-overview__title">Financial Overview</h2>
-                                <p class="mfg-dashboard-overview__subtitle">
-                                    <t t-esc="state.company_name"/>
-                                    <t t-if="state.period_label"> · <t t-esc="state.period_label"/></t>
-                                </p>
                                 <div class="mfg-dashboard-metrics-row">
                                     <DashboardCard name="'Total Purchase Value'" iconClass="'fa-money'"
                                         displayValue="formatCompactMoney(state.kpis.total_purchase_value)"
@@ -83,8 +65,8 @@
                             </div>
 
                             <!-- Charts row -->
-                            <div class="row mfg-dashboard-charts-row">
-                                <div class="col-lg-4 col-md-12 m-0 p-0 d-flex">
+                            <div class="row mfg-dashboard-row mfg-dashboard-row--3 mfg-dashboard-charts-row">
+                                <div class="col-lg-4 col-md-12 d-flex">
                                     <div class="mfg-dashboard-section mfg-dashboard-chart-card">
                                         <h3 class="mfg-dashboard-section__title mb-0">Executive KPI Overview</h3>
                                         <div class="mfg-dashboard-chart-body">
@@ -94,7 +76,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-md-12 m-0 p-0 d-flex">
+                                <div class="col-lg-4 col-md-12 d-flex">
                                     <div class="mfg-dashboard-section mfg-dashboard-chart-card">
                                         <h3 class="mfg-dashboard-section__title mb-0">Customer Outstanding</h3>
                                         <div class="mfg-dashboard-chart-body">
@@ -103,7 +85,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-md-12 m-0 p-0 d-flex">
+                                <div class="col-lg-4 col-md-12 d-flex">
                                     <div class="mfg-dashboard-section mfg-dashboard-chart-card">
                                         <h3 class="mfg-dashboard-section__title mb-0">Gross Profit by Product</h3>
                                         <div class="mfg-dashboard-chart-body">
@@ -151,8 +133,8 @@
                             </div>
 
                             <!-- 2. Manufacturing -->
-                            <div class="row">
-                                <div class="col-lg-6 p-0">
+                            <div class="row mfg-dashboard-row mfg-dashboard-row--2">
+                                <div class="col-lg-6">
                                     <div class="mfg-dashboard-section">
                                         <h3 class="mfg-dashboard-section__title">2. Production Efficiency Report</h3>
                                         <div class="mfg-dashboard-table-wrap">
@@ -183,20 +165,21 @@
                                             onPageChange="(page) => this.onTablePageChange('production_efficiency', page)"/>
                                     </div>
                                 </div>
-                                <div class="col-lg-6 p-0">
+                                <div class="col-lg-6">
                                     <div class="mfg-dashboard-section">
                                         <h3 class="mfg-dashboard-section__title">RM &amp; PM Consumption Analysis</h3>
                                         <div class="mfg-dashboard-table-wrap">
                                             <table class="table mfg-dashboard-table">
                                                 <thead>
                                                     <tr>
-                                                        <th>Product</th><th>Planned</th><th>Actual</th>
+                                                        <th>Material</th><th>MO No</th><th>Planned</th><th>Actual</th>
                                                         <th>Variance</th><th>Cost Impact</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr t-foreach="paginatedRows('rm_pm_consumption')" t-as="row" t-key="row.product">
+                                                    <tr t-foreach="paginatedRows('rm_pm_consumption')" t-as="row" t-key="row_index">
                                                         <td t-esc="row.product"/>
+                                                        <td t-esc="row.mo_no"/>
                                                         <td t-esc="row.planned"/>
                                                         <td t-esc="row.actual"/>
                                                         <td t-esc="row.variance"/>
@@ -274,8 +257,8 @@
                             </div>
 
                             <!-- 4 & 5 Raw + Packaging -->
-                            <div class="row">
-                                <div class="col-lg-6 p-0">
+                            <div class="row mfg-dashboard-row mfg-dashboard-row--2">
+                                <div class="col-lg-6">
                                     <div class="mfg-dashboard-section">
                                         <h3 class="mfg-dashboard-section__title">4. Raw Material Stock Report</h3>
                                         <div class="mfg-dashboard-table-wrap">
@@ -305,7 +288,7 @@
                                             onPageChange="(page) => this.onTablePageChange('raw_material_stock', page)"/>
                                     </div>
                                 </div>
-                                <div class="col-lg-6 p-0">
+                                <div class="col-lg-6">
                                     <div class="mfg-dashboard-section">
                                         <h3 class="mfg-dashboard-section__title">5. Packaging Material Stock Report</h3>
                                         <div class="mfg-dashboard-table-wrap">
@@ -369,8 +352,8 @@
                             </div>
 
                             <!-- 7 & 8 Delivery + Collections -->
-                            <div class="row">
-                                <div class="col-lg-7 p-0">
+                            <div class="row mfg-dashboard-row mfg-dashboard-row--2">
+                                <div class="col-lg-6">
                                     <div class="mfg-dashboard-section">
                                         <h3 class="mfg-dashboard-section__title">7. Delivery &amp; Sales Dashboard</h3>
                                         <p class="mfg-dashboard-section__subtitle">Delivery Order vs Sales Invoice</p>
@@ -402,7 +385,7 @@
                                             onPageChange="(page) => this.onTablePageChange('delivery_sales', page)"/>
                                     </div>
                                 </div>
-                                <div class="col-lg-5 p-0">
+                                <div class="col-lg-6">
                                     <div class="mfg-dashboard-section">
                                         <h3 class="mfg-dashboard-section__title">8. Customer Payment Collection</h3>
                                         <div class="mfg-dashboard-table-wrap">
@@ -434,9 +417,83 @@
                                 </div>
                             </div>
 
-                            <!-- 9 Profitability -->
+                            <!-- 9 Partner Ledger -->
+                            <div class="mfg-dashboard-section mfg-dashboard-section--partner-ledger">
+                                <div class="mfg-dashboard-section__head">
+                                    <div class="mfg-dashboard-section__head-text">
+                                        <h3 class="mfg-dashboard-section__title mb-0">9. Partner Ledger Report</h3>
+                                        <p class="mfg-dashboard-section__subtitle mb-0">Posted receivable &amp; payable entries by partner</p>
+                                    </div>
+                                    <div class="mfg-dashboard-partner-filter">
+                                        <label class="mfg-dashboard-partner-filter__label" for="mfg_partner_ledger_select">Partner</label>
+                                        <select id="mfg_partner_ledger_select"
+                                                class="form-select form-select-sm mfg-dashboard-partner-filter__select"
+                                                t-att-value="partnerFilterDropdownValue()"
+                                                t-on-change="onPartnerFilterSelect">
+                                            <option value="">All partners</option>
+                                            <option t-foreach="state.partner_ledger_partner_totals" t-as="pt" t-key="pt.partner_id"
+                                                    t-att-value="pt.partner_id"
+                                                    t-esc="pt.partner"/>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th><th>Partner</th><th>Account</th><th>Type</th>
+                                                <th>Journal Entry</th><th>Label</th>
+                                                <th class="text-end">Debit</th><th class="text-end">Credit</th><th class="text-end">Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('partner_ledger')" t-as="row" t-key="partnerLedgerRowKey(row, row_index)"
+                                                t-att-class="{
+                                                    'mfg-dashboard-table__partner-total': row.row_type === 'partner_total',
+                                                    'mfg-dashboard-table__grand-total': row.row_type === 'grand_total',
+                                                }">
+                                                <t t-if="row.row_type === 'line'">
+                                                    <td t-esc="row.date"/>
+                                                    <td t-esc="row.partner"/>
+                                                    <td t-esc="row.account"/>
+                                                    <td t-esc="row.account_type"/>
+                                                    <td t-esc="row.move"/>
+                                                    <td t-esc="row.label"/>
+                                                    <td class="text-end" t-esc="formatMoney(row.debit_raw !== undefined ? row.debit_raw : row.debit)"/>
+                                                    <td class="text-end" t-esc="formatMoney(row.credit_raw !== undefined ? row.credit_raw : row.credit)"/>
+                                                    <td class="text-end" t-esc="formatMoney(row.balance_raw !== undefined ? row.balance_raw : row.balance)"/>
+                                                </t>
+                                                <t t-elif="row.row_type === 'partner_total'">
+                                                    <td/>
+                                                    <td colspan="5"><strong t-esc="row.partner + ' — Total'"/></td>
+                                                    <td class="text-end"><strong t-esc="formatMoney(row.debit_raw)"/></td>
+                                                    <td class="text-end"><strong t-esc="formatMoney(row.credit_raw)"/></td>
+                                                    <td class="text-end"><strong t-esc="formatMoney(row.balance_raw)"/></td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td/>
+                                                    <td colspan="5"><strong t-esc="row.partner"/></td>
+                                                    <td class="text-end"><strong t-esc="formatMoney(row.debit_raw)"/></td>
+                                                    <td class="text-end"><strong t-esc="formatMoney(row.credit_raw)"/></td>
+                                                    <td class="text-end"><strong t-esc="formatMoney(row.balance_raw)"/></td>
+                                                </t>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <PaginationControls
+                                    page="currentPage('partner_ledger')"
+                                    totalPages="totalPages('partner_ledger')"
+                                    totalItems="totalItems('partner_ledger')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('partner_ledger', page)"/>
+                            </div>
+
+                            <!-- 10 Profitability -->
                             <div class="mfg-dashboard-section">
-                                <h3 class="mfg-dashboard-section__title">9. Profitability Dashboard</h3>
+                                <h3 class="mfg-dashboard-section__title">10. Profitability Dashboard</h3>
                                 <div class="mfg-dashboard-table-wrap">
                                     <table class="table mfg-dashboard-table">
                                         <thead>
@@ -462,6 +519,7 @@
                                     totalItems="totalItems('profitability')"
                                     pageSize="10"
                                     onPageChange="(page) => this.onTablePageChange('profitability', page)"/>
+                            </div>
                             </div>
                         </t>
                     </div>

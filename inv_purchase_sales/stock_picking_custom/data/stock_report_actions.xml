@@ -9,8 +9,8 @@
         <field name="name">Internal Transfer</field>
         <field name="model">stock.picking</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">stock.report_picking</field>
-        <field name="report_file">stock.report_picking_operations</field>
+        <field name="report_name">stock_picking_custom.report_picking_internal</field>
+        <field name="report_file">stock_picking_custom.report_picking_internal</field>
         <field name="print_report_name">'Internal Transfer - %s' % (object.name)</field>
         <field name="binding_model_id" ref="stock.model_stock_picking" />
         <field name="binding_type">report</field>
@@ -21,23 +21,35 @@
         <field name="name">Receipt</field>
         <field name="model">stock.picking</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">stock.report_picking</field>
-        <field name="report_file">stock.report_picking_operations</field>
+        <field name="report_name">stock_picking_custom.report_picking_receipt</field>
+        <field name="report_file">stock_picking_custom.report_picking_receipt</field>
         <field name="print_report_name">'Receipt - %s' % (object.name)</field>
         <field name="binding_model_id" ref="stock.model_stock_picking" />
         <field name="binding_type">report</field>
-        <field name="domain">[('picking_type_id.code', '=', 'incoming')]</field>
+        <field name="domain">[('picking_type_id.code', '=', 'incoming'), ('picking_type_id.name', '!=', 'Delivery Return')]</field>
     </record>
 
     <record id="action_report_picking_delivery" model="ir.actions.report">
         <field name="name">Delivery Order</field>
         <field name="model">stock.picking</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">stock.report_picking</field>
-        <field name="report_file">stock.report_picking_operations</field>
+        <field name="report_name">stock_picking_custom.report_picking_delivery</field>
+        <field name="report_file">stock_picking_custom.report_picking_delivery</field>
         <field name="print_report_name">'Delivery Order - %s' % (object.name)</field>
         <field name="binding_model_id" ref="stock.model_stock_picking" />
         <field name="binding_type">report</field>
-        <field name="domain">[('picking_type_id.code', '=', 'outgoing')]</field>
+        <field name="domain">[('picking_type_id.code', '=', 'outgoing'), ('picking_type_id.name', '!=', 'Receipt Return')]</field>
+    </record>
+
+    <record id="action_report_gate_pass_attachment" model="ir.actions.report">
+        <field name="name">Gate Pass Attachment</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_custom.report_gate_pass_attachment</field>
+        <field name="report_file">stock_picking_custom.report_gate_pass_attachment</field>
+        <field name="print_report_name">'Gate Pass - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking" />
+        <field name="binding_type">report</field>
+        <field name="domain">['|', ('picking_type_id.code', '=', 'internal'), '&amp;', ('picking_type_id.code', '=', 'outgoing'), ('picking_type_id.name', '!=', 'Receipt Return')]</field>
     </record>
 </odoo>

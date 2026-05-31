@@ -24,11 +24,21 @@ html .o_web_client > .o_action_manager {
     -webkit-overflow-scrolling: touch;
     background-color: #f4f7fa;
     scrollbar-width: thin;
+    padding-bottom: 2.5rem;
 }
 
 .mfg-dashboard-page {
     background-color: #f4f7fa;
-    padding: 0 0.5rem 1rem;
+    padding: 0 0 2.5rem;
+}
+
+/* Single horizontal inset so full-width and split rows share the same edges */
+.mfg-dashboard-body {
+    --mfg-dash-inset: 0.35rem;
+    --mfg-dash-gap: 0.7rem;
+    padding-left: var(--mfg-dash-inset);
+    padding-right: var(--mfg-dash-inset);
+    padding-bottom: 2.5rem;
 }
 
 /* —— Filter bar (pale blue-grey strip) —— */
@@ -44,7 +54,29 @@ html .o_web_client > .o_action_manager {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
     gap: 0.65rem 0.85rem;
+}
+
+.mfg-dashboard-header-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.mfg-dashboard-header-title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.mfg-dashboard-header-period {
+    margin: 0;
+    font-size: 0.78rem;
+    color: #64748b;
 }
 
 .mfg-dashboard-filter-group--dates {
@@ -186,22 +218,8 @@ html .o_web_client > .o_action_manager {
     background: #f0f5fb;
 }
 
-/* —— Financial Overview section —— */
+/* —— KPI overview (metrics only) —— */
 .mfg-dashboard-overview {
-    margin: 0 0.35rem 1.25rem;
-}
-
-.mfg-dashboard-overview__title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #1e3a5f;
-    margin: 0 0 0.2rem;
-    letter-spacing: -0.02em;
-}
-
-.mfg-dashboard-overview__subtitle {
-    font-size: 0.82rem;
-    color: #94a3b8;
     margin: 0 0 1rem;
 }
 
@@ -338,8 +356,43 @@ html .o_web_client > .o_action_manager {
     border-radius: 10px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
-    margin: 0.35rem;
+    margin: 0.35rem 0;
     padding: 1rem 1.15rem 1.15rem;
+}
+
+/* Aligned multi-column rows (no Bootstrap gutter drift) */
+.mfg-dashboard-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    gap: var(--mfg-dash-gap, 0.7rem);
+}
+
+.mfg-dashboard-row > [class*="col-"] {
+    padding: 0 !important;
+    margin: 0;
+}
+
+.mfg-dashboard-row--2 > [class*="col-"] {
+    flex: 0 0 calc((100% - var(--mfg-dash-gap, 0.7rem)) / 2);
+    max-width: calc((100% - var(--mfg-dash-gap, 0.7rem)) / 2);
+    width: calc((100% - var(--mfg-dash-gap, 0.7rem)) / 2);
+}
+
+.mfg-dashboard-row--3 > [class*="col-"] {
+    flex: 0 0 calc((100% - 2 * var(--mfg-dash-gap, 0.7rem)) / 3);
+    max-width: calc((100% - 2 * var(--mfg-dash-gap, 0.7rem)) / 3);
+    width: calc((100% - 2 * var(--mfg-dash-gap, 0.7rem)) / 3);
+}
+
+@media (max-width: 991.98px) {
+    .mfg-dashboard-row--2 > [class*="col-"],
+    .mfg-dashboard-row--3 > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+        width: 100%;
+    }
 }
 
 .mfg-dashboard-section__title {
@@ -356,6 +409,44 @@ html .o_web_client > .o_action_manager {
     margin-bottom: 0.75rem;
 }
 
+/* Partner ledger: title left, single-line partner dropdown right */
+.mfg-dashboard-section--partner-ledger .mfg-dashboard-section__head {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.mfg-dashboard-section--partner-ledger .mfg-dashboard-section__head-text {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.mfg-dashboard-partner-filter {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.mfg-dashboard-partner-filter__label {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.mfg-dashboard-partner-filter__select {
+    width: 220px;
+    max-width: min(320px, 40vw);
+    font-size: 0.8rem;
+}
+
 /* Equal-height chart cards in the same row */
 .mfg-dashboard-charts-row {
     align-items: stretch;
@@ -363,6 +454,11 @@ html .o_web_client > .o_action_manager {
 
 .mfg-dashboard-charts-row > [class*="col-"] {
     display: flex;
+}
+
+.mfg-dashboard-charts-row .mfg-dashboard-section {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .mfg-dashboard-chart-card {
@@ -422,6 +518,33 @@ html .o_web_client > .o_action_manager {
 
 .mfg-dashboard-table tbody tr:hover {
     background: #f8fafc;
+}
+
+.mfg-dashboard-table tbody tr.mfg-dashboard-table__partner-total {
+    background: #f8fafc;
+    border-top: 1px solid #dde4ea;
+}
+
+.mfg-dashboard-table tbody tr.mfg-dashboard-table__partner-total td {
+    font-weight: 600;
+    color: #334155;
+}
+
+.mfg-dashboard-table tbody tr.mfg-dashboard-table__grand-total {
+    background: #f0f5fb;
+    border-top: 2px solid #c5d4e8;
+}
+
+.mfg-dashboard-table tbody tr.mfg-dashboard-table__grand-total td {
+    font-weight: 700;
+    color: #1e3a5f;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+.mfg-dashboard-table tbody tr.mfg-dashboard-table__partner-total:hover,
+.mfg-dashboard-table tbody tr.mfg-dashboard-table__grand-total:hover {
+    background: inherit;
 }
 
 .mfg-dashboard-badge {

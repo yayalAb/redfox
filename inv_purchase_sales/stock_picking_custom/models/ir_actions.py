@@ -7,6 +7,8 @@ _PICKING_REPORT_PRIORITY = {
     'Internal Transfer': 0,
     'Receipt': 1,
     'Delivery Order': 2,
+    'Store Return Attachment': 3,
+    'Gate Pass Attachment': 4,
 }
 
 

@@ -16,10 +16,12 @@ class MfgDashboard(models.AbstractModel):
 
     @api.model
     def get_dashboard_data(self, date_start=None, date_end=None, fiscal_year=None, year_over_year=False):
-        start, end = self._parse_dates(date_start, date_end, fiscal_year)
-        prev_start, prev_end = self._previous_period(start, end)
+        """Aggregate live ERP data for the executive dashboard (read-only)."""
+        dashboard = self.sudo().with_company(self.env.company)
+        start, end = dashboard._parse_dates(date_start, date_end, fiscal_year)
+        prev_start, prev_end = dashboard._previous_period(start, end)
 
-        payload = self._build_live_data(start, end, prev_start, prev_end)
+        payload = dashboard._build_live_data(start, end, prev_start, prev_end)
         payload.update({
             'company_name': self.env.company.name,
             'subtitle': 'Executive Manufacturing Intelligence Report',
@@ -63,14 +65,26 @@ class MfgDashboard(models.AbstractModel):
         return ('done', 'to_close')
 
     def _internal_quant_domain(self):
-        """Match internal stock for current company (via location, not quant.company_id)."""
-        company = self.env.company.id
-        return [
-            ('location_id.usage', '=', 'internal'),
-            '|',
-            ('location_id.company_id', '=', False),
-            ('location_id.company_id', '=', company),
-        ]
+        """Internal stock for the active company's warehouses."""
+        company = self.env.company
+        warehouses = self.env['stock.warehouse'].search([
+            ('company_id', '=', company.id),
+        ])
+        domain = [('location_id.usage', '=', 'internal')]
+        if warehouses:
+            locs = self.env['stock.location'].search([
+                ('id', 'child_of', warehouses.mapped('view_location_id').ids),
+                ('usage', '=', 'internal'),
+            ])
+            if locs:
+                domain.append(('location_id', 'in', locs.ids))
+        else:
+            domain += [
+                '|',
+                ('location_id.company_id', '=', False),
+                ('location_id.company_id', '=', company.id),
+            ]
+        return domain
 
     def _previous_period(self, start, end):
         days = (end - start).days + 1
@@ -83,6 +97,215 @@ class MfgDashboard(models.AbstractModel):
 
     def _dt_end(self, d):
         return fields.Datetime.to_datetime(datetime.combine(d, datetime.max.time()))
+
+    def _company_domain(self, model_name):
+        """Restrict to the active company."""
+        model = self.env[model_name]
+        if 'company_id' not in model._fields:
+            return []
+        return [('company_id', '=', self.env.company.id)]
+
+    def _mo_period_domain(self, start, end):
+        """Manufacturing orders that belong to the selected period."""
+        dt_s, dt_e = self._dt_start(start), self._dt_end(end)
+        return [
+            ('state', 'in', self._mo_states_done()),
+            *self._company_domain('mrp.production'),
+            '|', '|',
+            '&', ('date_finished', '>=', dt_s), ('date_finished', '<=', dt_e),
+            '&', ('date_start', '>=', dt_s), ('date_start', '<=', dt_e),
+            '&', ('create_date', '>=', dt_s), ('create_date', '<=', dt_e),
+        ]
+
+    def _stock_move_sql_columns(self):
+        """Cached stock_move column list (avoids ORM fetch on broken custom fields)."""
+        cache = getattr(MfgDashboard, '_stock_move_col_cache', None)
+        dbname = self.env.cr.dbname
+        if not cache or cache[0] != dbname:
+            self.env.cr.execute("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'stock_move'
+                  AND table_schema = current_schema()
+            """)
+            cols = {r[0] for r in self.env.cr.fetchall()}
+            MfgDashboard._stock_move_col_cache = (dbname, cols)
+        return MfgDashboard._stock_move_col_cache[1]
+
+    def _stock_move_has_column(self, column_name):
+        return column_name in self._stock_move_sql_columns()
+
+    def _sum_stock_move_qty(self, move_ids):
+        if not move_ids:
+            return 0.0
+        self.env.cr.execute(
+            "SELECT COALESCE(SUM(quantity), 0) FROM stock_move WHERE id IN %s",
+            (tuple(move_ids),),
+        )
+        return self.env.cr.fetchone()[0] or 0.0
+
+    def _stock_move_qty_by_product(self, move_ids):
+        if not move_ids:
+            return {}
+        self.env.cr.execute(
+            """
+            SELECT product_id, COALESCE(SUM(quantity), 0)
+            FROM stock_move
+            WHERE id IN %s
+            GROUP BY product_id
+            """,
+            (tuple(move_ids),),
+        )
+        return {row[0]: row[1] for row in self.env.cr.fetchall()}
+
+    def _sum_stock_move_qty_dest(self, move_ids, usages):
+        if not move_ids:
+            return 0.0
+        self.env.cr.execute(
+            """
+            SELECT COALESCE(SUM(sm.quantity), 0)
+            FROM stock_move sm
+            JOIN stock_location sl ON sm.location_dest_id = sl.id
+            WHERE sm.id IN %s AND sl.usage IN %s
+            """,
+            (tuple(move_ids), tuple(usages)),
+        )
+        return self.env.cr.fetchone()[0] or 0.0
+
+    def _product_standard_price_map(self, product_ids):
+        """Read standard_price via ORM (company_dependent jsonb in PostgreSQL)."""
+        if not product_ids:
+            return {}
+        products = self.env['product.product'].with_company(self.env.company).browse(
+            list(product_ids)
+        )
+        return {p.id: float(p.standard_price or 0.0) for p in products}
+
+    def _stock_move_cost_total(self, move_ids):
+        if not move_ids:
+            return 0.0
+        if self._stock_move_has_column('value'):
+            self.env.cr.execute(
+                """
+                SELECT COALESCE(SUM(ABS(value)), 0)
+                FROM stock_move
+                WHERE id IN %s AND COALESCE(value, 0) != 0
+                """,
+                (tuple(move_ids),),
+            )
+            val = self.env.cr.fetchone()[0] or 0.0
+            if val:
+                return val
+        self.env.cr.execute(
+            """
+            SELECT product_id, COALESCE(quantity, 0)
+            FROM stock_move
+            WHERE id IN %s
+            """,
+            (tuple(move_ids),),
+        )
+        rows = self.env.cr.fetchall()
+        price_map = self._product_standard_price_map({r[0] for r in rows})
+        return sum(
+            (qty or 0.0) * price_map.get(product_id, 0.0)
+            for product_id, qty in rows
+        )
+
+    def _mo_raw_move_ids(self, mo_ids):
+        if not mo_ids or not self._stock_move_has_column('raw_material_production_id'):
+            return []
+        self.env.cr.execute(
+            """
+            SELECT id FROM stock_move
+            WHERE raw_material_production_id IN %s
+            """,
+            (tuple(mo_ids),),
+        )
+        return [r[0] for r in self.env.cr.fetchall()]
+
+    def _stock_move_lines_data(self, move_ids):
+        """Read move lines via SQL on numeric columns only; labels via ORM."""
+        if not move_ids:
+            return []
+        select_parts = ['sm.id', 'sm.quantity', 'sm.product_id']
+        has_price_unit = self._stock_move_has_column('price_unit')
+        has_product_uom = self._stock_move_has_column('product_uom')
+        if has_price_unit:
+            select_parts.append('sm.price_unit')
+        if has_product_uom:
+            select_parts.append('sm.product_uom')
+        self.env.cr.execute(
+            f"""
+            SELECT {', '.join(select_parts)}
+            FROM stock_move sm
+            WHERE sm.id IN %s
+            """,
+            (tuple(move_ids),),
+        )
+        raw_rows = self.env.cr.fetchall()
+        product_ids = set()
+        uom_ids = set()
+        parsed = []
+        for row in raw_rows:
+            move_id, qty, product_id = row[0], row[1] or 0.0, row[2]
+            idx = 3
+            price_unit = 0.0
+            uom_id = False
+            if has_price_unit:
+                price_unit = float(row[idx] or 0.0)
+                idx += 1
+            if has_product_uom:
+                uom_id = row[idx] or False
+                if uom_id:
+                    uom_ids.add(uom_id)
+            product_ids.add(product_id)
+            parsed.append({
+                'id': move_id,
+                'quantity': qty,
+                'product_id': product_id,
+                'price_unit': price_unit,
+                'uom_id': uom_id,
+            })
+
+        price_map = self._product_standard_price_map(product_ids)
+        products = self.env['product.product'].browse(list(product_ids))
+        product_names = {p.id: p.display_name for p in products}
+        uom_names = {}
+        if uom_ids:
+            for uom in self.env['uom.uom'].browse(list(uom_ids)):
+                uom_names[uom.id] = uom.name
+
+        rows = []
+        for item in parsed:
+            pid = item['product_id']
+            uom_id = item['uom_id']
+            product = products.browse(pid)
+            rows.append({
+                'id': item['id'],
+                'quantity': item['quantity'],
+                'product_id': pid,
+                'product_name': product_names.get(pid, product.display_name),
+                'price_unit': item['price_unit'],
+                'standard_price': price_map.get(pid, 0.0),
+                'uom_name': uom_names.get(uom_id) or product.uom_id.name or '',
+            })
+        return rows
+
+    def _product_sold_qty_sql(self, product_id, dt_start, dt_end):
+        self.env.cr.execute(
+            """
+            SELECT COALESCE(SUM(sm.quantity), 0)
+            FROM stock_move sm
+            JOIN stock_location sl ON sm.location_dest_id = sl.id
+            WHERE sm.product_id = %s
+              AND sm.state = 'done'
+              AND sl.usage = 'customer'
+              AND sm.date >= %s
+              AND sm.date <= %s
+            """,
+            (product_id, dt_start, dt_end),
+        )
+        return self.env.cr.fetchone()[0] or 0.0
 
     def _fmt_money(self, amount):
         return float_round(amount or 0.0, precision_digits=2)
@@ -115,31 +338,54 @@ class MfgDashboard(models.AbstractModel):
         blob = f'{categ} {name}'
         if any(k in blob for k in ('spare', 'maintenance', 'bearing', 'belt', 'valve', 'blade')):
             return 'spare'
-        if any(k in blob for k in ('packaging', 'pack', 'carton', 'film', 'bag', 'label')):
+        if any(k in blob for k in ('packaging', 'pack', 'carton', 'film', 'bag', 'label', 'wrapper')):
             return 'packaging'
-        if any(k in blob for k in ('finished', 'fg ', '/ fg', 'macaroni', 'pasta', 'bravo', 'mondial')):
+        if any(k in blob for k in (
+            'finished', 'finish goods', 'finished goods', 'fg ', '/fg',
+            'macaroni', 'pasta', 'bravo', 'mondial', 'end product',
+        )):
             return 'fg'
-        if product.categ_id and product.categ_id.property_cost_method:
-            pass
-        # Manufactured / saleable finished goods
-        if product.type == 'product' and not any(k in blob for k in ('raw', 'wheat', 'premix', 'fuel', 'nafta', 'grain')):
-            if 'semi' not in blob and 'component' not in blob:
-                # default storable non-RM to FG when no raw keyword
-                if any(k in blob for k in ('raw', 'material', 'wheat', 'premix', 'fuel')):
-                    return 'raw'
-        if any(k in blob for k in ('raw', 'wheat', 'premix', 'fuel', 'nafta', 'grain', 'ingredient')):
+        if any(k in blob for k in ('raw', 'wheat', 'premix', 'fuel', 'nafta', 'grain', 'ingredient', 'flour')):
             return 'raw'
+        # Saleable / manufactured storable products default to FG
+        if product.type == 'product':
+            if getattr(product, 'bom_count', 0) or 'semi' in blob:
+                return 'fg'
+            if product.sale_ok and 'component' not in blob:
+                return 'fg'
         return 'raw'
 
     def _quant_value(self, quant):
-        if 'value' in quant._fields and quant.value is not None:
-            return quant.value
-        qty = quant.quantity
+        qty = quant.quantity or 0.0
+        if not qty:
+            return 0.0
+        if 'value' in quant._fields and quant.value:
+            val = abs(quant.value)
+            if val:
+                return val
         product = quant.product_id
-        price = product.standard_price
-        if hasattr(product, 'avg_cost') and product.avg_cost:
+        price = product.standard_price or 0.0
+        if 'avg_cost' in product._fields and product.avg_cost:
             price = product.avg_cost
-        return qty * price
+        return abs(qty * price)
+
+    def _posted_customer_invoices(self, start, end):
+        return self.env['account.move'].search([
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            *self._company_domain('account.move'),
+            ('invoice_date', '>=', start),
+            ('invoice_date', '<=', end),
+        ])
+
+    def _posted_vendor_bills(self, start, end):
+        return self.env['account.move'].search([
+            ('move_type', '=', 'in_invoice'),
+            ('state', '=', 'posted'),
+            *self._company_domain('account.move'),
+            ('invoice_date', '>=', start),
+            ('invoice_date', '<=', end),
+        ])
 
     def _trend_pct(self, current, previous):
         current = current or 0.0
@@ -171,6 +417,7 @@ class MfgDashboard(models.AbstractModel):
         raw_material_stock, packaging_stock, spare_parts = self._compute_stock_tables(start, end)
         delivery_sales = self._compute_delivery_sales(start, end)
         customer_collections = self._compute_customer_collections(start, end)
+        partner_ledger_data = self._compute_partner_ledger(start, end)
         profitability = self._compute_profitability(start, end)
 
         charts = self._build_charts(kpis, customer_collections, profitability)
@@ -188,6 +435,10 @@ class MfgDashboard(models.AbstractModel):
             'spare_parts': spare_parts,
             'delivery_sales': delivery_sales,
             'customer_collections': customer_collections,
+            'partner_ledger': partner_ledger_data['lines'],
+            'partner_ledger_partners': partner_ledger_data['partners'],
+            'partner_ledger_partner_totals': partner_ledger_data['partner_totals'],
+            'partner_ledger_grand_total': partner_ledger_data['grand_total'],
             'profitability': profitability,
             'charts': charts,
         }
@@ -202,32 +453,35 @@ class MfgDashboard(models.AbstractModel):
         def purchase_total(d_start, d_end):
             pos = PurchaseOrder.search([
                 ('state', 'in', self._po_states()),
-                ('company_id', '=', env.company.id),
+                *self._company_domain('purchase.order'),
                 ('date_order', '>=', self._dt_start(d_start)),
                 ('date_order', '<=', self._dt_end(d_end)),
             ])
-            return sum(pos.mapped('amount_total'))
+            total = sum(pos.mapped('amount_total'))
+            if total:
+                return total
+            bills = self._posted_vendor_bills(d_start, d_end)
+            return sum(
+                b.amount_untaxed if b.amount_untaxed else b.amount_total
+                for b in bills
+            )
 
         def production_cost(d_start, d_end):
-            dt_s, dt_e = self._dt_start(d_start), self._dt_end(d_end)
-            mos = MrpProduction.search([
-                ('state', 'in', self._mo_states_done()),
-                ('company_id', '=', env.company.id),
-                '|', '|',
-                '&', ('date_finished', '>=', dt_s), ('date_finished', '<=', dt_e),
-                '&', ('date_start', '>=', dt_s), ('date_start', '<=', dt_e),
-                '&', ('create_date', '>=', dt_s), ('create_date', '<=', dt_e),
-            ])
-            total = 0.0
-            for mo in mos:
-                for move in mo.move_raw_ids:
-                    total += move.quantity * move.product_id.standard_price
-            return total
+            mos = MrpProduction.search(self._mo_period_domain(d_start, d_end))
+            raw_move_ids = self._mo_raw_move_ids(mos.ids)
+            return self._stock_move_cost_total(raw_move_ids)
 
         def sales_total(d_start, d_end):
+            invoices = self._posted_customer_invoices(d_start, d_end)
+            inv_total = sum(
+                inv.amount_untaxed if inv.amount_untaxed else inv.amount_total
+                for inv in invoices
+            )
+            if inv_total:
+                return inv_total
             orders = SaleOrder.search([
                 ('state', 'in', self._so_states()),
-                ('company_id', '=', env.company.id),
+                *self._company_domain('sale.order'),
                 ('date_order', '>=', self._dt_start(d_start)),
                 ('date_order', '<=', self._dt_end(d_end)),
             ])
@@ -272,20 +526,19 @@ class MfgDashboard(models.AbstractModel):
         PurchaseOrder = self.env['purchase.order']
         orders = PurchaseOrder.search([
             ('state', 'in', self._po_states()),
-            ('company_id', '=', self.env.company.id),
+            *self._company_domain('purchase.order'),
             ('date_order', '>=', self._dt_start(start)),
             ('date_order', '<=', self._dt_end(end)),
-        ], order='date_order desc', limit=100)
+        ], order='date_order desc', limit=200)
         rows = []
         for po in orders:
             done_pickings = po.picking_ids.filtered(lambda p: p.state == 'done')
-            grn_qty = sum(done_pickings.move_ids_without_package.mapped('quantity'))
+            grn_move_ids = done_pickings.move_ids_without_package.ids
+            grn_qty = self._sum_stock_move_qty(grn_move_ids)
             grn_amount = 0.0
-            for picking in done_pickings:
-                for move in picking.move_ids_without_package:
-                    grn_amount += move.quantity * (
-                        move.price_unit or move.product_id.standard_price
-                    )
+            for line in self._stock_move_lines_data(grn_move_ids):
+                unit_price = line['price_unit'] or line['standard_price']
+                grn_amount += line['quantity'] * unit_price
             bills = po.invoice_ids.filtered(
                 lambda m: m.move_type in ('in_invoice', 'in_refund') and m.state == 'posted'
             )
@@ -303,19 +556,31 @@ class MfgDashboard(models.AbstractModel):
                 'remaining': self._fmt_money(bill_amount - paid),
                 'payment_status': self._payment_status(bill_amount, paid),
             })
+        if not rows:
+            bills = self._posted_vendor_bills(start, end)
+            for bill in bills.sorted('invoice_date', reverse=True)[:100]:
+                paid = bill.amount_total - bill.amount_residual
+                rows.append({
+                    'po_no': bill.name,
+                    'supplier': bill.partner_id.display_name,
+                    'po_qty': '—',
+                    'po_amount': self._fmt_money(bill.amount_total),
+                    'grn_qty': '—',
+                    'grn_amount': self._fmt_money(0),
+                    'bill_amount': self._fmt_money(bill.amount_total),
+                    'paid_amount': self._fmt_money(paid),
+                    'remaining': self._fmt_money(bill.amount_residual),
+                    'payment_status': self._payment_status(bill.amount_total, paid),
+                })
         return rows
 
     def _compute_manufacturing(self, start, end):
         MrpProduction = self.env['mrp.production']
-        dt_s, dt_e = self._dt_start(start), self._dt_end(end)
-        mos = MrpProduction.search([
-            ('state', 'in', self._mo_states_done()),
-            ('company_id', '=', self.env.company.id),
-            '|', '|',
-            '&', ('date_finished', '>=', dt_s), ('date_finished', '<=', dt_e),
-            '&', ('date_start', '>=', dt_s), ('date_start', '<=', dt_e),
-            '&', ('create_date', '>=', dt_s), ('create_date', '<=', dt_e),
-        ], order='date_finished desc, id desc', limit=100)
+        mos = MrpProduction.search(
+            self._mo_period_domain(start, end),
+            order='date_finished desc, id desc',
+            limit=200,
+        )
 
         efficiency_rows = []
         consumption_rows = []
@@ -329,18 +594,28 @@ class MfgDashboard(models.AbstractModel):
             scrap_pct = (scrap_qty / planned * 100.0) if planned else 0.0
 
             byproduct_qty = 0.0
-            for fin_move in mo.move_finished_ids:
-                if fin_move.product_id != mo.product_id:
-                    qty = fin_move.quantity
-                    byproduct_qty += qty
-                    byproduct_rows.append({
-                        'product': mo.product_id.display_name,
-                        'byproduct': fin_move.product_id.display_name,
-                        'qty': self._fmt_qty(qty, fin_move.product_uom.name),
-                        'estimated_value': self._fmt_money(
-                            qty * fin_move.product_id.standard_price
-                        ),
-                    })
+            if self._stock_move_has_column('production_id'):
+                self.env.cr.execute(
+                    """
+                    SELECT id FROM stock_move
+                    WHERE production_id = %s AND product_id != %s
+                    """,
+                    (mo.id, mo.product_id.id),
+                )
+                fin_ids = [r[0] for r in self.env.cr.fetchall()]
+            else:
+                fin_ids = []
+            for line in self._stock_move_lines_data(fin_ids):
+                qty = line['quantity']
+                byproduct_qty += qty
+                byproduct_rows.append({
+                    'product': mo.product_id.display_name,
+                    'byproduct': line['product_name'],
+                    'qty': self._fmt_qty(qty, line['uom_name']),
+                    'estimated_value': self._fmt_money(
+                        qty * line['standard_price']
+                    ),
+                })
 
             byproduct_pct = (byproduct_qty / planned * 100.0) if planned else 0.0
             state_label = dict(
@@ -365,9 +640,18 @@ class MfgDashboard(models.AbstractModel):
                     planned_map[line.product_id.id] += line.product_qty * (
                         planned / mo.bom_id.product_qty if mo.bom_id.product_qty else 1
                     )
+            raw_ids = []
+            if self._stock_move_has_column('raw_material_production_id'):
+                self.env.cr.execute(
+                    "SELECT id FROM stock_move WHERE raw_material_production_id = %s",
+                    (mo.id,),
+                )
+                raw_ids = [r[0] for r in self.env.cr.fetchall()]
+            else:
+                raw_ids = []
             actual_map = defaultdict(float)
-            for move in mo.move_raw_ids:
-                actual_map[move.product_id.id] += move.quantity
+            for pid, qty in self._stock_move_qty_by_product(raw_ids).items():
+                actual_map[pid] += qty
 
             product_ids = set(planned_map) | set(actual_map)
             for pid in product_ids:
@@ -378,7 +662,8 @@ class MfgDashboard(models.AbstractModel):
                 cost_impact = variance * product.standard_price
                 sign = '+' if variance >= 0 else ''
                 consumption_rows.append({
-                    'product': mo.product_id.display_name,
+                    'product': product.display_name,
+                    'mo_no': mo.name,
                     'planned': self._fmt_qty(p_qty, product.uom_id.name),
                     'actual': self._fmt_qty(a_qty, product.uom_id.name),
                     'variance': f'{sign}{float_round(variance, 2)} {product.uom_id.name}',
@@ -393,11 +678,18 @@ class MfgDashboard(models.AbstractModel):
         StockQuant = self.env['stock.quant']
         MrpProduction = self.env['mrp.production']
 
-        products = self.env['product.product'].search([
-            ('type', '=', 'product'),
-            ('company_id', 'in', (False, self.env.company.id)),
-        ])
+        quants = StockQuant.search(self._internal_quant_domain())
+        product_ids = []
+        seen = set()
+        for quant in quants:
+            if quant.quantity and quant.product_id.id not in seen:
+                seen.add(quant.product_id.id)
+                product_ids.append(quant.product_id.id)
+
+        products = self.env['product.product'].browse(product_ids)
         fg_products = products.filtered(lambda p: self._product_bucket(p) == 'fg')
+        if not fg_products:
+            fg_products = products.filtered(lambda p: p.type == 'product')[:80]
 
         rows = []
         dt_s, dt_e = self._dt_start(start), self._dt_end(end)
@@ -410,23 +702,12 @@ class MfgDashboard(models.AbstractModel):
             if not ending_qty and not stock_value:
                 continue
 
-            produced = sum(MrpProduction.search([
-                ('product_id', '=', product.id),
-                ('state', 'in', self._mo_states_done()),
-                '|', '|',
-                '&', ('date_finished', '>=', dt_s), ('date_finished', '<=', dt_e),
-                '&', ('date_start', '>=', dt_s), ('date_start', '<=', dt_e),
-                '&', ('create_date', '>=', dt_s), ('create_date', '<=', dt_e),
-            ]).mapped('qty_produced'))
+            mo_domain = self._mo_period_domain(start, end) + [('product_id', '=', product.id)]
+            produced = sum(MrpProduction.search(mo_domain).mapped('qty_produced'))
 
-            sold_moves = StockMove.search([
-                ('product_id', '=', product.id),
-                ('state', '=', 'done'),
-                ('location_dest_id.usage', '=', 'customer'),
-                ('date', '>=', self._dt_start(start)),
-                ('date', '<=', self._dt_end(end)),
-            ])
-            sold = sum(sold_moves.mapped('quantity'))
+            sold = self._product_sold_qty_sql(
+                product.id, self._dt_start(start), self._dt_end(end),
+            )
 
             opening_qty = ending_qty - produced + sold
             uom = product.uom_id.name
@@ -484,9 +765,8 @@ class MfgDashboard(models.AbstractModel):
             consumed_moves = StockMove.search(
                 consumption_domain + [('product_id', '=', pid)]
             )
-            consumption = sum(
-                m.quantity for m in consumed_moves
-                if m.location_dest_id.usage in ('production', 'customer')
+            consumption = self._sum_stock_move_qty_dest(
+                consumed_moves.ids, ('production', 'customer'),
             )
 
             if bucket == 'packaging':
@@ -535,43 +815,37 @@ class MfgDashboard(models.AbstractModel):
         pickings = Picking.search([
             ('picking_type_id.code', '=', 'outgoing'),
             ('state', '=', 'done'),
-            ('company_id', '=', self.env.company.id),
+            *self._company_domain('stock.picking'),
             ('date_done', '>=', self._dt_start(start)),
             ('date_done', '<=', self._dt_end(end)),
-        ], order='date_done desc', limit=100)
+        ], order='date_done desc', limit=200)
 
         rows = []
         for picking in pickings:
             customer = picking.partner_id.display_name or (
                 picking.sale_id.partner_id.display_name if picking.sale_id else ''
             )
-            for move in picking.move_ids_without_package:
-                invoiced_qty = move.quantity
+            for line in self._stock_move_lines_data(picking.move_ids_without_package.ids):
+                invoiced_qty = line['quantity']
                 if picking.sale_id:
                     sol = picking.sale_id.order_line.filtered(
-                        lambda l: l.product_id == move.product_id
+                        lambda l, pid=line['product_id']: l.product_id.id == pid
                     )
                     if sol:
                         invoiced_qty = sum(sol.mapped('qty_invoiced'))
                 rows.append({
                     'do_no': picking.name,
                     'customer': customer,
-                    'product': move.product_id.display_name,
-                    'delivered_qty': self._fmt_qty(move.quantity, move.product_uom.name),
-                    'invoiced_qty': self._fmt_qty(invoiced_qty, move.product_uom.name),
+                    'product': line['product_name'],
+                    'delivered_qty': self._fmt_qty(line['quantity'], line['uom_name']),
+                    'invoiced_qty': self._fmt_qty(invoiced_qty, line['uom_name']),
                     'delivery_status': 'Delivered',
                 })
         return rows
 
     def _compute_customer_collections(self, start, end):
-        AccountMove = self.env['account.move']
-        invoices = AccountMove.search([
-            ('move_type', '=', 'out_invoice'),
-            ('state', '=', 'posted'),
-            ('company_id', '=', self.env.company.id),
-            ('invoice_date', '>=', start),
-            ('invoice_date', '<=', end),
-        ], order='invoice_date desc', limit=100)
+        invoices = self._posted_customer_invoices(start, end)
+        invoices = invoices.sorted('invoice_date', reverse=True)[:200]
 
         rows = []
         for inv in invoices:
@@ -587,37 +861,177 @@ class MfgDashboard(models.AbstractModel):
             })
         return rows
 
+    def _compute_partner_ledger(self, start, end):
+        """Partner ledger lines on receivable/payable accounts for the period."""
+        AML = self.env['account.move.line']
+        domain = [
+            ('parent_state', '=', 'posted'),
+            ('date', '>=', start),
+            ('date', '<=', end),
+            *self._company_domain('account.move.line'),
+            ('partner_id', '!=', False),
+            ('account_id.account_type', 'in', ('asset_receivable', 'liability_payable')),
+        ]
+        lines = AML.search(domain, order='partner_id, date, id', limit=1000)
+        empty_payload = {
+            'lines': [],
+            'partners': [],
+            'partner_totals': [],
+            'grand_total': {
+                'partner': 'Grand Total',
+                'debit': 0.0,
+                'credit': 0.0,
+                'balance': 0.0,
+                'debit_raw': 0.0,
+                'credit_raw': 0.0,
+                'balance_raw': 0.0,
+            },
+        }
+        if not lines:
+            domain = [
+                ('parent_state', '=', 'posted'),
+                ('date', '>=', start),
+                ('date', '<=', end),
+                *self._company_domain('account.move.line'),
+                ('partner_id', '!=', False),
+                ('account_id.internal_group', 'in', ('receivable', 'payable')),
+            ]
+            lines = AML.search(domain, order='partner_id, date, id', limit=1000)
+        if not lines:
+            empty_payload['grand_total'].update({
+                'debit': self._fmt_money(0),
+                'credit': self._fmt_money(0),
+                'balance': self._fmt_money(0),
+            })
+            return empty_payload
+        by_partner = defaultdict(list)
+        for line in lines:
+            by_partner[line.partner_id.id].append(line)
+
+        partner_options = []
+        partner_totals = []
+        rows = []
+        grand_debit = grand_credit = 0.0
+
+        for partner_id, plines in sorted(
+            by_partner.items(), key=lambda item: item[1][0].partner_id.display_name
+        ):
+            partner = plines[0].partner_id
+            partner_options.append({
+                'id': partner_id,
+                'name': partner.display_name,
+            })
+            balance = 0.0
+            p_debit = p_credit = 0.0
+            partner_rows = []
+            for line in plines:
+                line_debit = line.debit or 0.0
+                line_credit = line.credit or 0.0
+                balance += line_debit - line_credit
+                p_debit += line_debit
+                p_credit += line_credit
+                account = line.account_id
+                account_label = (
+                    f'{account.code} {account.name}'.strip()
+                    if account.code
+                    else account.display_name
+                )
+                account_type = getattr(account, 'account_type', False)
+                if account_type == 'asset_receivable':
+                    type_label = 'Receivable'
+                elif account_type == 'liability_payable':
+                    type_label = 'Payable'
+                elif getattr(account, 'internal_group', None) == 'receivable':
+                    type_label = 'Receivable'
+                else:
+                    type_label = 'Payable'
+                partner_rows.append({
+                    'date': fields.Date.to_string(line.date),
+                    'partner_id': partner_id,
+                    'partner': partner.display_name,
+                    'account': account_label,
+                    'account_type': type_label,
+                    'move': line.move_id.name or '',
+                    'label': (line.name or line.move_id.ref or '')[:120],
+                    'debit': self._fmt_money(line_debit),
+                    'credit': self._fmt_money(line_credit),
+                    'balance': self._fmt_money(balance),
+                    'debit_raw': line_debit,
+                    'credit_raw': line_credit,
+                    'balance_raw': balance,
+                    '_sort_date': line.date,
+                    '_sort_id': line.id,
+                })
+            partner_rows.reverse()
+            rows.extend(partner_rows)
+            partner_totals.append({
+                'partner_id': partner_id,
+                'partner': partner.display_name,
+                'debit': self._fmt_money(p_debit),
+                'credit': self._fmt_money(p_credit),
+                'balance': self._fmt_money(p_debit - p_credit),
+                'debit_raw': p_debit,
+                'credit_raw': p_credit,
+                'balance_raw': p_debit - p_credit,
+            })
+            grand_debit += p_debit
+            grand_credit += p_credit
+
+        rows.sort(key=lambda r: (r['_sort_date'], r['_sort_id']), reverse=True)
+        for row in rows:
+            row.pop('_sort_date', None)
+            row.pop('_sort_id', None)
+
+        return {
+            'lines': rows,
+            'partners': partner_options,
+            'partner_totals': partner_totals,
+            'grand_total': {
+                'partner': 'Grand Total',
+                'debit': self._fmt_money(grand_debit),
+                'credit': self._fmt_money(grand_credit),
+                'balance': self._fmt_money(grand_debit - grand_credit),
+                'debit_raw': grand_debit,
+                'credit_raw': grand_credit,
+                'balance_raw': grand_debit - grand_credit,
+            },
+        }
+
     def _compute_profitability(self, start, end):
-        SaleOrder = self.env['sale.order']
         MrpProduction = self.env['mrp.production']
 
-        orders = SaleOrder.search([
-            ('state', 'in', self._so_states()),
-            ('company_id', '=', self.env.company.id),
-            ('date_order', '>=', self._dt_start(start)),
-            ('date_order', '<=', self._dt_end(end)),
-        ])
-
         revenue_by_product = defaultdict(float)
-        for order in orders:
-            for line in order.order_line.filtered(lambda l: not l.display_type):
+        invoices = self._posted_customer_invoices(start, end)
+        for inv in invoices:
+            for line in inv.invoice_line_ids.filtered(
+                lambda l: not l.display_type and l.product_id
+            ):
                 revenue_by_product[line.product_id.id] += line.price_subtotal
 
+        if not revenue_by_product:
+            orders = self.env['sale.order'].search([
+                ('state', 'in', self._so_states()),
+                *self._company_domain('sale.order'),
+                ('date_order', '>=', self._dt_start(start)),
+                ('date_order', '<=', self._dt_end(end)),
+            ])
+            for order in orders:
+                for line in order.order_line.filtered(lambda l: not l.display_type):
+                    revenue_by_product[line.product_id.id] += line.price_subtotal
+
         cost_by_product = defaultdict(float)
-        dt_s, dt_e = self._dt_start(start), self._dt_end(end)
-        mos = MrpProduction.search([
-            ('state', 'in', self._mo_states_done()),
-            ('company_id', '=', self.env.company.id),
-            '|', '|',
-            '&', ('date_finished', '>=', dt_s), ('date_finished', '<=', dt_e),
-            '&', ('date_start', '>=', dt_s), ('date_start', '<=', dt_e),
-            '&', ('create_date', '>=', dt_s), ('create_date', '<=', dt_e),
-        ])
+        mos = MrpProduction.search(self._mo_period_domain(start, end))
         for mo in mos:
-            cost = sum(
-                m.quantity * m.product_id.standard_price for m in mo.move_raw_ids
-            )
-            cost_by_product[mo.product_id.id] += cost
+            raw_ids = []
+            if self._stock_move_has_column('raw_material_production_id'):
+                self.env.cr.execute(
+                    "SELECT id FROM stock_move WHERE raw_material_production_id = %s",
+                    (mo.id,),
+                )
+                raw_ids = [r[0] for r in self.env.cr.fetchall()]
+            else:
+                raw_ids = []
+            cost_by_product[mo.product_id.id] += self._stock_move_cost_total(raw_ids)
 
         product_ids = set(revenue_by_product) | set(cost_by_product)
         rows = []
@@ -652,13 +1066,21 @@ class MfgDashboard(models.AbstractModel):
 
         coll_with_balance = [
             c for c in collections
-            if float(c.get('remaining', 0) or 0) > 0
+            if float(c.get('remaining_raw', c.get('remaining', 0)) or 0) > 0
         ][:8]
         if coll_with_balance:
             coll_labels = [c['customer'] for c in coll_with_balance]
-            coll_data = [float(c.get('remaining_raw', 0) or 0) for c in coll_with_balance]
+            coll_data = [
+                float(c.get('remaining_raw', c.get('remaining', 0)) or 0)
+                for c in coll_with_balance
+            ]
+        elif collections:
+            total_inv = sum(float(c.get('invoice_amount', 0) or 0) for c in collections)
+            total_col = sum(float(c.get('collected_amount', 0) or 0) for c in collections)
+            coll_labels = ['Collected', 'Outstanding']
+            coll_data = [total_col, max(total_inv - total_col, 0.0)]
         else:
-            coll_labels = ['No outstanding']
+            coll_labels = ['No invoices in period']
             coll_data = [0]
 
         profit_rows = profitability[:8]

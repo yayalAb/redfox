@@ -34,7 +34,7 @@
                         invisible="state != 'draft'" />
 
                     <button name="action_verify" string="Verify" type="object"
-                        invisible="state != 'submitted' or is_department_head != True"
+                        invisible="state != 'submitted'"
                         groups="store_request.store_request_verify" />
                     <button name="action_approve" string="Approve" type="object"
                         class="oe_highlight" groups="store_request.group_store_request_approve"

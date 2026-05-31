@@ -9,6 +9,135 @@ class StockPicking(models.Model):
     approved_by = fields.Many2one(
         'res.users', string='Approved By', tracking=True, readonly=True)
     carrier = fields.Many2one('res.users', string="Carrier")
+    vehicle_plate = fields.Char(string='Truck / Plate No.')
+    reason_for_entry = fields.Text(string='Reason')
+
+    def _grn_moves(self):
+        self.ensure_one()
+        return self.move_ids_without_package.filtered(lambda m: m.state != 'cancel')
+
+    def get_grn_line_total(self, move):
+        if move.line_subtotal:
+            return move.line_subtotal
+        qty = move.quantity or 0.0
+        price = move.line_unit_price or 0.0
+        if not price and move.purchase_line_id:
+            price = move.purchase_line_id.price_unit
+        return qty * price
+
+    def get_grn_subtotal(self):
+        self.ensure_one()
+        return sum(self.get_grn_line_total(m) for m in self._grn_moves())
+
+    def get_grn_grand_total(self):
+        self.ensure_one()
+        if self.purchase_id:
+            return self.purchase_id.amount_total
+        return self.get_grn_subtotal()
+
+    def get_grn_move_gross_weight(self, move):
+        return (
+            getattr(move, 'grn_gross_weight', 0.0)
+            or getattr(move, 'customer_vetting_gross_weight', 0.0)
+            or 0.0
+        )
+
+    def get_grn_move_tare_weight(self, move):
+        return (
+            getattr(move, 'grn_tare_weight', 0.0)
+            or getattr(move, 'customer_vetting_tare_weight', 0.0)
+            or 0.0
+        )
+
+    def get_grn_move_net_weight(self, move):
+        net = getattr(move, 'grn_net_weight', 0.0) or getattr(move, 'customer_vetting_line_net_weight', 0.0)
+        if net:
+            return net
+        gross = self.get_grn_move_gross_weight(move)
+        tare = getattr(move, 'grn_tare_weight', 0.0) or getattr(move, 'customer_vetting_tare_weight', 0.0)
+        return gross - tare if gross or tare else (move.quantity or 0.0)
+
+    def get_grn_so_po_ref(self):
+        self.ensure_one()
+        if self.purchase_id:
+            return self.purchase_id.name
+        if self.sale_id:
+            return self.sale_id.name
+        return self.origin or ''
+
+    def get_cdn_invoice_ref(self):
+        self.ensure_one()
+        if self.sale_id:
+            invoices = self.sale_id.invoice_ids.filtered(
+                lambda m: m.move_type == 'out_invoice' and m.state == 'posted'
+            )
+            if invoices:
+                return invoices[0].name
+            return self.sale_id.name
+        return self.origin or ''
+
+    def get_gpa_customer(self):
+        self.ensure_one()
+        if self.partner_id:
+            return self.partner_id
+        if self.store_request_id and self.store_request_id.requested_by:
+            return self.store_request_id.requested_by.partner_id
+        return self.env['res.partner']
+
+    def get_grn_amount_in_words(self):
+        self.ensure_one()
+        total = self.get_grn_grand_total()
+        currency = self.company_id.currency_id
+        if not currency or not total:
+            return ''
+        return currency.amount_to_text(total)
+
+    def get_grn_cleaning_quality(self):
+        self.ensure_one()
+        for move in self._grn_moves():
+            if getattr(move, 'grn_quality_pct', 0.0):
+                return move.grn_quality_pct
+        return 0.0
+
+    def is_store_return_picking(self):
+        self.ensure_one()
+        picking_type = self.picking_type_id
+        return (
+            (picking_type.code == 'incoming' and picking_type.name == 'Delivery Return')
+            or (picking_type.code == 'outgoing' and picking_type.name == 'Receipt Return')
+        )
+
+    def get_sra_source_doc_ref(self):
+        self.ensure_one()
+        return self.origin or ''
+
+    def get_sra_returned_by(self):
+        self.ensure_one()
+        if self.store_request_id and self.store_request_id.requested_by:
+            return self.store_request_id.requested_by
+        if self.picking_type_id.code == 'incoming' and self.partner_id.user_id:
+            return self.partner_id.user_id
+        warehouse = self.location_id.warehouse_id
+        if warehouse and warehouse.storeman_id:
+            return warehouse.storeman_id
+        return self.create_uid
+
+    def get_sra_returned_by_name(self):
+        self.ensure_one()
+        user = self.get_sra_returned_by()
+        if user:
+            return user.name
+        return self.partner_id.display_name or ''
+
+    def get_sra_department_name(self):
+        self.ensure_one()
+        if self.store_request_id and self.store_request_id.department_id:
+            return self.store_request_id.department_id.name
+        return ''
+
+    def get_sra_justification(self):
+        self.ensure_one()
+        return self.reason_for_entry or self.note or ''
 
     def button_validate(self):
         res = super(StockPicking, self).button_validate()

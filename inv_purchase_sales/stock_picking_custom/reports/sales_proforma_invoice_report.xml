@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_sales_proforma_attachment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="stock_picking_custom.report_sales_proforma_attachment_document"
+                    t-lang="doc.partner_id.lang or doc.company_id.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_sales_proforma_attachment_document">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang or user.lang)" />
+        <t t-set="doc_title" t-value="'Proforma Attachment'" />
+        <t t-set="doc_number" t-value="doc.name" />
+        <t t-set="issue_number" t-value="'1'" />
+        <t t-set="prepared_by" t-value="doc.get_proforma_prepared_by()" />
+        <t t-set="approved_by" t-value="doc.get_proforma_approved_by()" />
+        <t t-set="customer_phone" t-value="doc.partner_id.phone or doc.partner_id.mobile or ''" />
+        <t t-set="customer_address" t-value="doc.partner_id.contact_address or ''" />
+        <t t-call="web.external_layout">
+            <t t-call="stock_picking_custom.spi_body" />
+        </t>
+    </template>
+
+    <template id="spi_body">
+        <style type="text/css">
+            .spi-page {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-size: 11px;
+                color: #000;
+                padding: 0 4px 12px;
+            }
+            .spi-title {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                text-align: center;
+                font-size: 16px;
+                font-weight: bold;
+                color: #c00000;
+                margin: 0 0 14px 0;
+                letter-spacing: 0.3px;
+            }
+            .spi-field {
+                margin-bottom: 12px;
+                font-size: 10px;
+                overflow: hidden;
+                width: 100%;
+            }
+            .spi-lbl {
+                font-weight: bold;
+                float: left;
+                margin-right: 6px;
+                padding-bottom: 3px;
+                line-height: 1.35;
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+            }
+            .spi-und {
+                display: block;
+                overflow: hidden;
+                border-bottom: 1px solid #000;
+                min-height: 18px;
+                padding: 0 0 5px 2px;
+                margin-bottom: 2px;
+            }
+            .spi-section {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                font-weight: bold;
+                margin: 12px 0 6px 0;
+                font-size: 11px;
+            }
+            .spi-cols {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 10px;
+                font-size: 10px;
+            }
+            .spi-col {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 14px;
+            }
+            .spi-col-right {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-left: 20px;
+            }
+            .spi-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 8.5px;
+                margin-bottom: 10px;
+                table-layout: fixed;
+            }
+            .spi-table th,
+            .spi-table td {
+                border: 1px solid #000;
+                padding: 4px 3px;
+                vertical-align: middle;
+                word-wrap: break-word;
+            }
+            .spi-table th {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                background: #f0f0f0;
+                font-weight: bold;
+                text-align: center;
+                line-height: 1.25;
+            }
+            .spi-num { text-align: right; white-space: nowrap; }
+            .spi-center { text-align: center; }
+            .spi-desc { text-align: left; }
+            .spi-totals {
+                width: 55%;
+                margin-left: auto;
+                margin-top: 8px;
+                margin-bottom: 10px;
+                font-size: 10px;
+            }
+            .spi-totals-row {
+                display: table;
+                width: 100%;
+                margin-bottom: 6px;
+                table-layout: fixed;
+            }
+            .spi-totals-lbl {
+                display: table-cell;
+                font-weight: bold;
+                width: 110px;
+                vertical-align: bottom;
+                padding-right: 8px;
+                padding-bottom: 4px;
+            }
+            .spi-totals-val {
+                display: table-cell;
+                vertical-align: bottom;
+            }
+            .spi-line {
+                border-bottom: 1px solid #000;
+                min-height: 22px;
+                padding: 0 2px 5px 2px;
+                margin-bottom: 6px;
+            }
+            .spi-term-sub {
+                font-weight: normal;
+                font-size: 10px;
+                margin: 4px 0 8px 0;
+            }
+            .spi-appr {
+                margin-top: 6px;
+                font-size: 10px;
+            }
+            .spi-appr-row {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 14px;
+                padding-bottom: 14px;
+                border-bottom: 1px dotted #aaa;
+            }
+            .spi-appr-row:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+            .spi-appr-title {
+                font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                display: table-cell;
+                vertical-align: bottom;
+                font-weight: bold;
+                width: 20%;
+                padding: 0 10px 4px 0;
+                line-height: 1.3;
+            }
+            .spi-appr-slot {
+                display: table-cell;
+                vertical-align: bottom;
+                width: 26.67%;
+                padding: 0 12px 0 0;
+            }
+            .spi-appr-slot .spi-field { margin-bottom: 0; }
+            .spi-appr-slot .spi-lbl { font-weight: normal; }
+            .spi-appr-slot .spi-und { min-height: 16px; padding-bottom: 4px; }
+            .spi-copy {
+                margin-top: 16px;
+                font-size: 10px;
+                border-top: 1px solid #ccc;
+                padding-top: 8px;
+                text-align: center;
+            }
+        </style>
+
+        <div class="page spi-page">
+            <div class="oe_structure" />
+
+            <div class="spi-title">Performa Attachment</div>
+
+            <div class="spi-cols">
+                <div class="spi-col">
+                    <div class="spi-field">
+                        <span class="spi-lbl">Sales Order Ref No:</span>
+                        <div class="spi-und"><span t-field="doc.name" /></div>
+                    </div>
+                    <div class="spi-field">
+                        <span class="spi-lbl">Customer Name:</span>
+                        <div class="spi-und">
+                            <span t-esc="doc.partner_id.display_name or ''" />
+                        </div>
+                    </div>
+                    <div class="spi-field">
+                        <span class="spi-lbl">Phone No:</span>
+                        <div class="spi-und"><span t-esc="customer_phone" /></div>
+                    </div>
+                </div>
+                <div class="spi-col-right">
+                    <div class="spi-field">
+                        <span class="spi-lbl">PI Date:</span>
+                        <div class="spi-und">
+                            <span t-field="doc.date_order" t-options='{"widget": "date"}' />
+                        </div>
+                    </div>
+                    <div class="spi-field">
+                        <span class="spi-lbl">Tin No:</span>
+                        <div class="spi-und">
+                            <span t-esc="doc.get_proforma_tin()" />
+                        </div>
+                    </div>
+                    <div class="spi-field">
+                        <span class="spi-lbl">Address:</span>
+                        <div class="spi-und"><span t-esc="customer_address" /></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="spi-section">የእቃ/የአገልግሎት አይነት /Item Details</div>
+
+            <table class="spi-table">
+                <thead style="display: table-header-group;">
+                    <tr>
+                        <th style="width:4%;">S.N</th>
+                        <th style="width:10%;">Item Code</th>
+                        <th style="width:22%;">Item Description</th>
+                        <th style="width:9%;">Unit of Measure</th>
+                        <th style="width:9%;">Quantity</th>
+                        <th style="width:11%;">Unit Price</th>
+                        <th style="width:12%;">Total Unit Price</th>
+                        <th style="width:13%;">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="row_count" t-value="0" />
+                    <t t-foreach="doc.get_proforma_order_lines()" t-as="line">
+                        <t t-set="row_count" t-value="row_count + 1" />
+                        <tr style="page-break-inside: avoid;">
+                            <td class="spi-center"><span t-esc="row_count" /></td>
+                            <td class="spi-center">
+                                <span t-esc="line.product_id.default_code or ''" />
+                            </td>
+                            <td class="spi-desc">
+                                <span t-esc="line.product_id.display_name or line.name or ''" />
+                            </td>
+                            <td class="spi-center">
+                                <span t-esc="line.product_uom.name or ''" />
+                            </td>
+                            <td class="spi-num">
+                                <span t-esc="'{0:,.2f}'.format(line.product_uom_qty or 0.0)" />
+                            </td>
+                            <td class="spi-num">
+                                <span t-esc="'{0:,.2f}'.format(line.price_unit or 0.0)" />
+                            </td>
+                            <td class="spi-num">
+                                <span t-esc="'{0:,.2f}'.format(line.price_subtotal or 0.0)" />
+                            </td>
+                            <td class="spi-desc">
+                                <span t-esc="doc.get_proforma_line_remark(line)" />
+                            </td>
+                        </tr>
+                    </t>
+                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 3 else 3" />
+                    <t t-set="pad_rows" t-value="min_rows - row_count" />
+                    <t t-foreach="range(pad_rows)" t-as="pad">
+                        <tr>
+                            <td class="spi-center"><span t-esc="row_count + pad + 1" /></td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                            <td>&#160;</td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div class="spi-totals">
+                <div class="spi-totals-row">
+                    <span class="spi-totals-lbl">Total Birr</span>
+                    <span class="spi-totals-val">
+                        <div class="spi-und">
+                            <span t-esc="'{0:,.2f}'.format(doc.amount_total or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="spi-totals-row">
+                    <span class="spi-totals-lbl">Birr in Word</span>
+                    <span class="spi-totals-val">
+                        <div class="spi-und">
+                            <span t-esc="doc.get_proforma_amount_in_words()" />
+                        </div>
+                    </span>
+                </div>
+            </div>
+
+            <div class="spi-section">Term Condition</div>
+            <div class="spi-term-sub">(Explain why the items are needed)</div>
+            <div class="spi-line">
+                <span t-esc="doc.get_proforma_term_condition()" />
+            </div>
+            <div class="spi-line">&#160;</div>
+
+            <div class="spi-section">Approval Flow</div>
+
+            <div class="spi-appr">
+                <div class="spi-appr-row">
+                    <div class="spi-appr-title">Prepared By:</div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Name:</span>
+                            <div class="spi-und">
+                                <t t-if="prepared_by">
+                                    <span t-field="prepared_by.name" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Sig:</span>
+                            <div class="spi-und">
+                                <t t-if="prepared_by and prepared_by.sign_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (prepared_by.sign_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                                <t t-elif="prepared_by and prepared_by.employee_id and prepared_by.employee_id.emp_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (prepared_by.employee_id.emp_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Date:</span>
+                            <div class="spi-und">
+                                <t t-set="prepared_date" t-value="doc.get_proforma_prepared_date()" />
+                                <t t-if="prepared_date">
+                                    <span t-out="prepared_date" t-options='{"widget": "date"}' />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spi-appr-row">
+                    <div class="spi-appr-title">Checked By:</div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Name:</span>
+                            <div class="spi-und">
+                                <t t-if="doc.proforma_checked_by_id">
+                                    <span t-field="doc.proforma_checked_by_id.name" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Sig:</span>
+                            <div class="spi-und">
+                                <t t-if="doc.proforma_checked_by_id and doc.proforma_checked_by_id.sign_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (doc.proforma_checked_by_id.sign_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                                <t t-elif="doc.proforma_checked_by_id and doc.proforma_checked_by_id.employee_id and doc.proforma_checked_by_id.employee_id.emp_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (doc.proforma_checked_by_id.employee_id.emp_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Date:</span>
+                            <div class="spi-und">&#160;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spi-appr-row">
+                    <div class="spi-appr-title">Approved By:</div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Name:</span>
+                            <div class="spi-und">
+                                <t t-if="approved_by">
+                                    <span t-field="approved_by.name" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Sig:</span>
+                            <div class="spi-und">
+                                <t t-if="approved_by and approved_by.sign_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (approved_by.sign_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                                <t t-elif="approved_by and approved_by.employee_id and approved_by.employee_id.emp_signature">
+                                    <img t-att-src="'data:image/png;base64,%s' % (approved_by.employee_id.emp_signature.decode())"
+                                        style="max-height: 40px; max-width: 120px;" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spi-appr-slot">
+                        <div class="spi-field">
+                            <span class="spi-lbl">Date:</span>
+                            <div class="spi-und">
+                                <t t-set="approved_date" t-value="doc.get_proforma_approved_date()" />
+                                <t t-if="approved_date">
+                                    <span t-out="approved_date" t-options='{"widget": "date"}' />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="spi-copy">
+                <strong>Copy Distribution:</strong>
+                Original-Customer &#160;|&#160;
+                1st Copy Sales Person &#160;|&#160;
+                2nd Copy-Pad
+            </div>
+        </div>
+    </template>
+</odoo>

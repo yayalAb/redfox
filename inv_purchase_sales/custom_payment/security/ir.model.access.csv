@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_payment_method_custom_create,account.payment.method custom create,account.model_account_payment_method,account.group_account_invoice,1,1,1,0
+access_account_payment_method_custom_manager,account.payment.method custom manager,account.model_account_payment_method,account.group_account_manager,1,1,1,1

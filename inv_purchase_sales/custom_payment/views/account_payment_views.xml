@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_payment_form_maturity_date" model="ir.ui.view">
+        <field name="name">account.payment.form.maturity.date</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Received From</attribute>
+            </field>
+            <field name="date" position="attributes">
+                <attribute name="string">Received Date</attribute>
+            </field>
+            <field name="memo" position="attributes">
+                <attribute name="string">Reference No</attribute>
+            </field>
+            <xpath expr="//group[@name='group2']/field[@name='partner_bank_id'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='group2']/field[@name='partner_bank_id'][2]" position="attributes">
+                <attribute name="invisible">payment_type == 'inbound' or partner_type != 'supplier'</attribute>
+                <attribute name="string">Vendor Bank Account</attribute>
+            </xpath>
+            <xpath expr="//group[@name='group2']/field[@name='partner_bank_id'][3]" position="attributes">
+                <attribute name="invisible">payment_type == 'outbound' or partner_type != 'customer'</attribute>
+                <attribute name="string">Company Bank Account</attribute>
+            </xpath>
+            <xpath expr="//group[@name='group2']/field[@name='partner_bank_id'][3]" position="after">
+                <field name="check_transfer_no"
+                       required="1"
+                       readonly="state != 'draft'"/>
+            </xpath>
+            <field name="date" position="after">
+                <field name="maturity_date"
+                       readonly="state != 'draft'"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_payment_tree_maturity_date" model="ir.ui.view">
+        <field name="name">account.payment.list.maturity.date</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Received From</attribute>
+            </field>
+            <field name="date" position="attributes">
+                <attribute name="string">Received Date</attribute>
+            </field>
+            <field name="date" position="after">
+                <field name="maturity_date" optional="hide"/>
+                <field name="partner_bank_id" string="Bank Account" optional="show"/>
+                <field name="check_transfer_no" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

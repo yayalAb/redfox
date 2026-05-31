@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useRef, onMounted, onPatched } from "@odoo/owl";
+import { Component, onWillStart, useRef, onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 import { loadJS } from "@web/core/assets";
 
 export class ChartRenderer extends Component {
@@ -15,10 +15,19 @@ export class ChartRenderer extends Component {
         });
 
         onMounted(() => this.renderChart());
-        onPatched(() => this.updateChart());
+        onPatched(() => this.renderChart());
+        onWillUnmount(() => this.destroyChart());
+    }
+
+    destroyChart() {
+        if (this.chartInstance) {
+            this.chartInstance.destroy();
+            this.chartInstance = null;
+        }
     }
 
     renderChart() {
+        this.destroyChart();
         if (!this.chartRef.el || !window.Chart) {
             return;
         }
@@ -50,13 +59,5 @@ export class ChartRenderer extends Component {
                       },
             },
         });
-    }
-
-    updateChart() {
-        if (!this.chartInstance || !this.props.data?.labels?.length) {
-            return;
-        }
-        this.chartInstance.data = this.props.data;
-        this.chartInstance.update();
     }
 }

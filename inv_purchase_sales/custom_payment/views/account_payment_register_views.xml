@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_payment_register_form_maturity_date" model="ir.ui.view">
+        <field name="name">account.payment.register.form.maturity.date</field>
+        <field name="model">account.payment.register</field>
+        <field name="inherit_id" ref="account.view_account_payment_register_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_bank_id']" position="replace">
+                <field name="partner_bank_id"
+                       string="Vendor Bank Account"
+                       invisible="payment_type == 'inbound' or not can_edit_wizard or (can_group_payments and not group_payment)"
+                       readonly="payment_type == 'inbound'"
+                       required="require_partner_bank_account and can_edit_wizard and (not can_group_payments or not group_payment)"
+                       placeholder="Account Number"
+                       context="{'display_account_trust': True, 'default_partner_id': partner_id}"/>
+                <field name="partner_bank_id"
+                       string="Company Bank Account"
+                       invisible="payment_type == 'outbound' or not can_edit_wizard or (can_group_payments and not group_payment)"
+                       readonly="payment_type == 'inbound'"
+                       required="require_partner_bank_account and can_edit_wizard and (not can_group_payments or not group_payment)"
+                       placeholder="Account Number"
+                       context="{'display_account_trust': True, 'default_partner_id': partner_id}"/>
+                <field name="check_transfer_no" required="1"/>
+            </xpath>
+            <field name="payment_date" position="after">
+                <field name="maturity_date"/>
+            </field>
+        </field>
+    </record>
+</odoo>

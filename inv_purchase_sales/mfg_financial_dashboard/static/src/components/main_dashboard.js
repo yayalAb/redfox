@@ -3,9 +3,18 @@
 import { Component, onMounted, onWillStart, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { _t } from "@web/core/l10n/translation";
 import { DashboardCard } from "./dashboard_card/dashboard_card";
 import { ChartRenderer } from "./chart_renderer/chart_renderer";
 import { PaginationControls } from "./pagination_controls/pagination_controls";
+
+/** Format a Date as YYYY-MM-DD in local time (avoids UTC shift from toISOString). */
+function formatLocalDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
 
 const TABLE_SECTIONS = [
     "procurement",
@@ -18,6 +27,7 @@ const TABLE_SECTIONS = [
     "spare_parts",
     "delivery_sales",
     "customer_collections",
+    "partner_ledger",
     "profitability",
 ];
 
@@ -27,18 +37,15 @@ export class MfgFinancialDashboard extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.notification = useService("notification");
 
-        const currentYear = new Date().getFullYear();
-        this.fiscalYears = [currentYear, currentYear - 1, currentYear - 2];
         const today = new Date();
         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
         this.state = useState({
             loading: true,
-            start_date: monthStart.toISOString().split("T")[0],
-            end_date: today.toISOString().split("T")[0],
-            fiscal_year: "",
-            year_over_year: false,
+            start_date: formatLocalDate(monthStart),
+            end_date: formatLocalDate(today),
             company_name: "",
             subtitle: "",
             period_label: "",
@@ -55,6 +62,9 @@ export class MfgFinancialDashboard extends Component {
             spare_parts: [],
             delivery_sales: [],
             customer_collections: [],
+            partner_ledger: [],
+            partner_ledger_partners: [],
+            partner_filter_ids: [],
             profitability: [],
             charts: {
                 kpi_overview: { labels: [], datasets: [] },
@@ -66,6 +76,20 @@ export class MfgFinancialDashboard extends Component {
 
         this.dashboardRootRef = useRef("dashboardRoot");
         this.dashboardInnerRef = useRef("dashboardInner");
+
+        // Arrow handlers keep `this` when passed as props to DashboardCard.
+        this.openPurchaseOrders = () => {
+            this._openAction("purchase.order", "Purchase Orders");
+        };
+        this.openManufacturing = () => {
+            this._openAction("mrp.production", "Manufacturing Orders");
+        };
+        this.openSales = () => {
+            this._openAction("sale.order", "Sales Orders");
+        };
+        this.openStock = () => {
+            this._openAction("stock.quant", "Inventory");
+        };
 
         onMounted(() => {
             const root = this.dashboardRootRef.el;
@@ -112,6 +136,9 @@ export class MfgFinancialDashboard extends Component {
         if (abs >= 1) {
             return `${sign}ETB ${abs.toFixed(1)}`;
         }
+        if (abs > 0) {
+            return `${sign}ETB ${abs.toFixed(2)}`;
+        }
         return "ETB 0.0";
     }
 
@@ -142,38 +169,141 @@ export class MfgFinancialDashboard extends Component {
         await this.refreshData();
     }
 
-    async onYearOverYearChange(ev) {
-        this.state.year_over_year = ev.target.checked;
-        await this.refreshData();
-    }
-
-    async onFiscalYearChange(ev) {
-        this.state.fiscal_year = ev.target.value;
-        if (this.state.fiscal_year) {
-            this.state.start_date = "";
-            this.state.end_date = "";
-        }
-        await this.refreshData();
-    }
-
     kpiTrend(key) {
         return this.state.kpi_trends?.[key] ?? 0;
     }
 
+    filteredPartnerLedgerLines() {
+        const lines = this.state.partner_ledger || [];
+        const ids = this.state.partner_filter_ids || [];
+        if (!ids.length) {
+            return lines;
+        }
+        const idSet = new Set(ids.map((id) => Number(id)));
+        return lines.filter((row) => idSet.has(Number(row.partner_id)));
+    }
+
+    filteredPartnerLedgerPartnerTotals() {
+        const ids = this.state.partner_filter_ids || [];
+        const totals = this.state.partner_ledger_partner_totals || [];
+        if (!ids.length) {
+            return totals;
+        }
+        const idSet = new Set(ids.map((id) => Number(id)));
+        return totals.filter((row) => idSet.has(Number(row.partner_id)));
+    }
+
+    filteredPartnerLedgerGrandTotal() {
+        const totals = this.filteredPartnerLedgerPartnerTotals();
+        const grand = totals.reduce(
+            (acc, row) => ({
+                partner: "Grand Total",
+                debit_raw: acc.debit_raw + (Number(row.debit_raw) || 0),
+                credit_raw: acc.credit_raw + (Number(row.credit_raw) || 0),
+                balance_raw: acc.balance_raw + (Number(row.balance_raw) || 0),
+            }),
+            { partner: "Grand Total", debit_raw: 0, credit_raw: 0, balance_raw: 0 }
+        );
+        return grand;
+    }
+
+    partnerLedgerDisplayRows() {
+        const lines = this.filteredPartnerLedgerLines();
+        const byPartner = new Map();
+        for (const line of lines) {
+            const pid = Number(line.partner_id);
+            if (!byPartner.has(pid)) {
+                byPartner.set(pid, []);
+            }
+            byPartner.get(pid).push(line);
+        }
+        const totalsById = new Map(
+            this.filteredPartnerLedgerPartnerTotals().map((t) => [Number(t.partner_id), t])
+        );
+        const display = [];
+        for (const pt of this.filteredPartnerLedgerPartnerTotals()) {
+            const pid = Number(pt.partner_id);
+            const partnerLines = [...(byPartner.get(pid) || [])].sort((a, b) =>
+                (b.date || "").localeCompare(a.date || "")
+            );
+            if (!partnerLines.length) {
+                continue;
+            }
+            for (const line of partnerLines) {
+                display.push({ row_type: "line", ...line });
+            }
+            display.push({
+                row_type: "partner_total",
+                partner_id: pid,
+                partner: pt.partner,
+                debit_raw: pt.debit_raw,
+                credit_raw: pt.credit_raw,
+                balance_raw: pt.balance_raw,
+            });
+        }
+        for (const [pid, partnerLines] of byPartner) {
+            if (totalsById.has(pid)) {
+                continue;
+            }
+            for (const line of partnerLines) {
+                display.push({ row_type: "line", ...line });
+            }
+        }
+        const grand = this.filteredPartnerLedgerGrandTotal();
+        if (display.length) {
+            display.push({
+                row_type: "grand_total",
+                partner: grand.partner,
+                debit_raw: grand.debit_raw,
+                credit_raw: grand.credit_raw,
+                balance_raw: grand.balance_raw,
+            });
+        }
+        return display;
+    }
+
+    partnerLedgerRowKey(row, index) {
+        if (row.row_type === "partner_total") {
+            return `pt_${row.partner_id}`;
+        }
+        if (row.row_type === "grand_total") {
+            return "grand_total";
+        }
+        return `line_${row.partner_id}_${index}_${row.move || ""}_${row.date || ""}`;
+    }
+
+    tableRows(section) {
+        if (section === "partner_ledger") {
+            return this.partnerLedgerDisplayRows();
+        }
+        return this.state[section] || [];
+    }
+
     paginatedRows(section) {
-        const rows = this.state[section] || [];
+        const rows = this.tableRows(section);
         const page = this.state.pagination[section] || 1;
         const start = (page - 1) * MfgFinancialDashboard.PAGE_SIZE;
         return rows.slice(start, start + MfgFinancialDashboard.PAGE_SIZE);
     }
 
     totalPages(section) {
-        const total = (this.state[section] || []).length;
+        const total = this.tableRows(section).length;
         return Math.max(1, Math.ceil(total / MfgFinancialDashboard.PAGE_SIZE));
     }
 
     totalItems(section) {
-        return (this.state[section] || []).length;
+        return this.tableRows(section).length;
+    }
+
+    partnerFilterDropdownValue() {
+        const ids = this.state.partner_filter_ids || [];
+        return ids.length ? String(ids[0]) : "";
+    }
+
+    onPartnerFilterSelect(ev) {
+        const val = ev.target.value;
+        this.state.partner_filter_ids = val ? [Number(val)] : [];
+        this.state.pagination.partner_ledger = 1;
     }
 
     currentPage(section) {
@@ -197,11 +327,7 @@ export class MfgFinancialDashboard extends Component {
             const kwargs = {
                 date_start: this.state.start_date || false,
                 date_end: this.state.end_date || false,
-                year_over_year: this.state.year_over_year,
             };
-            if (this.state.fiscal_year) {
-                kwargs.fiscal_year = this.state.fiscal_year;
-            }
             const data = await this.orm.call(
                 "mfg.dashboard",
                 "get_dashboard_data",
@@ -216,40 +342,33 @@ export class MfgFinancialDashboard extends Component {
                 use_live_data: true,
                 kpis: data.kpis || {},
                 kpi_trends: data.kpi_trends || {},
-                procurement: data.procurement,
-                production_efficiency: data.production_efficiency,
-                rm_pm_consumption: data.rm_pm_consumption,
-                byproduct_recovery: data.byproduct_recovery,
-                fg_inventory: data.fg_inventory,
-                raw_material_stock: data.raw_material_stock,
-                packaging_stock: data.packaging_stock,
-                spare_parts: data.spare_parts,
-                delivery_sales: data.delivery_sales,
-                customer_collections: data.customer_collections,
-                profitability: data.profitability,
-                charts: data.charts,
+                procurement: data.procurement || [],
+                production_efficiency: data.production_efficiency || [],
+                rm_pm_consumption: data.rm_pm_consumption || [],
+                byproduct_recovery: data.byproduct_recovery || [],
+                fg_inventory: data.fg_inventory || [],
+                raw_material_stock: data.raw_material_stock || [],
+                packaging_stock: data.packaging_stock || [],
+                spare_parts: data.spare_parts || [],
+                delivery_sales: data.delivery_sales || [],
+                customer_collections: data.customer_collections || [],
+                partner_ledger: data.partner_ledger || [],
+                partner_ledger_partners: data.partner_ledger_partners || [],
+                partner_ledger_partner_totals: data.partner_ledger_partner_totals || [],
+                partner_ledger_grand_total: data.partner_ledger_grand_total || null,
+                partner_filter_ids: [],
+                profitability: data.profitability || [],
+                charts: data.charts || this.state.charts,
             });
             this.resetPagination();
         } catch (e) {
             console.error("Dashboard load failed:", e);
             this.state.loading = false;
+            this.notification.add(
+                _t("Could not load dashboard data. Check server logs or your access rights."),
+                { type: "danger" }
+            );
         }
-    }
-
-    openPurchaseOrders() {
-        this._openAction("purchase.order", "Purchase Orders");
-    }
-
-    openManufacturing() {
-        this._openAction("mrp.production", "Manufacturing Orders");
-    }
-
-    openSales() {
-        this._openAction("sale.order", "Sales Orders");
-    }
-
-    openStock() {
-        this._openAction("stock.quant", "Inventory");
     }
 
     _openAction(model, name) {

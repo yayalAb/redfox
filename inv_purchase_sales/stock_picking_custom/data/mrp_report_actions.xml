@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp.action_report_production_order" model="ir.actions.report">
+        <field name="name">Manufacturing Order Attachment</field>
+        <field name="report_name">stock_picking_custom.report_manufacturing_order_attachment</field>
+        <field name="report_file">stock_picking_custom.report_manufacturing_order_attachment</field>
+        <field name="print_report_name">'Manufacturing Order - %s' % (object.name)</field>
+    </record>
+</odoo>

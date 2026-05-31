@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_journal_form_payment_method_create" model="ir.ui.view">
+        <field name="name">account.journal.form.payment.method.create</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='inbound_payment_method_line_ids']//field[@name='payment_method_id']" position="attributes">
+                <attribute name="options">{'no_open': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='outbound_payment_method_line_ids']//field[@name='payment_method_id']" position="attributes">
+                <attribute name="options">{'no_open': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

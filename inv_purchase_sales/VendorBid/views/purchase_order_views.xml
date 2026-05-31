@@ -57,12 +57,13 @@
                     <field name="validity_period" invisible="purchase_origin != 'local'" />
                 </xpath>
 
-                <xpath expr="//field[@name='payment_term_id']" position='after'>
-                    <field name="payment_term" invisible="purchase_origin != 'foreign'" />
-                </xpath>
+                <!-- <xpath expr="//field[@name='payment_term_id']" position='after'>
+                </xpath> -->
 
                 <xpath expr="//field[@name='currency_id']" position="after">
                     <field name="purchase_origin" />
+                    <field name="payment_term" invisible="purchase_origin != 'foreign'" />
+
                     <field name="applied_tax_ids" widget="many2many_tags"
                         invisible="purchase_origin != 'local'"
                         options="{'no_create': True, 'no_create_edit': True}" />
@@ -183,7 +184,7 @@
             </field>
         </record>
 
-        <record id="view_foreign_purchase_order_port_form" model="ir.ui.view">
+        <!-- <record id="view_foreign_purchase_order_port_form" model="ir.ui.view">
             <field name="name">foreign.purchase.order.port.form</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit" />
@@ -194,7 +195,7 @@
                     <field name="port_discharge" invisible="purchase_origin != 'foreign'" />
                 </xpath>
             </field>
-        </record>
+        </record> -->
 
 
         <record id="purchase.purchase_form_action" model="ir.actions.act_window">

@@ -106,8 +106,7 @@ class StoreRequest(models.Model):
         string='Number of Returns')
     date_approved = fields.Datetime(
         string='Date Approved',
-        tracking=True
-    )
+        tracking=True)
 
     @api.constrains('warehouse_id', 'state')
     def _check_warehouse_required_after_approval(self):
