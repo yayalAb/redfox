@@ -9,6 +9,7 @@
                 <field name="fs_no"/>
                 <field name="mrc_no"/>
                 <field name="payment_method"/>
+                <field name="carrier" options="{'no_create': True}"/>
             </xpath>
         </field>
     </record>

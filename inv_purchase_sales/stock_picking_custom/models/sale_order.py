@@ -16,6 +16,26 @@ class SaleOrder(models.Model):
         ],
         string='Payment Method',
     )
+    carrier = fields.Many2one('res.users', string='Driver')
+
+    def _sync_carrier_to_pickings(self):
+        for order in self:
+            if not order.carrier:
+                continue
+            order.picking_ids.filtered(
+                lambda p: p.state not in ('done', 'cancel')
+            ).carrier = order.carrier
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'carrier' in vals:
+            self._sync_carrier_to_pickings()
+        return res
+
+    def action_confirm(self):
+        res = super().action_confirm()
+        self._sync_carrier_to_pickings()
+        return res
 
     def _prepare_invoice(self):
         invoice_vals = super()._prepare_invoice()

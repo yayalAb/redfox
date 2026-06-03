@@ -13,3 +13,9 @@ class AccountMove(models.Model):
         ],
         string='Method',
     )
+
+    def refresh_invoice_currency_rate(self):
+        """Support legacy invoice form buttons from Studio or older customizations."""
+        self._compute_invoice_currency_rate()
+        self.line_ids._compute_currency_rate()
+        return True

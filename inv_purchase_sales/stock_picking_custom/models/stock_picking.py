@@ -8,9 +8,17 @@ class StockPicking(models.Model):
     store_request_id = fields.Many2one('store.request', string='Store Request')
     approved_by = fields.Many2one(
         'res.users', string='Approved By', tracking=True, readonly=True)
-    carrier = fields.Many2one('res.users', string="Carrier")
+    carrier = fields.Many2one('res.users', string="Driver")
     vehicle_plate = fields.Char(string='Truck / Plate No.')
     reason_for_entry = fields.Text(string='Reason')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        pickings = super().create(vals_list)
+        for picking in pickings:
+            if not picking.carrier and picking.sale_id and picking.sale_id.carrier:
+                picking.carrier = picking.sale_id.carrier
+        return pickings
 
     def _grn_moves(self):
         self.ensure_one()

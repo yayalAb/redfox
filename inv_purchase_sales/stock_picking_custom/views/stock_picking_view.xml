@@ -13,9 +13,9 @@
             </xpath>
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="approved_by" readonly='1' />
-                <field name='carrier'
-                    invisible="picking_type_id.code not in ('internal', 'outgoing')"
-                    options="{'no_create': True}" />
+            </xpath>
+            <xpath expr="//field[@name='backorder_id']" position="after">
+                <field name="carrier" options="{'no_create': True}"/>
             </xpath>
             <xpath expr="//field[@name='move_ids_without_package']//field[@name='quantity']"
                 position="after">
