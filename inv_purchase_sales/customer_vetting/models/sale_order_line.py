@@ -32,8 +32,8 @@ class SaleOrderLine(models.Model):
     def unlink(self):
         orders = self.mapped('order_id')
         res = super().unlink()
-        if not self.env.context.get('customer_vetting_skip_detail_reconcile'):
-            orders._customer_vetting_sync_order_details()
+        # if not self.env.context.get('customer_vetting_skip_detail_reconcile'):
+        #     orders._customer_vetting_sync_order_details()
         return res
 
     def _customer_vetting_sync_order_details(self):
