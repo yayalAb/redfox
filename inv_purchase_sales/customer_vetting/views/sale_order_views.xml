@@ -14,6 +14,14 @@
                         invisible="product_detail_receipt_count == 0">
                     <field name="product_detail_receipt_count" widget="statinfo" string="Receipts"/>
                 </button>
+                <button name="action_view_customer_vetting_deliveries"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-paper-plane"
+                        groups="stock.group_stock_user"
+                        invisible="customer_vetting_delivery_count == 0">
+                    <field name="customer_vetting_delivery_count" widget="statinfo" string="Deliveries"/>
+                </button>
             </xpath>
             <xpath expr="//group[@name='sale_header']/group[@name='partner_details']/field[@name='partner_id']" position="after">
                 <field name="service_request_id"

@@ -51,11 +51,50 @@ class StockMove(models.Model):
             raw_moves = move._customer_vetting_raw_moves_same_picking()
             move.customer_vetting_is_raw_receipt_line = move in raw_moves
 
+    def _customer_vetting_skip_valuation(self):
+        """Skip stock valuation for vetting receipts, MO produce, and MO deliveries."""
+        self.ensure_one()
+        if self.env.context.get('customer_vetting_skip_valuation'):
+            return True
+        picking = self.picking_id
+        if picking and picking.customer_vetting_mrp_production_id:
+            return True
+        if (
+            picking
+            and picking.picking_type_id.code == 'incoming'
+            and picking._customer_vetting_is_product_detail_so_receipt()
+        ):
+            return True
+        mo = self.production_id
+        if mo and mo.customer_vetting_receipt_picking_id:
+            return True
+        return False
+
     def _get_in_move_lines(self):
         self.ensure_one()
-        if (
-            self.picking_id
-            and self.picking_id._customer_vetting_is_product_detail_so_receipt()
-        ):
+        if self._customer_vetting_skip_valuation():
             return self.env['stock.move.line']
         return super()._get_in_move_lines()
+
+    def _get_out_move_lines(self):
+        self.ensure_one()
+        if self._customer_vetting_skip_valuation():
+            return self.env['stock.move.line']
+        return super()._get_out_move_lines()
+
+    def _should_exclude_for_valuation(self):
+        if self._customer_vetting_skip_valuation():
+            return True
+        return super()._should_exclude_for_valuation()
+
+    def _create_in_svl(self, forced_quantity=None):
+        moves = self.filtered(lambda m: not m._customer_vetting_skip_valuation())
+        if not moves:
+            return self.env['stock.valuation.layer']
+        return super(StockMove, moves)._create_in_svl(forced_quantity)
+
+    def _create_out_svl(self, forced_quantity=None):
+        moves = self.filtered(lambda m: not m._customer_vetting_skip_valuation())
+        if not moves:
+            return self.env['stock.valuation.layer']
+        return super(StockMove, moves)._create_out_svl(forced_quantity)

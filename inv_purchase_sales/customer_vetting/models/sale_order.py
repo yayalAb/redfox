@@ -29,11 +29,26 @@ class SaleOrder(models.Model):
         comodel_name='stock.picking',
         inverse_name='customer_vetting_sale_id',
         string='Product detail receipts',
+        domain=[('picking_type_id.code', '=', 'incoming')],
         copy=False,
     )
     product_detail_receipt_count = fields.Integer(
         compute='_compute_product_detail_receipt_count',
         string='Product detail receipts',
+    )
+    customer_vetting_delivery_ids = fields.One2many(
+        comodel_name='stock.picking',
+        inverse_name='customer_vetting_sale_id',
+        string='Customer vetting deliveries',
+        domain=[
+            ('picking_type_id.code', '=', 'outgoing'),
+            ('customer_vetting_mrp_production_id', '!=', False),
+        ],
+        copy=False,
+    )
+    customer_vetting_delivery_count = fields.Integer(
+        compute='_compute_customer_vetting_delivery_count',
+        string='Deliveries',
     )
 
     @api.depends('product_detail_receipt_ids', 'name', 'company_id')
@@ -51,6 +66,15 @@ class SaleOrder(models.Model):
                     ]
                 )
             order.product_detail_receipt_count = len(pickings)
+
+    @api.depends('customer_vetting_delivery_ids')
+    def _compute_customer_vetting_delivery_count(self):
+        for order in self:
+            order.customer_vetting_delivery_count = len(
+                order.customer_vetting_delivery_ids.filtered(
+                    lambda p: p.state != 'cancel'
+                )
+            )
 
     def _primary_template_variant(self, template):
         """Return one product.product for a template (or empty recordset)."""
@@ -315,6 +339,35 @@ class SaleOrder(models.Model):
             default_partner_id=self.partner_id.id,
             default_picking_type_id=ref_pick.picking_type_id.id,
             default_origin=self.name,
+        )
+        return action
+
+    def action_view_customer_vetting_deliveries(self):
+        self.ensure_one()
+        pickings = self.customer_vetting_delivery_ids.filtered(
+            lambda p: p.state != 'cancel'
+        )
+        if not pickings:
+            return False
+        action = self.env['ir.actions.actions']._for_xml_id('stock.action_picking_tree_all')
+        action = dict(action)
+        if len(pickings) == 1:
+            form_view = [(self.env.ref('stock.view_picking_form').id, 'form')]
+            if action.get('views'):
+                action['views'] = form_view + [
+                    (state, view) for state, view in action['views'] if view != 'form'
+                ]
+            else:
+                action['views'] = form_view
+            action['res_id'] = pickings.id
+            action['view_mode'] = 'form'
+        else:
+            action['domain'] = [('id', 'in', pickings.ids)]
+        action['context'] = dict(
+            self.env.context,
+            default_partner_id=self.partner_id.id,
+            default_origin=self.name,
+            create=False,
         )
         return action
 

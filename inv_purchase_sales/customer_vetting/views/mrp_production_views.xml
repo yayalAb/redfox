@@ -5,6 +5,16 @@
         <field name="model">mrp.production</field>
         <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
         <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_customer_vetting_deliveries"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-paper-plane"
+                        groups="stock.group_stock_user"
+                        invisible="customer_vetting_delivery_count == 0">
+                    <field name="customer_vetting_delivery_count" widget="statinfo" string="Deliveries"/>
+                </button>
+            </xpath>
             <xpath expr="//page[@name='miscellaneous']//field[@name='origin']" position="after">
                 <field name="customer_vetting_receipt_picking_id"
                        readonly="1"

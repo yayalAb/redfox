@@ -14,7 +14,14 @@ class StockPicking(models.Model):
     )
     customer_vetting_sale_id = fields.Many2one(
         'sale.order',
-        string='Sales order (product detail receipt)',
+        string='Sales order (customer vetting)',
+        ondelete='set null',
+        copy=False,
+        index=True,
+    )
+    customer_vetting_mrp_production_id = fields.Many2one(
+        'mrp.production',
+        string='Manufacturing order (customer vetting delivery)',
         ondelete='set null',
         copy=False,
         index=True,
@@ -235,6 +242,7 @@ class StockPicking(models.Model):
                     vals['sale_line_id'] = sol.id
                 mo = MrpProduction.create(vals)
                 mo.action_confirm()
+                mo._customer_vetting_create_delivery_orders()
                 picking.message_post(
                     body=_(
                         'Manufacturing order %(name)s created for %(product)s.',
