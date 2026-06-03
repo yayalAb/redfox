@@ -11,7 +11,8 @@ from odoo import api, fields, models
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    translated_product_name = fields.Text(compute='_compute_translated_product_name')
+    translated_product_name = fields.Text(
+        compute='_compute_translated_product_name')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -24,8 +25,8 @@ class SaleOrderLine(models.Model):
         res = super().write(vals)
         if self.env.context.get('customer_vetting_skip_detail_reconcile'):
             return res
-        orders_after = self.mapped('order_id')
-        (orders_before | orders_after)._customer_vetting_sync_order_details()
+        # orders_after = self.mapped('order_id')
+        # (orders_before | orders_after)._customer_vetting_sync_order_details()
         return res
 
     def unlink(self):
@@ -36,7 +37,8 @@ class SaleOrderLine(models.Model):
         return res
 
     def _customer_vetting_sync_order_details(self):
-        self.mapped('order_id').filtered('service_request_id')._sync_service_vetting_detail_lines()
+        self.mapped('order_id').filtered(
+            'service_request_id')._sync_service_vetting_detail_lines()
 
     @api.depends('product_id', 'order_id.partner_id')
     def _compute_translated_product_name(self):
