@@ -7,6 +7,24 @@ class SaleOrder(models.Model):
     proforma_checked_by_id = fields.Many2one(
         'res.users', string='Proforma Checked By', readonly=True,
     )
+    fs_no = fields.Char(string='FS No')
+    mrc_no = fields.Char(string='MRC No')
+    payment_method = fields.Selection(
+        selection=[
+            ('cash', 'Cash'),
+            ('credit', 'Credit'),
+        ],
+        string='Payment Method',
+    )
+
+    def _prepare_invoice(self):
+        invoice_vals = super()._prepare_invoice()
+        invoice_vals.update({
+            'fs_no': self.fs_no,
+            'mrc_no': self.mrc_no,
+            'payment_method': self.payment_method,
+        })
+        return invoice_vals
 
     def get_proforma_amount_in_words(self):
         self.ensure_one()
@@ -59,25 +77,12 @@ class SaleOrder(models.Model):
 
     def get_sales_attachment_fs_no(self):
         self.ensure_one()
-        invoices = self.invoice_ids.filtered(
-            lambda move: move.move_type == 'out_invoice' and move.state == 'posted'
-        )
-        return invoices[0].name if invoices else ''
+        return self.fs_no or ''
 
     def get_sales_attachment_mrc_no(self):
         self.ensure_one()
-        return self.client_order_ref or ''
+        return self.mrc_no or ''
 
     def get_sales_attachment_payment_method(self):
         self.ensure_one()
-        if not self.payment_term_id:
-            return ''
-        term = self.payment_term_id
-        name = (term.name or '').lower()
-        if 'cash' in name or 'immediate' in name:
-            return 'Cash'
-        if 'credit' in name:
-            return 'Credit'
-        if term.line_ids and all(line.nb_days == 0 for line in term.line_ids):
-            return 'Cash'
-        return 'Credit'
+        return dict(self._fields['payment_method'].selection).get(self.payment_method, '')

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_fs_mrc_payment" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@name='origin']" position="after">
+            <div class="col" t-if="o.fs_no" name="fs_no">
+                <strong>FS No</strong>
+                <div t-field="o.fs_no"/>
+            </div>
+            <div class="col" t-if="o.mrc_no" name="mrc_no">
+                <strong>MRC No</strong>
+                <div t-field="o.mrc_no"/>
+            </div>
+            <div class="col" t-if="o.payment_method" name="payment_method">
+                <strong>Method</strong>
+                <div t-field="o.payment_method"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="t-if">o.invoice_date or (o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted') or o.delivery_date or o.invoice_origin or o.partner_id.ref or o.ref or o.invoice_incoterm_id or o.fs_no or o.mrc_no or o.payment_method</attribute>
+        </xpath>
+    </template>
+</odoo>

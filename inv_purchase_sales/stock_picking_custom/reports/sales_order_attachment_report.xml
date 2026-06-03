@@ -201,9 +201,9 @@
                         <div class="soa-und"><span t-field="doc.name" /></div>
                     </div>
                     <div class="soa-field">
-                        <span class="soa-lbl">-MRC No:</span>
+                        <span class="soa-lbl">MRC No:</span>
                         <div class="soa-und soa-und-dashed">
-                            <span t-esc="doc.get_sales_attachment_mrc_no()" />
+                            <t t-out="doc.mrc_no or ''"/>
                         </div>
                     </div>
                     <div class="soa-field">
@@ -225,15 +225,15 @@
                         </div>
                     </div>
                     <div class="soa-field">
-                        <span class="soa-lbl">FS NO:</span>
+                        <span class="soa-lbl">FS No:</span>
                         <div class="soa-und soa-und-dashed">
-                            <span t-esc="doc.get_sales_attachment_fs_no()" />
+                            <t t-out="doc.fs_no or ''"/>
                         </div>
                     </div>
                     <div class="soa-field">
-                        <span class="soa-lbl">Method:</span>
+                        <span class="soa-lbl">Payment Method:</span>
                         <div class="soa-und">
-                            <span t-esc="doc.get_sales_attachment_payment_method()" />
+                            <t t-out="doc.get_sales_attachment_payment_method()"/>
                         </div>
                     </div>
                     <div class="soa-field">
