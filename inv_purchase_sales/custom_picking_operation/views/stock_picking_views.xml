@@ -9,11 +9,11 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_uom_qty']" position="after">
                 <field name="customer_vetting_gross_weight" string="Gross weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                       column_invisible="parent.picking_type_code not in ('incoming', 'outgoing')"/>
                 <field name="customer_vetting_tare_weight" string="Tare weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                       column_invisible="parent.picking_type_code not in ('incoming', 'outgoing')"/>
                 <field name="customer_vetting_line_net_weight" string="Net Weight" optional="show"
-                       column_invisible="parent.picking_type_code != 'incoming'"/>
+                       column_invisible="parent.picking_type_code not in ('incoming', 'outgoing')"/>
             </xpath>
         </field>
     </record>
