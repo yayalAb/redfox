@@ -123,6 +123,28 @@ class StockPicking(models.Model):
         """Delegate to vetting filtering when this module is installed."""
         return self._customer_vetting_good_receiving_report_moves()
 
+    def _customer_vetting_is_reception_report_action(self, action):
+        return isinstance(action, dict) and action.get('tag') == 'reception_report'
+
+    def _customer_vetting_without_reception_report_redirect(self, result):
+        """Do not open the allocation / reception report after validating vetting receipts."""
+        if self._customer_vetting_is_reception_report_action(result):
+            return True
+        if isinstance(result, dict) and result.get('tag') == 'do_multi_print':
+            params = dict(result.get('params') or {})
+            another = params.pop('anotherAction', None)
+            if self._customer_vetting_is_reception_report_action(another):
+                if params.get('reports'):
+                    return {**result, 'params': params}
+                return True
+        return result
+
+    def button_validate(self):
+        res = super().button_validate()
+        if self.filtered(lambda p: p._customer_vetting_is_product_detail_so_receipt()):
+            return self._customer_vetting_without_reception_report_redirect(res)
+        return res
+
     def _action_done(self):
         res = super()._action_done()
         self._customer_vetting_create_mrp_from_done_receipt()

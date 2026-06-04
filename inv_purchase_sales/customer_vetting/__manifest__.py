@@ -1,6 +1,6 @@
 {
     'name': 'Customer Vetting Workflow',
-    'version': '1.0.3',
+    'version': '1.0.4',
     'summary': 'Implements a vetting and approval workflow for customers.',
     'author': 'Henok Gm',
     'category': 'Sales/CRM',
