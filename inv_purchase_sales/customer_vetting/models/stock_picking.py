@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_round
 
 
@@ -141,6 +142,34 @@ class StockPicking(models.Model):
         action['context'] = dict(self.env.context, create=False)
         return action
 
+    def _customer_vetting_mrp_picking_type(self, bom, order):
+        """Manufacturing operation type required to create MOs (sequence + locations)."""
+        PickingType = self.env['stock.picking.type']
+        company = order.company_id
+        candidates = []
+        if bom.picking_type_id and bom.picking_type_id.company_id == company:
+            candidates.append(bom.picking_type_id)
+        warehouse = order.warehouse_id or self.env['stock.warehouse'].search(
+            [('company_id', '=', company.id)], limit=1
+        )
+        if warehouse and warehouse.manu_type_id:
+            candidates.append(warehouse.manu_type_id)
+        default_id = self.env['mrp.production']._get_default_picking_type_id(company.id)
+        if default_id:
+            candidates.append(PickingType.browse(default_id))
+        for picking_type in candidates:
+            if picking_type and picking_type.sequence_id:
+                return picking_type
+        raise UserError(
+            _(
+                'Cannot create a manufacturing order for company %(company)s: '
+                'no manufacturing operation type with a sequence is configured. '
+                'Check Inventory → Configuration → Warehouses (manufacturing steps) '
+                'or set an operation type on the bill of materials.',
+                company=company.display_name,
+            )
+        )
+
     def _customer_vetting_mo_qty_for_service_receipt(
         self, sale_line, raw_detail, finished_product
     ):
@@ -229,11 +258,13 @@ class StockPicking(models.Model):
                 )
                 if mo_qty <= 0:
                     continue
+                picking_type = picking._customer_vetting_mrp_picking_type(bom, order)
                 vals = {
                     'bom_id': bom.id,
                     'product_id': finished.id,
                     'product_qty': mo_qty,
                     'product_uom_id': finished.uom_id.id,
+                    'picking_type_id': picking_type.id,
                     'origin': '%s | %s' % (order.name, picking.name),
                     'company_id': order.company_id.id,
                     'customer_vetting_receipt_picking_id': picking.id,
