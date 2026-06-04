@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_export_process_tree" model="ir.ui.view">
+        <field name="name">export.process.tree</field>
+        <field name="model">export.process</field>
+        <field name="arch" type="xml">
+            <list string="Export Processes">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="payment_method"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'done'"
+                    decoration-danger="state == 'cancelled'"
+                    decoration-info="state in ('processing', 'shipped')"/>
+                <field name="doc_track_state" optional="show"/>
+                <field name="logistics_track_state" optional="show"/>
+                <field name="amount_total"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_export_process_form" model="ir.ui.view">
+        <field name="name">export.process.form</field>
+        <field name="model">export.process</field>
+        <field name="arch" type="xml">
+            <form string="Export Process">
+                <header>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,quotation_confirmed,contract,payment_setup,shipping_instruction,processing,shipped,final_payment,nbe_settlement,done"/>
+
+                    <!-- Quotation -->
+                    <button name="action_create_quotation" string="Create Quotation" type="object"
+                        class="oe_highlight" invisible="state != 'draft' or sale_order_id"/>
+                    <button name="action_confirm_quotation" string="Confirm Quotation" type="object"
+                        class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_cancel_quotation" string="Cancel Quotation" type="object"
+                        invisible="state != 'draft'"/>
+
+                    <!-- Contract -->
+                    <button name="action_prepare_contract" string="Prepare Contract" type="object"
+                        invisible="state != 'quotation_confirmed'"/>
+                    <button name="action_send_bag_mark" string="Send Bag Mark" type="object"
+                        invisible="state != 'contract'"/>
+                    <button name="action_send_sample_approval" string="Send Sample Approval" type="object"
+                        invisible="state != 'contract'"/>
+                    <button name="action_contract_complete" string="Contract Complete" type="object"
+                        class="oe_highlight" invisible="state != 'contract'"/>
+
+                    <!-- Payment method -->
+                    <button name="action_mark_lc_opened" string="LC Opened" type="object"
+                        invisible="state != 'payment_setup' or payment_method != 'lc'"/>
+                    <button name="action_mark_tt_before_paid" string="Before-Shipment Paid" type="object"
+                        invisible="state != 'payment_setup' or payment_method != 'tt'"/>
+                    <button name="action_confirm_payment_method" string="Confirm Payment Setup" type="object"
+                        class="oe_highlight" invisible="state != 'payment_setup'"/>
+
+                    <!-- Shipping -->
+                    <button name="action_request_shipping_instruction" string="Request Shipping Instruction" type="object"
+                        class="oe_highlight" invisible="state != 'shipping_instruction'"/>
+
+                    <!-- Documentation track -->
+                    <button name="action_doc_prepare" string="Prepare Document" type="object"
+                        invisible="state != 'processing' or doc_track_state != 'not_started'"/>
+                    <button name="action_doc_review_draft" string="Review Draft" type="object"
+                        invisible="state != 'processing' or doc_track_state != 'prepare'"/>
+                    <button name="action_doc_send_transporter" string="Send to Transporter" type="object"
+                        invisible="state != 'processing' or doc_track_state != 'draft_review'"/>
+                    <button name="action_doc_approve_final" string="Approve Final Document" type="object"
+                        invisible="state != 'processing' or doc_track_state != 'sent_transporter'"/>
+
+                    <!-- Logistics track -->
+                    <button name="action_logistics_booking" string="Request Booking" type="object"
+                        invisible="state != 'processing' or logistics_track_state != 'not_started'"/>
+                    <button name="action_logistics_inspection" string="Product Inspection" type="object"
+                        invisible="state != 'processing' or logistics_track_state != 'booking'"/>
+                    <button name="action_logistics_shipment" string="Process Shipment" type="object"
+                        invisible="state != 'processing' or logistics_track_state != 'inspection'"/>
+                    <button name="action_logistics_status_to_customer" string="Send Status to Customer" type="object"
+                        invisible="state != 'processing' or logistics_track_state != 'shipment'"/>
+                    <button name="action_mark_after_shipment_paid" string="After-Shipment Paid" type="object"
+                        invisible="state != 'processing' or payment_method != 'tt'"/>
+
+                    <button name="action_confirm_shipped" string="Confirm Shipped" type="object"
+                        class="oe_highlight" invisible="state != 'processing'"/>
+                    <button name="action_collect_final_payment" string="Final Payment Collected" type="object"
+                        class="oe_highlight" invisible="state != 'shipped'"/>
+                    <button name="action_nbe_settlement" string="NBE Settlement" type="object"
+                        class="oe_highlight" invisible="state != 'final_payment'"/>
+                    <button name="action_done" string="Close" type="object"
+                        class="oe_highlight" invisible="state != 'nbe_settlement'"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft" type="object"
+                        invisible="state != 'cancelled'"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sale_order" type="object"
+                            class="oe_stat_button" icon="fa-usd"
+                            invisible="not sale_order_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Quotation</span>
+                            </div>
+                        </button>
+                        <button name="action_open_customer_payments" type="object"
+                            class="oe_stat_button" icon="fa-money">
+                            <field name="payment_count" widget="statinfo" string="Payments"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Customer &amp; Sales">
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="user_id"/>
+                            <field name="sale_order_id" readonly="1"/>
+                            <field name="customer_response" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Payment">
+                            <field name="payment_method" readonly="state not in ('contract', 'payment_setup')"/>
+                            <field name="lc_opened" readonly="1" invisible="payment_method != 'lc'"/>
+                            <field name="tt_before_shipment_paid" readonly="1" invisible="payment_method != 'tt'"/>
+                            <field name="after_shipment_paid" readonly="1" invisible="payment_method != 'tt'"/>
+                            <field name="final_payment_collected" readonly="1"/>
+                            <field name="nbe_settlement_done" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Parallel Tracks" invisible="state not in ('processing', 'shipped', 'final_payment', 'nbe_settlement', 'done')">
+                        <group string="Documentation">
+                            <field name="doc_track_state" readonly="1"/>
+                            <field name="transporter_id"/>
+                        </group>
+                        <group string="Logistics">
+                            <field name="logistics_track_state" readonly="1"/>
+                            <field name="shipping_line_id"/>
+                            <field name="shipping_instruction_date"/>
+                            <field name="shipment_date"/>
+                        </group>
+                    </group>
+                    <group string="Contract Approvals" invisible="state not in ('contract', 'payment_setup', 'shipping_instruction', 'processing', 'shipped', 'final_payment', 'nbe_settlement', 'done')">
+                        <field name="bag_mark_sent" readonly="1"/>
+                        <field name="sample_approval_sent" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Products" name="products">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="subtotal"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="amount_total" widget="monetary"/>
+                            </group>
+                        </page>
+                        <page string="Contract" name="contract">
+                            <field name="contract_notes" placeholder="Sales contract agreement details..."/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_export_process_search" model="ir.ui.view">
+        <field name="name">export.process.search</field>
+        <field name="model">export.process</field>
+        <field name="arch" type="xml">
+            <search string="Export Process">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="sale_order_id"/>
+                <filter string="In Progress" name="processing" domain="[('state', '=', 'processing')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Payment Method" name="group_payment" context="{'group_by': 'payment_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_export_process" model="ir.actions.act_window">
+        <field name="name">Export Processes</field>
+        <field name="res_model">export.process</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new export process
+            </p>
+            <p>
+                Track export sales from quotation through contract, payment (CAD/LC/T/T),
+                parallel documentation and logistics, and NBE settlement.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_export_process"
+        name="Export Processes"
+        parent="sale.sale_menu_root"
+        action="action_export_process"
+        sequence="10"/>
+
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_export_process,export.process.user,model_export_process,base.group_user,1,1,1,1
+access_export_process_line,export.process.line.user,model_export_process_line,base.group_user,1,1,1,1
