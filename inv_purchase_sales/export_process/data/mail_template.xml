@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_export_shipment_status" model="mail.template">
+        <field name="name">Export: Shipment Status to Customer</field>
+        <field name="model_id" ref="model_export_export_order"/>
+        <field name="subject">Shipment Status - {{ object.name }}</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="body_html" type="html">
+            <p>Dear <t t-out="object.partner_id.name"/>,</p>
+            <p>Your export order <strong><t t-out="object.name"/></strong> has been processed for shipment.</p>
+            <ul>
+                <li>Quotation: <t t-out="object.sale_order_id.name"/></li>
+                <li>Stage: <t t-out="object.state"/></li>
+                <li t-if="object.booking_id and object.booking_id.vessel_name">
+                    Vessel: <t t-out="object.booking_id.vessel_name"/>
+                </li>
+            </ul>
+            <p>We will keep you updated on vessel departure, arrival, and document/payment milestones.</p>
+            <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+        </field>
+    </record>
+</odoo>

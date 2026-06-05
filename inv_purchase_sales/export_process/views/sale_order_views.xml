@@ -6,19 +6,66 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_start_export_order" string="Start Export Order" type="object"
+                    class="oe_highlight"
+                    invisible="export_order_id or state not in ('draft', 'sent') or sale_scope != 'foreign'"/>
+                <button name="action_view_export_order" string="Open Export Order" type="object"
+                    invisible="not export_order_id"/>
+            </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_export_process" type="object"
+                <button name="action_view_export_order" type="object"
                     class="oe_stat_button" icon="fa-ship"
-                    invisible="not export_process_id">
-                    <div class="o_stat_info">
-                        <span class="o_stat_text">Export</span>
-                    </div>
+                    invisible="not export_order_id">
+                    <field name="export_order_state" widget="statinfo" string="Export"/>
                 </button>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="export_process_id" invisible="1"/>
+                <field name="sale_scope" readonly="export_order_id or state not in ('draft', 'sent')"/>
+                <field name="destination_country_id"
+                    invisible="sale_scope != 'foreign'"
+                    readonly="export_order_id or state not in ('draft', 'sent')"/>
+                <field name="incoterm_id"
+                    invisible="sale_scope != 'foreign'"
+                    readonly="export_order_id or state not in ('draft', 'sent')"/>
+                <field name="export_payment_method"
+                    invisible="sale_scope != 'foreign'"
+                    readonly="export_order_id or state not in ('draft', 'sent')"/>
+                <field name="export_order_id" invisible="1"/>
+                <field name="export_order_state" invisible="not export_order_id" readonly="1"/>
             </xpath>
         </field>
     </record>
+
+    <!-- Hide local Cash/Credit payment_method when export scope is Foreign -->
+    <record id="view_order_form_export_hide_local_payment" model="ir.ui.view">
+        <field name="name">sale.order.form.export.hide.local.payment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="stock_picking_custom.view_order_form_fs_mrc_payment"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_method']" position="attributes">
+                <attribute name="invisible">sale_scope == 'foreign'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_quotations_export" model="ir.actions.act_window">
+        <field name="name">Foreign Quotations</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('sale_scope', '=', 'foreign')]</field>
+        <field name="context">{'default_sale_scope': 'foreign'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a foreign export quotation</p>
+            <p>Set customer, destination, incoterm, payment method, and products, then start the export order.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_export_quotations"
+        name="Foreign Quotations"
+        parent="sale.sale_menu_root"
+        action="action_quotations_export"
+        sequence="5"/>
 
 </odoo>

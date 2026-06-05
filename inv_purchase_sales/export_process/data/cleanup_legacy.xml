@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Remove records from the old export.process monolith -->
+    <delete model="ir.ui.view" id="view_export_process_tree"/>
+    <delete model="ir.ui.view" id="view_export_process_form"/>
+    <delete model="ir.ui.view" id="view_export_process_search"/>
+    <delete model="ir.actions.act_window" id="action_export_process"/>
+    <delete model="ir.ui.menu" id="menu_export_process"/>
+    <!-- Duplicate view from partial upgrade attempt -->
+    <delete model="ir.ui.view" search="[('name', '=', 'sale.order.form.export'), ('model', '=', 'sale.order')]"/>
+</odoo>

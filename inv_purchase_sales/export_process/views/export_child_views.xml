@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Contract -->
+    <record id="view_export_contract_form" model="ir.ui.view">
+        <field name="name">export.contract.form</field>
+        <field name="model">export.contract</field>
+        <field name="arch" type="xml">
+            <form string="Export Contract">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,prepared,sent,signed"/>
+                    <button name="action_prepare" string="Prepare" type="object" invisible="state != 'draft'"/>
+                    <button name="action_send" string="Send" type="object" invisible="state != 'prepared'"/>
+                    <button name="action_sign" string="Signed" type="object" class="oe_highlight" invisible="state != 'sent'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="partner_id"/>
+                        <field name="sale_order_id" readonly="1"/>
+                        <field name="contract_date"/>
+                        <field name="contract_file" filename="contract_filename"/>
+                        <field name="contract_filename" invisible="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Sample Approval -->
+    <record id="view_export_sample_approval_form" model="ir.ui.view">
+        <field name="name">export.sample.approval.form</field>
+        <field name="model">export.sample.approval</field>
+        <field name="arch" type="xml">
+            <form string="Sample Approval">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_send" string="Send to Customer" type="object" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'sent'"/>
+                    <button name="action_reject" string="Reject" type="object" invisible="state != 'sent'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="contract_id" readonly="1"/>
+                        <field name="sample_reference"/>
+                        <field name="sent_date" readonly="1"/>
+                        <field name="approved_date" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Bag Mark -->
+    <record id="view_export_bag_mark_form" model="ir.ui.view">
+        <field name="name">export.bag.mark.form</field>
+        <field name="model">export.bag.mark</field>
+        <field name="arch" type="xml">
+            <form string="Bag Mark Approval">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_send" string="Send to Customer" type="object" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'sent'"/>
+                    <button name="action_reject" string="Reject" type="object" invisible="state != 'sent'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="contract_id" readonly="1"/>
+                        <field name="attachment" filename="attachment_filename"/>
+                        <field name="attachment_filename" invisible="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- LC -->
+    <record id="view_export_lc_form" model="ir.ui.view">
+        <field name="name">export.lc.form</field>
+        <field name="model">export.lc</field>
+        <field name="arch" type="xml">
+            <form string="Letter of Credit">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_open" string="Open LC" type="object" invisible="state != 'draft'"/>
+                    <button name="action_verify" string="Verify" type="object" invisible="state != 'opened'"/>
+                    <button name="action_activate" string="Activate" type="object" class="oe_highlight" invisible="state != 'verified'"/>
+                    <button name="action_close" string="Close" type="object" invisible="state != 'active'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="lc_number"/>
+                        <field name="issuing_bank"/>
+                        <field name="expiry_date"/>
+                        <field name="amount"/>
+                        <field name="currency_id"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- CAD -->
+    <record id="view_export_cad_form" model="ir.ui.view">
+        <field name="name">export.cad.form</field>
+        <field name="model">export.cad</field>
+        <field name="arch" type="xml">
+            <form string="Cash Against Documents">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_send_documents" string="Send Documents" type="object" invisible="state != 'draft'"/>
+                    <button name="action_await_payment" string="Awaiting Payment" type="object" invisible="state != 'documents_sent'"/>
+                    <button name="action_mark_paid" string="Paid" type="object" class="oe_highlight" invisible="state != 'awaiting_payment'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="document_sent_date" readonly="1"/>
+                        <field name="bank_reference"/>
+                        <field name="payment_received" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Shipping Instruction -->
+    <record id="view_export_shipping_instruction_form" model="ir.ui.view">
+        <field name="name">export.shipping.instruction.form</field>
+        <field name="model">export.shipping.instruction</field>
+        <field name="arch" type="xml">
+            <form string="Shipping Instruction">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_request" string="Request" type="object" invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight" invisible="state != 'requested'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="shipping_date"/>
+                        <field name="port_loading"/>
+                        <field name="port_discharge"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Booking -->
+    <record id="view_export_booking_form" model="ir.ui.view">
+        <field name="name">export.booking.form</field>
+        <field name="model">export.booking</field>
+        <field name="arch" type="xml">
+            <form string="Shipping Booking">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_request" string="Request Booking" type="object" invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight" invisible="state != 'requested'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="shipping_line"/>
+                        <field name="booking_number"/>
+                        <field name="vessel_name"/>
+                        <field name="etd"/>
+                        <field name="eta"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Shipment Documents -->
+    <record id="view_export_shipment_document_form" model="ir.ui.view">
+        <field name="name">export.shipment.document.form</field>
+        <field name="model">export.shipment.document</field>
+        <field name="arch" type="xml">
+            <form string="Shipment Documents">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_review" string="Review" type="object" invisible="state != 'draft'"/>
+                    <button name="action_send" string="Send to Transporter" type="object" invisible="state != 'reviewed'"/>
+                    <button name="action_approve" string="Approve Final" type="object" class="oe_highlight" invisible="state != 'sent'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="commercial_invoice" filename="commercial_invoice_filename"/>
+                        <field name="commercial_invoice_filename" invisible="1"/>
+                        <field name="packing_list" filename="packing_list_filename"/>
+                        <field name="packing_list_filename" invisible="1"/>
+                        <field name="certificate_origin" filename="certificate_origin_filename"/>
+                        <field name="certificate_origin_filename" invisible="1"/>
+                        <field name="bill_of_lading" filename="bill_of_lading_filename"/>
+                        <field name="bill_of_lading_filename" invisible="1"/>
+                        <field name="inspection_certificate" filename="inspection_certificate_filename"/>
+                        <field name="inspection_certificate_filename" invisible="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- NBE Settlement -->
+    <record id="view_export_nbe_settlement_form" model="ir.ui.view">
+        <field name="name">export.nbe.settlement.form</field>
+        <field name="model">export.nbe.settlement</field>
+        <field name="arch" type="xml">
+            <form string="NBE Settlement">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_submit" string="Submit" type="object" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" invisible="state != 'submitted'"/>
+                    <button name="action_close" string="Close" type="object" class="oe_highlight" invisible="state != 'approved'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="export_value"/>
+                        <field name="received_forex"/>
+                        <field name="currency_id"/>
+                        <field name="bank_name"/>
+                        <field name="settlement_date"/>
+                        <field name="nbe_reference"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Stock Picking -->
+    <record id="view_picking_form_export" model="ir.ui.view">
+        <field name="name">stock.picking.form.export</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="export_order_id" readonly="1"/>
+                <field name="container_no"/>
+                <field name="seal_no"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

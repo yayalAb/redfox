@@ -1,3 +1,11 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_export_process,export.process.user,model_export_process,base.group_user,1,1,1,1
-access_export_process_line,export.process.line.user,model_export_process_line,base.group_user,1,1,1,1
+access_export_export_order,export.export.order.user,model_export_export_order,base.group_user,1,1,1,1
+access_export_contract,export.contract.user,model_export_contract,base.group_user,1,1,1,1
+access_export_sample_approval,export.sample.approval.user,model_export_sample_approval,base.group_user,1,1,1,1
+access_export_bag_mark,export.bag.mark.user,model_export_bag_mark,base.group_user,1,1,1,1
+access_export_lc,export.lc.user,model_export_lc,base.group_user,1,1,1,1
+access_export_cad,export.cad.user,model_export_cad,base.group_user,1,1,1,1
+access_export_shipping_instruction,export.shipping.instruction.user,model_export_shipping_instruction,base.group_user,1,1,1,1
+access_export_booking,export.booking.user,model_export_booking,base.group_user,1,1,1,1
+access_export_shipment_document,export.shipment.document.user,model_export_shipment_document,base.group_user,1,1,1,1
+access_export_nbe_settlement,export.nbe.settlement.user,model_export_nbe_settlement,base.group_user,1,1,1,1

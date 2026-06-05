@@ -1,10 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <record id="seq_export_process" model="ir.sequence">
-            <field name="name">Export Process</field>
-            <field name="code">export.process</field>
+        <record id="seq_export_export_order" model="ir.sequence">
+            <field name="name">Export Order</field>
+            <field name="code">export.export.order</field>
             <field name="prefix">EXP/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_contract" model="ir.sequence">
+            <field name="name">Export Contract</field>
+            <field name="code">export.contract</field>
+            <field name="prefix">ECT/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_sample_approval" model="ir.sequence">
+            <field name="name">Export Sample Approval</field>
+            <field name="code">export.sample.approval</field>
+            <field name="prefix">ESA/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_bag_mark" model="ir.sequence">
+            <field name="name">Export Bag Mark</field>
+            <field name="code">export.bag.mark</field>
+            <field name="prefix">EBM/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_lc" model="ir.sequence">
+            <field name="name">Export LC</field>
+            <field name="code">export.lc</field>
+            <field name="prefix">ELC/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_cad" model="ir.sequence">
+            <field name="name">Export CAD</field>
+            <field name="code">export.cad</field>
+            <field name="prefix">CAD/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_shipping_instruction" model="ir.sequence">
+            <field name="name">Export Shipping Instruction</field>
+            <field name="code">export.shipping.instruction</field>
+            <field name="prefix">ESI/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_booking" model="ir.sequence">
+            <field name="name">Export Booking</field>
+            <field name="code">export.booking</field>
+            <field name="prefix">BKG/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_shipment_document" model="ir.sequence">
+            <field name="name">Export Shipment Document</field>
+            <field name="code">export.shipment.document</field>
+            <field name="prefix">DOC/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_export_nbe_settlement" model="ir.sequence">
+            <field name="name">Export NBE Settlement</field>
+            <field name="code">export.nbe.settlement</field>
+            <field name="prefix">NBE/</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
