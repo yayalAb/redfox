@@ -29,6 +29,7 @@ const TABLE_SECTIONS = [
     "customer_collections",
     "partner_ledger",
     "profitability",
+    "stock_movement",
 ];
 
 export class MfgFinancialDashboard extends Component {
@@ -66,6 +67,14 @@ export class MfgFinancialDashboard extends Component {
             partner_ledger_partners: [],
             partner_filter_ids: [],
             profitability: [],
+            stock_movements: [],
+            stock_movement_summary: {
+                total_in: 0,
+                total_out: 0,
+                balance: 0,
+                row_count: 0,
+                product_count: 0,
+            },
             charts: {
                 kpi_overview: { labels: [], datasets: [] },
                 collection_outstanding: { labels: [], datasets: [] },
@@ -276,7 +285,45 @@ export class MfgFinancialDashboard extends Component {
         if (section === "partner_ledger") {
             return this.partnerLedgerDisplayRows();
         }
+        if (section === "stock_movement") {
+            return this.state.stock_movements || [];
+        }
         return this.state[section] || [];
+    }
+
+    formatQty(qty) {
+        return (Number(qty) || 0).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    }
+
+    balanceClass(balance) {
+        const value = Number(balance) || 0;
+        if (value > 0) {
+            return "mfg-dashboard-qty--positive";
+        }
+        if (value < 0) {
+            return "mfg-dashboard-qty--negative";
+        }
+        return "";
+    }
+
+    async openStockMovementDetail(row) {
+        const action = await this.orm.call(
+            "mfg.dashboard",
+            "open_stock_movement_detail",
+            [],
+            {
+                product_id: row.product_id,
+                warehouse_id: row.warehouse_id,
+                date_start: this.state.start_date,
+                date_end: this.state.end_date,
+            }
+        );
+        if (action) {
+            await this.action.doAction(action);
+        }
     }
 
     paginatedRows(section) {
@@ -358,6 +405,14 @@ export class MfgFinancialDashboard extends Component {
                 partner_ledger_grand_total: data.partner_ledger_grand_total || null,
                 partner_filter_ids: [],
                 profitability: data.profitability || [],
+                stock_movements: data.stock_movements || [],
+                stock_movement_summary: data.stock_movement_summary || {
+                    total_in: 0,
+                    total_out: 0,
+                    balance: 0,
+                    row_count: 0,
+                    product_count: 0,
+                },
                 charts: data.charts || this.state.charts,
             });
             this.resetPagination();

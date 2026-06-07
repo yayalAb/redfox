@@ -520,6 +520,80 @@
                                     pageSize="10"
                                     onPageChange="(page) => this.onTablePageChange('profitability', page)"/>
                             </div>
+
+                            <!-- 11 Stock Movement -->
+                            <div class="mfg-dashboard-section">
+                                <h3 class="mfg-dashboard-section__title">Stock Movement</h3>
+                                <p class="mfg-dashboard-section__subtitle">
+                                    Product quantities in and out by warehouse for the selected period
+                                </p>
+                                <div class="mfg-dashboard-table-wrap">
+                                    <table class="table mfg-dashboard-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Product Reference</th>
+                                                <th>Warehouse</th>
+                                                <th class="text-end">Total In</th>
+                                                <th class="text-end">Total Out</th>
+                                                <th class="text-end">Balance</th>
+                                                <th class="text-center">Detail</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="paginatedRows('stock_movement')" t-as="sm" t-key="sm.id">
+                                                <td t-esc="sm.product"/>
+                                                <td t-esc="sm.product_reference"/>
+                                                <td t-esc="sm.warehouse"/>
+                                                <td class="text-end mfg-dashboard-qty--positive" t-esc="formatQty(sm.total_in)"/>
+                                                <td class="text-end mfg-dashboard-qty--negative" t-esc="formatQty(sm.total_out)"/>
+                                                <td t-att-class="'text-end ' + balanceClass(sm.balance)" t-esc="formatQty(sm.balance)"/>
+                                                <td class="text-center">
+                                                    <button type="button"
+                                                        class="btn btn-sm mfg-dashboard-detail-btn"
+                                                        t-on-click="() => this.openStockMovementDetail(sm)">
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr t-if="!state.stock_movements.length">
+                                                <td colspan="7" class="text-center text-muted py-4">
+                                                    No stock movements in this period
+                                                </td>
+                                            </tr>
+                                            <tr t-if="state.stock_movements.length"
+                                                class="mfg-dashboard-table__summary-total">
+                                                <td colspan="3">
+                                                    <strong>Summary</strong>
+                                                    <span class="mfg-dashboard-summary-meta">
+                                                        (<t t-esc="state.stock_movement_summary.product_count"/> products,
+                                                        <t t-esc="state.stock_movement_summary.row_count"/> lines)
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <strong class="mfg-dashboard-qty--positive"
+                                                        t-esc="formatQty(state.stock_movement_summary.total_in)"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <strong class="mfg-dashboard-qty--negative"
+                                                        t-esc="formatQty(state.stock_movement_summary.total_out)"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <strong t-att-class="balanceClass(state.stock_movement_summary.balance)"
+                                                        t-esc="formatQty(state.stock_movement_summary.balance)"/>
+                                                </td>
+                                                <td/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <PaginationControls
+                                    page="currentPage('stock_movement')"
+                                    totalPages="totalPages('stock_movement')"
+                                    totalItems="totalItems('stock_movement')"
+                                    pageSize="10"
+                                    onPageChange="(page) => this.onTablePageChange('stock_movement', page)"/>
+                            </div>
                             </div>
                         </t>
                     </div>

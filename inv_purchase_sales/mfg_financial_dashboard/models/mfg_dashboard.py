@@ -2,7 +2,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.tools import float_compare, float_round
 
 
@@ -32,6 +32,51 @@ class MfgDashboard(models.AbstractModel):
             'year_over_year': bool(year_over_year),
         })
         return payload
+
+    @api.model
+    def open_stock_movement_detail(
+        self, product_id, warehouse_id, date_start=None, date_end=None,
+    ):
+        """Open done stock moves for a dashboard summary line."""
+        dashboard = self.sudo().with_company(self.env.company)
+        start, end = dashboard._parse_dates(date_start, date_end)
+        start_dt, end_dt = dashboard._dt_start(start), dashboard._dt_end(end)
+        product = self.env['product.product'].browse(int(product_id))
+        warehouse = self.env['stock.warehouse'].browse(int(warehouse_id))
+        if not product.exists() or not warehouse.exists():
+            return False
+        title = _('Stock Movements — %s / %s') % (
+            product.display_name,
+            warehouse.name,
+        )
+        return dashboard._act_window_action(
+            title,
+            'stock.move',
+            [
+                ('state', '=', 'done'),
+                ('company_id', '=', self.env.company.id),
+                ('product_id', '=', product.id),
+                ('date', '>=', fields.Datetime.to_string(start_dt)),
+                ('date', '<=', fields.Datetime.to_string(end_dt)),
+                '|',
+                ('location_id.warehouse_id', '=', warehouse.id),
+                ('location_dest_id.warehouse_id', '=', warehouse.id),
+            ],
+            context={'create': False},
+        )
+
+    def _act_window_action(self, name, res_model, domain, view_mode='list,form', context=None):
+        modes = [mode.strip() for mode in view_mode.split(',') if mode.strip()]
+        return {
+            'type': 'ir.actions.act_window',
+            'name': name,
+            'res_model': res_model,
+            'view_mode': ','.join(modes),
+            'views': [[False, mode] for mode in modes],
+            'domain': domain,
+            'target': 'current',
+            'context': context or {},
+        }
 
     # -------------------------------------------------------------------------
     # Helpers
@@ -419,6 +464,7 @@ class MfgDashboard(models.AbstractModel):
         customer_collections = self._compute_customer_collections(start, end)
         partner_ledger_data = self._compute_partner_ledger(start, end)
         profitability = self._compute_profitability(start, end)
+        stock_movements = self._stock_movement_rows(start, end)
 
         charts = self._build_charts(kpis, customer_collections, profitability)
 
@@ -440,7 +486,73 @@ class MfgDashboard(models.AbstractModel):
             'partner_ledger_partner_totals': partner_ledger_data['partner_totals'],
             'partner_ledger_grand_total': partner_ledger_data['grand_total'],
             'profitability': profitability,
+            'stock_movements': stock_movements,
+            'stock_movement_summary': self._stock_movement_summary(stock_movements),
             'charts': charts,
+        }
+
+    def _stock_movement_rows(self, start, end):
+        """Summarize done stock moves by product and warehouse for the period."""
+        company = self.env.company
+        start_dt, end_dt = self._dt_start(start), self._dt_end(end)
+        moves = self.env['stock.move'].search([
+            ('state', '=', 'done'),
+            ('company_id', '=', company.id),
+            ('product_id', '!=', False),
+            ('date', '>=', start_dt),
+            ('date', '<=', end_dt),
+        ])
+        aggregated = defaultdict(lambda: {'total_in': 0.0, 'total_out': 0.0})
+        for move in moves:
+            qty = move.quantity or getattr(move, 'product_uom_qty', 0.0) or 0.0
+            product = move.product_id
+            if move.location_dest_id.usage == 'internal':
+                warehouse = move.location_dest_id.warehouse_id
+                if warehouse:
+                    key = (product.id, warehouse.id)
+                    aggregated[key]['total_in'] += qty
+            if move.location_id.usage == 'internal':
+                warehouse = move.location_id.warehouse_id
+                if warehouse:
+                    key = (product.id, warehouse.id)
+                    aggregated[key]['total_out'] += qty
+
+        products = self.env['product.product'].browse({k[0] for k in aggregated})
+        warehouses = self.env['stock.warehouse'].browse({k[1] for k in aggregated})
+        product_by_id = {p.id: p for p in products}
+        warehouse_by_id = {w.id: w for w in warehouses}
+
+        rows = []
+        for (product_id, warehouse_id), data in aggregated.items():
+            product = product_by_id.get(product_id)
+            warehouse = warehouse_by_id.get(warehouse_id)
+            if not product or not warehouse:
+                continue
+            total_in = float_round(data['total_in'], 2)
+            total_out = float_round(data['total_out'], 2)
+            rows.append({
+                'id': f'{product_id}_{warehouse_id}',
+                'product_id': product_id,
+                'warehouse_id': warehouse_id,
+                'product': product.display_name,
+                'product_reference': product.default_code or '—',
+                'warehouse': warehouse.name,
+                'total_in': total_in,
+                'total_out': total_out,
+                'balance': float_round(total_in - total_out, 2),
+            })
+        rows.sort(key=lambda r: (r['product'].lower(), r['warehouse'].lower()))
+        return rows
+
+    def _stock_movement_summary(self, rows):
+        total_in = sum(r['total_in'] for r in rows)
+        total_out = sum(r['total_out'] for r in rows)
+        return {
+            'total_in': float_round(total_in, 2),
+            'total_out': float_round(total_out, 2),
+            'balance': float_round(total_in - total_out, 2),
+            'row_count': len(rows),
+            'product_count': len({r['product_id'] for r in rows}),
         }
 
     def _compute_kpis(self, start, end, prev_start, prev_end):
