@@ -4,12 +4,12 @@
         <field name="name">Overall customer report (landscape)</field>
         <field name="format">A4</field>
         <field name="orientation">Landscape</field>
-        <field name="margin_top">45</field>
+        <field name="margin_top">2</field>
         <field name="margin_bottom">12</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">40</field>
+        <field name="header_spacing">0</field>
         <field name="dpi">90</field>
     </record>
 
@@ -25,178 +25,229 @@
         <field name="paperformat_id" ref="customer_vetting.paperformat_overall_customer_report"/>
     </record>
 
+    <template id="report_overall_customer_header">
+        <div class="ocr-header" style="margin: 0; font-family: 'Noto Sans Ethiopic', 'Times New Roman'; font-size: 12px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 16px; border: 2px solid #a7c6e6; table-layout: fixed;">
+                <tr style="height: 100px;">
+                    <td style="width: 20%; text-align: center; vertical-align: middle; border-right: 2px solid #a7c6e6; padding: 4px; height: 100px;">
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <img t-if="company.logo"
+                                 t-att-src="image_data_uri(company.logo)"
+                                 style="max-height: 95px; max-width: 100%; width: auto; height: auto;"
+                                 alt="Logo"/>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 2px; border-right: 2px solid #a7c6e6; height: 100px; vertical-align: top;">
+                        <table style="width: 100%; height: 100%; border-collapse: collapse; border: 2px solid #a7c6e6; table-layout: fixed;">
+                            <tr style="height: 50%;">
+                                <td style="text-align: center; padding: 2px; border-bottom: 2px solid #a7c6e6; vertical-align: middle;">
+                                    <div style="font-size: 16px;">
+                                        <span t-esc="company.company_name_am or ''"/><br/>
+                                        <span t-esc="company.name or ''"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="height: 50%;">
+                                <td style="text-align: center; padding: 2px; vertical-align: middle;">
+                                    <span style="color: gray;">Doc Title</span>
+                                    <span t-esc="doc_title or 'Document'"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td style="width: 30%; padding: 2px; height: 100px; vertical-align: top;">
+                        <table style="width: 100%; height: 100%; border-collapse: collapse; border: 2px solid #a7c6e6; table-layout: fixed;">
+                            <tr style="height: 50%;">
+                                <td colspan="2" style="text-align: left; padding: 8px 4px; border-bottom: 2px solid #a7c6e6; vertical-align: middle;">
+                                    <span>Document No:</span>
+                                    <span t-esc="doc_number or ''"/>
+                                </td>
+                            </tr>
+                            <tr style="height: 50%;">
+                                <td style="text-align: left; padding: 8px 4px; vertical-align: middle; border-right: 2px solid #a7c6e6;">
+                                    <span>Issue No.</span>
+                                    <span t-esc="issue_number or '1'"/>
+                                </td>
+                                <td style="text-align: left; padding: 8px 4px; vertical-align: middle;">
+                                    <span>Page:</span>
+                                    <span class="page"/>
+                                    /
+                                    <span class="topage"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </template>
+
     <template id="report_overall_customer_document">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <div class="page ocr-page">
-                    <style type="text/css">
-                        .ocr-page {
-                            font-family: 'DejaVu Sans', Arial, sans-serif;
-                            font-size: 9px;
-                            color: #000;
-                            padding-top: 28px;
-                            margin-top: 8px;
-                        }
-                        .ocr-title {
-                            text-align: center;
-                            font-size: 16px;
-                            font-weight: bold;
-                            margin: 0 0 4px 0;
-                            text-transform: uppercase;
-                        }
-                        .ocr-subtitle {
-                            text-align: center;
-                            font-size: 10px;
-                            margin-bottom: 12px;
-                        }
-                        .ocr-meta {
-                            width: 100%;
-                            margin-bottom: 10px;
-                            font-size: 9px;
-                        }
-                        .ocr-meta td {
-                            padding: 2px 8px 2px 0;
-                            vertical-align: top;
-                        }
-                        .ocr-meta-label {
-                            font-weight: bold;
-                            white-space: nowrap;
-                        }
-                        .ocr-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            font-size: 8px;
-                        }
-                        .ocr-table th,
-                        .ocr-table td {
-                            border: 1px solid #000;
-                            padding: 3px 2px;
-                            vertical-align: middle;
-                        }
-                        .ocr-table th {
-                            background: #e8e8e8;
-                            font-weight: bold;
-                            text-align: center;
-                        }
-                        .ocr-num {
-                            text-align: right;
-                            white-space: nowrap;
-                        }
-                        .ocr-center {
-                            text-align: center;
-                        }
-                        .ocr-total-row td {
-                            font-weight: bold;
-                            background: #f4f4f4;
-                        }
-                        .ocr-signatures {
-                            margin-top: 28px;
-                            width: 100%;
-                            font-size: 9px;
-                        }
-                        .ocr-signatures td {
-                            width: 33%;
-                            padding-top: 24px;
-                            vertical-align: top;
-                        }
-                        .ocr-sign-line {
-                            border-top: 1px solid #000;
-                            margin-top: 28px;
-                            padding-top: 4px;
-                            text-align: center;
-                        }
-                    </style>
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="docs and docs[0] or False"/>
+            <t t-set="company" t-value="o.company_id if o else env.company"/>
+            <t t-set="doc_title" t-value="'Overall Customer Report'"/>
+            <t t-set="issue_number" t-value="'1'"/>
+            <div class="page ocr-page">
+                <style type="text/css">
+                    .ocr-page {
+                        font-family: 'DejaVu Sans', Arial, sans-serif;
+                        font-size: 9px;
+                        color: #000;
+                        padding-top: 0;
+                        margin-top: 0;
+                    }
+                    .ocr-body {
+                        margin-top: 22px;
+                    }
+                    .ocr-meta {
+                        width: 100%;
+                        margin: 0 0 8px 0;
+                        font-size: 9px;
+                    }
+                    .ocr-meta td {
+                        padding: 2px 8px 2px 0;
+                        vertical-align: top;
+                    }
+                    .ocr-meta-label {
+                        font-weight: bold;
+                        white-space: nowrap;
+                    }
+                    .ocr-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 8px;
+                    }
+                    .ocr-table th,
+                    .ocr-table td {
+                        border: 1px solid #000;
+                        padding: 3px 2px;
+                        vertical-align: middle;
+                    }
+                    .ocr-table th {
+                        background: #e8e8e8;
+                        font-weight: bold;
+                        text-align: center;
+                    }
+                    .ocr-num {
+                        text-align: right;
+                        white-space: nowrap;
+                    }
+                    .ocr-center {
+                        text-align: center;
+                    }
+                    .ocr-total-row td {
+                        font-weight: bold;
+                        background: #f4f4f4;
+                    }
+                    .ocr-signatures {
+                        margin-top: 28px;
+                        width: 100%;
+                        font-size: 9px;
+                    }
+                    .ocr-signatures td {
+                        width: 33%;
+                        padding-top: 24px;
+                        vertical-align: top;
+                    }
+                    .ocr-sign-line {
+                        border-top: 1px solid #000;
+                        margin-top: 28px;
+                        padding-top: 4px;
+                        text-align: center;
+                    }
+                </style>
 
-                    <div class="ocr-title">Overall Customer Report</div>
-                    <div class="ocr-subtitle">
-                        <t t-if="date_from_label and date_to_label">
-                            From: <span t-esc="date_from_label"/>
-                            —
-                            To: <span t-esc="date_to_label"/>
-                        </t>
-                    </div>
+                <t t-call="customer_vetting.report_overall_customer_header"/>
 
-                    <table class="ocr-meta">
-                        <tr>
-                            <td class="ocr-meta-label">Company:</td>
-                            <td><span t-esc="company.name"/></td>
-                            <td class="ocr-meta-label">Print date:</td>
-                            <td><span t-esc="print_date_label"/></td>
-                        </tr>
-                    </table>
-
-                    <table class="ocr-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 3%;">No.</th>
-                                <th style="width: 14%;">Customer name</th>
-                                <th style="width: 10%;">Product type</th>
-                                <th style="width: 8%;">Sales order</th>
-                                <th style="width: 7%;">Total received</th>
-                                <th style="width: 7%;">Clean product issued</th>
-                                <th style="width: 7%;">Bran / waste issued</th>
-                                <th style="width: 7%;">Cleaned remaining</th>
-                                <th style="width: 7%;">Est. bran not issued</th>
-                                <th style="width: 7%;">Issued w/o cleaning</th>
-                                <th style="width: 7%;">Uncleaned in WH</th>
-                                <th style="width: 6%;">Difference</th>
-                                <th style="width: 4%;">Unit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="lines" t-as="row">
-                                <t t-set="line" t-value="row['doc']"/>
-                                <tr>
-                                    <td class="ocr-center"><span t-esc="line.sequence"/></td>
-                                    <td>
-                                        <t t-if="row['show_ditto']">〃</t>
-                                        <t t-else=""><span t-esc="line.partner_id.display_name"/></t>
-                                    </td>
-                                    <td><span t-esc="line.grain_type or ''"/></td>
-                                    <td><span t-esc="line.sale_order_id.name or ''"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.total_received or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.total_delivered or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.total_reject or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.cleaned_remaining or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.estimated_bran_not_issued or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.issued_without_cleaning or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.uncleaned_in_warehouse or 0.0)"/></td>
-                                    <td class="ocr-num"><span t-esc="'%.2f' % (line.difference or 0.0)"/></td>
-                                    <td class="ocr-center"><span t-esc="line.product_uom_id.name or ''"/></td>
-                                </tr>
+                <div class="ocr-body">
+                <table class="ocr-meta">
+                    <tr>
+                        <td class="ocr-meta-label">Period:</td>
+                        <td>
+                            <t t-if="date_from_label and date_to_label">
+                                From: <span t-esc="date_from_label"/>
+                                —
+                                To: <span t-esc="date_to_label"/>
                             </t>
-                        </tbody>
-                        <tfoot>
-                            <tr class="ocr-total-row">
-                                <td colspan="4" class="ocr-center">Totals</td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('total_received'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('total_delivered'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('total_reject'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('cleaned_remaining'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('estimated_bran_not_issued'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('issued_without_cleaning'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('uncleaned_in_warehouse'))"/></td>
-                                <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('difference'))"/></td>
-                                <td/>
-                            </tr>
-                        </tfoot>
-                    </table>
+                        </td>
+                        <td class="ocr-meta-label" style="text-align: right;">Print date:</td>
+                        <td style="text-align: right;"><span t-esc="print_date_label"/></td>
+                    </tr>
+                </table>
 
-                    <table class="ocr-signatures">
+                <table class="ocr-table">
+                    <thead>
                         <tr>
-                            <td>
-                                <div class="ocr-sign-line">Prepared by</div>
-                            </td>
-                            <td>
-                                <div class="ocr-sign-line">Checked by</div>
-                            </td>
-                            <td>
-                                <div class="ocr-sign-line">Approved by</div>
-                            </td>
+                            <th style="width: 3%;">No.</th>
+                            <th style="width: 14%;">Customer name</th>
+                            <th style="width: 10%;">Product type</th>
+                            <th style="width: 8%;">Sales order</th>
+                            <th style="width: 7%;">Total received</th>
+                            <th style="width: 7%;">Clean product issued</th>
+                            <th style="width: 7%;">Bran / waste issued</th>
+                            <th style="width: 7%;">Cleaned remaining</th>
+                            <th style="width: 7%;">Est. bran not issued</th>
+                            <th style="width: 7%;">Issued w/o cleaning</th>
+                            <th style="width: 7%;">Uncleaned in WH</th>
+                            <th style="width: 6%;">Difference</th>
+                            <th style="width: 4%;">Unit</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="lines" t-as="row">
+                            <t t-set="line" t-value="row['doc']"/>
+                            <tr>
+                                <td class="ocr-center"><span t-esc="line.sequence"/></td>
+                                <td>
+                                    <t t-if="row['show_ditto']">〃</t>
+                                    <t t-else=""><span t-esc="line.partner_id.display_name"/></t>
+                                </td>
+                                <td><span t-esc="line.grain_type or ''"/></td>
+                                <td><span t-esc="line.sale_order_id.name or ''"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.total_received or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.total_delivered or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.total_reject or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.cleaned_remaining or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.estimated_bran_not_issued or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.issued_without_cleaning or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.uncleaned_in_warehouse or 0.0)"/></td>
+                                <td class="ocr-num"><span t-esc="'%.2f' % (line.difference or 0.0)"/></td>
+                                <td class="ocr-center"><span t-esc="line.product_uom_id.name or ''"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr class="ocr-total-row">
+                            <td colspan="4" class="ocr-center">Totals</td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('total_received'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('total_delivered'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('total_reject'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('cleaned_remaining'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('estimated_bran_not_issued'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('issued_without_cleaning'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('uncleaned_in_warehouse'))"/></td>
+                            <td class="ocr-num"><span t-esc="'%.2f' % sum(docs.mapped('difference'))"/></td>
+                            <td/>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <table class="ocr-signatures">
+                    <tr>
+                        <td>
+                            <div class="ocr-sign-line">Prepared by</div>
+                        </td>
+                        <td>
+                            <div class="ocr-sign-line">Checked by</div>
+                        </td>
+                        <td>
+                            <div class="ocr-sign-line">Approved by</div>
+                        </td>
+                    </tr>
                     </table>
                 </div>
-            </t>
+            </div>
         </t>
     </template>
 </odoo>

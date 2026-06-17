@@ -1,6 +1,6 @@
 {
     'name': 'Customer Vetting Workflow',
-    'version': '1.2.2',
+    'version': '1.3.0',
     'summary': 'Implements a vetting and approval workflow for customers.',
     'author': 'Henok Gm',
     'category': 'Sales/CRM',
@@ -13,6 +13,7 @@
         'sale_stock',
         'stock_account',
         'custom_picking_operation',
+        'custom_report_layout',
         'mrp',
         'sale_mrp',
     ],
