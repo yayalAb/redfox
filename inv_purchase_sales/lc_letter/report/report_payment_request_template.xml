@@ -28,7 +28,7 @@
                                 </span>
                             </div>
                             <div style="padding: 10px 0;"><strong>Purpose of Payment (የክፍያ ምክንያት፡):</strong> <t t-if="doc.note"><span t-field="doc.note" style="text-decoration: underline;"/></t><t t-else=""><span t-field="doc.product_id.name" style="text-decoration: underline;"/></t></div>
-                            <div style="padding: 10px 0;"><strong>LC No (ኤል ሲ ቁጥር):</strong> <span t-field="doc.lc_letter_id.name" style="text-decoration: underline;"/></div>
+                            <div style="padding: 10px 0;"><strong><t t-esc="doc.lc_letter_id.payment_reference_label"/>:</strong> <span t-field="doc.lc_letter_id.name" style="text-decoration: underline;"/></div>
                             <div style="padding: 10px 0;"><strong>Foreign Currency Amount (የውጭ ምንዛሪ መጠን):</strong> <span t-esc="doc.currency_id.format(doc.amount)" style="text-decoration: underline;"/> <span t-field="doc.currency_id.name" style="text-decoration: underline;"/></div>
                         </div>
 

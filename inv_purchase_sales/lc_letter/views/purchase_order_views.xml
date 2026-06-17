@@ -6,7 +6,16 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_ref']" position="after">
-                <field name="lc_letter_id" options="{'no_create': True}" invisible="purchase_origin != 'foreign'"/>
+                <field name="x_payment_term_foreign"
+                    string="Payment Method"
+                    required="purchase_origin == 'foreign'"
+                    invisible="purchase_origin != 'foreign'"/>
+                <field name="lc_letter_id"
+                    string="Foreign Payment Term"
+                    options="{'no_create': True}"
+                    domain="[('payment_instrument', '=', x_payment_term_foreign)]"
+                    invisible="purchase_origin != 'foreign' or not x_payment_term_foreign"
+                    context="{'default_payment_instrument': x_payment_term_foreign}"/>
             </xpath>
         </field>
     </record>

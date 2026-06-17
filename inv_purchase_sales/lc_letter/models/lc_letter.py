@@ -1,28 +1,75 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
+PAYMENT_INSTRUMENTS = [
+    ('lc', 'Letter of Credit'),
+    ('cad', 'Cash Against Documents'),
+    ('tt', 'Advance Payment (TT)'),
+]
 
-class PurchaseOrder(models.Model):
-    _inherit = 'purchase.order'
-    purchase_origin = fields.Selection([
-        ('local', 'Local'), ('foreign', 'Foreign')],
-        string='Purchase Type')
+PAYMENT_SUBTYPES = [
+    ('lc_confirmed', 'Confirmed LC'),
+    ('lc_sight', 'LC at Sight'),
+    ('lc_usance', 'LC at Acceptance / Usance / Deferred'),
+    ('lc_transferable', 'Transferable LC'),
+    ('cad_dp_sight', 'Document Against Payment (D/P) – Sight'),
+    ('cad_da_usance', 'Document Against Acceptance (D/A) – Usance'),
+    ('cad_partial_advance', 'Partial Advance + CAD'),
+    ('tt_partial', 'Partial Advance Payment'),
+    ('tt_full', 'Full Advance Payment'),
+]
+
+INSTRUMENT_SUBTYPES = {
+    'lc': {'lc_confirmed', 'lc_sight', 'lc_usance', 'lc_transferable'},
+    'cad': {'cad_dp_sight', 'cad_da_usance', 'cad_partial_advance'},
+    'tt': {'tt_partial', 'tt_full'},
+}
+
+DEFAULT_SUBTYPE = {
+    'lc': 'lc_sight',
+    'cad': 'cad_dp_sight',
+    'tt': 'tt_partial',
+}
+
+SEQUENCE_CODES = {
+    'lc': 'lc.letter',
+    'cad': 'lc.letter.cad',
+    'tt': 'lc.letter.tt',
+}
 
 
 class LcLetter(models.Model):
     _name = 'lc.letter'
-    _description = 'Letter of Credit'
+    _description = 'Foreign Payment Term'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name'
     _order = 'create_date desc'
 
     name = fields.Char(
-        string='LC Number',
+        string='Reference No.',
         required=True,
         copy=False,
         index=True,
         default='New',
         tracking=True,
+    )
+    payment_instrument = fields.Selection(
+        selection=PAYMENT_INSTRUMENTS,
+        string='Payment Instrument',
+        required=True,
+        default='lc',
+        tracking=True,
+    )
+    payment_subtype = fields.Selection(
+        selection='_selection_payment_subtype',
+        string='Payment Type',
+        required=True,
+        default='lc_sight',
+        tracking=True,
+    )
+    payment_reference_label = fields.Char(
+        compute='_compute_payment_reference_label',
     )
     stage_id = fields.Many2one(
         'lc.letter.stage',
@@ -39,7 +86,7 @@ class LcLetter(models.Model):
         'res.partner',
         string='Issuing Bank',
         domain=[('is_company', '=', True)],
-        help='Bank that issues the Letter of Credit',
+        help='Bank that issues the Letter of Credit or processes the payment',
         tracking=True,
     )
     advising_bank_id = fields.Many2one(
@@ -79,8 +126,7 @@ class LcLetter(models.Model):
     )
 
     issue_date = fields.Date(string='Issue Date', tracking=True)
-    expiry_date = fields.Date(string='Expiry Date',
-                              required=True, tracking=True)
+    expiry_date = fields.Date(string='Expiry Date', tracking=True)
     latest_shipment_date = fields.Date(
         string='Latest Shipment Date', tracking=True)
 
@@ -89,7 +135,7 @@ class LcLetter(models.Model):
         ('usance', 'Usance/Time LC'),
         ('revocable', 'Revocable'),
         ('irrevocable', 'Irrevocable'),
-    ], string='LC Type', default='irrevocable', tracking=True)
+    ], string='LC Banking Type', default='irrevocable', tracking=True)
 
     description = fields.Text(string='Description', tracking=True)
     notes = fields.Html(string='Internal Notes')
@@ -116,10 +162,54 @@ class LcLetter(models.Model):
         tracking=True,
     )
 
+    @api.model
+    def _selection_payment_subtype(self):
+        return PAYMENT_SUBTYPES
+
+    @api.depends('payment_instrument')
+    def _compute_payment_reference_label(self):
+        labels = {
+            'lc': _('LC No'),
+            'cad': _('CAD Ref'),
+            'tt': _('TT Ref'),
+        }
+        for rec in self:
+            rec.payment_reference_label = labels.get(
+                rec.payment_instrument, _('Reference No'))
+
     @api.depends('purchase_order_ids')
     def _compute_purchase_order_count(self):
         for rec in self:
             rec.purchase_order_count = len(rec.purchase_order_ids)
+
+    @api.onchange('payment_instrument')
+    def _onchange_payment_instrument(self):
+        if self.payment_instrument:
+            self.payment_subtype = DEFAULT_SUBTYPE.get(self.payment_instrument)
+        if self.payment_instrument != 'lc':
+            self.lc_type = False
+            if self.payment_instrument == 'tt':
+                self.issuing_bank_id = False
+                self.advising_bank_id = False
+                self.expiry_date = False
+
+    @api.constrains('payment_instrument', 'payment_subtype')
+    def _check_payment_subtype(self):
+        for rec in self:
+            allowed = INSTRUMENT_SUBTYPES.get(rec.payment_instrument, set())
+            if rec.payment_subtype and rec.payment_subtype not in allowed:
+                raise ValidationError(_(
+                    'Payment type "%(subtype)s" is not valid for %(instrument)s.',
+                    subtype=dict(PAYMENT_SUBTYPES).get(rec.payment_subtype),
+                    instrument=dict(PAYMENT_INSTRUMENTS).get(rec.payment_instrument),
+                ))
+
+    @api.constrains('payment_instrument', 'expiry_date')
+    def _check_expiry_date(self):
+        for rec in self:
+            if rec.payment_instrument == 'lc' and not rec.expiry_date:
+                raise ValidationError(_(
+                    'Expiry date is required for Letter of Credit documents.'))
 
     def action_view_purchase_orders(self):
         self.ensure_one()
@@ -129,7 +219,10 @@ class LcLetter(models.Model):
             'res_model': 'purchase.order',
             'view_mode': 'list,form',
             'domain': [('lc_letter_id', '=', self.id)],
-            'context': {'default_lc_letter_id': self.id},
+            'context': {
+                'default_lc_letter_id': self.id,
+                'default_x_payment_term_foreign': self.payment_instrument,
+            },
         }
 
     @api.model
@@ -140,12 +233,19 @@ class LcLetter(models.Model):
     def _read_group_stage_ids(self, stages, domain, order=None):
         return stages.search([], order=order or stages._order)
 
+    def _get_sequence_code(self, payment_instrument=None):
+        instrument = payment_instrument or self.payment_instrument or 'lc'
+        return SEQUENCE_CODES.get(instrument, 'lc.letter')
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            instrument = vals.get('payment_instrument') or 'lc'
+            if not vals.get('payment_subtype'):
+                vals['payment_subtype'] = DEFAULT_SUBTYPE.get(instrument, 'lc_sight')
             if not vals.get('name') or vals.get('name') == 'New':
-                vals['name'] = self.env['ir.sequence'].next_by_code(
-                    'lc.letter') or 'New'
+                seq_code = SEQUENCE_CODES.get(instrument, 'lc.letter')
+                vals['name'] = self.env['ir.sequence'].next_by_code(seq_code) or 'New'
         return super().create(vals_list)
 
     def action_payment_request(self):

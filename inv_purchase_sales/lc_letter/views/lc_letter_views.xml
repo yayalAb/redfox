@@ -10,6 +10,8 @@
                 <field name="stage_id"/>
                 <field name="id"/>
                 <field name="name"/>
+                <field name="payment_instrument"/>
+                <field name="payment_subtype"/>
                 <field name="issuing_bank_id"/>
                 <field name="applicant_id"/>
                 <field name="beneficiary_id"/>
@@ -24,12 +26,16 @@
                                 <div class="o_kanban_record_headings">
                                     <strong><field name="name"/></strong>
                                 </div>
+                                <span class="badge rounded-pill text-bg-secondary">
+                                    <field name="payment_instrument"/>
+                                </span>
                             </div>
                             <div class="o_kanban_record_body">
+                                <field name="payment_subtype"/>
                                 <field name="amount" widget="monetary"
                                     options="{'currency_field': 'currency_id'}"/>
                                 <div t-if="record.issuing_bank_id.value">
-                                    <i class="fa fa-university me-1" title="Issuing Bank"/> <field name="issuing_bank_id"/>
+                                    <i class="fa fa-university me-1" title="Bank"/> <field name="issuing_bank_id"/>
                                 </div>
                                 <div class="text-muted small mt-1">
                                     <field name="applicant_id"/> → <field name="beneficiary_id"/>
@@ -49,8 +55,10 @@
         <field name="name">lc.letter.tree</field>
         <field name="model">lc.letter</field>
         <field name="arch" type="xml">
-            <list string="Letters of Credit">
+            <list string="Foreign Payment Terms">
                 <field name="name"/>
+                <field name="payment_instrument"/>
+                <field name="payment_subtype"/>
                 <field name="stage_id"/>
                 <field name="issuing_bank_id"/>
                 <field name="applicant_id"/>
@@ -63,11 +71,38 @@
         </field>
     </record>
 
+    <record id="view_lc_letter_search" model="ir.ui.view">
+        <field name="name">lc.letter.search</field>
+        <field name="model">lc.letter</field>
+        <field name="arch" type="xml">
+            <search string="Foreign Payment Terms">
+                <field name="name"/>
+                <field name="applicant_id"/>
+                <field name="beneficiary_id"/>
+                <field name="issuing_bank_id"/>
+                <filter name="filter_lc" string="Letter of Credit"
+                    domain="[('payment_instrument', '=', 'lc')]"/>
+                <filter name="filter_cad" string="Cash Against Documents"
+                    domain="[('payment_instrument', '=', 'cad')]"/>
+                <filter name="filter_tt" string="Advance Payment (TT)"
+                    domain="[('payment_instrument', '=', 'tt')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_instrument" string="Payment Instrument"
+                        context="{'group_by': 'payment_instrument'}"/>
+                    <filter name="group_subtype" string="Payment Type"
+                        context="{'group_by': 'payment_subtype'}"/>
+                    <filter name="group_stage" string="Stage"
+                        context="{'group_by': 'stage_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="view_lc_letter_form" model="ir.ui.view">
         <field name="name">lc.letter.form</field>
         <field name="model">lc.letter</field>
         <field name="arch" type="xml">
-            <form string="Payment Terms">
+            <form string="Foreign Payment Term">
                 <header>
                     <field name="stage_id" widget="statusbar"
                         options="{'clickable': '1', 'fold_field': 'fold'}"/>
@@ -83,10 +118,12 @@
                     </div>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="lc_type"/>
-                            <field name="issuing_bank_id"/>
-                            <field name="advising_bank_id"/>
+                            <field name="name" readonly="1"/>
+                            <field name="payment_instrument"/>
+                            <field name="payment_subtype"/>
+                            <field name="lc_type" invisible="payment_instrument != 'lc'"/>
+                            <field name="issuing_bank_id" invisible="payment_instrument == 'tt'"/>
+                            <field name="advising_bank_id" invisible="payment_instrument != 'lc'"/>
                             <field name="applicant_id"/>
                             <field name="beneficiary_id"/>
                             <field name="company_id" groups="base.group_multi_company"/>
@@ -95,8 +132,9 @@
                             <field name="amount"/>
                             <field name="currency_id"/>
                             <field name="issue_date"/>
-                            <field name="expiry_date"/>
-                            <field name="latest_shipment_date"/>
+                            <field name="expiry_date" required="payment_instrument == 'lc'"/>
+                            <field name="latest_shipment_date"
+                                invisible="payment_instrument == 'tt'"/>
                             <field name="description" colspan="2"/>
                         </group>
                     </group>
@@ -112,7 +150,7 @@
                                         decoration-warning="state == 'authorized'"
                                         decoration-success="state == 'approved'"
                                         decoration-danger="state in ('rejected', 'cancelled')"/>
-                                               <button name="action_submit" string="Submit" type="object"
+                                    <button name="action_submit" string="Submit" type="object"
                                         class="btn-link" groups="lc_letter.group_lc_payment_submit" invisible="state != 'draft'"/>
                                     <button name="action_verify" string="Verify" type="object"
                                         class="btn-link" groups="lc_letter.group_lc_payment_verify" invisible="state != 'submitted'"/>
@@ -152,21 +190,23 @@
     </record>
 
     <record id="action_lc_letter" model="ir.actions.act_window">
-        <field name="name">Letters of Credit</field>
+        <field name="name">Foreign Payment Term Process</field>
         <field name="res_model">lc.letter</field>
         <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_lc_letter_search"/>
+        <field name="context">{'default_payment_instrument': 'lc'}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a new Letter of Credit
+                Create a new foreign payment term
             </p>
             <p>
-                Track LC references, issuing banks, beneficiaries, amounts and validity periods.
+                Manage Letter of Credit, Cash Against Documents, and Advance Payment (TT) for import purchases.
             </p>
         </field>
     </record>
 
     <menuitem id="menu_lc_letter_root"
-        name="Payment Terms"
+        name="Foreign Payment Term Process"
         parent="purchase.menu_purchase_root"
         action="action_lc_letter"
         sequence="50"/>

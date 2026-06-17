@@ -4,11 +4,11 @@ from odoo import models, fields
 
 class LcLetterPaymentRequest(models.TransientModel):
     _name = 'lc.letter.payment.request'
-    _description = 'LC Letter Payment Request'
+    _description = 'Foreign Payment Request'
 
     lc_letter_id = fields.Many2one(
         'lc.letter',
-        string='LC Letter',
+        string='Foreign Payment Term',
         required=True,
     )
     product_id = fields.Many2one(

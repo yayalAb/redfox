@@ -7,12 +7,12 @@ from odoo.tools.image import image_data_uri
 
 class LcLetterPaymentLine(models.Model):
     _name = 'lc.letter.payment.line'
-    _description = 'LC Letter Payment Line'
+    _description = 'Foreign Payment Line'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     lc_letter_id = fields.Many2one(
         'lc.letter',
-        string='LC Number',
+        string='Foreign Payment Term',
         required=True,
         ondelete='cascade',
     )
@@ -58,11 +58,11 @@ class LcLetterPaymentLine(models.Model):
 
     def action_approve(self):
         self.check_access_rights('write')
-        self.write({'state': 'approved', 'approved_by': self.env.user.id})
         if not self.env.user.has_group('lc_letter.group_lc_payment_approve'):
             raise AccessError(
                 _('You do not have permission to approve payment lines.'))
         for line in self:
+            line.write({'state': 'approved', 'approved_by': self.env.user.id})
             line._action_approve_single()
 
     def _action_approve_single(self):
@@ -96,7 +96,7 @@ class LcLetterPaymentLine(models.Model):
             'journal_id': journal.id,
             'partner_id': self.partner_id.id,
             'currency_id': self.currency_id.id,
-            'invoice_origin': _('LC Payment Request %s') % self.doc_no,
+            'invoice_origin': _('Foreign Payment Request %s') % self.doc_no,
             'ref': self.doc_no,
             'invoice_line_ids': [
                 Command.create({
@@ -142,7 +142,7 @@ class LcLetterPaymentLine(models.Model):
         }
         bill_att = self.env['ir.attachment'].create(bill_att_vals)
         bill.message_post(
-            body=_('Payment Request form attached from LC payment approval.'),
+            body=_('Payment Request form attached from foreign payment approval.'),
             attachment_ids=[bill_att.id],
         )
 

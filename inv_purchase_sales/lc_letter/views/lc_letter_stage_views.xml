@@ -4,7 +4,7 @@
         <field name="name">lc.letter.stage.tree</field>
         <field name="model">lc.letter.stage</field>
         <field name="arch" type="xml">
-            <list string="LC Stages" editable="bottom">
+            <list string="Payment Term Stages" editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="fold"/>
@@ -13,13 +13,13 @@
     </record>
 
     <record id="action_lc_letter_stage" model="ir.actions.act_window">
-        <field name="name">LC Stages</field>
+        <field name="name">Payment Term Stages</field>
         <field name="res_model">lc.letter.stage</field>
         <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_lc_letter_stage"
-        name="LC Stages"
+        name="Payment Term Stages"
         parent="purchase.menu_purchase_config"
         action="action_lc_letter_stage"
         sequence="50"/>
