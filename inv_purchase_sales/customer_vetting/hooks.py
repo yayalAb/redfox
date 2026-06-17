@@ -105,6 +105,12 @@ def _cleanup_all_orphan_models(env):
 def post_init_hook(env):
     """On install/upgrade, remove DB leftovers from deleted models."""
     _cleanup_all_orphan_models(env)
+    orders = env['sale.order'].search([
+        ('service_request_id', '!=', False),
+        ('state', 'in', ('sale', 'done')),
+    ])
+    if orders:
+        orders._sync_overall_customer_report_lines()
 
 
 def uninstall_hook(env):

@@ -231,7 +231,22 @@ class StockPicking(models.Model):
     def _action_done(self):
         res = super()._action_done()
         self._customer_vetting_create_mrp_from_done_receipt()
+        self._customer_vetting_refresh_overall_customer_reports()
         return res
+
+    def _customer_vetting_refresh_overall_customer_reports(self):
+        orders = self.env['sale.order']
+        for picking in self:
+            order = picking._customer_vetting_linked_sale_order()
+            if order and order.service_request_id:
+                orders |= order
+        if not orders:
+            return
+        reports = self.env['overall.customer.report'].sudo().search(
+            [('sale_order_id', 'in', orders.ids)]
+        )
+        if reports:
+            reports._recompute_quantities()
 
     def action_view_customer_vetting_mrp_productions(self):
         self.ensure_one()

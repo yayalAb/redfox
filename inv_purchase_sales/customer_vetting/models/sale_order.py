@@ -52,6 +52,11 @@ class SaleOrder(models.Model):
         compute='_compute_customer_vetting_can_create_delivery',
         string='Can create vetting delivery',
     )
+    overall_customer_report_ids = fields.One2many(
+        'overall.customer.report',
+        'sale_order_id',
+        string='Overall customer report',
+    )
 
     @api.depends('product_detail_receipt_ids', 'name', 'company_id')
     def _compute_product_detail_receipt_count(self):
@@ -215,17 +220,21 @@ class SaleOrder(models.Model):
             prepared.append(v)
         orders = super().create(prepared)
         orders._sync_service_vetting_detail_lines()
+        orders._sync_overall_customer_report_lines()
         return orders
 
     def write(self, vals):
         res = super().write(vals)
         if any(k in vals for k in ('order_line', 'service_request_id')):
             self._sync_service_vetting_detail_lines()
+        if any(k in vals for k in ('order_line', 'service_request_id', 'state')):
+            self._sync_overall_customer_report_lines()
         return res
 
     def _action_confirm(self):
         res = super()._action_confirm()
         self._customer_vetting_create_product_detail_receipts()
+        self._sync_overall_customer_report_lines()
         return res
 
     def _action_cancel(self):
@@ -613,6 +622,29 @@ class SaleOrder(models.Model):
                 )
             )
         return picking
+
+    def _sync_overall_customer_report_lines(self):
+        """Create or update one overall customer report row per service sales order."""
+        Report = self.env['overall.customer.report'].sudo()
+        for order in self:
+            if not order.service_request_id or order.state not in ('sale', 'done'):
+                Report.search([('sale_order_id', '=', order.id)]).unlink()
+                continue
+            main_line = order.order_line.filtered(
+                lambda l: not l.display_type and l.product_id
+            )[:1]
+            if not main_line:
+                Report.search([('sale_order_id', '=', order.id)]).unlink()
+                continue
+            rec = Report.search([('sale_order_id', '=', order.id)], limit=1)
+            if not rec:
+                rec = Report.create({
+                    'sale_order_id': order.id,
+                    'sale_line_id': main_line.id,
+                })
+            elif rec.sale_line_id != main_line:
+                rec.sale_line_id = main_line.id
+            rec._recompute_quantities()
 
     _sql_constraints = [
         (
