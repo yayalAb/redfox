@@ -7,3 +7,4 @@ from . import sale_order
 from . import sale_order_line
 from . import mrp_production
 from . import overall_customer_report
+from . import overall_customer_report_report

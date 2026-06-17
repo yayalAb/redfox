@@ -9,19 +9,32 @@
                     <button name="action_refresh_all"
                             type="object"
                             string="Refresh"
+                            class="btn-secondary"
+                            display="always"/>
+                    <button name="action_print_document"
+                            type="object"
+                            string="Print"
                             class="btn-primary"
                             display="always"/>
                 </header>
-                <field name="sale_order_id"/>
-                <field name="partner_id"/>
-                <field name="product_name"/>
+                <field name="sequence" string="No."/>
+                <field name="partner_id" string="Customer name"/>
+                <field name="grain_type" string="Product type"/>
+                <field name="sale_order_id" optional="show"/>
+                <field name="order_date" optional="hide"/>
+                <field name="total_received" string="Total received" sum="Total received"/>
+                <field name="total_delivered" string="Clean product issued" sum="Clean issued"/>
+                <field name="total_reject" string="Bran / waste issued" sum="Bran issued"/>
+                <field name="cleaned_remaining" string="Cleaned remaining" sum="Cleaned remaining"/>
+                <field name="estimated_bran_not_issued" string="Est. bran not issued" sum="Est. bran not issued"/>
+                <field name="issued_without_cleaning" string="Issued w/o cleaning" sum="Issued w/o cleaning"/>
+                <field name="uncleaned_in_warehouse" string="Uncleaned in WH" sum="Uncleaned in WH"/>
+                <field name="difference" string="Difference" sum="Difference"/>
+                <field name="product_uom_id" string="Unit" groups="uom.group_uom"/>
+                <field name="product_name" optional="hide"/>
                 <field name="raw_product_id" optional="hide"/>
                 <field name="finished_product_id" optional="hide"/>
                 <field name="reject_product_id" optional="hide"/>
-                <field name="total_received" sum="Total received"/>
-                <field name="total_delivered" sum="Total delivered"/>
-                <field name="total_reject" sum="Total reject"/>
-                <field name="product_uom_id" groups="uom.group_uom"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
             </list>
         </field>
@@ -36,28 +49,47 @@
                     <button name="action_refresh_all"
                             type="object"
                             string="Refresh"
+                            class="btn-secondary"/>
+                    <button name="action_print_document"
+                            type="object"
+                            string="Print"
                             class="btn-primary"/>
                 </header>
                 <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="partner_id" readonly="1"/>
+                        </h1>
+                        <h3>
+                            <field name="grain_type" readonly="1"/>
+                        </h3>
+                    </div>
                     <group>
-                        <group>
+                        <group string="Reference">
+                            <field name="sequence" string="No."/>
                             <field name="sale_order_id"/>
-                            <field name="partner_id"/>
-                            <field name="sale_line_id"/>
+                            <field name="order_date"/>
                             <field name="product_name"/>
+                            <field name="product_uom_id" groups="uom.group_uom"/>
                         </group>
-                        <group>
+                        <group string="Products">
                             <field name="raw_product_id"/>
                             <field name="finished_product_id"/>
                             <field name="reject_product_id"/>
-                            <field name="product_uom_id" groups="uom.group_uom"/>
                         </group>
                     </group>
-                    <group string="Totals">
+                    <group string="Quantities">
                         <group>
                             <field name="total_received"/>
                             <field name="total_delivered"/>
                             <field name="total_reject"/>
+                            <field name="cleaned_remaining"/>
+                        </group>
+                        <group>
+                            <field name="estimated_bran_not_issued"/>
+                            <field name="issued_without_cleaning"/>
+                            <field name="uncleaned_in_warehouse"/>
+                            <field name="difference"/>
                         </group>
                     </group>
                 </sheet>
@@ -70,16 +102,16 @@
         <field name="model">overall.customer.report</field>
         <field name="arch" type="xml">
             <search string="Overall customer report">
-                <field name="partner_id"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="grain_type" string="Product type"/>
                 <field name="product_name"/>
                 <field name="sale_order_id"/>
-                <field name="raw_product_id"/>
-                <field name="finished_product_id"/>
-                <group expand="0" string="Group by">
-                    <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
-                    <filter name="group_sale_order" string="Sales order" context="{'group_by': 'sale_order_id'}"/>
-                </group>
+                <filter name="filter_order_date" string="Order date" date="order_date"/>
+                <separator/>
+                <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_grain_type" string="Product type" context="{'group_by': 'grain_type'}"/>
+                <filter name="group_sale_order" string="Sales order" context="{'group_by': 'sale_order_id'}"/>
+                <filter name="group_order_date" string="Order date" context="{'group_by': 'order_date:month'}"/>
             </search>
         </field>
     </record>
@@ -89,13 +121,13 @@
         <field name="res_model">overall.customer.report</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_overall_customer_report_search"/>
+        <field name="context">{'search_default_group_partner': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Overall customer report lines are created from confirmed service sales orders.
             </p>
             <p>
-                Use <strong>Refresh</strong> to rebuild report lines and recompute received,
-                delivered, and reject quantities.
+                Use <strong>Refresh</strong> to rebuild report lines and recompute all quantities.
             </p>
         </field>
     </record>

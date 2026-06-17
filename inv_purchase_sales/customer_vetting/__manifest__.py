@@ -1,6 +1,6 @@
 {
     'name': 'Customer Vetting Workflow',
-    'version': '1.1.2',
+    'version': '1.2.2',
     'summary': 'Implements a vetting and approval workflow for customers.',
     'author': 'Henok Gm',
     'category': 'Sales/CRM',
@@ -27,6 +27,7 @@
         'views/mrp_production_views.xml',
         'views/product_template_views.xml',
         'views/overall_customer_report_views.xml',
+        'reports/overall_customer_report_template.xml',
     ],
     'installable': True,
     'application': True,
