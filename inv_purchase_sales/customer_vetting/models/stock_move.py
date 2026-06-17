@@ -5,6 +5,13 @@ from odoo import api, fields, models
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
+    customer_vetting_mrp_production_id = fields.Many2one(
+        'mrp.production',
+        string='Manufacturing order (customer vetting)',
+        ondelete='set null',
+        copy=False,
+        index=True,
+    )
     customer_vetting_is_raw_receipt_line = fields.Boolean(
         compute='_compute_customer_vetting_is_raw_receipt_line',
     )

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.tools.float_utils import float_round
 
 
 class SaleOrder(models.Model):
@@ -40,15 +41,16 @@ class SaleOrder(models.Model):
         comodel_name='stock.picking',
         inverse_name='customer_vetting_sale_id',
         string='Customer vetting deliveries',
-        domain=[
-            ('picking_type_id.code', '=', 'outgoing'),
-            ('customer_vetting_mrp_production_id', '!=', False),
-        ],
+        domain=[('picking_type_id.code', '=', 'outgoing')],
         copy=False,
     )
     customer_vetting_delivery_count = fields.Integer(
         compute='_compute_customer_vetting_delivery_count',
         string='Deliveries',
+    )
+    customer_vetting_can_create_delivery = fields.Boolean(
+        compute='_compute_customer_vetting_can_create_delivery',
+        string='Can create vetting delivery',
     )
 
     @api.depends('product_detail_receipt_ids', 'name', 'company_id')
@@ -74,6 +76,26 @@ class SaleOrder(models.Model):
                 order.customer_vetting_delivery_ids.filtered(
                     lambda p: p.state != 'cancel'
                 )
+            )
+
+    @api.depends(
+        'service_request_id',
+        'state',
+        'product_detail_receipt_ids.customer_vetting_mrp_production_ids.state',
+        'product_detail_receipt_ids.customer_vetting_mrp_production_ids.qty_produced',
+        'product_detail_receipt_ids.customer_vetting_mrp_production_ids.move_byproduct_ids.quantity',
+        'product_detail_receipt_ids.customer_vetting_mrp_production_ids.move_byproduct_ids.state',
+        'customer_vetting_delivery_ids.state',
+        'customer_vetting_delivery_ids.move_ids_without_package.product_uom_qty',
+        'customer_vetting_delivery_ids.move_ids_without_package.quantity',
+        'customer_vetting_delivery_ids.move_ids_without_package.state',
+    )
+    def _compute_customer_vetting_can_create_delivery(self):
+        for order in self:
+            order.customer_vetting_can_create_delivery = bool(
+                order.service_request_id
+                and order.state in ('sale', 'done')
+                and order._customer_vetting_done_delivery_products()
             )
 
     def _primary_template_variant(self, template):
@@ -215,20 +237,24 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return '%s | Product detail' % (self.name,)
 
+    def _customer_vetting_storable_vetting_detail_lines(self):
+        self.ensure_one()
+        excluded_finished = self._customer_vetting_receipt_excluded_finished_variants()
+        return self.vetting_detail_line_ids.filtered(
+            lambda l: l.detail_type in ('other', 'bag')
+            and l.product_id
+            and l.product_id not in excluded_finished
+            and l.product_id.is_storable
+            and l.product_uom
+            and l.product_uom_qty > 0
+        )
+
     def _customer_vetting_create_product_detail_receipts(self):
         Picking = self.env['stock.picking']
         for order in self:
             if not order.service_request_id or not order.vetting_detail_line_ids:
                 continue
-            excluded_finished = order._customer_vetting_receipt_excluded_finished_variants()
-            storable_lines = order.vetting_detail_line_ids.filtered(
-                lambda l: l.detail_type in ('other', 'bag')
-                and l.product_id
-                and l.product_id not in excluded_finished
-                and l.product_id.is_storable
-                and l.product_uom
-                and l.product_uom_qty > 0
-            )
+            storable_lines = order._customer_vetting_storable_vetting_detail_lines()
             if not storable_lines:
                 continue
             origin = order._customer_vetting_product_detail_receipt_origin()
@@ -370,6 +396,223 @@ class SaleOrder(models.Model):
             create=False,
         )
         return action
+
+    def _customer_vetting_receipt_mrp_productions(self):
+        self.ensure_one()
+        receipts = self.product_detail_receipt_ids.filtered(lambda p: p.state != 'cancel')
+        if not receipts:
+            return self.env['mrp.production']
+        return self.env['mrp.production'].search(
+            [
+                ('customer_vetting_receipt_picking_id', 'in', receipts.ids),
+                ('state', '!=', 'cancel'),
+            ],
+            order='id',
+        )
+
+    def _customer_vetting_done_receipt_mrp_productions(self):
+        return self._customer_vetting_receipt_mrp_productions().filtered(
+            lambda mo: mo.state in ('done', 'to_close')
+        )
+
+    def _customer_vetting_delivered_product_qty(self, product, uom):
+        """Quantity already on non-cancelled vetting deliveries for this sales order."""
+        self.ensure_one()
+        total = 0.0
+        for picking in self.customer_vetting_delivery_ids.filtered(
+            lambda p: p.state != 'cancel'
+        ):
+            for move in picking.move_ids_without_package.filtered(
+                lambda m: m.state != 'cancel' and m.product_id == product
+            ):
+                qty = move.quantity if move.state == 'done' else move.product_uom_qty
+                total += move.product_uom._compute_quantity(
+                    qty, uom, rounding_method='HALF-UP'
+                )
+        return total
+
+    def _customer_vetting_done_delivery_products(self):
+        """Aggregate produced qty per product from done MOs minus already delivered."""
+        self.ensure_one()
+        aggregates = {}
+        for mo in self._customer_vetting_done_receipt_mrp_productions():
+            for product, src_uom, qty, line_type in mo._customer_vetting_done_production_lines():
+                if not product.is_storable or qty <= 0:
+                    continue
+                key = product.id
+                if key not in aggregates:
+                    aggregates[key] = {
+                        'product': product,
+                        'uom': src_uom,
+                        'produced_qty': 0.0,
+                        'line_type': line_type,
+                        'mo_ids': set(),
+                    }
+                entry = aggregates[key]
+                entry['produced_qty'] += src_uom._compute_quantity(
+                    qty, entry['uom'], rounding_method='HALF-UP'
+                )
+                entry['mo_ids'].add(mo.id)
+        result = []
+        for entry in aggregates.values():
+            product = entry['product']
+            uom = entry['uom']
+            delivered = self._customer_vetting_delivered_product_qty(product, uom)
+            available = float_round(
+                entry['produced_qty'] - delivered,
+                precision_rounding=uom.rounding,
+            )
+            if available > 0:
+                result.append({
+                    'product': product,
+                    'uom': uom,
+                    'available_qty': available,
+                    'line_type': entry['line_type'],
+                    'mo_ids': list(entry['mo_ids']),
+                })
+        return result
+
+    def _customer_vetting_prepare_delivery_wizard_lines(self):
+        self.ensure_one()
+        lines = []
+        for item in self._customer_vetting_done_delivery_products():
+            lines.append(
+                (
+                    0,
+                    0,
+                    {
+                        'mrp_production_ids': [(6, 0, item['mo_ids'])],
+                        'line_type': item['line_type'],
+                        'product_id': item['product'].id,
+                        'product_uom_id': item['uom'].id,
+                        'available_qty': item['available_qty'],
+                        'product_uom_qty': item['available_qty'],
+                        'selected': True,
+                    },
+                )
+            )
+        return lines
+
+    def action_open_create_delivery_wizard(self):
+        self.ensure_one()
+        if self.state not in ('sale', 'done'):
+            raise UserError(
+                _('Delivery orders can only be created on confirmed sales orders.')
+            )
+        if not self.service_request_id:
+            raise UserError(_('This sales order is not linked to a service request.'))
+        if not self._customer_vetting_done_receipt_mrp_productions():
+            raise UserError(
+                _('No done manufacturing orders were found from product detail receipts.')
+            )
+        wizard_lines = self._customer_vetting_prepare_delivery_wizard_lines()
+        if not wizard_lines:
+            raise UserError(
+                _('No finished products or by-products are available to deliver.')
+            )
+        wizard = self.env['customer.vetting.create.delivery.wizard'].create(
+            {
+                'sale_order_id': self.id,
+                'line_ids': wizard_lines,
+            }
+        )
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Create delivery order'),
+            'res_model': 'customer.vetting.create.delivery.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
+    def _customer_vetting_create_delivery_picking(self, line_specs):
+        """Create one outgoing delivery from wizard line specs.
+
+        line_specs: list of dicts with keys product_id, product_uom_id,
+        product_uom_qty, mrp_production_ids.
+        """
+        self.ensure_one()
+        Picking = self.env['stock.picking']
+        StockMove = self.env['stock.move']
+        if not line_specs:
+            return Picking
+        warehouse = self.warehouse_id or self.env['stock.warehouse'].search(
+            [('company_id', '=', self.company_id.id)], limit=1
+        )
+        if not warehouse:
+            raise UserError(
+                _('Configure a warehouse for company %s to create delivery orders.')
+                % self.company_id.display_name
+            )
+        picking_type = warehouse.out_type_id
+        if (
+            not picking_type
+            or not picking_type.default_location_src_id
+            or not picking_type.default_location_dest_id
+        ):
+            raise UserError(
+                _('Warehouse %s is missing a proper outgoing operation type or locations.')
+                % warehouse.display_name
+            )
+        move_vals = []
+        all_mo_ids = set()
+        for spec in line_specs:
+            product = spec['product_id']
+            uom = spec['product_uom_id']
+            qty = spec['product_uom_qty']
+            mo_records = spec.get('mrp_production_ids') or self.env['mrp.production']
+            mo = mo_records[:1]
+            all_mo_ids.update(mo_records.ids)
+            sol = mo._customer_vetting_service_sale_line() if mo else self.env['sale.order.line']
+            if not sol:
+                for order_line in self.order_line.filtered(
+                    lambda l: not l.display_type and l.product_id
+                ):
+                    if order_line.product_id == product:
+                        sol = order_line
+                        break
+            vals = {
+                'name': product.display_name,
+                'product_id': product.id,
+                'product_uom': uom.id,
+                'product_uom_qty': qty,
+                'location_id': picking_type.default_location_src_id.id,
+                'location_dest_id': picking_type.default_location_dest_id.id,
+                'company_id': self.company_id.id,
+            }
+            if sol and 'sale_line_id' in StockMove._fields:
+                vals['sale_line_id'] = sol.id
+            if mo and 'customer_vetting_mrp_production_id' in StockMove._fields:
+                vals['customer_vetting_mrp_production_id'] = mo.id
+            move_vals.append((0, 0, vals))
+        all_mo_ids = list(all_mo_ids)
+        picking_vals = {
+            'partner_id': self.partner_id.id,
+            'picking_type_id': picking_type.id,
+            'location_id': picking_type.default_location_src_id.id,
+            'location_dest_id': picking_type.default_location_dest_id.id,
+            'origin': '%s | Delivery' % self.name,
+            'company_id': self.company_id.id,
+            'customer_vetting_sale_id': self.id,
+            'customer_vetting_mrp_production_id': all_mo_ids[0] if len(all_mo_ids) == 1 else False,
+            'move_ids_without_package': move_vals,
+        }
+        if self.procurement_group_id:
+            picking_vals['group_id'] = self.procurement_group_id.id
+        picking = Picking.with_context(customer_vetting_skip_valuation=True).create(
+            picking_vals
+        )
+        picking.action_confirm()
+        picking._customer_vetting_sync_delivery_move_quantity_to_demand()
+        for mo_id in all_mo_ids:
+            mo = self.env['mrp.production'].browse(mo_id)
+            mo.message_post(
+                body=_(
+                    'Delivery order %(name)s created for finished product and by-products.',
+                    name=picking.display_name,
+                )
+            )
+        return picking
 
     _sql_constraints = [
         (

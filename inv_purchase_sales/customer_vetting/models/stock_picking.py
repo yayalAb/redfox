@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.float_utils import float_round
+from odoo.tools.float_utils import float_is_zero, float_round
 
 
 class StockPicking(models.Model):
@@ -80,11 +80,33 @@ class StockPicking(models.Model):
         origin = (self.origin or '').strip()
         return bool(origin.endswith(' | Product detail'))
 
-    def _customer_vetting_product_detail_receipt_sale_order(self):
-        """Resolve the sales order for a product-detail receipt (FK or legacy origin)."""
+    def _customer_vetting_linked_sale_order(self):
+        """Resolve the vetting sales order from FK, backorder chain, or origin."""
         self.ensure_one()
         if self.customer_vetting_sale_id:
             return self.customer_vetting_sale_id
+        picking = self
+        while picking.backorder_id:
+            if picking.backorder_id.customer_vetting_sale_id:
+                return picking.backorder_id.customer_vetting_sale_id
+            picking = picking.backorder_id
+        if self._customer_vetting_is_product_detail_so_receipt():
+            return self._customer_vetting_product_detail_receipt_sale_order_from_origin()
+        if self._customer_vetting_is_delivery_so_picking():
+            return self._customer_vetting_delivery_sale_order_from_origin()
+        return self.env['sale.order']
+
+    def _customer_vetting_is_delivery_so_picking(self):
+        """True for outgoing vetting deliveries linked to a sales order."""
+        self.ensure_one()
+        if self.picking_type_id.code != 'outgoing':
+            return False
+        if self.customer_vetting_sale_id:
+            return True
+        origin = (self.origin or '').strip()
+        return origin.endswith(' | Delivery')
+
+    def _customer_vetting_product_detail_receipt_sale_order_from_origin(self):
         origin = (self.origin or '').strip()
         marker = ' | Product detail'
         if not origin.endswith(marker):
@@ -97,6 +119,67 @@ class StockPicking(models.Model):
             ],
             limit=1,
         )
+
+    def _customer_vetting_delivery_sale_order_from_origin(self):
+        origin = (self.origin or '').strip()
+        marker = ' | Delivery'
+        if not origin.endswith(marker):
+            return self.env['sale.order']
+        name = origin[: -len(marker)]
+        return self.env['sale.order'].search(
+            [
+                ('name', '=', name),
+                ('company_id', '=', self.company_id.id),
+            ],
+            limit=1,
+        )
+
+    def _customer_vetting_product_detail_receipt_sale_order(self):
+        """Resolve the sales order for a product-detail receipt (FK or legacy origin)."""
+        self.ensure_one()
+        order = self._customer_vetting_linked_sale_order()
+        if order:
+            return order
+        return self._customer_vetting_product_detail_receipt_sale_order_from_origin()
+
+    def _customer_vetting_sync_delivery_move_quantity_to_demand(self):
+        """Set move quantity to demand on vetting delivery orders."""
+        for picking in self:
+            if (
+                picking.picking_type_id.code != 'outgoing'
+                or not picking._customer_vetting_is_delivery_so_picking()
+            ):
+                continue
+            for move in picking.move_ids.filtered(lambda m: m.state not in ('done', 'cancel')):
+                if float_is_zero(
+                    move.product_uom_qty, precision_rounding=move.product_uom.rounding
+                ):
+                    continue
+                if float_is_zero(move.quantity, precision_rounding=move.product_uom.rounding):
+                    move.quantity = move.product_uom_qty
+
+    def _create_backorder_picking(self):
+        self.ensure_one()
+        copy_vals = {
+            'name': '/',
+            'move_ids': [],
+            'move_line_ids': [],
+            'backorder_id': self.id,
+        }
+        sale_order = self._customer_vetting_linked_sale_order()
+        if sale_order and self.picking_type_id.code == 'incoming':
+            if self._customer_vetting_is_product_detail_so_receipt():
+                copy_vals['customer_vetting_sale_id'] = sale_order.id
+                copy_vals['origin'] = sale_order._customer_vetting_product_detail_receipt_origin()
+        elif sale_order and self.picking_type_id.code == 'outgoing':
+            if self._customer_vetting_is_delivery_so_picking():
+                copy_vals['customer_vetting_sale_id'] = sale_order.id
+                copy_vals['origin'] = self.origin or '%s | Delivery' % sale_order.name
+                if self.customer_vetting_mrp_production_id:
+                    copy_vals['customer_vetting_mrp_production_id'] = (
+                        self.customer_vetting_mrp_production_id.id
+                    )
+        return self.copy(copy_vals)
 
     def _customer_vetting_good_receiving_report_moves(self):
         """Moves to print on Customer Good Receiving Note.
@@ -295,7 +378,6 @@ class StockPicking(models.Model):
                     vals['sale_line_id'] = sol.id
                 mo = MrpProduction.create(vals)
                 mo.action_confirm()
-                mo._customer_vetting_create_delivery_orders()
                 picking.message_post(
                     body=_(
                         'Manufacturing order %(name)s created for %(product)s.',
