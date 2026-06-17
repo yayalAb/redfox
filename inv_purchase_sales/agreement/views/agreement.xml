@@ -6,7 +6,6 @@
         <field name="arch" type="xml">
             <form string="Agreement">
                 <header>
-                    <!-- Workflow Buttons -->
                     <button
                         name="action_submit"
                         type="object"
@@ -45,8 +44,6 @@
                         groups="agreement.group_agreement_reset_to_draft"
                         invisible="state not in ['refuse', 'draft', 'done']"
                     />
-                    
-                    <!-- Operational Buttons -->
                     <button
                         name="action_create_sale_order"
                         type="object"
@@ -62,8 +59,6 @@
                         groups="agreement.group_agreement_done"
                         invisible="state != 'approved'"
                     />
-
-                    <!-- Status Bar -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,review,approved,done"/>
                 </header>
                 <sheet>
@@ -77,8 +72,7 @@
                             <field string="Sale Order" name="sale_count" widget="statinfo"/>
                         </button>
                     </div>
-                    
-                    <!-- Ribbons -->
+
                     <widget
                         name="web_ribbon"
                         title="Archived"
@@ -109,46 +103,59 @@
                         bg_color="bg-secondary"
                         invisible="expiration_status != 'closed'"
                     />
-                    
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only" string="Agreement Name"/>
-                        <h1>
-                            <!-- Readonly unless draft -->
-                            <field name="name" readonly="state != 'draft'"/>
-                        </h1>
-                    </div>
+
                     <group name="main">
-                        <group name="left">
-                            <field name="partner_id" readonly="state != 'draft'" required="1"/>
+                        <group name="contract_left">
+                            <field name="code" readonly="state != 'draft'" required="1"/>
+                            <field name="payment_type" readonly="state != 'draft'" required="1"/>
+                            <field name="partial_shipment" readonly="state != 'draft'"/>
+                            <field name="product_categ_id" readonly="state != 'draft'" required="1"/>
+                            <field name="source" readonly="state != 'draft'" required="1"/>
                             <field name="agreement_type_id" readonly="state != 'draft'"/>
-                            <field name="total_value" readonly="1"/>
                             <field name="agreement_category" readonly="state != 'draft'"/>
+                            <field name="exporter_bank_id" readonly="state != 'draft'" required="1"/>
+                            <field name="start_date" readonly="state != 'draft'" required="1"/>
+                            <field name="end_date" readonly="state != 'draft'" required="1"/>
                         </group>
-                        <group name="right">
+                        <group name="contract_right">
+                            <field name="partner_id" readonly="state != 'draft'" required="1"/>
+                            <field name="country_of_delivery_id" readonly="state != 'draft'" required="1"/>
+                            <field name="port_of_loading" readonly="state != 'draft'" required="1"/>
+                            <field name="port_of_discharge" readonly="state != 'draft'" required="1"/>
                             <field name="signature_date" readonly="state != 'draft'"/>
-                            <field name="start_date" readonly="state != 'draft'"/>
-                            <field name="end_date" readonly="state != 'draft'"/>
+                            <field name="incoterm_id" readonly="state != 'draft'" required="1"/>
+                            <field name="freight_included" readonly="state != 'draft'"/>
+                            <field name="packaging_description" readonly="state != 'draft'"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="expiration_status" invisible="1"/>
                             <field name="attachment" widget="binary" filename="attachment_name" readonly="state != 'draft'"/>
-                            <field name="attachment_name" invisible="1" string=""/>
+                            <field name="attachment_name" invisible="1"/>
                         </group>
                     </group>
+
                     <notebook>
-                        <page name="lines" string="Agreement Lines">
-                            <!-- Readonly unless draft (or perhaps review if you want managers to edit) -->
+                        <page name="lines" string="Products">
+                            <field name="allowed_product_ids" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
                             <field name="line_ids" widget="one2many_list" readonly="state != 'draft'">
                                 <list editable="bottom">
-                                    <field name="product_id" domain="[('id', 'in', parent.allowed_product_ids)]"/>
-                                    <field name="description" widget="text"/>
-                                    <field name="uom_id" widget="many2one"/>
-                                    <field name="quantity"/>
-                                    <field name="ordered_qty" readonly="1"/>
-                                    <field name="unit_price"/>
-                                    <field name="tax_ids" widget="many2many_tags"/>
-                                    <field name="total_price" readonly="1" sum="Total Price"/>
+                                    <field name="product_id" required="1"
+                                        domain="[('id', 'in', parent.allowed_product_ids), ('categ_id', 'child_of', parent.product_categ_id)]"/>
+                                    <field name="quantity" required="1"/>
+                                    <field name="uom_id" string="Measurement Unit" widget="many2one" required="1"/>
+                                    <field name="unit_price" required="1"/>
+                                    <field name="currency_id" required="1"/>
+                                    <field name="ordered_qty" readonly="1" optional="hide"/>
+                                    <field name="tax_ids" widget="many2many_tags" optional="hide"/>
+                                    <field name="total_price" readonly="1"/>
                                 </list>
                             </field>
+                            <group>
+                                <group/>
+                                <group class="oe_subtotal_footer">
+                                    <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" readonly="1"/>
+                                </group>
+                            </group>
                         </page>
                         <page name="description" string="Terms and Condition">
                             <field name="description" widget="text" readonly="state != 'draft'"/>
@@ -165,15 +172,16 @@
         <field name="model">sale.agreement</field>
         <field name="arch" type="xml">
             <list>
-                <field name="partner_id"/>
                 <field name="code"/>
+                <field name="partner_id" string="Buyer"/>
                 <field name="name"/>
+                <field name="payment_type"/>
+                <field name="currency_id"/>
                 <field name="agreement_category"/>
-                <field name="signature_date"/>
-                <field name="start_date"/>
-                <field name="end_date"/>
-                <field name="state" widget="badge" 
-                       decoration-info="state == 'draft'" 
+                <field name="start_date" string="Agreement Date"/>
+                <field name="end_date" string="Agreement End Date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
                        decoration-primary="state == 'submitted'"
                        decoration-warning="state == 'review'"
                        decoration-success="state == 'approved'"
@@ -195,27 +203,25 @@
                     filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
                     string="Name or Number"
                 />
-                <field name="partner_id"/>
+                <field name="partner_id" string="Buyer"/>
+                <field name="payment_type"/>
                 <field name="state"/>
                 <field name="expiration_status"/>
                 <separator/>
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
-                
-                <!-- Updated Filters -->
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter name="review" string="Under Review" domain="[('state', '=', 'review')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                 <filter name="refuse" string="Refused" domain="[('state', '=', 'refuse')]"/>
                 <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
-                
                 <separator/>
                 <filter name="expired" string="Expired" domain="[('expiration_status', '=', 'expired')]"/>
                 <filter name="sale" string="Sale" domain="[('agreement_category', '=', 'product_sale')]"/>
                 <filter name="maintenance" string="Maintenance" domain="[('agreement_category', '=', 'maintenance')]"/>
-                
                 <group name="groupby">
-                    <filter name="partner_groupby" string="Partner" context="{'group_by': 'partner_id'}"/>
+                    <filter name="partner_groupby" string="Buyer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="payment_type_groupby" string="Payment Type" context="{'group_by': 'payment_type'}"/>
                     <filter name="agreement_category_groupby" string="Agreement Category" context="{'group_by': 'agreement_category'}"/>
                     <filter name="signature_date_groupby" string="Signature Date" context="{'group_by': 'signature_date'}"/>
                     <filter name="state_groupby" string="Status" context="{'group_by': 'state'}"/>
@@ -224,7 +230,7 @@
             </search>
         </field>
     </record>
-    
+
     <record id="agreement_action" model="ir.actions.act_window">
         <field name="name">Agreements</field>
         <field name="res_model">sale.agreement</field>

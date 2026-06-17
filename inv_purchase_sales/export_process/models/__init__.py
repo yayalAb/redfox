@@ -5,6 +5,5 @@ from . import export_payment
 from . import export_logistics
 from . import export_documentation
 from . import sale_order
-from . import sale_order_line
 from . import stock_picking
 from . import account_move

@@ -8,12 +8,19 @@ class Agreement(models.Model):
     _name = "sale.agreement"
     _description = "Agreement"
     _inherit = ["mail.thread", "mail.activity.mixin"]
+    _rec_name = "code"
 
-    code = fields.Char(required=False, string="Code", tracking=True)
-    name = fields.Char(required=True, string="Name")
+    code = fields.Char(
+        required=True,
+        string="Contract Agreement No.",
+        tracking=True,
+        copy=False,
+    )
+    name = fields.Char(required=True, string="Name", copy=False)
+
     partner_id = fields.Many2one(
         "res.partner",
-        string="Customer",
+        string="Buyer",
         ondelete="restrict",
         domain=[("parent_id", "=", False)],
         tracking=True,
@@ -33,8 +40,71 @@ class Agreement(models.Model):
 
     active = fields.Boolean(default=True)
     signature_date = fields.Date(tracking=True, default=lambda self: fields.Date.today())
-    start_date = fields.Date(tracking=True, required=True)
-    end_date = fields.Date(tracking=True, required=True)
+    start_date = fields.Date(
+        string="Agreement Date",
+        tracking=True,
+        required=True,
+    )
+    end_date = fields.Date(
+        string="Agreement End Date",
+        tracking=True,
+        required=True,
+    )
+    currency_id = fields.Many2one(
+        "res.currency",
+        string="Currency",
+        compute="_compute_currency_id",
+        store=True,
+        tracking=True,
+    )
+    payment_type = fields.Selection(
+        [
+            ("lc", "LC"),
+            ("tt", "TT"),
+            ("cad", "CAD"),
+        ],
+        string="Payment Type",
+        required=True,
+        default="lc",
+        tracking=True,
+    )
+    partial_shipment = fields.Boolean(string="Partial Shipment", tracking=True)
+    country_of_delivery_id = fields.Many2one(
+        "res.country",
+        string="Country of Delivery",
+        default=lambda self: self.env.company.country_id,
+        tracking=True,
+    )
+    port_of_loading = fields.Char(string="Port of Loading", tracking=True)
+    port_of_discharge = fields.Char(string="Port of Discharge", tracking=True)
+    product_categ_id = fields.Many2one(
+        "product.category",
+        string="Product Category",
+        tracking=True,
+    )
+    source = fields.Selection(
+        [
+            ("local", "Local"),
+            ("import", "Import"),
+            ("export", "Export"),
+        ],
+        string="Source",
+        default="import",
+        tracking=True,
+    )
+    incoterm_id = fields.Many2one(
+        "account.incoterms",
+        string="Incoterm",
+        tracking=True,
+    )
+    freight_included = fields.Boolean(string="Freight Included", tracking=True)
+    exporter_bank_id = fields.Many2one(
+        "res.partner",
+        string="Exporter Bank",
+        domain=[("is_company", "=", True)],
+        tracking=True,
+    )
+    packaging_description = fields.Text(string="Packaging Description", tracking=True)
 
     # --- MODIFIED STATE SELECTION ---
     state = fields.Selection(
@@ -83,12 +153,32 @@ class Agreement(models.Model):
     )
     attachment_name = fields.Char(string="Attachment Name")
 
-    total_value = fields.Float(
+    total_value = fields.Monetary(
         string="Total Value",
-        compute="_compute_total_value",
+        compute="_compute_amounts",
         store=True,
         readonly=True,
+        currency_field="currency_id",
     )
+    amount_untaxed = fields.Monetary(
+        string="Untaxed Amount",
+        compute="_compute_amounts",
+        store=True,
+        currency_field="currency_id",
+    )
+    amount_tax = fields.Monetary(
+        string="Taxes",
+        compute="_compute_amounts",
+        store=True,
+        currency_field="currency_id",
+    )
+    amount_total = fields.Monetary(
+        string="Total",
+        compute="_compute_amounts",
+        store=True,
+        currency_field="currency_id",
+    )
+    tax_totals = fields.Binary(compute="_compute_tax_totals", exportable=False)
     agreement_category = fields.Selection(
         [
             ("product_sale", "Product Sale"),
@@ -106,6 +196,30 @@ class Agreement(models.Model):
         store=False,
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals.setdefault("name", vals.get("code") or _("New Agreement"))
+        return super().create(vals_list)
+
+    @api.onchange("code")
+    def _onchange_code_set_name(self):
+        if self.code:
+            self.name = self.code
+
+    @api.depends('purchase_order_ids')
+    def _compute_purchase_order_count(self):
+        for rec in self:
+            rec.purchase_order_count = len(rec.purchase_order_ids)
+
+    @api.depends("line_ids.currency_id")
+    def _compute_currency_id(self):
+        for agreement in self:
+            agreement.currency_id = (
+                agreement.line_ids[:1].currency_id
+                or agreement.env.company.currency_id
+            )
+
     @api.onchange('agreement_category')
     def _compute_allowed_products(self):
         Product = self.env['product.product']
@@ -115,14 +229,71 @@ class Agreement(models.Model):
             else:
                 rec.allowed_product_ids = Product.search([('type', '!=', 'service')])
 
+    @api.onchange('product_categ_id')
+    def _onchange_product_categ_id(self):
+        if not self.product_categ_id or not self.line_ids:
+            return
+        allowed_categ_ids = self.env['product.category'].search([
+            ('id', 'child_of', self.product_categ_id.id),
+        ]).ids
+        for line in self.line_ids:
+            if line.product_id and line.product_id.categ_id.id not in allowed_categ_ids:
+                line.product_id = False
+
     def _count_sale_order(self):
         for record in self:
             record.sale_count = len(self.env['sale.order'].search([('agreement_id', '=', self.id)]))
 
-    @api.depends("line_ids.total_price")
-    def _compute_total_value(self):
-        for rec in self:
-            rec.total_value = sum(line.total_price for line in rec.line_ids)
+    @api.depends(
+        "line_ids.quantity",
+        "line_ids.unit_price",
+        "line_ids.tax_ids",
+        "line_ids.currency_id",
+        "currency_id",
+        "company_id",
+    )
+    def _compute_amounts(self):
+        AccountTax = self.env["account.tax"]
+        for agreement in self:
+            base_lines = [
+                line._prepare_base_line_for_taxes_computation()
+                for line in agreement.line_ids
+            ]
+            AccountTax._add_tax_details_in_base_lines(base_lines, agreement.company_id)
+            AccountTax._round_base_lines_tax_details(base_lines, agreement.company_id)
+            tax_totals = AccountTax._get_tax_totals_summary(
+                base_lines=base_lines,
+                currency=agreement.currency_id or agreement.company_id.currency_id,
+                company=agreement.company_id,
+            )
+            agreement.amount_untaxed = tax_totals["base_amount_currency"]
+            agreement.amount_tax = tax_totals["tax_amount_currency"]
+            agreement.amount_total = tax_totals["total_amount_currency"]
+            agreement.total_value = agreement.amount_total
+
+    @api.depends_context("lang")
+    @api.depends(
+        "line_ids.quantity",
+        "line_ids.unit_price",
+        "line_ids.tax_ids",
+        "line_ids.currency_id",
+        "currency_id",
+        "company_id",
+    )
+    def _compute_tax_totals(self):
+        AccountTax = self.env["account.tax"]
+        for agreement in self:
+            base_lines = [
+                line._prepare_base_line_for_taxes_computation()
+                for line in agreement.line_ids
+            ]
+            AccountTax._add_tax_details_in_base_lines(base_lines, agreement.company_id)
+            AccountTax._round_base_lines_tax_details(base_lines, agreement.company_id)
+            agreement.tax_totals = AccountTax._get_tax_totals_summary(
+                base_lines=base_lines,
+                currency=agreement.currency_id or agreement.company_id.currency_id,
+                company=agreement.company_id,
+            )
 
     @api.depends("start_date", "end_date", "state")
     def _compute_expiration_status(self):
@@ -213,6 +384,36 @@ class Agreement(models.Model):
             'domain': [('agreement_id', '=', self.id)],
         }
 
+    def _get_sale_order_state_selection(self):
+        selection = self.env["sale.order"]._fields["state"].selection
+        if callable(selection):
+            selection = selection(self.env["sale.order"])
+        return {value for value, _label in selection}
+
+    def _prepare_sale_order_vals(self):
+        self.ensure_one()
+        valid_states = self._get_sale_order_state_selection()
+        vals = {
+            "partner_id": self.partner_id.id,
+            "company_id": self.company_id.id,
+            "currency_id": self.currency_id.id,
+            "origin": self.code,
+            "date_order": fields.Date.today(),
+            "agreement_id": self.id,
+        }
+        sale_order_fields = self.env["sale.order"]._fields
+        if "order_submit" in valid_states:
+            vals["state"] = "order_submit"
+            if "order_type" in sale_order_fields:
+                vals["order_type"] = "order"
+        else:
+            vals["state"] = "draft"
+        if "contract_ref" in sale_order_fields:
+            vals["contract_ref"] = self.code
+        if "sale_category" in sale_order_fields and self.agreement_category:
+            vals["sale_category"] = self.agreement_category
+        return vals
+
     def action_create_sale_order(self):
         """Create a sale order from the agreement with selected lines"""
         self.ensure_one()
@@ -224,16 +425,11 @@ class Agreement(models.Model):
 
         # If no line_ids provided, use all lines with remaining quantity
         lines_to_process = self.line_ids.filtered(lambda l: l.quantity > l.ordered_qty)
+        if not lines_to_process:
+            raise ValidationError(_("No remaining quantity to order on agreement lines."))
 
         # Create sale order
-        sale_order = self.env["sale.order"].create({
-            "partner_id": self.partner_id.id,
-            "company_id": self.company_id.id,
-            "origin": self.code,
-            "date_order": fields.Date.today(),
-            "agreement_id": self.id,
-            "state": "order_submit",
-        })
+        sale_order = self.env["sale.order"].create(self._prepare_sale_order_vals())
 
         # Create sale order lines from selected agreement lines
         for line in lines_to_process:
@@ -285,9 +481,9 @@ class AgreementLine(models.Model):
     description = fields.Text(string="Description")
     uom_id = fields.Many2one(
         "uom.uom",
-        string="Unit of Measure",
+        string="Measurement Unit",
         required=True,
-        related="product_id.uom_id"
+        related="product_id.uom_id",
     )
     quantity = fields.Float(string="Quantity", required=True, default=1.0)
     ordered_qty = fields.Float(
@@ -297,6 +493,12 @@ class AgreementLine(models.Model):
         readonly=True,
     )
     unit_price = fields.Float(string="Unit Price", required=True, default=0.0)
+    currency_id = fields.Many2one(
+        "res.currency",
+        string="Currency",
+        required=True,
+        default=lambda self: self.env.company.currency_id,
+    )
     total_price = fields.Float(
         string="Total Price",
         compute="_compute_total_price",
@@ -320,21 +522,68 @@ class AgreementLine(models.Model):
             )
             line.ordered_qty = total_ordered
 
-    @api.depends("quantity", "unit_price", "tax_ids")
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        if "currency_id" not in defaults:
+            agreement_id = self.env.context.get("default_agreement_id")
+            if agreement_id:
+                agreement = self.env["sale.agreement"].browse(agreement_id)
+                if agreement.line_ids:
+                    defaults["currency_id"] = agreement.line_ids[0].currency_id.id
+                elif agreement.currency_id:
+                    defaults["currency_id"] = agreement.currency_id.id
+        return defaults
+
+    @api.depends("quantity", "unit_price", "tax_ids", "currency_id")
     def _compute_total_price(self):
         for line in self:
-            # Include taxes in total price calculation
-            taxes = line.tax_ids.compute_all(
-                line.unit_price,
-                quantity=line.quantity,
-                product=line.product_id,
-                partner=line.agreement_id.partner_id,
+            if not line.agreement_id:
+                line.total_price = line.unit_price * line.quantity
+                continue
+            base_line = line._prepare_base_line_for_taxes_computation()
+            self.env["account.tax"]._add_tax_details_in_base_line(
+                base_line, line.agreement_id.company_id
             )
-            line.total_price = taxes["total_included"]
+            line.total_price = base_line["tax_details"]["raw_total_included_currency"]
+
+    def _prepare_base_line_for_taxes_computation(self, **kwargs):
+        self.ensure_one()
+        return self.env["account.tax"]._prepare_base_line_for_taxes_computation(
+            self,
+            **{
+                "tax_ids": self.tax_ids,
+                "quantity": self.quantity,
+                "price_unit": self.unit_price,
+                "partner_id": self.agreement_id.partner_id,
+                "currency_id": self.currency_id,
+                **kwargs,
+            },
+        )
+
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            UPDATE agreement_line AS al
+               SET currency_id = sa.currency_id
+              FROM sale_agreement AS sa
+             WHERE al.agreement_id = sa.id
+               AND al.currency_id IS NULL
+               AND sa.currency_id IS NOT NULL
+        """)
 
     @api.onchange("product_id")
     def _onchange_product_id(self):
         if self.product_id:
+            if self.agreement_id.product_categ_id:
+                allowed_categ_ids = self.env['product.category'].search([
+                    ('id', 'child_of', self.agreement_id.product_categ_id.id),
+                ]).ids
+                if self.product_id.categ_id.id not in allowed_categ_ids:
+                    self.product_id = False
+                    return
+            elif self.agreement_id:
+                self.agreement_id.product_categ_id = self.product_id.categ_id
             self.uom_id = self.product_id.uom_id
             self.unit_price = self.product_id.lst_price
             self.description = self.product_id.name
