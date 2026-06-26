@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="module_category_stock_picking_buttons" model="ir.module.category">
+            <field name="name">Stock Picking Buttons</field>
+            <field name="description">Access rights for stock picking header actions</field>
+            <field name="parent_id" ref="base.module_category_inventory_inventory"/>
+            <field name="sequence">25</field>
+        </record>
+
+        <record id="group_stock_picking_mark_todo" model="res.groups">
+            <field name="name">Mark as Todo</field>
+            <field name="category_id" ref="stock_picking_button_groups.module_category_stock_picking_buttons"/>
+        </record>
+
+        <record id="group_stock_picking_check_availability" model="res.groups">
+            <field name="name">Check Availability</field>
+            <field name="category_id" ref="stock_picking_button_groups.module_category_stock_picking_buttons"/>
+        </record>
+
+        <record id="group_stock_picking_validate" model="res.groups">
+            <field name="name">Validate</field>
+            <field name="category_id" ref="stock_picking_button_groups.module_category_stock_picking_buttons"/>
+        </record>
+
+        <record id="group_stock_picking_return" model="res.groups">
+            <field name="name">Return</field>
+            <field name="category_id" ref="stock_picking_button_groups.module_category_stock_picking_buttons"/>
+        </record>
+
+        <record id="group_stock_picking_cancel" model="res.groups">
+            <field name="name">Cancel</field>
+            <field name="category_id" ref="stock_picking_button_groups.module_category_stock_picking_buttons"/>
+        </record>
+
+        <record id="stock.group_stock_user" model="res.groups">
+            <field name="implied_ids" eval="[
+                (4, ref('stock_picking_button_groups.group_stock_picking_mark_todo')),
+                (4, ref('stock_picking_button_groups.group_stock_picking_check_availability')),
+                (4, ref('stock_picking_button_groups.group_stock_picking_validate')),
+                (4, ref('stock_picking_button_groups.group_stock_picking_return')),
+                (4, ref('stock_picking_button_groups.group_stock_picking_cancel')),
+            ]"/>
+        </record>
+    </data>
+</odoo>
