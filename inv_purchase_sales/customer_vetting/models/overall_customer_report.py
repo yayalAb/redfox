@@ -386,7 +386,7 @@ class OverallCustomerReport(models.Model):
             records = self.search([], order='partner_id, sale_order_id, id')
         if not records:
             raise UserError(
-                _('No report lines to print. Click Refresh first to build the report.')
+                _('No report lines to print. Open the overall customer report menu to build the report.')
             )
         records._assign_sequence_numbers()
         return self.env.ref(
