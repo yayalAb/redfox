@@ -35,11 +35,11 @@
 
         <record id="stock.group_stock_user" model="res.groups">
             <field name="implied_ids" eval="[
-                (4, ref('stock_picking_button_groups.group_stock_picking_mark_todo')),
-                (4, ref('stock_picking_button_groups.group_stock_picking_check_availability')),
-                (4, ref('stock_picking_button_groups.group_stock_picking_validate')),
-                (4, ref('stock_picking_button_groups.group_stock_picking_return')),
-                (4, ref('stock_picking_button_groups.group_stock_picking_cancel')),
+                (3, ref('stock_picking_button_groups.group_stock_picking_mark_todo')),
+                (3, ref('stock_picking_button_groups.group_stock_picking_check_availability')),
+                (3, ref('stock_picking_button_groups.group_stock_picking_validate')),
+                (3, ref('stock_picking_button_groups.group_stock_picking_return')),
+                (3, ref('stock_picking_button_groups.group_stock_picking_cancel')),
             ]"/>
         </record>
     </data>

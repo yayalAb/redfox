@@ -6,23 +6,23 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header/button[@name='action_confirm']" position="attributes">
-                <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_mark_todo</attribute>
+                <attribute name="groups">stock_picking_button_groups.group_stock_picking_mark_todo</attribute>
             </xpath>
 
             <xpath expr="//header/button[@name='action_assign']" position="attributes">
-                <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_check_availability</attribute>
+                <attribute name="groups">stock_picking_button_groups.group_stock_picking_check_availability</attribute>
             </xpath>
 
             <xpath expr="//header/button[@name='button_validate']" position="attributes">
-                <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_validate</attribute>
+                <attribute name="groups">stock_picking_button_groups.group_stock_picking_validate</attribute>
             </xpath>
 
             <xpath expr="//header/button[@data-hotkey='k']" position="attributes">
-                <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_return</attribute>
+                <attribute name="groups">stock_picking_button_groups.group_stock_picking_return</attribute>
             </xpath>
 
             <xpath expr="//header/button[@name='action_cancel']" position="attributes">
-                <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_cancel</attribute>
+                <attribute name="groups">stock_picking_button_groups.group_stock_picking_cancel</attribute>
             </xpath>
         </field>
     </record>
