@@ -5,11 +5,11 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//header/button[@name='action_confirm'][@string='Mark as Todo']" position="attributes">
+            <xpath expr="//header/button[@name='action_confirm']" position="attributes">
                 <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_mark_todo</attribute>
             </xpath>
 
-            <xpath expr="//header/button[@name='action_assign'][@string='Check Availability']" position="attributes">
+            <xpath expr="//header/button[@name='action_assign']" position="attributes">
                 <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_check_availability</attribute>
             </xpath>
 
@@ -17,7 +17,7 @@
                 <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_validate</attribute>
             </xpath>
 
-            <xpath expr="//header/button[@string='Return']" position="attributes">
+            <xpath expr="//header/button[@data-hotkey='k']" position="attributes">
                 <attribute name="groups">stock.group_stock_user,stock_picking_button_groups.group_stock_picking_return</attribute>
             </xpath>
 
