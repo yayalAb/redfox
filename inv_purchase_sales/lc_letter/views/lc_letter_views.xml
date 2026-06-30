@@ -118,7 +118,10 @@
                     </div>
                     <group>
                         <group>
-                            <field name="name" readonly="1"/>
+                            <field name="payment_reference_label" invisible="1"/>
+                            <field name="name"
+                                   string="LC/Reference No."
+                                   placeholder="Leave empty to auto-generate"/>
                             <field name="payment_instrument"/>
                             <field name="payment_subtype"/>
                             <field name="lc_type" invisible="payment_instrument != 'lc'"/>

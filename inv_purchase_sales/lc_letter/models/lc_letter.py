@@ -47,11 +47,10 @@ class LcLetter(models.Model):
     _order = 'create_date desc'
 
     name = fields.Char(
-        string='Reference No.',
+        string='LC/Reference No.',
         required=True,
         copy=False,
         index=True,
-        default='New',
         tracking=True,
     )
     payment_instrument = fields.Selection(
@@ -237,15 +236,21 @@ class LcLetter(models.Model):
         instrument = payment_instrument or self.payment_instrument or 'lc'
         return SEQUENCE_CODES.get(instrument, 'lc.letter')
 
+    @api.model
+    def _generate_reference_name(self, payment_instrument=None):
+        instrument = payment_instrument or 'lc'
+        seq_code = SEQUENCE_CODES.get(instrument, 'lc.letter')
+        return self.env['ir.sequence'].next_by_code(seq_code) or _('New')
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             instrument = vals.get('payment_instrument') or 'lc'
             if not vals.get('payment_subtype'):
                 vals['payment_subtype'] = DEFAULT_SUBTYPE.get(instrument, 'lc_sight')
-            if not vals.get('name') or vals.get('name') == 'New':
-                seq_code = SEQUENCE_CODES.get(instrument, 'lc.letter')
-                vals['name'] = self.env['ir.sequence'].next_by_code(seq_code) or 'New'
+            name = (vals.get('name') or '').strip()
+            if not name or name == 'New':
+                vals['name'] = self._generate_reference_name(instrument)
         return super().create(vals_list)
 
     def action_payment_request(self):
