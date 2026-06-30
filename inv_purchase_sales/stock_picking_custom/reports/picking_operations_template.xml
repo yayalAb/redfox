@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_picking_body_inherit" inherit_id="stock.report_picking">
         <xpath expr="//div[hasclass('page')]" position="replace">
@@ -221,11 +221,9 @@
         <t t-set="storeman_user"
             t-value="o.location_dest_id.warehouse_id.storeman_id if o.location_dest_id and o.location_dest_id.warehouse_id else False" />
         <t t-set="vendor_phone" t-value="o.partner_id.phone or o.partner_id.mobile or ''" />
-        <t t-set="driver_name" t-value="o.carrier.name if o.carrier else ''" />
-        <t t-set="driver_phone"
-            t-value="(o.carrier.phone or o.carrier.mobile or '') if o.carrier else ''" />
-        <t t-set="driver_address"
-            t-value="o.carrier.partner_id.contact_address if o.carrier and o.carrier.partner_id else (o.partner_id.contact_address or '')" />
+        <t t-set="driver_name" t-value="o.driver_name or ''" />
+        <t t-set="driver_phone" t-value="o.driver_phone or ''" />
+        <t t-set="driver_address" t-value="o.partner_id.contact_address or ''" />
 
         <div class="page cgrn-page">
 
@@ -764,11 +762,9 @@
         <t t-set="storeman_user"
             t-value="o.location_id.warehouse_id.storeman_id if o.location_id and o.location_id.warehouse_id else False" />
         <t t-set="customer_phone" t-value="o.partner_id.phone or o.partner_id.mobile or ''" />
-        <t t-set="driver_name" t-value="o.carrier.name if o.carrier else ''" />
-        <t t-set="driver_phone"
-            t-value="(o.carrier.phone or o.carrier.mobile or '') if o.carrier else ''" />
-        <t t-set="driver_address"
-            t-value="o.carrier.partner_id.contact_address if o.carrier and o.carrier.partner_id else (o.partner_id.contact_address or '')" />
+        <t t-set="driver_name" t-value="o.driver_name or ''" />
+        <t t-set="driver_phone" t-value="o.driver_phone or ''" />
+        <t t-set="driver_address" t-value="o.partner_id.contact_address or ''" />
 
         <div class="page cdn-page">
 
@@ -1580,9 +1576,8 @@
         <t t-set="storeman_user"
             t-value="o.location_id.warehouse_id.storeman_id if o.location_id and o.location_id.warehouse_id else False" />
         <t t-set="customer_phone" t-value="gpa_customer.phone or gpa_customer.mobile or ''" />
-        <t t-set="driver_name" t-value="o.carrier.name if o.carrier else ''" />
-        <t t-set="driver_address"
-            t-value="o.carrier.partner_id.contact_address if o.carrier and o.carrier.partner_id else (gpa_customer.contact_address or '')" />
+        <t t-set="driver_name" t-value="o.driver_name or ''" />
+        <t t-set="driver_address" t-value="gpa_customer.contact_address or ''" />
 
         <div class="page gpa-page">
             <div class="oe_structure" />

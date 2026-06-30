@@ -90,7 +90,7 @@
                         </div>
                         <div class="dna-field">
                             <span class="dna-lbl">Driver Name:</span>
-                            <div class="dna-und"><span t-field="o.carrier"/></div>
+                            <div class="dna-und"><span t-esc="o.driver_name or ''"/></div>
                         </div>
                         <div class="dna-field">
                             <span class="dna-lbl">Address:</span>
@@ -104,8 +104,7 @@
                         <div class="dna-field">
                             <span class="dna-lbl">Phone No:</span>
                             <div class="dna-und">
-                                <t t-set="dph" t-value="(o.carrier.partner_id.phone or o.carrier.partner_id.mobile) if o.carrier else ''"/>
-                                <span t-esc="dph or ''"/>
+                                <span t-esc="o.driver_phone or ''"/>
                             </div>
                         </div>
                         <div class="dna-field">
