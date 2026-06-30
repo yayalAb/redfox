@@ -100,7 +100,7 @@
                             <!-- 1. Procurement -->
                             <div class="mfg-dashboard-section">
                                 <h3 class="mfg-dashboard-section__title">1. Procurement &amp; Vendor Liability Dashboard</h3>
-                                <p class="mfg-dashboard-section__subtitle">Purchase Order vs GRN vs Supplier Payment</p>
+                                <p class="mfg-dashboard-section__subtitle">Purchase Order vs GRN vs Supplier Payment (latest 200 confirmed POs)</p>
                                 <div class="mfg-dashboard-table-wrap">
                                     <table class="table mfg-dashboard-table">
                                         <thead>

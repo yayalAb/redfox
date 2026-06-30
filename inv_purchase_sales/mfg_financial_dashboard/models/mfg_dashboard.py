@@ -362,10 +362,14 @@ class MfgDashboard(models.AbstractModel):
         return f'{q:,.2f}'
 
     def _payment_status(self, total_bill, paid):
-        remaining = (total_bill or 0) - (paid or 0)
+        total_bill = total_bill or 0.0
+        paid = paid or 0.0
+        if float_compare(total_bill, 0.0, precision_digits=2) <= 0:
+            return 'Not Billed'
+        remaining = total_bill - paid
         if float_compare(remaining, 0.0, precision_digits=2) <= 0:
             return 'Paid'
-        if paid and paid > 0:
+        if float_compare(paid, 0.0, precision_digits=2) > 0:
             return 'Partial'
         return 'Open'
 
@@ -634,13 +638,21 @@ class MfgDashboard(models.AbstractModel):
         values = {k: float_round(v, precision_digits=2) for k, v in cur.items()}
         return {'values': values, 'trends': trends}
 
+    def _procurement_po_states(self):
+        """PO states included in the vendor liability table."""
+        states = list(self._po_states())
+        selection = dict(self.env['purchase.order']._fields['state'].selection)
+        for extra in ('submit', 'to approve'):
+            if extra in selection and extra not in states:
+                states.append(extra)
+        return tuple(states)
+
     def _compute_procurement(self, start, end):
         PurchaseOrder = self.env['purchase.order']
+        # Vendor liability is ongoing — do not restrict to the dashboard date range.
         orders = PurchaseOrder.search([
-            ('state', 'in', self._po_states()),
+            ('state', 'in', self._procurement_po_states()),
             *self._company_domain('purchase.order'),
-            ('date_order', '>=', self._dt_start(start)),
-            ('date_order', '<=', self._dt_end(end)),
         ], order='date_order desc', limit=200)
         rows = []
         for po in orders:
@@ -656,6 +668,7 @@ class MfgDashboard(models.AbstractModel):
             )
             bill_amount = sum(bills.mapped('amount_total'))
             paid = bill_amount - sum(bills.mapped('amount_residual'))
+            remaining = bill_amount - paid if bill_amount else po.amount_total - paid
             rows.append({
                 'po_no': po.name,
                 'supplier': po.partner_id.display_name,
@@ -665,7 +678,7 @@ class MfgDashboard(models.AbstractModel):
                 'grn_amount': self._fmt_money(grn_amount),
                 'bill_amount': self._fmt_money(bill_amount),
                 'paid_amount': self._fmt_money(paid),
-                'remaining': self._fmt_money(bill_amount - paid),
+                'remaining': self._fmt_money(remaining),
                 'payment_status': self._payment_status(bill_amount, paid),
             })
         if not rows:

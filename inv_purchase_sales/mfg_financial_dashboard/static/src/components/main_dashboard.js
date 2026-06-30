@@ -159,6 +159,9 @@ export class MfgFinancialDashboard extends Component {
         if (s === "partial" || s === "reorder required") {
             return "mfg-dashboard-badge mfg-dashboard-badge--partial";
         }
+        if (s === "not billed") {
+            return "mfg-dashboard-badge mfg-dashboard-badge--open";
+        }
         if (s === "critical") {
             return "mfg-dashboard-badge mfg-dashboard-badge--critical";
         }
