@@ -5,12 +5,29 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id'][@invisible='1']" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="readonly">state in ('sale', 'cancel')</attribute>
+                <attribute name="options">{'no_create': True}</attribute>
+            </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="after">
                 <field name="fs_no"/>
                 <field name="mrc_no"/>
                 <field name="payment_method"/>
                 <field name="driver_name"/>
                 <field name="driver_phone"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sale_order_tree_currency" model="ir.ui.view">
+        <field name="name">sale.order.tree.currency</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id'][@column_invisible='True']" position="attributes">
+                <attribute name="column_invisible">0</attribute>
+                <attribute name="optional">show</attribute>
             </xpath>
         </field>
     </record>

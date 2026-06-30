@@ -1,8 +1,22 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
+
+    currency_id = fields.Many2one(
+        readonly=False,
+    )
+
+    @api.depends('pricelist_id', 'company_id')
+    def _compute_currency_id(self):
+        for order in self:
+            if order.pricelist_id:
+                order.currency_id = (
+                    order.pricelist_id.currency_id or order.company_id.currency_id
+                )
+            elif not order.currency_id:
+                order.currency_id = order.company_id.currency_id
 
     proforma_checked_by_id = fields.Many2one(
         'res.users', string='Proforma Checked By', readonly=True,
