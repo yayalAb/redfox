@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_production_form_customer" model="ir.ui.view">
+        <field name="name">mrp.production.form.customer</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <field name="user_id" position="before">
+                <field name="customer_id"
+                       widget="res_partner_many2one"
+                       readonly="state in ('done', 'cancel')"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="mrp_production_tree_customer" model="ir.ui.view">
+        <field name="name">mrp.production.tree.customer</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="customer_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="mrp_production_search_customer" model="ir.ui.view">
+        <field name="name">mrp.production.search.customer</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="customer_id"/>
+            </field>
+            <filter name="filter_to_close" position="after">
+                <filter string="Customer" name="group_customer" context="{'group_by': 'customer_id'}"/>
+            </filter>
+        </field>
+    </record>
+</odoo>
