@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 from datetime import datetime, timedelta
+import re
 
 from odoo import _, api, fields, models
 from odoo.tools import float_compare, float_round
@@ -47,7 +48,7 @@ class MfgDashboard(models.AbstractModel):
             return False
         title = _('Stock Movements — %s / %s') % (
             product.display_name,
-            warehouse.name,
+            self._warehouse_display_name(warehouse.name),
         )
         return dashboard._act_window_action(
             title,
@@ -110,26 +111,80 @@ class MfgDashboard(models.AbstractModel):
         return ('done', 'to_close')
 
     def _internal_quant_domain(self):
-        """Internal stock for the active company's warehouses."""
+        """Internal on-hand stock for the active company."""
         company = self.env.company
-        warehouses = self.env['stock.warehouse'].search([
-            ('company_id', '=', company.id),
+        return [
+            ('location_id.usage', '=', 'internal'),
+            '|',
+            ('location_id.company_id', '=', False),
+            ('location_id.company_id', '=', company.id),
+        ]
+
+    def _company_warehouses(self):
+        return self.env['stock.warehouse'].search([
+            ('company_id', '=', self.env.company.id),
         ])
-        domain = [('location_id.usage', '=', 'internal')]
-        if warehouses:
-            locs = self.env['stock.location'].search([
-                ('id', 'child_of', warehouses.mapped('view_location_id').ids),
-                ('usage', '=', 'internal'),
-            ])
-            if locs:
-                domain.append(('location_id', 'in', locs.ids))
-        else:
-            domain += [
-                '|',
-                ('location_id.company_id', '=', False),
-                ('location_id.company_id', '=', company.id),
-            ]
-        return domain
+
+    def _warehouse_english_label(self, name):
+        """Use only the English part of bilingual warehouse names."""
+        if not name:
+            return ''
+        text = str(name).strip()
+        if '/' in text:
+            text = text.split('/', 1)[0]
+        elif '(' in text:
+            text = text.split('(', 1)[0]
+        text = re.sub(r'[\u1200-\u137F]+', '', text).strip(' /-')
+        return text.lower()
+
+    def _warehouse_display_name(self, name):
+        label = self._warehouse_english_label(name)
+        if label:
+            return label.title()
+        return (name or '').strip()
+
+    def _location_warehouse(self, location, warehouses=None):
+        if not location:
+            return self.env['stock.warehouse']
+        warehouse = location.warehouse_id
+        if warehouse:
+            return warehouse
+        warehouses = warehouses or self._company_warehouses()
+        parent_path = location.parent_path or ''
+        if not parent_path:
+            return self.env['stock.warehouse']
+        padded = f'/{parent_path}'
+        for wh in warehouses:
+            root = wh.view_location_id
+            if root and f'/{root.id}/' in padded:
+                return wh
+        return self.env['stock.warehouse']
+
+    def _warehouse_bucket(self, warehouse):
+        """Map warehouse to stock KPI bucket using the English name."""
+        if not warehouse:
+            return None
+        label = self._warehouse_english_label(warehouse.name)
+        if not label:
+            return None
+        if any(k in label for k in ('sparepart', 'spare part', 'spare')):
+            return 'spare'
+        if 'raw material' in label or label.startswith('raw '):
+            return 'raw'
+        if any(k in label for k in ('finished', 'finshed', 'finish good', 'finished good')):
+            return 'fg'
+        if any(k in label for k in ('stationery', 'consumable', 'packaging')):
+            return 'packaging'
+        if any(k in label for k in ('main store', 'ho-main', 'ho main')):
+            return 'raw'
+        return None
+
+    def _quant_stock_bucket(self, quant, warehouses=None):
+        warehouse = self._location_warehouse(quant.location_id, warehouses)
+        bucket = self._warehouse_bucket(warehouse)
+        if bucket:
+            return bucket
+        return self._product_bucket(quant.product_id)
 
     def _previous_period(self, start, end):
         days = (end - start).days + 1
@@ -390,7 +445,7 @@ class MfgDashboard(models.AbstractModel):
         if any(k in blob for k in ('packaging', 'pack', 'carton', 'film', 'bag', 'label', 'wrapper')):
             return 'packaging'
         if any(k in blob for k in (
-            'finished', 'finish goods', 'finished goods', 'fg ', '/fg',
+            'finished', 'finish goods', 'finished goods', 'fg ', '/fg', '-fg-',
             'macaroni', 'pasta', 'bravo', 'mondial', 'end product',
         )):
             return 'fg'
@@ -412,10 +467,12 @@ class MfgDashboard(models.AbstractModel):
             val = abs(quant.value)
             if val:
                 return val
-        product = quant.product_id
+        product = quant.product_id.with_company(self.env.company)
         price = product.standard_price or 0.0
         if 'avg_cost' in product._fields and product.avg_cost:
             price = product.avg_cost
+        if not price:
+            price = product.list_price or 0.0
         return abs(qty * price)
 
     def _posted_customer_invoices(self, start, end):
@@ -506,17 +563,18 @@ class MfgDashboard(models.AbstractModel):
             ('date', '>=', start_dt),
             ('date', '<=', end_dt),
         ])
+        warehouses = self._company_warehouses()
         aggregated = defaultdict(lambda: {'total_in': 0.0, 'total_out': 0.0})
         for move in moves:
             qty = move.quantity or getattr(move, 'product_uom_qty', 0.0) or 0.0
             product = move.product_id
             if move.location_dest_id.usage == 'internal':
-                warehouse = move.location_dest_id.warehouse_id
+                warehouse = self._location_warehouse(move.location_dest_id, warehouses)
                 if warehouse:
                     key = (product.id, warehouse.id)
                     aggregated[key]['total_in'] += qty
             if move.location_id.usage == 'internal':
-                warehouse = move.location_id.warehouse_id
+                warehouse = self._location_warehouse(move.location_id, warehouses)
                 if warehouse:
                     key = (product.id, warehouse.id)
                     aggregated[key]['total_out'] += qty
@@ -540,7 +598,7 @@ class MfgDashboard(models.AbstractModel):
                 'warehouse_id': warehouse_id,
                 'product': product.display_name,
                 'product_reference': product.default_code or '—',
-                'warehouse': warehouse.name,
+                'warehouse': self._warehouse_display_name(warehouse.name),
                 'total_in': total_in,
                 'total_out': total_out,
                 'balance': float_round(total_in - total_out, 2),
@@ -606,10 +664,11 @@ class MfgDashboard(models.AbstractModel):
         def stock_values_by_bucket():
             buckets = {'fg': 0.0, 'raw': 0.0, 'packaging': 0.0, 'spare': 0.0}
             quants = StockQuant.search(self._internal_quant_domain())
+            warehouses = self._company_warehouses()
             for quant in quants:
                 if not quant.quantity:
                     continue
-                bucket = self._product_bucket(quant.product_id)
+                bucket = self._quant_stock_bucket(quant, warehouses)
                 buckets[bucket] += self._quant_value(quant)
             return buckets
 
@@ -804,17 +863,25 @@ class MfgDashboard(models.AbstractModel):
         MrpProduction = self.env['mrp.production']
 
         quants = StockQuant.search(self._internal_quant_domain())
+        warehouses = self._company_warehouses()
         product_ids = []
         seen = set()
         for quant in quants:
-            if quant.quantity and quant.product_id.id not in seen:
+            if not quant.quantity:
+                continue
+            if self._quant_stock_bucket(quant, warehouses) != 'fg':
+                continue
+            if quant.product_id.id not in seen:
                 seen.add(quant.product_id.id)
                 product_ids.append(quant.product_id.id)
 
         products = self.env['product.product'].browse(product_ids)
-        fg_products = products.filtered(lambda p: self._product_bucket(p) == 'fg')
+        fg_products = products
         if not fg_products:
-            fg_products = products.filtered(lambda p: p.type == 'product')[:80]
+            fg_products = self.env['product.product'].browse([
+                q.product_id.id for q in quants
+                if q.quantity and self._product_bucket(q.product_id) == 'fg'
+            ][:80])
 
         rows = []
         dt_s, dt_e = self._dt_start(start), self._dt_end(end)
@@ -822,8 +889,12 @@ class MfgDashboard(models.AbstractModel):
             quants = StockQuant.search(
                 self._internal_quant_domain() + [('product_id', '=', product.id)]
             )
-            ending_qty = sum(quants.mapped('quantity'))
-            stock_value = sum(self._quant_value(q) for q in quants)
+            fg_quants = [
+                q for q in quants
+                if self._quant_stock_bucket(q, warehouses) == 'fg'
+            ]
+            ending_qty = sum(q.quantity for q in fg_quants)
+            stock_value = sum(self._quant_value(q) for q in fg_quants)
             if not ending_qty and not stock_value:
                 continue
 
@@ -857,17 +928,29 @@ class MfgDashboard(models.AbstractModel):
 
         raw_rows, pack_rows, spare_rows = [], [], []
         quants = StockQuant.search(self._internal_quant_domain())
+        warehouses = self._company_warehouses()
 
-        product_data = defaultdict(lambda: {
-            'available': 0.0, 'reserved': 0.0, 'value': 0.0,
-        })
+        product_data = {
+            'raw': defaultdict(lambda: {
+                'available': 0.0, 'reserved': 0.0, 'value': 0.0,
+            }),
+            'packaging': defaultdict(lambda: {
+                'available': 0.0, 'reserved': 0.0, 'value': 0.0,
+            }),
+            'spare': defaultdict(lambda: {
+                'available': 0.0, 'reserved': 0.0, 'value': 0.0,
+            }),
+        }
         for quant in quants:
             if not quant.quantity:
                 continue
+            bucket = self._quant_stock_bucket(quant, warehouses)
+            if bucket not in product_data:
+                continue
             pid = quant.product_id.id
-            product_data[pid]['available'] += quant.quantity
-            product_data[pid]['reserved'] += quant.reserved_quantity
-            product_data[pid]['value'] += self._quant_value(quant)
+            product_data[bucket][pid]['available'] += quant.quantity
+            product_data[bucket][pid]['reserved'] += quant.reserved_quantity
+            product_data[bucket][pid]['value'] += self._quant_value(quant)
 
         consumption_domain = [
             ('state', '=', 'done'),
@@ -875,59 +958,63 @@ class MfgDashboard(models.AbstractModel):
             ('date', '<=', self._dt_end(end)),
         ]
 
-        for pid, data in product_data.items():
-            product = self.env['product.product'].browse(pid)
-            bucket = self._product_bucket(product)
-            if bucket == 'fg' or data['available'] <= 0:
-                continue
+        for bucket, rows_target in (
+            ('raw', raw_rows),
+            ('packaging', pack_rows),
+            ('spare', spare_rows),
+        ):
+            for pid, data in product_data[bucket].items():
+                product = self.env['product.product'].browse(pid)
+                if data['available'] <= 0:
+                    continue
 
-            available = data['available']
-            reserved = data['reserved']
-            free = available - reserved
-            value = data['value']
-            uom = product.uom_id.name
+                available = data['available']
+                reserved = data['reserved']
+                free = available - reserved
+                value = data['value']
+                uom = product.uom_id.name
 
-            consumed_moves = StockMove.search(
-                consumption_domain + [('product_id', '=', pid)]
-            )
-            consumption = self._sum_stock_move_qty_dest(
-                consumed_moves.ids, ('production', 'customer'),
-            )
+                consumed_moves = StockMove.search(
+                    consumption_domain + [('product_id', '=', pid)]
+                )
+                consumption = self._sum_stock_move_qty_dest(
+                    consumed_moves.ids, ('production', 'customer'),
+                )
 
-            if bucket == 'packaging':
-                pack_rows.append({
-                    'material': product.display_name,
-                    'available': self._fmt_qty(available, uom),
-                    'consumption': self._fmt_qty(consumption, uom),
-                    'remaining': self._fmt_qty(free, uom),
-                    'stock_value': self._fmt_money(value),
-                    '_sort_value': value,
-                })
-            elif bucket == 'spare':
-                minimum = 0.0
-                if 'reordering_min_qty' in product._fields:
-                    minimum = product.reordering_min_qty or 0.0
-                machine = ''
-                if 'equipment_id' in product._fields and product.equipment_id:
-                    machine = product.equipment_id.display_name
-                spare_rows.append({
-                    'part': product.display_name,
-                    'machine': machine,
-                    'available': self._fmt_qty(available, uom),
-                    'minimum': self._fmt_qty(minimum, uom) if minimum else '—',
-                    'status': self._stock_status(free, minimum),
-                    'stock_value': self._fmt_money(value),
-                    '_sort_value': value,
-                })
-            else:
-                raw_rows.append({
-                    'material': product.display_name,
-                    'available': self._fmt_qty(available, uom),
-                    'reserved': self._fmt_qty(reserved, uom),
-                    'free_stock': self._fmt_qty(free, uom),
-                    'stock_value': self._fmt_money(value),
-                    '_sort_value': value,
-                })
+                if bucket == 'packaging':
+                    rows_target.append({
+                        'material': product.display_name,
+                        'available': self._fmt_qty(available, uom),
+                        'consumption': self._fmt_qty(consumption, uom),
+                        'remaining': self._fmt_qty(free, uom),
+                        'stock_value': self._fmt_money(value),
+                        '_sort_value': value,
+                    })
+                elif bucket == 'spare':
+                    minimum = 0.0
+                    if 'reordering_min_qty' in product._fields:
+                        minimum = product.reordering_min_qty or 0.0
+                    machine = ''
+                    if 'equipment_id' in product._fields and product.equipment_id:
+                        machine = product.equipment_id.display_name
+                    rows_target.append({
+                        'part': product.display_name,
+                        'machine': machine,
+                        'available': self._fmt_qty(available, uom),
+                        'minimum': self._fmt_qty(minimum, uom) if minimum else '—',
+                        'status': self._stock_status(free, minimum),
+                        'stock_value': self._fmt_money(value),
+                        '_sort_value': value,
+                    })
+                else:
+                    rows_target.append({
+                        'material': product.display_name,
+                        'available': self._fmt_qty(available, uom),
+                        'reserved': self._fmt_qty(reserved, uom),
+                        'free_stock': self._fmt_qty(free, uom),
+                        'stock_value': self._fmt_money(value),
+                        '_sort_value': value,
+                    })
 
         for lst in (raw_rows, pack_rows, spare_rows):
             lst.sort(key=lambda r: r['_sort_value'], reverse=True)
