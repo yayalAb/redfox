@@ -13,13 +13,6 @@
                     <t t-if="props.displayValue" t-esc="props.displayValue"/>
                     <t t-else="" t-esc="props.value"/>
                 </div>
-                <div class="mfg-dashboard-metric-card__footer">
-                    <span class="mfg-dashboard-metric-card__trend-pill">
-                        <t t-esc="trendArrow"/>
-                        <t t-esc="trendText"/>
-                    </span>
-                    <span class="mfg-dashboard-metric-card__trend-caption" t-esc="props.trendCaption"/>
-                </div>
                 <div class="mfg-dashboard-metric-card__accent"/>
             </div>
         </div>

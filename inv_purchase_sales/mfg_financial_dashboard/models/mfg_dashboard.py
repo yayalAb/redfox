@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import re
+
+from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
 from odoo.tools import float_compare, float_round
@@ -16,19 +18,41 @@ class MfgDashboard(models.AbstractModel):
     # -------------------------------------------------------------------------
 
     @api.model
-    def get_dashboard_data(self, date_start=None, date_end=None, fiscal_year=None, year_over_year=False):
+    def get_dashboard_data(
+        self,
+        date_start=None,
+        date_end=None,
+        fiscal_year=None,
+        year_over_year=False,
+        date_range=None,
+    ):
         """Aggregate live ERP data for the executive dashboard (read-only)."""
         dashboard = self.sudo().with_company(self.env.company)
-        start, end = dashboard._parse_dates(date_start, date_end, fiscal_year)
-        prev_start, prev_end = dashboard._previous_period(start, end)
+        range_key = date_range or 'this_year_ytd'
+        if fiscal_year and str(fiscal_year).strip() not in ('', 'false', '0'):
+            start, end = dashboard._parse_dates(date_start, date_end, fiscal_year)
+            range_key = 'custom'
+        else:
+            start, end, range_key = dashboard._resolve_date_range(
+                range_key, date_start, date_end,
+            )
+        prev_start, prev_end = dashboard._comparison_period(start, end, range_key)
+        comparison_label = dashboard._comparison_label(range_key)
 
-        payload = dashboard._build_live_data(start, end, prev_start, prev_end)
+        payload = dashboard._build_live_data(
+            start, end, prev_start, prev_end, range_key,
+        )
         payload.update({
             'company_name': self.env.company.name,
             'subtitle': 'Executive Manufacturing Intelligence Report',
             'period_label': f'{fields.Date.to_string(start)} — {fields.Date.to_string(end)}',
             'date_start': fields.Date.to_string(start),
             'date_end': fields.Date.to_string(end),
+            'date_range': range_key,
+            'comparison_label': comparison_label,
+            'comparison_period_label': (
+                f'{fields.Date.to_string(prev_start)} — {fields.Date.to_string(prev_end)}'
+            ),
             'use_live_data': True,
             'year_over_year': bool(year_over_year),
         })
@@ -96,6 +120,100 @@ class MfgDashboard(models.AbstractModel):
         if start > end:
             start, end = end, start
         return start, end
+
+    def _resolve_date_range(self, range_key, date_start=None, date_end=None):
+        """Return (start, end, range_key) for a named or custom dashboard period."""
+        key = (range_key or 'this_year_ytd').strip()
+        if key == 'custom':
+            return *self._parse_dates(date_start, date_end), 'custom'
+        return *self._preset_date_bounds(key), key
+
+    def _preset_date_bounds(self, range_key):
+        """Return (start, end) for a named dashboard period."""
+        today = fields.Date.context_today(self)
+        company = self.env.company
+
+        if range_key == 'today':
+            return today, today
+        if range_key == 'yesterday':
+            day = today - timedelta(days=1)
+            return day, day
+        if range_key == 'last_7_days':
+            return today - timedelta(days=6), today
+        if range_key == 'last_30_days':
+            return today - timedelta(days=29), today
+        if range_key == 'this_week':
+            week_start = today - timedelta(days=today.weekday())
+            return week_start, today
+        if range_key == 'last_week':
+            this_week_start = today - timedelta(days=today.weekday())
+            last_week_start = this_week_start - timedelta(days=7)
+            last_week_end = last_week_start + timedelta(days=6)
+            return last_week_start, last_week_end
+        if range_key == 'this_month_mtd':
+            return today.replace(day=1), today
+        if range_key == 'last_month':
+            first_this_month = today.replace(day=1)
+            last_month_end = first_this_month - timedelta(days=1)
+            return last_month_end.replace(day=1), last_month_end
+        if range_key == 'this_quarter_qtd':
+            quarter_start_month = ((today.month - 1) // 3) * 3 + 1
+            return today.replace(month=quarter_start_month, day=1), today
+        if range_key == 'last_quarter':
+            quarter_start_month = ((today.month - 1) // 3) * 3 + 1
+            this_quarter_start = today.replace(month=quarter_start_month, day=1)
+            last_quarter_end = this_quarter_start - timedelta(days=1)
+            last_quarter_start_month = ((last_quarter_end.month - 1) // 3) * 3 + 1
+            last_quarter_start = last_quarter_end.replace(
+                month=last_quarter_start_month, day=1,
+            )
+            return last_quarter_start, last_quarter_end
+        if range_key == 'this_year_ytd':
+            fiscal = company.compute_fiscalyear_dates(today)
+            return fiscal['date_from'], today
+        if range_key == 'last_year':
+            fiscal = company.compute_fiscalyear_dates(today)
+            previous_ref = fiscal['date_from'] - timedelta(days=1)
+            previous_fiscal = company.compute_fiscalyear_dates(previous_ref)
+            return previous_fiscal['date_from'], previous_fiscal['date_to']
+        return self._parse_dates(None, None)
+
+    def _comparison_period(self, start, end, range_key=None):
+        """Previous period aligned with the selected range semantics."""
+        key = range_key or 'custom'
+        if key in ('this_year_ytd', 'last_year'):
+            return start + relativedelta(years=-1), end + relativedelta(years=-1)
+        if key in ('this_month_mtd', 'last_month'):
+            return start + relativedelta(months=-1), end + relativedelta(months=-1)
+        if key in ('this_quarter_qtd', 'last_quarter'):
+            return start + relativedelta(months=-3), end + relativedelta(months=-3)
+        if key == 'today':
+            day = start - timedelta(days=1)
+            return day, day
+        if key == 'yesterday':
+            day = start - timedelta(days=1)
+            return day, day
+        if key in ('this_week', 'last_week'):
+            return start + relativedelta(weeks=-1), end + relativedelta(weeks=-1)
+        return self._previous_period(start, end)
+
+    def _comparison_label(self, range_key):
+        labels = {
+            'today': 'vs yesterday',
+            'yesterday': 'vs prior day',
+            'last_7_days': 'vs previous 7 days',
+            'this_week': 'vs last week',
+            'last_week': 'vs prior week',
+            'last_30_days': 'vs previous 30 days',
+            'this_month_mtd': 'vs same period last month',
+            'last_month': 'vs prior month',
+            'this_quarter_qtd': 'vs same period last quarter',
+            'last_quarter': 'vs prior quarter',
+            'this_year_ytd': 'vs same period last year',
+            'last_year': 'vs prior year',
+            'custom': 'vs previous period',
+        }
+        return labels.get(range_key, 'vs previous period')
 
     def _po_states(self):
         states = ['purchase', 'done']
@@ -512,11 +630,12 @@ class MfgDashboard(models.AbstractModel):
     # Live aggregation
     # -------------------------------------------------------------------------
 
-    def _build_live_data(self, start, end, prev_start, prev_end):
+    def _build_live_data(self, start, end, prev_start, prev_end, range_key='custom'):
         env = self.env
         company = env.company
 
-        kpis = self._compute_kpis(start, end, prev_start, prev_end)
+        kpis = self._compute_kpis(start, end, prev_start, prev_end, range_key)
+        workflow_kpis = self._compute_workflow_kpis(start, end, prev_start, prev_end)
         procurement = self._compute_procurement(start, end)
         production_efficiency, rm_pm, byproducts = self._compute_manufacturing(start, end)
         fg_inventory = self._compute_fg_inventory(start, end)
@@ -532,6 +651,7 @@ class MfgDashboard(models.AbstractModel):
         return {
             'kpis': kpis['values'],
             'kpi_trends': kpis['trends'],
+            'workflow_kpis': workflow_kpis,
             'procurement': procurement,
             'production_efficiency': production_efficiency,
             'rm_pm_consumption': rm_pm,
@@ -617,12 +737,105 @@ class MfgDashboard(models.AbstractModel):
             'product_count': len({r['product_id'] for r in rows}),
         }
 
-    def _compute_kpis(self, start, end, prev_start, prev_end):
+    def _product_balances_by_bucket_at_date(self, as_of_date=None):
+        """Return {bucket: {product_id: qty}} for internal stock at a date."""
+        today = fields.Date.context_today(self)
+        as_of = fields.Date.to_date(as_of_date) if as_of_date else today
+        result = {
+            'fg': defaultdict(float),
+            'raw': defaultdict(float),
+            'packaging': defaultdict(float),
+            'spare': defaultdict(float),
+        }
+        warehouses = self._company_warehouses()
+
+        if as_of >= today:
+            quants = self.env['stock.quant'].search(self._internal_quant_domain())
+            for quant in quants:
+                if not quant.quantity:
+                    continue
+                bucket = self._quant_stock_bucket(quant, warehouses)
+                if bucket in result:
+                    result[bucket][quant.product_id.id] += quant.quantity
+            return result
+
+        balances = defaultdict(float)
+        moves = self.env['stock.move'].search([
+            ('state', '=', 'done'),
+            ('date', '<=', self._dt_end(as_of)),
+            *self._company_domain('stock.move'),
+            ('product_id', '!=', False),
+        ])
+        for move in moves:
+            qty = move.quantity or 0.0
+            if not qty:
+                continue
+            product = move.product_id
+            if move.location_dest_id.usage == 'internal':
+                wh = self._location_warehouse(move.location_dest_id, warehouses)
+                bucket = self._warehouse_bucket(wh) or self._product_bucket(product)
+                if bucket in result:
+                    balances[(bucket, product.id)] += qty
+            if move.location_id.usage == 'internal':
+                wh = self._location_warehouse(move.location_id, warehouses)
+                bucket = self._warehouse_bucket(wh) or self._product_bucket(product)
+                if bucket in result:
+                    balances[(bucket, product.id)] -= qty
+
+        for (bucket, product_id), qty in balances.items():
+            if qty:
+                result[bucket][product_id] += qty
+        return result
+
+    def _stock_values_by_bucket(self, as_of_date=None):
+        """Stock value by warehouse bucket at a date (current quants or historical)."""
+        today = fields.Date.context_today(self)
+        as_of = fields.Date.to_date(as_of_date) if as_of_date else today
+        buckets = {'fg': 0.0, 'raw': 0.0, 'packaging': 0.0, 'spare': 0.0}
+
+        if as_of >= today:
+            warehouses = self._company_warehouses()
+            quants = self.env['stock.quant'].search(self._internal_quant_domain())
+            for quant in quants:
+                if not quant.quantity:
+                    continue
+                bucket = self._quant_stock_bucket(quant, warehouses)
+                buckets[bucket] += self._quant_value(quant)
+            return buckets
+
+        balances = self._product_balances_by_bucket_at_date(as_of)
+        product_ids = {
+            pid for bucket_map in balances.values() for pid in bucket_map
+        }
+        products = self.env['product.product'].with_company(self.env.company).browse(
+            list(product_ids),
+        )
+        price_map = {
+            p.id: float(p.standard_price or p.list_price or 0.0) for p in products
+        }
+        for bucket, product_map in balances.items():
+            for product_id, qty in product_map.items():
+                if qty:
+                    buckets[bucket] += abs(qty * price_map.get(product_id, 0.0))
+        return buckets
+
+    def _product_reserved_qty_map(self, product_ids):
+        """Current reserved qty per product (only meaningful for on-hand quants)."""
+        if not product_ids:
+            return {}
+        reserved = defaultdict(float)
+        quants = self.env['stock.quant'].search(
+            self._internal_quant_domain() + [('product_id', 'in', list(product_ids))]
+        )
+        for quant in quants:
+            reserved[quant.product_id.id] += quant.reserved_quantity or 0.0
+        return reserved
+
+    def _compute_kpis(self, start, end, prev_start, prev_end, range_key='custom'):
         env = self.env
         PurchaseOrder = env['purchase.order']
         MrpProduction = env['mrp.production']
         SaleOrder = env['sale.order']
-        StockQuant = env['stock.quant']
 
         def purchase_total(d_start, d_end):
             pos = PurchaseOrder.search([
@@ -661,18 +874,11 @@ class MfgDashboard(models.AbstractModel):
             ])
             return sum(orders.mapped('amount_total'))
 
-        def stock_values_by_bucket():
-            buckets = {'fg': 0.0, 'raw': 0.0, 'packaging': 0.0, 'spare': 0.0}
-            quants = StockQuant.search(self._internal_quant_domain())
-            warehouses = self._company_warehouses()
-            for quant in quants:
-                if not quant.quantity:
-                    continue
-                bucket = self._quant_stock_bucket(quant, warehouses)
-                buckets[bucket] += self._quant_value(quant)
-            return buckets
+        def stock_values_by_bucket(as_of_date=None):
+            return self._stock_values_by_bucket(as_of_date)
 
-        buckets = stock_values_by_bucket()
+        buckets = stock_values_by_bucket(end)
+        stock_prev = stock_values_by_bucket(prev_end)
         cur = {
             'total_purchase_value': purchase_total(start, end),
             'total_production_cost': production_cost(start, end),
@@ -686,16 +892,65 @@ class MfgDashboard(models.AbstractModel):
             'total_purchase_value': purchase_total(prev_start, prev_end),
             'total_production_cost': production_cost(prev_start, prev_end),
             'total_sales_revenue': sales_total(prev_start, prev_end),
+            'finished_goods_stock_value': stock_prev['fg'],
+            'raw_material_stock_value': stock_prev['raw'],
+            'packaging_stock_value': stock_prev['packaging'],
+            'spare_part_stock_value': stock_prev['spare'],
         }
-        trends = {k: self._trend_pct(cur.get(k), prev.get(k)) for k in prev}
-        # Stock KPIs: point-in-time, no period trend
-        for k in ('finished_goods_stock_value', 'raw_material_stock_value',
-                  'packaging_stock_value', 'spare_part_stock_value'):
-            trends[k] = 0.0
+        trends = {k: self._trend_pct(cur.get(k), prev.get(k)) for k in cur}
 
         # Raw numbers for the frontend (ETB formatting done in JS)
         values = {k: float_round(v, precision_digits=2) for k, v in cur.items()}
         return {'values': values, 'trends': trends}
+
+    def _model_available(self, model_name):
+        return model_name in self.env
+
+    def _count_records_in_period(self, model_name, date_field, start, end, extra_domain=None):
+        """Return record count for a model in the period, or None if model is missing."""
+        if not self._model_available(model_name):
+            return None
+        domain = list(extra_domain or [])
+        field = self.env[model_name]._fields.get(date_field)
+        if field and field.type == 'datetime':
+            domain += [
+                (date_field, '>=', self._dt_start(start)),
+                (date_field, '<=', self._dt_end(end)),
+            ]
+        else:
+            domain += [
+                (date_field, '>=', start),
+                (date_field, '<=', end),
+            ]
+        if 'company_id' in self.env[model_name]._fields:
+            domain += self._company_domain(model_name)
+        return self.env[model_name].search_count(domain)
+
+    def _compute_workflow_kpis(self, start, end, prev_start, prev_end):
+        """Counts for service requests, sales agreements, and purchase agreements."""
+        specs = (
+            ('service_requests', 'service.request', 'date', _('Service Requests')),
+            ('sales_agreements', 'sale.agreement', 'start_date', _('Sales Agreements')),
+            ('purchase_agreements', 'supplies.rfp', 'requested_date', _('Purchase Agreements')),
+        )
+        result = {}
+        for key, model, date_field, label in specs:
+            current = self._count_records_in_period(model, date_field, start, end)
+            if current is None:
+                result[key] = {'available': False}
+                continue
+            previous = self._count_records_in_period(
+                model, date_field, prev_start, prev_end,
+            ) or 0
+            result[key] = {
+                'available': True,
+                'label': label,
+                'model': model,
+                'date_field': date_field,
+                'count': current,
+                'trend': self._trend_pct(current, previous),
+            }
+        return result
 
     def _procurement_po_states(self):
         """PO states included in the vendor liability table."""
@@ -708,14 +963,22 @@ class MfgDashboard(models.AbstractModel):
 
     def _compute_procurement(self, start, end):
         PurchaseOrder = self.env['purchase.order']
-        # Vendor liability is ongoing — do not restrict to the dashboard date range.
+        dt_start, dt_end = self._dt_start(start), self._dt_end(end)
         orders = PurchaseOrder.search([
             ('state', 'in', self._procurement_po_states()),
             *self._company_domain('purchase.order'),
+            ('date_order', '>=', dt_start),
+            ('date_order', '<=', dt_end),
         ], order='date_order desc', limit=200)
         rows = []
         for po in orders:
-            done_pickings = po.picking_ids.filtered(lambda p: p.state == 'done')
+            done_pickings = po.picking_ids.filtered(
+                lambda p, ds=dt_start, de=dt_end: (
+                    p.state == 'done'
+                    and p.date_done
+                    and ds <= p.date_done <= de
+                )
+            )
             grn_move_ids = done_pickings.move_ids_without_package.ids
             grn_qty = self._sum_stock_move_qty(grn_move_ids)
             grn_amount = 0.0
@@ -723,7 +986,12 @@ class MfgDashboard(models.AbstractModel):
                 unit_price = line['price_unit'] or line['standard_price']
                 grn_amount += line['quantity'] * unit_price
             bills = po.invoice_ids.filtered(
-                lambda m: m.move_type in ('in_invoice', 'in_refund') and m.state == 'posted'
+                lambda m, ps=start, pe=end: (
+                    m.move_type in ('in_invoice', 'in_refund')
+                    and m.state == 'posted'
+                    and m.invoice_date
+                    and ps <= m.invoice_date <= pe
+                )
             )
             bill_amount = sum(bills.mapped('amount_total'))
             paid = bill_amount - sum(bills.mapped('amount_residual'))
@@ -857,54 +1125,46 @@ class MfgDashboard(models.AbstractModel):
         return efficiency_rows, consumption_rows, byproduct_rows
 
     def _compute_fg_inventory(self, start, end):
-        """FG products: stock summary using moves in period + current quants."""
-        StockMove = self.env['stock.move']
-        StockQuant = self.env['stock.quant']
+        """FG products: stock summary for the selected period."""
         MrpProduction = self.env['mrp.production']
+        fg_balances = self._product_balances_by_bucket_at_date(end)['fg']
+        active_product_ids = set(fg_balances.keys())
 
-        quants = StockQuant.search(self._internal_quant_domain())
-        warehouses = self._company_warehouses()
-        product_ids = []
-        seen = set()
-        for quant in quants:
-            if not quant.quantity:
-                continue
-            if self._quant_stock_bucket(quant, warehouses) != 'fg':
-                continue
-            if quant.product_id.id not in seen:
-                seen.add(quant.product_id.id)
-                product_ids.append(quant.product_id.id)
+        for mo in MrpProduction.search(self._mo_period_domain(start, end)):
+            active_product_ids.add(mo.product_id.id)
 
-        products = self.env['product.product'].browse(product_ids)
-        fg_products = products
-        if not fg_products:
-            fg_products = self.env['product.product'].browse([
-                q.product_id.id for q in quants
-                if q.quantity and self._product_bucket(q.product_id) == 'fg'
-            ][:80])
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT sm.product_id
+            FROM stock_move sm
+            JOIN stock_location sl ON sm.location_dest_id = sl.id
+            WHERE sm.state = 'done'
+              AND sl.usage = 'customer'
+              AND sm.date >= %s
+              AND sm.date <= %s
+              AND sm.company_id = %s
+            """,
+            (self._dt_start(start), self._dt_end(end), self.env.company.id),
+        )
+        active_product_ids.update(row[0] for row in self.env.cr.fetchall())
 
         rows = []
-        dt_s, dt_e = self._dt_start(start), self._dt_end(end)
-        for product in fg_products[:80]:
-            quants = StockQuant.search(
-                self._internal_quant_domain() + [('product_id', '=', product.id)]
-            )
-            fg_quants = [
-                q for q in quants
-                if self._quant_stock_bucket(q, warehouses) == 'fg'
-            ]
-            ending_qty = sum(q.quantity for q in fg_quants)
-            stock_value = sum(self._quant_value(q) for q in fg_quants)
-            if not ending_qty and not stock_value:
-                continue
-
+        for product in self.env['product.product'].browse(list(active_product_ids)):
+            ending_qty = fg_balances.get(product.id, 0.0)
             mo_domain = self._mo_period_domain(start, end) + [('product_id', '=', product.id)]
             produced = sum(MrpProduction.search(mo_domain).mapped('qty_produced'))
-
             sold = self._product_sold_qty_sql(
                 product.id, self._dt_start(start), self._dt_end(end),
             )
+            if not ending_qty and not produced and not sold:
+                continue
 
+            price = float(
+                product.with_company(self.env.company).standard_price
+                or product.list_price
+                or 0.0
+            )
+            stock_value = abs(ending_qty * price)
             opening_qty = ending_qty - produced + sold
             uom = product.uom_id.name
 
@@ -920,66 +1180,77 @@ class MfgDashboard(models.AbstractModel):
         rows.sort(key=lambda r: r['_sort_value'], reverse=True)
         for row in rows:
             row.pop('_sort_value', None)
-        return rows
+        return rows[:80]
 
     def _compute_stock_tables(self, start, end):
-        StockQuant = self.env['stock.quant']
         StockMove = self.env['stock.move']
+        today = fields.Date.context_today(self)
+        warehouses = self._company_warehouses()
+        balances_at_end = self._product_balances_by_bucket_at_date(end)
 
         raw_rows, pack_rows, spare_rows = [], [], []
-        quants = StockQuant.search(self._internal_quant_domain())
-        warehouses = self._company_warehouses()
-
-        product_data = {
-            'raw': defaultdict(lambda: {
-                'available': 0.0, 'reserved': 0.0, 'value': 0.0,
-            }),
-            'packaging': defaultdict(lambda: {
-                'available': 0.0, 'reserved': 0.0, 'value': 0.0,
-            }),
-            'spare': defaultdict(lambda: {
-                'available': 0.0, 'reserved': 0.0, 'value': 0.0,
-            }),
-        }
-        for quant in quants:
-            if not quant.quantity:
-                continue
-            bucket = self._quant_stock_bucket(quant, warehouses)
-            if bucket not in product_data:
-                continue
-            pid = quant.product_id.id
-            product_data[bucket][pid]['available'] += quant.quantity
-            product_data[bucket][pid]['reserved'] += quant.reserved_quantity
-            product_data[bucket][pid]['value'] += self._quant_value(quant)
-
         consumption_domain = [
             ('state', '=', 'done'),
             ('date', '>=', self._dt_start(start)),
             ('date', '<=', self._dt_end(end)),
         ]
+        consumed_moves = StockMove.search(consumption_domain)
+
+        bucket_products = {
+            'raw': set(balances_at_end['raw'].keys()),
+            'packaging': set(balances_at_end['packaging'].keys()),
+            'spare': set(balances_at_end['spare'].keys()),
+        }
+        consumption_by_bucket_product = {
+            'raw': defaultdict(float),
+            'packaging': defaultdict(float),
+            'spare': defaultdict(float),
+        }
+        for move in consumed_moves:
+            if move.location_dest_id.usage not in ('production', 'customer'):
+                continue
+            product = move.product_id
+            qty = move.quantity or 0.0
+            if not qty:
+                continue
+            if move.location_id.usage == 'internal':
+                wh = self._location_warehouse(move.location_id, warehouses)
+                bucket = self._warehouse_bucket(wh) or self._product_bucket(product)
+            else:
+                bucket = self._product_bucket(product)
+            if bucket not in bucket_products:
+                continue
+            bucket_products[bucket].add(product.id)
+            consumption_by_bucket_product[bucket][product.id] += qty
+
+        all_product_ids = set().union(*bucket_products.values())
+        reserved_map = {}
+        if fields.Date.to_date(end) >= today:
+            reserved_map = self._product_reserved_qty_map(all_product_ids)
+
+        products = self.env['product.product'].with_company(self.env.company).browse(
+            list(all_product_ids),
+        )
+        price_map = {
+            p.id: float(p.standard_price or p.list_price or 0.0) for p in products
+        }
 
         for bucket, rows_target in (
             ('raw', raw_rows),
             ('packaging', pack_rows),
             ('spare', spare_rows),
         ):
-            for pid, data in product_data[bucket].items():
+            for pid in bucket_products[bucket]:
                 product = self.env['product.product'].browse(pid)
-                if data['available'] <= 0:
+                available = balances_at_end[bucket].get(pid, 0.0)
+                consumption = consumption_by_bucket_product[bucket].get(pid, 0.0)
+                if available <= 0 and consumption <= 0:
                     continue
 
-                available = data['available']
-                reserved = data['reserved']
+                reserved = reserved_map.get(pid, 0.0) if available > 0 else 0.0
                 free = available - reserved
-                value = data['value']
+                value = abs(available * price_map.get(pid, 0.0))
                 uom = product.uom_id.name
-
-                consumed_moves = StockMove.search(
-                    consumption_domain + [('product_id', '=', pid)]
-                )
-                consumption = self._sum_stock_move_qty_dest(
-                    consumed_moves.ids, ('production', 'customer'),
-                )
 
                 if bucket == 'packaging':
                     rows_target.append({
@@ -994,14 +1265,9 @@ class MfgDashboard(models.AbstractModel):
                     minimum = 0.0
                     if 'reordering_min_qty' in product._fields:
                         minimum = product.reordering_min_qty or 0.0
-                    machine = ''
-                    if 'equipment_id' in product._fields and product.equipment_id:
-                        machine = product.equipment_id.display_name
                     rows_target.append({
                         'part': product.display_name,
-                        'machine': machine,
                         'available': self._fmt_qty(available, uom),
-                        'minimum': self._fmt_qty(minimum, uom) if minimum else '—',
                         'status': self._stock_status(free, minimum),
                         'stock_value': self._fmt_money(value),
                         '_sort_value': value,
@@ -1034,13 +1300,17 @@ class MfgDashboard(models.AbstractModel):
 
         rows = []
         for picking in pickings:
+            sale = picking.sale_id
             customer = picking.partner_id.display_name or (
-                picking.sale_id.partner_id.display_name if picking.sale_id else ''
+                sale.partner_id.display_name if sale else ''
             )
+            service = ''
+            if sale and 'service_request_id' in sale._fields and sale.service_request_id:
+                service = sale.service_request_id.display_name
             for line in self._stock_move_lines_data(picking.move_ids_without_package.ids):
                 invoiced_qty = line['quantity']
-                if picking.sale_id:
-                    sol = picking.sale_id.order_line.filtered(
+                if sale:
+                    sol = sale.order_line.filtered(
                         lambda l, pid=line['product_id']: l.product_id.id == pid
                     )
                     if sol:
@@ -1049,6 +1319,7 @@ class MfgDashboard(models.AbstractModel):
                     'do_no': picking.name,
                     'customer': customer,
                     'product': line['product_name'],
+                    'service': service or '—',
                     'delivered_qty': self._fmt_qty(line['quantity'], line['uom_name']),
                     'invoiced_qty': self._fmt_qty(invoiced_qty, line['uom_name']),
                     'delivery_status': 'Delivered',

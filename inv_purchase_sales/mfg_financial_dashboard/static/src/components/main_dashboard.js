@@ -16,6 +16,22 @@ function formatLocalDate(date) {
     return `${y}-${m}-${d}`;
 }
 
+const DATE_RANGE_OPTIONS = [
+    { value: "today", label: "Today" },
+    { value: "yesterday", label: "Yesterday" },
+    { value: "last_7_days", label: "Last 7 Days" },
+    { value: "this_week", label: "This Week" },
+    { value: "last_week", label: "Last Week" },
+    { value: "last_30_days", label: "Last 30 Days" },
+    { value: "this_month_mtd", label: "This Month (MTD)" },
+    { value: "last_month", label: "Last Month" },
+    { value: "this_quarter_qtd", label: "This Quarter (QTD)" },
+    { value: "last_quarter", label: "Last Quarter" },
+    { value: "this_year_ytd", label: "This Year (YTD)" },
+    { value: "last_year", label: "Last Year" },
+    { value: "custom", label: "Custom Range" },
+];
+
 const TABLE_SECTIONS = [
     "procurement",
     "production_efficiency",
@@ -34,25 +50,28 @@ const TABLE_SECTIONS = [
 
 export class MfgFinancialDashboard extends Component {
     static PAGE_SIZE = 10;
+    static DATE_RANGE_OPTIONS = DATE_RANGE_OPTIONS;
 
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-
-        const today = new Date();
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        this.dateRangeOptions = DATE_RANGE_OPTIONS;
 
         this.state = useState({
             loading: true,
-            start_date: formatLocalDate(monthStart),
-            end_date: formatLocalDate(today),
+            date_range: "this_year_ytd",
+            start_date: "",
+            end_date: "",
+            comparison_label: "vs same period last year",
+            comparison_period_label: "",
             company_name: "",
             subtitle: "",
             period_label: "",
             use_live_data: true,
             kpis: {},
             kpi_trends: {},
+            workflow_kpis: {},
             procurement: [],
             production_efficiency: [],
             rm_pm_consumption: [],
@@ -98,6 +117,15 @@ export class MfgFinancialDashboard extends Component {
         };
         this.openStock = () => {
             this._openAction("stock.quant", "Inventory");
+        };
+        this.openServiceRequests = () => {
+            this._openWorkflowRecords("service_requests", "Service Requests");
+        };
+        this.openSalesAgreements = () => {
+            this._openWorkflowRecords("sales_agreements", "Sales Agreements");
+        };
+        this.openPurchaseAgreements = () => {
+            this._openWorkflowRecords("purchase_agreements", "Purchase Agreements");
         };
 
         onMounted(() => {
@@ -171,14 +199,49 @@ export class MfgFinancialDashboard extends Component {
         return "mfg-dashboard-badge mfg-dashboard-badge--open";
     }
 
+    async onDateRangeChange(ev) {
+        this.state.date_range = ev.target.value;
+        if (this.state.date_range !== "custom") {
+            await this.refreshData();
+        }
+    }
+
     async onStartDateChange(ev) {
         this.state.start_date = ev.target.value;
+        this.state.date_range = "custom";
         await this.refreshData();
     }
 
     async onEndDateChange(ev) {
         this.state.end_date = ev.target.value;
+        this.state.date_range = "custom";
         await this.refreshData();
+    }
+
+    comparisonCaption() {
+        return this.state.comparison_label || "vs previous period";
+    }
+
+    trendTooltip() {
+        const period = this.state.comparison_period_label;
+        if (period) {
+            return `Percentage change vs comparison period (${period})`;
+        }
+        return "Percentage change vs the equivalent prior period";
+    }
+
+    workflowKpi(key) {
+        return this.state.workflow_kpis?.[key] || { available: false };
+    }
+
+    workflowCount(key) {
+        const kpi = this.workflowKpi(key);
+        return kpi.available ? String(kpi.count ?? 0) : "—";
+    }
+
+    workflowTrend(key) {
+        const kpi = this.workflowKpi(key);
+        return kpi.available ? (kpi.trend ?? 0) : 0;
     }
 
     kpiTrend(key) {
@@ -375,9 +438,12 @@ export class MfgFinancialDashboard extends Component {
         this.state.loading = true;
         try {
             const kwargs = {
-                date_start: this.state.start_date || false,
-                date_end: this.state.end_date || false,
+                date_range: this.state.date_range || "this_year_ytd",
             };
+            if (this.state.date_range === "custom") {
+                kwargs.date_start = this.state.start_date || false;
+                kwargs.date_end = this.state.end_date || false;
+            }
             const data = await this.orm.call(
                 "mfg.dashboard",
                 "get_dashboard_data",
@@ -386,12 +452,18 @@ export class MfgFinancialDashboard extends Component {
             );
             Object.assign(this.state, {
                 loading: false,
+                date_range: data.date_range || this.state.date_range,
+                start_date: data.date_start || this.state.start_date,
+                end_date: data.date_end || this.state.end_date,
+                comparison_label: data.comparison_label || this.state.comparison_label,
+                comparison_period_label: data.comparison_period_label || "",
                 company_name: data.company_name,
                 subtitle: data.subtitle,
                 period_label: data.period_label || "",
                 use_live_data: true,
                 kpis: data.kpis || {},
                 kpi_trends: data.kpi_trends || {},
+                workflow_kpis: data.workflow_kpis || {},
                 procurement: data.procurement || [],
                 production_efficiency: data.production_efficiency || [],
                 rm_pm_consumption: data.rm_pm_consumption || [],
@@ -437,6 +509,35 @@ export class MfgFinancialDashboard extends Component {
             view_mode: "list,form",
             views: [[false, "list"], [false, "form"]],
             target: "current",
+        });
+    }
+
+    _openWorkflowRecords(key, name) {
+        const kpi = this.workflowKpi(key);
+        if (!kpi.available || !kpi.model) {
+            return;
+        }
+        const domain = [];
+        const start = this.state.start_date;
+        const end = this.state.end_date;
+        if (start && end && kpi.date_field) {
+            const isDatetime = kpi.date_field === "requested_date";
+            if (isDatetime) {
+                domain.push([kpi.date_field, ">=", `${start} 00:00:00`]);
+                domain.push([kpi.date_field, "<=", `${end} 23:59:59`]);
+            } else {
+                domain.push([kpi.date_field, ">=", start]);
+                domain.push([kpi.date_field, "<=", end]);
+            }
+        }
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name,
+            res_model: kpi.model,
+            view_mode: "list,form",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+            domain,
         });
     }
 }
