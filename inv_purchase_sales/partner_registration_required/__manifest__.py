@@ -1,6 +1,6 @@
 {
     'name': 'Partner Registration Required Fields',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Sales/CRM',
     'summary': 'Require Tax ID and Phone on customer and vendor registration',
     'description': """

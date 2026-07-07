@@ -4,13 +4,14 @@
         <field name="name">res.partner.form.registration.required</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="99"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[contains(@class, 'oe_title')]/following-sibling::group[1]/group[1]/field[@name='vat']" position="attributes">
+            <field name="vat" position="attributes">
                 <attribute name="required">not parent_id</attribute>
-            </xpath>
-            <xpath expr="//div[contains(@class, 'oe_title')]/following-sibling::group[1]/group[2]/field[@name='phone']" position="attributes">
+            </field>
+            <field name="phone" position="attributes">
                 <attribute name="required">not parent_id</attribute>
-            </xpath>
+            </field>
         </field>
     </record>
 </odoo>
