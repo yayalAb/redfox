@@ -409,21 +409,6 @@
                             </tr>
                         </t>
                     </t>
-                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 8 else 8" />
-                    <t t-set="pad_rows" t-value="min_rows - row_count" />
-                    <t t-foreach="range(pad_rows)" t-as="pad">
-                        <tr>
-                            <td class="cgrn-td-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                        </tr>
-                    </t>
                 </tbody>
             </table>
 

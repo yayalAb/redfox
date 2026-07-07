@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.FormView.Buttons" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o_form_button_save')]" position="attributes">
+            <attribute name="class" remove="btn-primary" add="btn-success" separator=" "/>
+        </xpath>
+        <xpath expr="//button[hasclass('o_form_button_cancel')]" position="attributes">
+            <attribute name="class" remove="btn-secondary" add="btn-danger" separator=" "/>
+        </xpath>
+    </t>
+
+</templates>

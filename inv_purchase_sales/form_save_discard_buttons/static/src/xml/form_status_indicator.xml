@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.FormStatusIndicator" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_form_status_indicator_buttons')]" position="attributes">
+            <attribute name="class" add="gap-1" separator=" "/>
+        </xpath>
+        <xpath expr="//button[hasclass('o_form_button_save')]" position="replace">
+            <button
+                type="button"
+                class="o_form_button_save btn btn-success"
+                data-hotkey="s"
+                t-on-click.stop="save"
+                aria-label="Save"
+                t-ref="save">
+                Save
+            </button>
+        </xpath>
+        <xpath expr="//button[hasclass('o_form_button_cancel')]" position="replace">
+            <button
+                type="button"
+                class="o_form_button_cancel btn btn-danger"
+                data-hotkey="j"
+                t-on-click.stop="discard"
+                aria-label="Discard">
+                Discard
+            </button>
+        </xpath>
+    </t>
+
+</templates>

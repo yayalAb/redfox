@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_registration_required" model="ir.ui.view">
+        <field name="name">res.partner.form.registration.required</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[contains(@class, 'oe_title')]/following-sibling::group[1]/group[1]/field[@name='vat']" position="attributes">
+                <attribute name="required">not parent_id</attribute>
+            </xpath>
+            <xpath expr="//div[contains(@class, 'oe_title')]/following-sibling::group[1]/group[2]/field[@name='phone']" position="attributes">
+                <attribute name="required">not parent_id</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
