@@ -1,0 +1,135 @@
+<odoo>
+    <record id="action_report_payment_request_summary" model="ir.actions.report">
+        <field name="name">Payment Request Summary Sheet</field>
+        <field name="model">hr.expense</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_expense_summary_report.report_payment_request_summary_document</field>
+        <field name="report_file">hr_expense_summary_report.report_payment_request_summary_document</field>
+        <field name="print_report_name">'Payment Request Summary Sheet'</field>
+        <field name="binding_model_id" ref="hr_expense.model_hr_expense" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_payment_request_summary_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-set="doc_title" t-value="'Payment Request Summary Sheet'" />
+                <t t-set="issue_number" t-value="'1'" />
+
+                <t t-set="total_untaxed" t-value="0.0" />
+                <t t-set="total_tax" t-value="0.0" />
+                <t t-set="total_amount" t-value="0.0" />
+                <t t-foreach="docs" t-as="expense">
+                    <t t-set="total_untaxed" t-value="total_untaxed + ((expense.quantity or 0.0) * (expense.price_unit or 0.0))" />
+                    <t t-set="total_tax" t-value="total_tax + (expense.tax_amount or 0.0)" />
+                    <t t-set="total_amount" t-value="total_amount + (expense.total_amount or 0.0)" />
+                </t>
+                <t t-set="currency" t-value="docs[0].company_currency_id if docs else False" />
+                <t t-set="number_options" t-value="{'widget': 'float', 'precision': 2}" />
+
+                <div class="page" style="font-family: Arial, sans-serif; font-size: 12px; padding: 10px;">
+                    <h4 class="text-center" style="font-weight: bold; margin-bottom: 20px;">
+                        Payment Request Summary Sheet
+                    </h4>
+
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                        <thead>
+                            <tr style="background-color: #b8cce4;">
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 4%;">No.</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 18%;">Employee / Vendor / Beneficiary Name</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 18%;">Expense Description</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 10%;">Expense Date</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 8%;">Quantity</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 12%;">Unit Price</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 10%;">Taxes</th>
+                                <th style="border: 1px solid black; padding: 6px; text-align: center; width: 12%;">Total Amount (ETB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="expense">
+                                <td style="border: 1px solid black; padding: 6px; text-align: center;">
+                                    <span t-esc="expense_index + 1" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px;">
+                                    <t t-if="expense.vendor_id">
+                                        <span t-field="expense.vendor_id.name" />
+                                    </t>
+                                    <t t-else="">
+                                        <span t-field="expense.employee_id.name" />
+                                    </t>
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px;">
+                                    <span t-field="expense.name" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: center;">
+                                    <span t-field="expense.date" t-options='{"widget": "date"}' />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: center;">
+                                    <span t-field="expense.quantity" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: right;">
+                                    <span t-field="expense.price_unit" t-options="number_options" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: right;">
+                                    <span t-field="expense.tax_amount" t-options="number_options" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: right;">
+                                    <span t-field="expense.total_amount" t-options="number_options" />
+                                </td>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td style="border: 1px solid black; padding: 6px;">Total</td>
+                                <td style="border: 1px solid black; padding: 6px;" colspan="3">
+                                    <t t-if="currency">
+                                        Amount in Words:
+                                        <span t-esc="currency.amount_to_text(total_amount)" />
+                                    </t>
+                                    <t t-else="">
+                                        Amount in Words: -----
+                                    </t>
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px;" />
+                                <td style="border: 1px solid black; padding: 6px; text-align: right;">
+                                    ETB <span t-esc="total_untaxed" t-options="number_options" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: right;">
+                                    ETB <span t-esc="total_tax" t-options="number_options" />
+                                </td>
+                                <td style="border: 1px solid black; padding: 6px; text-align: right;">
+                                    ETB <span t-esc="total_amount" t-options="number_options" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="row" style="margin-top: 60px;">
+                        <div class="col-3" style="font-size: 12px;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">Prepared By</div>
+                            <div>Name: ____________________________</div>
+                            <div style="margin-top: 8px;">Signature: _______________________</div>
+                            <div style="margin-top: 8px;">Date: ____________________________</div>
+                        </div>
+                        <div class="col-3" style="font-size: 12px;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">Verified By</div>
+                            <div>Name: ____________________________</div>
+                            <div style="margin-top: 8px;">Signature: _______________________</div>
+                            <div style="margin-top: 8px;">Date: ____________________________</div>
+                        </div>
+                        <div class="col-3" style="font-size: 12px;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">Authorized By</div>
+                            <div>Name: ____________________________</div>
+                            <div style="margin-top: 8px;">Signature: _______________________</div>
+                            <div style="margin-top: 8px;">Date: ____________________________</div>
+                        </div>
+                        <div class="col-3" style="font-size: 12px;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">Approved By</div>
+                            <div>Name: ____________________________</div>
+                            <div style="margin-top: 8px;">Signature: _______________________</div>
+                            <div style="margin-top: 8px;">Date: ____________________________</div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
