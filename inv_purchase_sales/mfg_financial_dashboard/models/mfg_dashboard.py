@@ -46,6 +46,11 @@ class MfgDashboard(models.AbstractModel):
             'company_name': self.env.company.name,
             'subtitle': 'Executive Manufacturing Intelligence Report',
             'period_label': f'{fields.Date.to_string(start)} — {fields.Date.to_string(end)}',
+            'fiscal_year_label': (
+                f'Ethiopian FY '
+                f'{self._ethiopian_fiscal_start_year(end)}/'
+                f'{self._ethiopian_fiscal_start_year(end) + 1}'
+            ),
             'date_start': fields.Date.to_string(start),
             'date_end': fields.Date.to_string(end),
             'date_range': range_key,
@@ -112,7 +117,7 @@ class MfgDashboard(models.AbstractModel):
         if fiscal_year and str(fiscal_year).strip() not in ('', 'false', '0'):
             try:
                 year = int(fiscal_year)
-                return date(year, 1, 1), date(year, 12, 31)
+                return self._ethiopian_fiscal_year_bounds_for_start_year(year)
             except (TypeError, ValueError):
                 pass
         start = fields.Date.to_date(date_start) if date_start else today.replace(day=1)
@@ -120,6 +125,57 @@ class MfgDashboard(models.AbstractModel):
         if start > end:
             start, end = end, start
         return start, end
+
+    def _ethiopian_fiscal_start_year(self, reference_date):
+        """Calendar year of the July 8 fiscal-year start for *reference_date*."""
+        ref = fields.Date.to_date(reference_date)
+        if (ref.month, ref.day) >= (7, 8):
+            return ref.year
+        return ref.year - 1
+
+    def _ethiopian_fiscal_year_bounds_for_start_year(self, start_year):
+        """Full Ethiopian fiscal year: Jul 8 *start_year* through Jul 7 *start_year+1*."""
+        return date(start_year, 7, 8), date(start_year + 1, 7, 7)
+
+    def _ethiopian_fiscal_year_bounds(self, reference_date, ytd=True):
+        """Ethiopian fiscal year window containing *reference_date*."""
+        start_year = self._ethiopian_fiscal_start_year(reference_date)
+        date_from, date_to = self._ethiopian_fiscal_year_bounds_for_start_year(start_year)
+        ref = fields.Date.to_date(reference_date)
+        if ytd:
+            date_to = min(ref, date_to)
+        return date_from, date_to
+
+    def _ethiopian_fiscal_quarters(self, reference_date):
+        """Quarter boundaries (Q1–Q4) inside the Ethiopian fiscal year."""
+        start_year = self._ethiopian_fiscal_start_year(reference_date)
+        return [
+            (date(start_year, 7, 8), date(start_year, 10, 7)),
+            (date(start_year, 10, 8), date(start_year + 1, 1, 7)),
+            (date(start_year + 1, 1, 8), date(start_year + 1, 4, 7)),
+            (date(start_year + 1, 4, 8), date(start_year + 1, 7, 7)),
+        ]
+
+    def _ethiopian_quarter_bounds(self, reference_date, ytd=True):
+        """Current Ethiopian fiscal quarter containing *reference_date*."""
+        ref = fields.Date.to_date(reference_date)
+        for q_start, q_end in self._ethiopian_fiscal_quarters(ref):
+            if q_start <= ref <= q_end:
+                return q_start, ref if ytd else q_end
+        fy_start, _fy_end = self._ethiopian_fiscal_year_bounds(ref, ytd=False)
+        return fy_start, ref if ytd else _fy_end
+
+    def _ethiopian_previous_quarter_bounds(self, reference_date):
+        """Completed Ethiopian fiscal quarter immediately before *reference_date*."""
+        ref = fields.Date.to_date(reference_date)
+        quarters = self._ethiopian_fiscal_quarters(ref)
+        for index, (q_start, q_end) in enumerate(quarters):
+            if q_start <= ref <= q_end:
+                if index == 0:
+                    prev_year = self._ethiopian_fiscal_start_year(ref) - 1
+                    return date(prev_year + 1, 4, 8), date(prev_year + 1, 7, 7)
+                return quarters[index - 1]
+        return quarters[-1]
 
     def _resolve_date_range(self, range_key, date_start=None, date_end=None):
         """Return (start, end, range_key) for a named or custom dashboard period."""
@@ -131,7 +187,6 @@ class MfgDashboard(models.AbstractModel):
     def _preset_date_bounds(self, range_key):
         """Return (start, end) for a named dashboard period."""
         today = fields.Date.context_today(self)
-        company = self.env.company
 
         if range_key == 'today':
             return today, today
@@ -157,36 +212,31 @@ class MfgDashboard(models.AbstractModel):
             last_month_end = first_this_month - timedelta(days=1)
             return last_month_end.replace(day=1), last_month_end
         if range_key == 'this_quarter_qtd':
-            quarter_start_month = ((today.month - 1) // 3) * 3 + 1
-            return today.replace(month=quarter_start_month, day=1), today
+            return self._ethiopian_quarter_bounds(today, ytd=True)
         if range_key == 'last_quarter':
-            quarter_start_month = ((today.month - 1) // 3) * 3 + 1
-            this_quarter_start = today.replace(month=quarter_start_month, day=1)
-            last_quarter_end = this_quarter_start - timedelta(days=1)
-            last_quarter_start_month = ((last_quarter_end.month - 1) // 3) * 3 + 1
-            last_quarter_start = last_quarter_end.replace(
-                month=last_quarter_start_month, day=1,
-            )
-            return last_quarter_start, last_quarter_end
+            return self._ethiopian_previous_quarter_bounds(today)
         if range_key == 'this_year_ytd':
-            fiscal = company.compute_fiscalyear_dates(today)
-            return fiscal['date_from'], today
+            return self._ethiopian_fiscal_year_bounds(today, ytd=True)
         if range_key == 'last_year':
-            fiscal = company.compute_fiscalyear_dates(today)
-            previous_ref = fiscal['date_from'] - timedelta(days=1)
-            previous_fiscal = company.compute_fiscalyear_dates(previous_ref)
-            return previous_fiscal['date_from'], previous_fiscal['date_to']
+            start_year = self._ethiopian_fiscal_start_year(today) - 1
+            return self._ethiopian_fiscal_year_bounds_for_start_year(start_year)
         return self._parse_dates(None, None)
 
     def _comparison_period(self, start, end, range_key=None):
         """Previous period aligned with the selected range semantics."""
         key = range_key or 'custom'
         if key in ('this_year_ytd', 'last_year'):
-            return start + relativedelta(years=-1), end + relativedelta(years=-1)
+            return (
+                start + relativedelta(years=-1),
+                end + relativedelta(years=-1),
+            )
+        if key in ('this_quarter_qtd', 'last_quarter'):
+            return (
+                start + relativedelta(years=-1),
+                end + relativedelta(years=-1),
+            )
         if key in ('this_month_mtd', 'last_month'):
             return start + relativedelta(months=-1), end + relativedelta(months=-1)
-        if key in ('this_quarter_qtd', 'last_quarter'):
-            return start + relativedelta(months=-3), end + relativedelta(months=-3)
         if key == 'today':
             day = start - timedelta(days=1)
             return day, day
@@ -1128,6 +1178,7 @@ class MfgDashboard(models.AbstractModel):
         """FG products: stock summary for the selected period."""
         MrpProduction = self.env['mrp.production']
         fg_balances = self._product_balances_by_bucket_at_date(end)['fg']
+        opening_balances = self._product_balances_by_bucket_at_date(start)['fg']
         active_product_ids = set(fg_balances.keys())
 
         for mo in MrpProduction.search(self._mo_period_domain(start, end)):
@@ -1165,7 +1216,7 @@ class MfgDashboard(models.AbstractModel):
                 or 0.0
             )
             stock_value = abs(ending_qty * price)
-            opening_qty = ending_qty - produced + sold
+            opening_qty = opening_balances.get(product.id, 0.0)
             uom = product.uom_id.name
 
             rows.append({
@@ -1193,6 +1244,7 @@ class MfgDashboard(models.AbstractModel):
             ('state', '=', 'done'),
             ('date', '>=', self._dt_start(start)),
             ('date', '<=', self._dt_end(end)),
+            *self._company_domain('stock.move'),
         ]
         consumed_moves = StockMove.search(consumption_domain)
 

@@ -9,6 +9,10 @@
                             <div class="mfg-dashboard-filter-bar__inner">
                                 <div class="mfg-dashboard-header-block">
                                     <h1 class="mfg-dashboard-header-title">Executive Dashboard</h1>
+                                    <p t-if="state.period_label" class="mfg-dashboard-header-subtitle text-muted mb-0">
+                                        <t t-esc="state.period_label"/>
+                                        <t t-if="state.fiscal_year_label"> · <t t-esc="state.fiscal_year_label"/></t>
+                                    </p>
                                 </div>
                                 <div class="mfg-dashboard-filter-controls">
                                     <div class="mfg-dashboard-filter-group mfg-dashboard-filter-group--range">

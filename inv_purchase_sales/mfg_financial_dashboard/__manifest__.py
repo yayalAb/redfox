@@ -1,6 +1,6 @@
 {
     'name': 'Manufacturing & Financial Dashboard',
-    'version': '18.0.1.1.0',
+    'version': '18.0.1.2.0',
     'category': 'Inventory/Reporting',
     'summary': 'Executive manufacturing, inventory, procurement and financial intelligence dashboard',
     'description': """
